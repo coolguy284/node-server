@@ -34,7 +34,7 @@ module.exports = {
     'cons' : ['/livechat.dat', '/liverchat.json', '/liveviews.dat', '/comms.json', '/colog.dat', '/cologd.dat', '/livechathere.dat', '/livechattyp.dat', '/livechatkick.dat', '/lat.log'],
     'lockl' : ['/admin.html', '/colog.dat', '/cologd.dat'],
     'vhl' : ['/ftx.txt', '/chathid.html', '/chatprivate.html', '/lat.log'],
-    'vhs' : ['/s', '/r', '/a', '/oi?vr=', '/livechatd.log?id=', '/user', '/login?v=', '/logout?v='],
+    'vhs' : ['/s', '/r', '/a', '/pagg?=', '/oi?vr=', '/livechatd.log?id=', '/user', '/login?v=', '/logout?v='],
     'ajaxl' : ['/livechat.dat', '/liverchat.json', '/liveviews.dat', '/comms.json', '/colog.dat', '/cologd.dat', '/livechathere.dat', '/livechattyp.dat', '/livechatkick.dat', '/lat.log'],
     'ssl' : ['/s', '/r', '/a'],
   },
