@@ -1,0 +1,9 @@
+E9 6D
+11101001 01101101
+
+10111xxx length in bytes of length of unencoded text
+11xxxyyy length in bytes of length of repeated text, length in bytes of repeat amount
+B9 02 E9 6D
+C9 02 80 E9 6D
+10111001 00000002 11101001 01101101
+11001001 00000002 10000000 11101001 01101101
