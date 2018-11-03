@@ -1,0 +1,26 @@
+{
+  "name": "node-server",
+  "version": "0.0.1",
+  "description": "A node server.",
+  "main": "index.js",
+  "dependencies": {
+  },
+  "engine": {
+    "node": "*",
+    "npm": "*"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "IP=0.0.0.0 PORT=3030 mocha --timeout 5000 tests/*_test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/coolguy284/node-server.git"
+  },
+  "author": "Steve Speicher <sspeiche@gmail.com>",
+  "license": "CC-BY-1.0",
+  "bugs": {
+    "url": "http://github.com/coolguy284/node-server/issues"
+  },
+  "homepage": "http://github.com/coolguy284/node-server"
+}
