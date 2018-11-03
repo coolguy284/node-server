@@ -4,3 +4,4 @@ http.createServer(function (req, res) {
   res.write('test: ' + req.url);
   res.end();
 }).listen(8080, function () {console.log('e')});
+setInterval(function () {console.log(new Date().toISOString())}, 10000)
