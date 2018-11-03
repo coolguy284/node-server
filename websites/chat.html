@@ -1,0 +1,626 @@
+<!doctype html>
+<html>
+  <head>
+    <title id = 'itle'>Chat Test</title>
+    <style>
+      code {
+        font-family: monospace;
+        background: #dedede;
+      }
+    </style>
+  </head>
+  <body onresize = "chattext.style = 'width:' + (window.innerWidth - 255 + '') + 'px;';">
+    <span id = 'begs'>
+      <span>Enter Your Name:</span>
+      <input type = 'text' id = 'nname'>
+      <button onclick = 'Schat()'>Start</button>
+      (Leave Blank for Anonymous)
+      <!--<button onclick = 'begs2.style = "";' style = 'display:none;' id = 'begs2b'>Settings</button>--><br>
+      <span>Ignore:</span>
+      <input type = 'text' id = 'ks'>
+    </span>
+    <!--<span id = 'begs2' style = 'display:none;'>
+      <details>
+        <summary>Super Secret Settings</summary>
+        <a href = '/r?e=aHR0cHM6Ly9lbi53aWtpcGVkaWEub3JnL3dpa2kvU3BlY2lhbDpSYW5kb20='>CLICK PLS</a>
+      </details>
+    </span>-->
+    <span id = 'chatt' style = 'display:none;'></span><br>
+    <!--feel free to uncomment this if you want to-->
+    <!--warning: dont take the previous comment seriously, it leads to digestive tract-->
+    <span id = 'ctyp' style = 'display:none;'></span>
+    <span id = 'herel' style = 'display:none;'></span>
+    <div id = 'inp' style = 'display:none;'>
+      <input type = 'text' id = 'chattext'>
+      <select id = 'chatmode'>
+        <option value = 'raw'>Raw</option>
+        <option value = 'html' selected>HTML</option>
+        <option value = 'mark'>Markdown</option>
+        <option value = 'bbcode'>BBCode</option>
+      </select>
+      <button onclick = 'Send()'>Send</button>
+      <button onclick = 'HelpTogg()'><img src = '/images/help.png' style = 'width:20px;height:20px;'></button>
+      <button onclick = 'SettingsTogg()'><img src = '/images/settings.png' style = 'width:20px;height:20px;'></button>
+    </div>
+    <div id = 'helps' style = 'display:none;'>
+      <button onclick = 'helps.style = "display:none;";' style = 'position:absolute;right:11px;top:2px;'><img src = '/images/close.png' style = 'width:20px;height:20px;'></button>
+    </div>
+    <div id = 'settins' style = 'display:none;'>
+      <button onclick = 'settins.style = "display:none;";' style = 'position:absolute;right:11px;top:2px;'><img src = '/images/close.png' style = 'width:20px;height:20px;'></button>
+      <!--this table is neato, or at least looks neat when rendered-->
+      <table style = 'border:1px solid black;'>
+        <tr style = 'border:1px solid black;'>
+          <td style = 'border:1px solid black;width:150px;text-align:center;'>
+            <span>Show HTML:</span><br>
+            <span>Off</span>
+            <input id = 'showhtm' type = 'range' min = 0 max = 1 value = 0 onchange = 'ChatReload(true);' style = 'width:30px;'>
+            <span>On</span>
+          </td>
+          <td style = 'border:1px solid black;width:150px;text-align:center;'>
+            <span>Show Timestamp:</span><br>
+            <span>Off</span>
+            <input id = 'showts' type = 'range' min = 0 max = 1 value = 1 onchange = 'ChatReload(true);' style = 'width:30px;'>
+            <span>On</span>
+          </td>
+        </tr>
+        <tr style = 'border:1px solid black;'>
+          <td style = 'border:1px solid black;width:150px;text-align:center;'>
+            <span>Show Indices:</span><br>
+            <span>Off</span>
+            <input id = 'showind' type = 'range' min = 0 max = 1 value = 1 onchange = 'ChatReload(true);' style = 'width:30px;'>
+            <span>On</span>
+          </td>
+          <td style = 'border:1px solid black;width:150px;text-align:center;'>
+            <span>Show People in Chat:</span><br>
+            <span>Off</span>
+            <input id = 'showhere' type = 'range' min = 0 max = 2 value = 0 onchange = 'ShowHere(showhere.value);' style = 'width:30px;'>
+            <span>Full</span>
+          </td>
+        </tr>
+        <tr style = 'border:1px solid black;'>
+          <td style = 'border:1px solid black;width:150px;text-align:center;' colspan = 2>
+            <span>Show Notifications:</span><br>
+            <span>Off</span>
+            <input id = 'shownotf' type = 'range' min = 0 max = 1 value = 0 onchange = 'ShowNotf(shownotf.value);' style = 'width:30px;'>
+            <span>On</span>
+          </td>
+        </tr><!--
+        <tr style = 'border:1px solid black;'>
+          <td style = 'border:1px solid black;width:150px;text-align:center;' colspan = 2>
+            <span>Show Secret Settings:</span><br>
+            <span>Off</span>
+            <input id = 'sett' type = 'range' min = 0 max = 1 value = 0 style = 'width:30px;'>
+            <span>Full</span>
+          </td>
+        </tr>-->
+        <tr style = 'border:1px solid black;'>
+          <td style = 'border:1px solid black;width:150px;text-align:center;'>
+            <span>Red Mode:</span><br>
+            <span>Off</span>
+            <input id = 'redmode' type = 'range' min = 0 max = 1 value = 0 onchange = 'RedMode(redmode.value);' style = 'width:30px;'>
+            <span>On</span>
+          </td>
+          <td style = 'border:1px solid black;width:150px;text-align:center;'>
+            <span>Display Garry:</span><br>
+            <span>Off</span>
+            <input id = 'garry' type = 'range' min = 0 max = 1 value = 0 onchange = 'ShowGarry(garry.value);' style = 'width:30px;'>
+            <span>On</span>
+          </td>
+        </tr>
+      </table>
+      <button onclick = 'while (1) {}'>Crash My Browser</button>
+      <button onclick = 'document.body.innerHTML=""'>Delete This Webpage With HACKS</button><br><br>
+      <span id = 'debugspan'></span>
+      <span id = 'garryspan' style = 'position:absolute;bottom:2px;right:10px;display:none;'>Garry</span>
+    </div>
+    <script src = 'https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.6/showdown.min.js'></script>
+    <script src = '/js/bbcode-config.js'></script>
+    <script src = '/js/bbcode-parser.js'></script>
+    <script src = '/js/base64.js'></script>
+    <script>
+      //dont even think of using an invalid tag
+      var ALLOWED_TAGS = ["STRONG", "EM", "BLOCKQUOTE", "Q", "DEL", "INS", "A", "SPAN", "B", "I", "MARK", "SMALL", "SUB", "SUP", "P", "BR", "WBR", "H1", "H2", "H3", "H4", "H5", "H6", "CODE", "PRE", "U", "DL", "DT", "DD", "OL", "UL", "LI", "BDI", "BDO", "BUTTON", "DETAILS", "SUMMARY", "TABLE", "CAPTION", "COLGROUP", "COL", "THEAD", "TBODY", "TFOOT", "TH", "TR", "TD", "METER", "PROGRESS"];
+      var escaper = document.createElement('textarea');
+      function escapeHTML(html) {
+        escaper.textContent = html;
+        return escaper.innerHTML;
+      }
+      function unescapeHTML(html) {
+        escaper.innerHTML = html;
+        return escaper.textContent;
+      }
+      function sanitize(el) {
+        "Remove all tags from element `el' that aren't in the ALLOWED_TAGS list."
+        var tags = Array.prototype.slice.apply(el.getElementsByTagName("*"), [0]);
+        for (var i = 0; i < tags.length; i++) {
+          if (ALLOWED_TAGS.indexOf(tags[i].nodeName) == -1) {
+            usurp(tags[i]);
+          }
+        }
+      }
+      function usurp(p) {
+        "Replace parent `p' with its children.";
+        var last = p;
+        for (var i = p.childNodes.length - 1; i >= 0; i--) {
+          var e = p.removeChild(p.childNodes[i]);
+          p.parentNode.insertBefore(e, last);
+          last = e;
+        }
+        p.parentNode.removeChild(p);
+      }
+      function sanitizeString(string) {
+        var div = document.createElement("div");
+        div.innerHTML = string;
+        sanitize(div);
+        return div.innerHTML;
+      }
+      function SetEnd(txt) {  
+        if (txt.createTextRange) {  
+          //IE  
+          var FieldRange = txt.createTextRange();  
+          FieldRange.moveStart('character', txt.value.length);  
+          FieldRange.collapse();  
+          FieldRange.select();  
+        } else {  
+          //Firefox and Opera  
+          txt.focus();  
+          var length = txt.value.length;  
+          txt.setSelectionRange(length, length);  
+        }  
+      }
+      function Notf(nam, body) {
+        if (Notification.permission == 'granted') {
+          new Notification(nam, {body : body});
+        } else if (Notification.permission != 'denied') {
+          Notification.requestPermission().then(function (perm) {
+            if (perm == 'granted') {
+              new Notification(nam, {body : body});
+            }
+          });
+        }
+      }
+      var mkdownc = new showdown.Converter({
+        omitExtraWLInCodeBlocks : true, 
+        noHeaderId : true,
+        parseImgDimensions : true, 
+        literalMidWordUnderscores : true,
+        literalMidWordAsterisks : true,
+        strikethrough : true,
+        tasklists : true,
+        simpleLineBreaks : true,
+        emoji : true,
+        underline : true,
+      });
+      var nnam = 'anonymous';
+      var parar = [];
+      var para = [];
+      var herelist = [];
+      var hereld = 0;
+      var typing = false;
+      var notf = false;
+      var chathist = [];
+      var histind = 0;
+      var currtext = '';
+      var currmode = 'html';
+      var chatstarted = false;
+      var doreload = true;
+      onload = function() {
+        nname.value = localStorage.getItem('cname');
+        /*sett.value = localStorage.getItem('csett');
+        if (parseInt(sett.value) == 1) {
+          begs2b.style = '';
+        }*/
+      }
+      onunload = function() {
+        localStorage.setItem('cname', nname.value);
+        localStorage.setItem('chtm', showhtm.value);
+        localStorage.setItem('cts', showts.value);
+        localStorage.setItem('cind', showind.value);
+        localStorage.setItem('chere', showhere.value);
+        localStorage.setItem('cnotf', shownotf.value);
+        localStorage.setItem('credm', redmode.value);
+        localStorage.setItem('cgarry', garry.value);
+        //localStorage.setItem('csett', sett.value);
+        return null;
+      }
+      onbeforeunload = function() {
+        if (chatstarted) {
+          var reqrl = new XMLHttpRequest();
+          reqrl.open('GET', '/s?lef=' + Base64.encode(nnam), false);
+          reqrl.send();
+        }
+        return null;
+      }
+      function Schat() {
+        if (nname.value != '') {
+          nnam = nname.value;
+        }
+        if (ks.value != '') {
+          Base64.s = ks.value;
+        }
+        var reqrj = new XMLHttpRequest();
+        reqrj.addEventListener('load', function () {});
+        reqrj.open('GET', '/s?joi=' + Base64.encode(nnam));
+        reqrj.send();
+        begs.style = 'display:none;';
+        //begs2.style = 'display:none;';
+        chatt.style = 'white-space: -moz-pre-wrap;white-space: -hp-pre-wrap;white-space: -o-pre-wrap;white-space: -pre-wrap;white-space: pre-wrap;white-space: pre-line;word-wrap: break-word;word-break: break-all;';
+        ctyp.style = 'white-space: -moz-pre-wrap;white-space: -hp-pre-wrap;white-space: -o-pre-wrap;white-space: -pre-wrap;white-space: pre-wrap;white-space: pre-line;word-wrap: break-word;word-break: break-all;';
+        setInterval(ChatReload, 1000, false);
+        inp.style = 'position:fixed;bottom:2px;width:100%;';
+        chattext.style = 'width:' + (window.innerWidth - 255 + '') + 'px;';
+        shohtm = localStorage.getItem('chtm');
+        shoind = localStorage.getItem('cind');
+        shots = localStorage.getItem('cts');
+        shohere = localStorage.getItem('chere');
+        shonotf = localStorage.getItem('cnotf');
+        redmod = localStorage.getItem('credm');
+        garr = localStorage.getItem('cgarry');
+        if (shohtm == null) {
+          showhtm.value = 0;
+        } else {
+          showhtm.value = parseInt(shohtm);
+        }
+        if (shoind == null) {
+          showind.value = 0;
+        } else {
+          showind.value = parseInt(shoind);
+        }
+        console.log(shoind);
+        console.log(showind.value);
+        if (shots == null) {
+          showts.value = 1;
+        } else {
+          showts.value = parseInt(shots);
+        }
+        if (shohere == null) {
+          showhere.value = 1;
+        } else {
+          showhere.value = parseInt(shohere);
+        }
+        if (shonotf == null) {
+          shownotf.value = 0;
+        } else {
+          shownotf.value = parseInt(shonotf);
+        }
+        if (redmod == null) {
+          redmode.value = 0;
+        } else {
+          redmode.value = parseInt(redmod);
+        }
+        if (garr == null) {
+          garry.value = 0;
+        } else {
+          garry.value = parseInt(garr);
+        }
+        ChatReload(true);
+        ShowHere(showhere.value);
+        ShowNotf(shownotf.value);
+        RedMode(redmode.value);
+        ShowGarry(garry.value);
+        chatstarted = true;
+      }
+      function reqg() {
+        if (document.hidden || window.getSelection().toString() == '') {
+          ara = JSON.parse(Base64.decode(this.responseText));
+          arar = ara.slice();
+          if (document.hidden) {
+            if (JSON.stringify(ara) != JSON.stringify(parar)) {
+              document.title = '(******) Chat Test';
+              setTimeout(function () {document.title = 'Chat Test';}, 300);
+            }
+          } else {
+            document.title = 'Chat Test';
+            parar = ara.slice();
+          }
+          for (var i in ara) {
+            try {
+              ta = ara[i];
+              ara[i] = '';
+              if (parseInt(showind.value) == 1) {
+                ara[i] += '[' + i + '] ';
+              }
+              if (parseInt(showts.value) == 1) {
+                ara[i] += ta[0] + ' ';
+              }
+              ara[i] += escapeHTML(ta[1]);
+              if (parseInt(showhtm.value) == 1) {
+                ara[i] += ' ' + escapeHTML(ta[2]);
+              } else {
+                ara[i] += ' ' + sanitizeString(ta[2]);
+              }
+            } catch (e) {
+              ara[i] = 'Meow.';
+            }
+          }
+          ara = ara.filter(function(n){return n != '';});
+          /*if (arar != parar) {
+            var da = [];
+            var inds = null;
+            for (var j = 0; j < arar.length; j++) {
+              for (var i = 0; (i+j) < arar.length; i++) {
+                if (arar[i] != parar[i+j]) {
+                  da.push(i);
+                  inds = j;
+                }
+              }
+              if (da.length >= (arar.length-j)) {
+                da.splice(0, Infinity);
+                break;
+              } else {
+                inds = j;
+                break;
+              }
+            }
+            if (inds === null) {
+              setstr = '';
+              for (var i in ara) {
+                setstr += '<span id = "chatt-' + i + '">' + ara[i] + '</span>';
+              }
+              chatt.innerHTML = setstr;
+            }
+            if (da.length > 0) {
+              for (var i in da) {
+                document.getElementById('chatt-' + da[i]).innerHTML = ara[da[i]];
+              }
+            }
+          }*/
+          setstr = ara.join('<br>') + '<br>';
+          if (chatt.innerHTML != setstr) {
+            chatt.innerHTML = setstr;
+            if (notf && document.hidden) {
+              if (setstr == '<br>') {
+                Notf('Chat is Cleared');
+              } else {
+                Notf('Chat Message', unescapeHTML(ara[ara.length - 1]));
+              }
+            }
+          }
+          para = arar.slice();
+        }
+      }
+      function reqgh() {
+        if (document.hidden || window.getSelection().toString() == '') {
+          arag = JSON.parse(Base64.decode(this.responseText));
+          hist = {}
+          for (var i in arag) {
+            if (hist[arag[i][1]] === undefined) {
+              hist[arag[i][1]] = 0;
+            } else {
+              hist[arag[i][1]] += 1;
+            }
+          }
+          arah = [];
+          for (var i in hist) {
+            if (hereld == 1) {
+              arah.push(escapeHTML(i) + ' (' + Math.round(hist[i]/5) + ')');
+            } else if (hereld == 2) {
+              arah.push(escapeHTML(i) + ' (' + Math.round(hist[i]/5) + ', ' + hist[i]/5 + ')');
+            }
+          }
+          arah.sort();
+          setstrh = arah.join('<br>') + '<br><br>';
+          if (herel.innerHTML != setstrh) {
+            herel.innerHTML = setstrh;
+          }
+        }
+      }
+      function reqgc() {
+        if (document.hidden || window.getSelection().toString() == '') {
+          arag = JSON.parse(Base64.decode(this.responseText));
+          hist = {}
+          for (var i in arag) {
+            if (hist[arag[i][1]] === undefined) {
+              hist[arag[i][1]] = 0;
+            } else {
+              hist[arag[i][1]] += 1;
+            }
+          }
+          arah = [];
+          for (var i in hist) {
+            arah.push(escapeHTML(i) + ' is typing (' + hist[i] + ')');
+          }
+          arah.sort();
+          setstrh = arah.join('<br>') + '<br><br>';
+          if (ctyp.innerHTML != setstrh) {
+            ctyp.innerHTML = setstrh;
+          }
+        }
+      }
+      function reqgk() {
+        ara = JSON.parse(Base64.decode(this.responseText));
+        if (ara.indexOf(nnam) > -1) {
+          var reqrkr = new XMLHttpRequest();
+          reqrkr.open('GET', '/s?kic=' + Base64.encode(nnam), false);
+          reqrkr.send();
+          setTimeout(function () {document.body.innerHTML = 'you\'ve been kicked';}, 0);
+          //window.open(document.URL,'_self','resizable=no,top=-245,width=250,height=250,scrollbars=no');
+          //window.close();
+        }
+      }
+      function ChatReload(e) {
+        if ((e || document.hidden || window.getSelection().toString() == '') && doreload) {
+          var reqr = new XMLHttpRequest();
+          reqr.addEventListener('load', reqg);
+          reqr.open('GET', '/livechat.dat');
+          reqr.send();
+          var reqrr = new XMLHttpRequest();
+          reqrr.open('GET', '/s?her=' + Base64.encode(nnam));
+          reqrr.send();
+          var reqrtg = new XMLHttpRequest();
+          reqrtg.addEventListener('load', reqgc);
+          reqrtg.open('GET', '/livechattyp.dat');
+          reqrtg.send();
+          if (hereld > 0) {
+            var reqrh = new XMLHttpRequest();
+            reqrh.addEventListener('load', reqgh);
+            reqrh.open('GET', '/livechathere.dat');
+            reqrh.send();
+          }
+          if (typing) {
+            var reqrt = new XMLHttpRequest();
+            reqrt.open('GET', '/s?typ=' + Base64.encode(nnam));
+            reqrt.send();
+            typing = false;
+          }
+        }
+        var reqrk = new XMLHttpRequest();
+        reqrk.addEventListener('load', reqgk);
+        reqrk.open('GET', '/livechatkick.dat');
+        reqrk.send();
+      }
+      function Send() {
+        let sval;
+        switch (chatmode.value) {
+          case 'html':
+            sval = chattext.value;
+            break;
+          case 'raw':
+            sval = escapeHTML(chattext.value);
+            break;
+          case 'mark':
+            sval = mkdownc.makeHtml(chattext.value).replace(/<p>/g, '<span>').replace(/<\/p>/g, '</span>');
+            break;
+          case 'bbcode':
+            sval = BBCodeParser.process(chattext.value).replace(/<p>/g, '<span>').replace(/<\/p>/g, '</span>');
+            break;
+        }
+        var reqr = new XMLHttpRequest();
+        reqr.addEventListener('load', function () {});
+        reqr.open('GET', '/s?tex=' + Base64.encode(JSON.stringify([nnam, sval])));
+        reqr.send();
+        if (chathist.length > 0) {
+          if (chathist[chathist.length-1][0] != chattext.value) {
+            chathist.push([chattext.value, chatmode.value]);
+          }
+        } else {
+          chathist.push([chattext.value, chatmode.value]);
+        }
+        if (chathist.length > 100) {
+          chathist.splice(0, chathist.length - 100);
+        }
+        chattext.value = '';
+        histind = chathist.length;
+        currtext = '';
+        currmode = chatmode.value;
+        typing = true;
+      }
+      function HelpTogg() {
+        if (helps.style.cssText == 'display: none;') {
+          helps.style = 'position:fixed;top:2px;width:100%;height:90%;background:white;';
+        } else {
+          helps.style = 'display:none;';
+        }
+      }
+      function SettingsTogg() {
+        if (settins.style.cssText == 'display: none;') {
+          settins.style = 'position:fixed;top:2px;width:100%;height:90%;background:white;';
+        } else {
+          settins.style = 'display:none;';
+        }
+      }
+      function ShowHere(v) {
+        if (parseInt(v) == 0) {
+          herel.style = 'width:19%;position:relative;left:80%;display:none;';
+          chatt.style = 'white-space: -moz-pre-wrap;white-space: -hp-pre-wrap;white-space: -o-pre-wrap;white-space: -pre-wrap;white-space: pre-wrap;white-space: pre-line;word-wrap: break-word;word-break: break-all;';
+          hereld = 0;
+        } else if (parseInt(v) == 1) {
+          herel.style = 'width:19%;position:fixed;left:80%;top:2px;';
+          chatt.style = 'white-space: -moz-pre-wrap;white-space: -hp-pre-wrap;white-space: -o-pre-wrap;white-space: -pre-wrap;white-space: pre-wrap;white-space: pre-line;word-wrap: break-word;word-break: break-all;width:79%;';
+          hereld = 1;
+        } else {
+          herel.style = 'width:19%;position:fixed;left:80%;top:2px;';
+          chatt.style = 'white-space: -moz-pre-wrap;white-space: -hp-pre-wrap;white-space: -o-pre-wrap;white-space: -pre-wrap;white-space: pre-wrap;white-space: pre-line;word-wrap: break-word;word-break: break-all;width:79%;';
+          hereld = 2;
+        }
+      }
+      function ShowNotf(v) {
+        if (parseInt(v) == 0) {
+          notf = false;
+        } else {
+          notf = true;
+        }
+      }
+      function RedMode(v) {
+        if (parseInt(v) == 0) {
+          chatt.style = 'width:100%;height:90%;';
+          document.body.style.background = '#ffffff';
+        } else {
+          chatt.style = 'background:#f70000;color:#ff0000;width:100%;height:90%;';
+          document.body.style.background = '#f70000';
+        }
+      }
+      function ShowGarry(v) {
+        if (parseInt(v) == 0) {
+          garryspan.style = 'position:absolute;bottom:2px;right:10px;display:none;';
+        } else {
+          garryspan.style = 'position:absolute;bottom:2px;right:10px;';
+        }
+      }
+      window.addEventListener('keydown', function(e) {
+        if (e.keyCode === 81 && e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
+          if (parseInt(showhtm.value) == 1) {
+            showhtm.value = 0;
+          } else {
+            showhtm.value = 1;
+          }
+          ChatReload(true);
+        } else if (e.keyCode === 89 && e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
+          console.log(showind.value);
+          if (parseInt(showind.value) == 1) {
+            showind.value = 0;
+          } else {
+            showind.value = 1;
+          }
+          console.log(showind.value);
+          ChatReload(true);
+        }
+      });
+      nname.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+          Schat();
+        }
+      });
+      ks.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+          Schat();
+        }
+      });
+      chattext.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+          Send();
+        } else if (e.keyCode === 38) {
+          if (histind > 0) {
+            histind -= 1;
+            chattext.value = chathist[histind][0];
+            chatmode.value = chathist[histind][1];
+          }
+          setTimeout(function(){ chattext.selectionStart = chattext.selectionEnd = 10000; }, 0);
+          SetEnd(chattext);
+        } else if (e.keyCode === 40) {
+          if (histind < chathist.length - 1) {
+            histind += 1;
+            chattext.value = chathist[histind][0];
+            chatmode.value = chathist[histind][1];
+          } else if (histind == chathist.length - 1) {
+            histind = chathist.length;
+            chattext.value = currtext;
+            chatmode.value = currmode;
+          }
+          setTimeout(function(){ chattext.selectionStart = chattext.selectionEnd = 10000; }, 0);
+          SetEnd(chattext);
+        } else if (e.keyCode === 8) {
+          histind = chathist.length;
+          setTimeout(function() {currtext = chattext.value; currmode = chatmode.value;}, 0);
+          typing = true;
+        }
+      });
+      chattext.addEventListener('keypress', function (e) {
+        if (!e.charCode) {return;}
+        histind = chathist.length;
+        setTimeout(function() {currtext = chattext.value; currmode = chatmode.value;}, 0);
+        typing = true;
+      });
+    </script>
+  </body>
+</html>

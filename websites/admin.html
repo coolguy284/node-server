@@ -1,0 +1,282 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name='referrer' content='no-referrer' />
+    <title>Admin</title>
+  </head>
+  <body>
+    <input type = 'hidden' id = 'enc' value = '{enc}'>
+    <input type = 'hidden' id = 'surl' value = ''>
+    <iframe src = '/chat.html' style = 'float:left;width:calc(50% - 4px);height:300px;' id = 'lifr'></iframe>
+    <iframe src = '/views.html' style = 'float:left;width:calc(50% - 4px);height:300px;' id = 'rifr'></iframe>
+    <button onclick = 'lifr.contentWindow.doreload = false; rifr.contentWindow.doreload = false; doreload = false; drlod.innerHTML = "Not Updating"'>Disable Updating</button>
+    <button onclick = 'lifr.contentWindow.doreload = true; rifr.contentWindow.doreload = true; doreload = true; drlod.innerHTML = "Updating"; getting = false; gettingt = 0;'>Enable Updating</button>
+    <select id = 'dc' onchange = 'ViewsReload();'>
+      <option value = 'reg'>Regular Console</option>
+      <option value = 'deb'>Debug Console</option>
+      <option value = 'cmc'>Command Console</option>
+      <option value = 'bsh'>Bash Console</option>
+      <option value = 'cus'>Custom Console</option>
+    </select>
+    <input type = 'text' id = 'constr' style = 'display:none;'>
+    <input type = 'password' id = 'ks'>
+    <span id = 'sconn'>Disconnected</span>, <span id = 'seron'>Server On</span>, <span id = 'drlod'>Updating</span><br>
+    <iframe src = '' style = 'float:left;width:calc(100% - 4px);height:300px;' id = 'cifr'></iframe>
+    <input type = 'text' style = 'width:calc(100% - 4px);float:bottom;font-family:monospace;' id = 'conc'>
+    <script src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js'></script>
+    <script src = '/js/base64.js'></script>
+    <script src = '/js/rsa.js'></script>
+    <script>
+      var escaper = document.createElement('textarea');
+      function escapeHTML(html) {
+        escaper.textContent = html;
+        return escaper.innerHTML;
+      }
+      function unescapeHTML(html) {
+        escaper.innerHTML = html;
+        return escaper.textContent;
+      }
+      function SetEnd(txt) {  
+        if (txt.createTextRange) {  
+          //IE  
+          var FieldRange = txt.createTextRange();  
+          FieldRange.moveStart('character', txt.value.length);  
+          FieldRange.collapse();  
+          FieldRange.select();  
+        } else {  
+          //Firefox and Opera  
+          txt.focus();  
+          var length = txt.value.length;  
+          txt.setSelectionRange(length, length);  
+        }  
+      }
+      var conchist = [];
+      var histind = 0;
+      var currtext = '';
+      var server = '';
+      var sconn1 = 'Disconnected';
+      var sconn2 = 'Disconnected';
+      var seron1 = 'Server Off';
+      var seron2 = 'Server On';
+      var connst = new Date().getTime();
+      var clat = 0;
+      var serverp = '';
+      var doreload = true;
+      var getting = false;
+      var gettingt = 0;
+      var verbose = false;
+      function reqg() {
+        if (this.responseText != '') {
+          seron1 = 'Server On';
+        } else {
+          PassReload();
+        }
+        try {
+        if (document.hidden || cifr.contentWindow.getSelection().toString() == '') {
+          switch (enc.value) {
+            case 'b64':
+              Base64.s = serverp;
+              ara = JSON.parse(Base64.decode(this.responseText));
+              break;
+            case 'aes':
+              ara = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(this.responseText, serverp)));
+              break;
+          }
+          for (var i in ara) {
+            ara[i] = ara[i][1].replace('{}', escapeHTML(ara[i][0]));
+          }
+          cifr.contentDocument.body.innerHTML = ara.join('<br>') + '<br><br>';
+          sconn1 = 'Connected';
+          clat = new Date().getTime() - connst;
+        }
+        } catch (e) {
+          if (verbose) {
+            console.error(e);
+          }
+          PassReload();
+        }
+        getting = false;
+      }
+      function reqgp() {
+        if (this.responseText != '') {
+          serverp = Base64.decode(this.responseText);
+        }
+      }
+      function reqsp() {
+        if (this.responseText != '0' && this.responseText != '') {
+          PassReload();
+        }
+      }
+      function ViewsReload(e) {
+        if (getting/*&& new Date().getTime() > gettingt*/) {
+          getting = false;
+          serverp = '';
+        }
+        if (serverp == '') {
+          PassReload();
+        }
+        if (!getting) {
+          getting = true;
+          gettingt = new Date().getTime() + 5000;
+          connst = new Date().getTime();
+          if (dc.value == 'cus' && constr.style.cssText != '') {
+            constr.style = '';
+          } else if (dc.value != 'cus' && constr.style.cssText != 'display:none;') {
+            constr.style = 'display:none;';
+          }
+          if (e || document.hidden || cifr.contentWindow.getSelection().toString() == '') {
+            if (doreload) {
+              var reqr = new XMLHttpRequest();
+              reqr.addEventListener('load', reqg);
+              switch (dc.value) {
+                case 'reg':
+                  reqr.open('GET', surl.value + '/colog.dat');
+                  break;
+                case 'deb':
+                  reqr.open('GET', surl.value + '/cologd.dat');
+                  break;
+                case 'cmc':
+                  reqr.open('GET', surl.value + '/a?rc=' + Base64.encode(JSON.stringify(['default', ks.value])));
+                  break;
+                case 'bsh':
+                  reqr.open('GET', surl.value + '/a?rc=' + Base64.encode(JSON.stringify(['terminal', ks.value])));
+                  break;
+                case 'cus':
+                  reqr.open('GET', surl.value + '/a?rc=' + Base64.encode(JSON.stringify([constr.value, ks.value])));
+                  break;
+              }
+              reqr.send();
+            } else {
+              getting = false;
+            }
+          } else {
+            getting = false;
+          }
+        }
+      }
+      function PassReload() {
+        if (ks.value.length > 0) {
+          var req = new XMLHttpRequest();
+          req.addEventListener('load', reqgp);
+          switch (dc.value) {
+            case 'reg':
+            case 'deb':
+            case 'cmc':
+            case 'bsh':
+              req.open('GET', surl.value + '/a?ccp=' + Base64.encode(JSON.stringify([ks.value, null])));
+              break;
+            case 'cus':
+              req.open('GET', surl.value + '/a?ccp=' + Base64.encode(JSON.stringify([ks.value, constr.value])));
+              break;
+          }
+          req.send();
+        }
+      }
+      function Send() {
+        try {
+        if (ks.value != '') {
+          server = ks.value;
+        } else {
+          server = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+        }
+        var reqr = new XMLHttpRequest();
+        reqr.addEventListener('load', reqsp);
+        var et;
+        if (dc.value == 'reg' || dc.value == 'deb') {
+          switch (enc.value) {
+            case 'b64':
+              Base64.s = server;
+              et = Base64.encode(JSON.stringify([server, conc.value]));
+              break;
+            case 'aes':
+              et = CryptoJS.AES.encrypt(JSON.stringify([server, conc.value]), serverp).toString();
+              break;
+          }
+        }
+        switch (dc.value) {
+          case 'reg':
+          case 'deb':
+            reqr.open('GET', surl.value + '/a?cc=' + et);
+            break;
+          case 'cmc':
+            reqr.open('GET', surl.value + '/a?sc=' + CryptoJS.AES.encrypt(JSON.stringify([ks.value, 'default', conc.value]), serverp).toString());
+            break;
+          case 'bsh':
+            reqr.open('GET', surl.value + '/a?sc=' + CryptoJS.AES.encrypt(JSON.stringify([ks.value, 'terminal', conc.value]), serverp).toString());
+            break;
+          case 'cus':
+            reqr.open('GET', surl.value + '/a?sc=' + CryptoJS.AES.encrypt(JSON.stringify([ks.value, constr.value, conc.value]), serverp).toString());
+            break;
+        }
+        reqr.send();
+        if (conchist[conchist.length-1] != conc.value) {
+          conchist.push(conc.value);
+        }
+        if (conchist.length > 100) {
+          conchist.splice(0, conchist.length - 100);
+        }
+        conc.value = '';
+        histind = conchist.length;
+        currtext = '';
+        } catch (e) {
+          if (verbose) {
+            console.error(e);
+          }
+        }
+      }
+      setInterval(function () {
+        if (sconn1 == 'Disconnected' && sconn2 == 'Disconnected') {
+          sconn.innerHTML = 'Disconnected ' + clat + 'ms';
+        } else {
+          sconn.innerHTML = 'Connected ' + clat + 'ms';
+        }
+        sconn2 = sconn1;
+        sconn1 = 'Disconnected';
+        if (!navigator.onLine) {
+          seron.innerHTML = 'Browser Offline';
+        } else if (seron1 == 'Server Off' && seron2 == 'Server Off') {
+          seron.innerHTML = 'Server Off';
+        } else {
+          seron.innerHTML = 'Server On';
+        }
+        seron2 = seron1;
+        seron1 = 'Server Off';
+      }, 1000);
+      setInterval(ViewsReload, 1000, false);
+      ViewsReload(true);
+      onload = function () {
+        cifr.contentDocument.body.style = 'font-family:monospace;white-space:pre;width:98%;';
+      };
+      conc.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+          Send();
+        } else if (e.keyCode === 38) {
+          if (histind > 0) {
+            histind -= 1;
+            conc.value = conchist[histind];
+          }
+          setTimeout(function(){ conc.selectionStart = conc.selectionEnd = 10000; }, 0);
+          SetEnd(conc);
+        } else if (e.keyCode === 40) {
+          if (histind < conchist.length - 1) {
+            histind += 1;
+            conc.value = conchist[histind];
+          } else if (histind == conchist.length - 1) {
+            histind = conchist.length;
+            conc.value = currtext;
+          }
+          setTimeout(function(){ conc.selectionStart = conc.selectionEnd = 10000; }, 0);
+          SetEnd(conc);
+        } else if (e.keyCode === 8) {
+          histind = conchist.length;
+          setTimeout(function() {currtext = conc.value;}, 0);
+        }
+      });
+      conc.addEventListener('keypress', function (e) {
+        if (!e.charCode) {return;}
+        histind = conchist.length;
+        setTimeout(function() {currtext = conc.value;}, 0);
+      });
+    </script>
+  </body>
+</html>
