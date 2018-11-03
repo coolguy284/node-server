@@ -172,7 +172,7 @@ try {
 } catch (e) {
   console.error('mchat restore failed, mchat empty');
   console.error(e);
-  global.mchat = [];
+  global.mchat = {};
 }
 try {
   global.viewshist = JSON.parse(fs.readFileSync('data/views.json').toString());
@@ -193,7 +193,7 @@ try {
 } catch (e) {
   console.error('saveddat restore failed, saveddat empty');
   console.error(e);
-  global.savedvarsa = {};
+  global.saveddat = {};
 }
 while (colog.length < datajs.feat.lim.colog) {
   colog.unshift(['', '{}']);
