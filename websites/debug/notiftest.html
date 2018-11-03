@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Notification Test</title>
+  </head>
+  <body>
+    <button onclick = 'Notf("Notification Test")'>Notification Test</button>
+    <script>
+      function Notf(nam) {
+        if (Notification.permission == 'granted') {
+          new Notification(nam);
+        } else if (Notification.permission != 'denied') {
+          Notification.requestPermission().then(function (perm) {
+            if (perm == 'granted') {
+              new Notification(nam);
+            }
+          });
+        }
+      }
+    </script>
+  </body>
+</html>

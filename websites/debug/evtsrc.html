@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Event Source</title>
+  </head>
+  <body>
+    <script>
+      var es = new EventSource('/evtsrc.log');
+      es.addEventLisener('tester', function (e) {
+        document.write('message: ' + e.data + '<br>');
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+  <head>
+    <title>What is Your Spooky Name</title>
+    <style>
+      body {
+        background: #080701;
+        color: #fc7427;
+        font-family: "Comic Sans MS";
+        font-size: 24px;
+      }
+      span {
+        color: #912891;
+      }
+      input {
+        width: 20em;
+        background: #080701;
+        color: #ffffff;
+        font-family: "Comic Sans MS";
+        font-size: 24px;
+      }
+      button {
+        background: #080701;
+        color: #ffffff;
+        font-family: "Comic Sans MS";
+        font-size: 24px;
+      }
+    </style>
+  </head>
+  <body>
+    Put your first & last name here in order to find out your <i>ｓｐｏｏｋｙ</i> halloween name:<br><br>
+    <input type = 'text' id = 'nam'><br><br>
+    <button onclick = 'Spook();'>Ｓｐｏｏｋｉｆｙ</button><button onclick = 'SpookRandom();'>Random Spook</button><button onclick = 'SpookCycle();'>eee</button><br><br>
+    <span id = 'st'></span>
+    <script>
+      var gennam = '';
+      var indnam = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '$'];
+      // First letter of first name
+      var firstNames = {
+        a: 'Transient',
+        b: 'Lord',
+        c: 'Decaying',
+        d: 'Demonic',
+        e: 'Derelict',
+        f: 'Wispy',
+        g: 'Problematic',
+        h: 'Spooky',
+        i: ['Literally just a', 'Literally just'],
+        j: 'Egg',
+        k: ['Wow, that\'s a', 'Wow, that\'s'],
+        l: 'Questionable',
+        m: 'Tentacled',
+        n: 'Skeletal',
+        o: 'Really Really Small',
+        p: 'The Anti',
+        q: 'Object Oriented',
+        r: 'Russian',
+        s: 'Jack O\'',
+        t: 'Electronic',
+        u: 'Negative',
+        v: 'Absolute',
+        w: 'Transfinite',
+        x: 'Intelligent',
+        y: 'Ackermann',
+        z: 'Alien',
+        $: 'Heckin\' Garry'
+      };
+      // First letter of last name
+      var lastNames = {
+        a: ['Lord', 0],
+        b: ['Wall Climber', 0],
+        c: ['Lord of Spooking', 0],
+        d: ['Void', 0],
+        e: ['Dentist', 0],
+        f: ['Witch', 0],
+        g: ['Thingy', 0],
+        h: ['Holumnum', 0],
+        i: ['Lantern', 0],
+        j: ['Teeth', 1],
+        k: ['Spook', 0],
+        l: ['Candy Corn', 0],
+        m: ['Construct of Pure Evil', 0],
+        n: ['Clown', 0],
+        o: ['The Entire Country of Switzerland 🇨🇭', 1],
+        p: ['Android', 0],
+        q: ['Santa Claus', 0],
+        r: ['Spider', 0],
+        s: ['Fire Hydrant', 0],
+        t: ['Doppelganger', 0],
+        u: ['Zero', 1],
+        v: ['Necromancer', 0],
+        w: ['Will Smith', 1],
+        x: ['???', 0],
+        y: ['Cactus', 0],
+        z: ['Decay', 1],
+        $: ['Programming', 1]
+      };
+      function SpookLetter(fnind, lnind) {
+        if (typeof firstNames[fnind] == 'string') {
+          gennam = firstNames[fnind] + ' ' + lastNames[lnind][0]
+          st.innerHTML = 'Your new name is:<br><br><b>' + gennam + '</b>';
+        } else {
+          gennam = firstNames[fnind][lastNames[lnind][1]] + ' ' + lastNames[lnind][0];
+          st.innerHTML = 'Your new name is:<br><br><b>' + gennam + '</b>';
+        }
+      }
+      function Spook() {
+        var na = nam.value.trim().split(' ');
+        SpookLetter(na[0][0].toLowerCase(), na[1][0].toLowerCase());
+        //fetch('/ng?n=' + encodeURIComponent(na));
+      }
+      function SpookRandom() {
+        SpookLetter(indnam[Math.floor(Math.random() * indnam.length)], indnam[Math.floor(Math.random() * indnam.length)]);
+      }
+      function SpookCycle() {
+        nam.value = gennam;
+        Spook();
+      }
+      nam.addEventListener('keydown', function (e) {
+        if (e.keyCode == 13) {
+          Spook();
+        }
+      });
+    </script>
+  </body>
+</html>

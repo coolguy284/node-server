@@ -1,0 +1,276 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Chat Viewer</title>
+  </head>
+  <body>
+    <textarea id = 'chatc' style = 'width:100%;height:10em;'></textarea><br>
+    <select id = 'vers'>
+      <optgroup label = 'regular'>
+        <option value = 'v1'>V1 (string in array)</option>
+        <option value = 'v2'>V2 (B64 encoded items)</option>
+        <option value = 'v3'>V3 (B64 encoded array w string items)</option>
+        <option value = 'v4' selected>V4 (B64 encoded array)</option>
+      </optgroup>
+      <optgroup label = '---'>
+        <option value = 'p1'>P1 (B64 encoded items)</option>
+      </optgroup>
+    </select>
+    <button onclick = 'Thtml()' id = 'bhtml'>View HTML [off]</button>
+    <button onclick = 'Tts()' id = 'bts'>View Timestamp [off]</button>
+    <button onclick = 'Tind()' id = 'bind'>View Indices [off]</button>
+    <button onclick = 'Trm()' id = 'bredmode'>Red Mode [off]</button>
+    <input type = 'text' id = 'bs'>
+    <button onclick = 'Viewc()'>View</button><br>
+    <span>Array:</span><br>
+    <span id = 'arr'></span><br>
+    <span>Rendered:</span><br>
+    <span id = 'rend'></span>
+    <script src = '/js/base64.js'></script>
+    <script>
+      var showhtml, showind, showts, redmode;
+      var ALLOWED_TAGS = ["STRONG", "EM", "BLOCKQUOTE", "Q", "DEL", "INS", "A", "SPAN", "B", "I", "MARK", "SMALL", "SUB", "SUP", "P", "BR", "WBR", "H1", "H2", "H3", "H4", "H5", "H6", "CODE", "PRE", "U", "DL", "DT", "DD", "OL", "UL", "LI", "BDI", "BDO", "BUTTON", "DETAILS", "SUMMARY", "TABLE", "CAPTION", "COLGROUP", "COL", "THEAD", "TBODY", "TFOOT", "TH", "TR", "TD", "METER", "PROGRESS"];
+      var escaper = document.createElement('textarea');
+      function escapeHTML(html) {
+        escaper.textContent = html;
+        return escaper.innerHTML;
+      }
+      function unescapeHTML(html) {
+        escaper.innerHTML = html;
+        return escaper.textContent;
+      }
+      function sanitize(el) {
+        "Remove all tags from element `el' that aren't in the ALLOWED_TAGS list."
+        var tags = Array.prototype.slice.apply(el.getElementsByTagName("*"), [0]);
+        for (var i = 0; i < tags.length; i++) {
+          if (ALLOWED_TAGS.indexOf(tags[i].nodeName) == -1) {
+            usurp(tags[i]);
+          }
+        }
+      }
+      function usurp(p) {
+        "Replace parent `p' with its children.";
+        var last = p;
+        for (var i = p.childNodes.length - 1; i >= 0; i--) {
+          var e = p.removeChild(p.childNodes[i]);
+          p.parentNode.insertBefore(e, last);
+          last = e;
+        }
+        p.parentNode.removeChild(p);
+      }
+      function sanitizeString(string) {
+        var div = document.createElement("div");
+        div.innerHTML = string;
+        sanitize(div);
+        return div.innerHTML;
+      }
+      function Thtml() {
+        if (bhtml.innerHTML == 'View HTML [off]') {
+          bhtml.innerHTML = 'View HTML [on]';
+          showhtml = true;
+        } else {
+          bhtml.innerHTML = 'View HTML [off]';
+          showhtml = false;
+        }
+      }
+      function Tts() {
+        if (bts.innerHTML == 'View Timestamp [off]') {
+          bts.innerHTML = 'View Timestamp [on]';
+          showts = true;
+        } else {
+          bts.innerHTML = 'View Timestamp [off]';
+          showts = false;
+        }
+      }
+      function Tind() {
+        if (bind.innerHTML == 'View Indices [off]') {
+          bind.innerHTML = 'View Indices [on]';
+          showind = true;
+        } else {
+          bind.innerHTML = 'View Indices [off]';
+          showind = false;
+        }
+      }
+      function Trm() {
+        if (bredmode.innerHTML == 'Red Mode [off]') {
+          bredmode.innerHTML = 'Red Mode [on]';
+          redmode = true;
+        } else {
+          bredmode.innerHTML = 'Red Mode [off]';
+          redmode = false;
+        }
+      }
+      function Viewc() {
+        if (bs.value != '') {
+          Base64.s = bs.value;
+        } else {
+          Base64.s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+        }
+        switch (vers.value) {
+          case 'v1':
+            ara = JSON.parse(chatc.value);
+            arr.innerHTML = escapeHTML(JSON.stringify(ara));
+            for (var i in ara) {
+              if (showind) {
+                ara[i] = '[' + i + '] ' + ara[i];
+              }
+            }
+            rend.innerHTML = ara.join('<br>') + '<br><br>';
+            break;
+          case 'v2':
+            ara = JSON.parse(chatc.value);
+            arr.innerHTML = escapeHTML(JSON.stringify(ara));
+            for (var i in ara) {
+              try {
+              ta = JSON.parse(Base64.decode(ara[i]));
+              ara[i] = '';
+              if (showind) {
+                ara[i] += '[' + i + '] ';
+              }
+              if (showts) {
+                ara[i] += ta[0] + ' ';
+              }
+              ara[i] += escapeHTML(ta[1]);
+              if (showhtml) {
+                ara[i] += ' ' + escapeHTML(ta[2]);
+              } else {
+                ara[i] += ' ' + sanitizeString(ta[2]);
+              }
+              } catch (e) {
+              ara[i] = 'Meow.';
+              }
+            }
+            rend.innerHTML = ara.join('<br>') + '<br><br>';
+            break;
+          case 'v3':
+            ara = JSON.parse(Base64.decode(chatc.value));
+            arr.innerHTML = escapeHTML(JSON.stringify(ara));
+            for (var i in ara) {
+              try {
+              ta = JSON.parse(ara[i]);
+              ara[i] = '';
+              if (showind) {
+                ara[i] += '[' + i + '] ';
+              }
+              if (showts) {
+                ara[i] += ta[0] + ' ';
+              }
+              ara[i] += escapeHTML(ta[1]);
+              if (showhtml) {
+                ara[i] += ' ' + escapeHTML(ta[2]);
+              } else {
+                ara[i] += ' ' + sanitizeString(ta[2]);
+              }
+              } catch (e) {
+              ara[i] = 'Meow.';
+              }
+            }
+            rend.innerHTML = ara.join('<br>') + '<br><br>';
+            break;
+          case 'v4':
+            ara = JSON.parse(Base64.decode(chatc.value));
+            arr.innerHTML = escapeHTML(JSON.stringify(ara));
+            for (var i in ara) {
+              try {
+              ta = ara[i];
+              ara[i] = '';
+              if (showind) {
+                ara[i] += '[' + i + '] ';
+              }
+              if (showts) {
+                ara[i] += ta[0] + ' ';
+              }
+              ara[i] += escapeHTML(ta[1]);
+              if (showhtml) {
+                ara[i] += ' ' + escapeHTML(ta[2]);
+              } else {
+                ara[i] += ' ' + sanitizeString(ta[2]);
+              }
+              } catch (e) {
+              ara[i] = 'Meow.';
+              }
+            }
+            rend.innerHTML = ara.join('<br>') + '<br><br>';
+            break;
+          case 'p1':
+            nara = JSON.parse(chatc.value);
+            ara = [];
+            arr.innerHTML = escapeHTML(JSON.stringify(para));
+            for (var i in ara) {
+              try {
+              ta = JSON.parse(Base64.decode(nara[i]));
+              ara.push('');
+              if (showind) {
+                ara[i] += '[' + i + '] ';
+              }
+              if (showts) {
+                ara[i] += ta[0] + ' ';
+              }
+              ara[i] += escapeHTML(ta[1]);
+              if (showhtml) {
+                ara[i] += ' ' + escapeHTML(ta[2]);
+              } else {
+                ara[i] += ' ' + sanitizeString(ta[2]);
+              }
+              } catch (e) {}
+            }
+            rend.innerHTML = ara.join('<br>') + '<br><br>';
+            break;
+        }
+      }
+      onload = function () {
+        chattc = localStorage.getItem('cvchatc');
+        versv = localStorage.getItem('cvvers');
+        shohtm = localStorage.getItem('cvhtml');
+        shots = localStorage.getItem('cvts');
+        redmod = localStorage.getItem('cvredm');
+        if (chattc == null) {
+          chatc.value = '';
+        } else {
+          chatc.value = chattc;
+        }
+        if (versv != null) {
+          vers.value = versv;
+        }
+        if (shohtm == null) {
+          showhtml = false;
+        } else {
+          showhtml = shohtm == 'true';
+        }
+        if (shots == null) {
+          showts = true;
+        } else {
+          showts = shots == 'true';
+        }
+        if (redmod == null) {
+          redmode = false;
+        } else {
+          redmode = redmod == 'true';
+        }
+        if (showhtml == true) {
+          bhtml.innerHTML = 'View HTML [on]';
+        } else {
+          bhtml.innerHTML = 'View HTML [off]';
+        }
+        if (showts == true) {
+          bts.innerHTML = 'View Timestamp [on]';
+        } else {
+          bts.innerHTML = 'View Timestamp [off]';
+        }
+        if (redmode == true) {
+          bredmode.innerHTML = 'Red Mode [on]';
+        } else {
+          bredmode.innerHTML = 'Red Mode [off]';
+        }
+      };
+      onunload = function () {
+        localStorage.setItem('cvchatc', chatc.value);
+        localStorage.setItem('cvvers', vers.value);
+        localStorage.setItem('cvhtml', showhtml);
+        localStorage.setItem('cvts', showts);
+        localStorage.setItem('cvredm', redmode);
+        return null;
+      };
+    </script>
+  </body>
+</html>

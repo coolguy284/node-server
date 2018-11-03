@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Atmosphere</title>
+  </head>
+  <body>
+    <input type = 'range' id = 'alts' style = 'width:400px;' value = 0 min = -10000 max = 100000 onchange = 'setTimeout(Quest, 0);' oninput = 'setTimeout(Quest, 0);'><br>
+    <input type = 'text' id = 'alt' value = '0'>
+    <button onclick = 'CalcPT();'>Calculate</button><br>
+    Pressure: <span id = 'press'></span><br>
+    Temperature: <span id = 'tempe'></span>
+    <script src = 'atmosphere.js'></script>
+    <script>
+      function Quest () {
+        alt.value = alts.value;
+        CalcPT();
+      }
+      function CalcPT () {
+        press.innerHTML = atm.getstanpress(parseFloat(alt.value));
+        tempe.innerHTML = atm.getstantemp(atm.getgeopot(parseFloat(alt.value)));
+      }
+      onload = function () {
+        CalcPT();
+      }
+      alt.addEventListener('keydown', function (e) {
+        if (e.keyCode == 13) {
+          CalcPT();
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Sha256 Hash</title>
+  </head>
+  <body>
+    <button onclick = 'thash()'>Hash Text</button>
+    <fieldset>
+      <legend>Text</legend>
+      <textarea id = 'texta' style = 'width:100%;height:200px;'></textarea>
+    </fieldset>
+    <fieldset>
+      <legend>Sha256</legend>
+      <textarea id = 'shata' style = 'width:100%;height:200px;'></textarea>
+    </fieldset>
+    <script src = '/js/sha256.js'></script>
+    <script>
+      function thash() {
+        shata.value = sha256.hex(texta.value);
+      }
+    </script>
+  </body>
+</html>

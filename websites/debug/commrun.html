@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Command Runner</title>
+  </head>
+  <body>
+    <p>Warning! This lets arbitrary code run on your device!</p>
+    <span>Key:</span>
+    <input type = 'text' id = 'keyinp'>
+    <button onclick = 'SCod()'>Start</button>
+    <script src = '/js/base64.js'></script>
+    <script>
+      function SCod() {
+        if (keyinp.value != '') {
+          Base64.s = keyinp.value;
+        }
+        document.body.innerHTML = '';
+        CommReload();
+        setInterval(CommReload, 1000);
+      }
+      function reqg() {
+        if (document.hidden || window.getSelection().toString() == '') {
+          ara = JSON.parse(this.responseText);
+          console.log(ara);
+          for (var i in ara) {
+            try {
+            ara[i] = Base64.decode(ara[i]);
+            if (ara[i][0] == 'o') {
+              let reqrb = new XMLHttpRequest();
+              reqrb.addEventListener('load', function () {});
+              reqrb.open('GET', '/r?co=' + Base64.s + '|' + i);
+              reqrb.send();
+              eval(ara[i].substr(1, Infinity));
+            }
+            } catch (e) {}
+          }
+        }
+      }
+      function CommReload() {
+        var reqr = new XMLHttpRequest();
+        reqr.addEventListener('load', reqg);
+        reqr.open('GET', '/comms.json');
+        reqr.send();
+      }
+    </script>
+  </body>
+</html>

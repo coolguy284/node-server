@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <title>HTML Escaper / Unescaper</title>
+  </head>
+  <body>
+    <button onclick = 'escta.value = escapeHTML(htmta.value);'>HTML > Escaped HTML</button>
+    <button onclick = 'htmta.value = unescapeHTML(escta.value);'>Escaped HTML > HTML</button>
+    <fieldset>
+      <legend>HTML</legend>
+      <textarea id = 'htmta' style = 'width:100%;height:200px;'></textarea>
+    </fieldset>
+    <fieldset>
+      <legend>Escaped HTML</legend>
+      <textarea id = 'escta' style = 'width:100%;height:200px;'></textarea>
+    </fieldset>
+    <script>
+      var escaper = document.createElement('textarea');
+      function escapeHTML(html) {
+        escaper.textContent = html;
+        return escaper.innerHTML;
+      }
+      function unescapeHTML(html) {
+        escaper.innerHTML = html;
+        return escaper.textContent;
+      }
+    </script>
+  </body>
+</html>
