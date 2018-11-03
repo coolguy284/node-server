@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Server Data Storage</title>
+  </head>
+  <body>
+    <input type = 'text' id = 'notev' style = 'width:20em;'>
+    <input type = 'password' id = 'skv'>
+    <input type = 'password' id = 'ekv'>
+    <button onclick = 'Load();'>Reload</button>
+    <button onclick = 'Save();'>Save Changes</button>
+    <button onclick = 'SClear();'>Save and Clear</button>
+    <button onclick = 'SCC();'>Save and Clear All</button>
+    <button onclick = 'Clear();'>Clear</button>
+    <button onclick = 'ClearA();'>Clear All</button><br>
+    <textarea id = 'ta' style = 'width:100%;height:400px;'></textarea>
+    <script src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js'></script>
+    <script src = '/js/base64.js'></script>
+    <script>
+      var edited = false;
+      function Save() {
+        return fetch('/a?ns=' + Base64.encode(JSON.stringify([notev.value, skv.value, CryptoJS.AES.encrypt(ta.value, ekv.value).toString()]))).then(function () {edited = false;});
+      }
+      function Load() {
+        if (edited) {
+          if (!confirm('Are you sure you want to reload? You made changes to the file.')) {
+            return;
+          }
+        }
+        fetch('/a?ng=' + Base64.encode(JSON.stringify([notev.value, skv.value]))).then(function (req) {
+          req.text().then(function (text) {
+            ta.value = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(text, ekv.value));
+          })
+        }).then(function () {edited = false;});
+      }
+      function SClear() {
+        Save().then(function () {ta.value = '';});
+      }
+      function SCC() {
+        Save().then(function () {ta.value = ''; skv.value = ''; ekv.value = '';});
+      }
+      function Clear() {
+        ta.value = '';
+      }
+      function ClearA() {
+        ta.value = ''; skv.value = ''; ekv.value = '';
+      }
+      onbeforeunload = function () {
+        if (edited) {
+          return true;
+        } else {
+          return null;
+        }
+      };
+      ta.addEventListener('keydown', function(e) {
+        if ((e.key == 's' || e.key == 'S') && (e.ctrlKey || e.metaKey)) {
+          Save();
+          e.preventDefault();
+          return false;
+        } else {
+          edited = true;
+          return true;
+        }
+      });
+    </script>
+  </body>
+</html>

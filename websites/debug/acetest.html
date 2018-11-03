@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Ace Test</title>
+    <style>
+      #editor { 
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 600px;
+        height: 800px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id = 'editor'>&gt;!doctype html&lt;
+    &gt;html&lt;
+      
+    &gt;/html&lt;</div>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/ace.js'></script>
+    <script>
+      var editor = ace.edit('editor');
+      editor.setOptions({
+        'tabSize' : 2,
+        'wrap': true,
+        'theme' : 'ace/theme/solarized_dark'
+      });
+      editor.session.setMode('ace/mode/html');
+    </script>
+  </body>
+</html>

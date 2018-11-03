@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Logout Page</title>
+  </head>
+  <body>
+    <script>
+      function parsecookies(rc) {
+        var list = {};
+        rc && rc.split(';').forEach(function (cookie) {
+          var parts = cookie.split('=');
+          list[parts.shift().trim()] = decodeURI(parts.join('='));
+        });
+        return list;
+      }
+      function logout() {
+        document.cookie = 'sid=; expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/user;secure';
+        location.href = '/index.html';
+      }
+      onload = function() {
+        logoutreq = new XMLHttpRequest();
+        logoutreq.addEventListener('load', logout);
+        logoutreq.open('GET', 'https://server--coolguy284.repl.co/logout?v=' + parsecookies(document.cookie)['sid']);
+        logoutreq.send();
+      };
+    </script>
+  </body>
+</html>

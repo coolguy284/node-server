@@ -1,0 +1,49 @@
+<!doctype html> 
+<html>
+  <head>
+    <title>Login Page</title>
+  </head>
+  <body>
+    <div style = 'margin:auto;width:400px;'>
+      <h1 align = 'center'>Login</h1>
+      <fieldset>
+        <legend>Username</legend>
+        <input type = 'text' id = 'user' style = 'width:100%;'>
+      </fieldset>
+      <fieldset>
+        <legend>Password</legend>
+        <input type = 'password' id = 'pass' style = 'width:100%;'>
+      </fieldset>
+      <button onclick = 'Login();' style ='width:100%;height:50px;'>Log In</button>
+    </div>
+    <script src = '/js/base64.js'></script>
+    <script>
+      function loginload() {
+        if (this.responseText == '0') {
+          alert('No such username.');
+        } else if (this.responseText == '1') {
+          alert('Incorrect password.');
+        } else {
+          document.cookie = 'sid=' + this.responseText + '; Path=/user; secure';
+          location.href = '/user/index.html';
+        }
+      }
+      function Login() {
+        var loginreq = new XMLHttpRequest();
+        loginreq.addEventListener('load', loginload);
+        loginreq.open('GET', '/login?v=' + Base64.encode(JSON.stringify([user.value, pass.value])));
+        loginreq.send();
+      }
+      user.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+          Login();
+        }
+      });
+      pass.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+          Login();
+        }
+      });
+    </script>
+  </body>
+</html>

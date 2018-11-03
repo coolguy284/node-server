@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+  <head>
+    <title>WYSIWYG HTML Editor</title>
+    <style>
+      #dediv {
+        width: calc(50% - 6px);
+        height: 400px;
+        float: left;
+        overflow: auto;
+        -moz-appearance: textfield-multiline;
+        -webkit-appearance: textarea;
+        border: 1px solid gray;
+        padding: 2px;
+        resize: both;
+      }
+      #dehtm {
+        width: calc(50% - 6px);
+        height: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <button onclick = 'dehtm.value = dediv.innerHTML;'>Refresh Code</button>
+    <button onclick = 'dediv.innerHTML = dehtm.value;'>Refresh Rendered Output</button><br>
+    <div id = 'dediv' style = 'border: 1px solid lightgray;' contenteditable = 'true'>Henlo this has some <span style='color:#f00;'>red</span> text.</div>
+    <textarea id = 'dehtm'></textarea>
+    <script>
+      dediv.addEventListener('keydown', function (e) {
+        if (e.keyCode == 9) {
+          e.preventDefault();
+        }
+        setTimeout(function () {dehtm.value = dediv.innerHTML;}, 0);
+      });
+      dehtm.addEventListener('keydown', function (e) {
+        if (e.keyCode == 9) {
+          e.preventDefault();
+        }
+        setTimeout(function () {dediv.innerHTML = dehtm.value;}, 0);
+      });
+      onload = function () {
+        dehtm.value = dediv.innerHTML;
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+  <head>
+    <title>For Your Own Eyes Only</title>
+  </head>
+  <body>
+    <span id = 'tex'></span>
+    <script>
+      var reqt = new XMLHttpRequest();
+      reqt.addEventListener('load', function () {
+        tex.innerHTML = this.responseText;
+      });
+      reqt.open('GET', '/oi?vr={id}');
+      reqt.send();
+    </script>
+  </body>
+</html>

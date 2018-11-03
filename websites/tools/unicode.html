@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Unicode Viewer</title>
+    <style>
+      table {
+        font-size: 48px;
+        font-family: monospace;
+      }
+      tr {
+        height: 64px;
+      }
+      th {
+        width: 64px;
+        height: 64px;
+        border: 1px solid black;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        background: white;
+      }
+      td {
+        width: 64px;
+        height: 64px;
+        border: 1px solid black;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+      }
+      .nt {
+        width: 200px;
+        border: 1px solid black;
+        text-align: right;
+        vertical-align: center;
+      }
+      #eaa {
+        position: fixed;
+        top: 5px;
+        left: 8px;
+        width: 100%;
+        height: 64px;
+        background: white;
+      }
+      #eae {
+        position: fixed;
+        top: 96px;
+        width: 100%;
+        height: calc(100% - 96px);
+        overflow: scroll;
+      }
+    </style>
+  </head>
+  <body>
+    <div id = 'eaa'>
+      <input type = 'text' id = 'sta' value = 0>
+      <input type = 'text' id = 'wid' value = 16>
+      <input type = 'text' id = 'len' value = 1024>
+      <button onclick = 'filltable()'>Refill</button>
+      <table id = 'tabl'></table>
+    </div>
+    <div id = 'eae'>
+      <table id = 'tab'></table>
+    </div>
+    <script>
+      var escaper = document.createElement('textarea');
+      function escapeHTML(html) {
+        escaper.textContent = html;
+        return escaper.innerHTML;
+      }
+      function unescapeHTML(html) {
+        escaper.innerHTML = html;
+        return escaper.textContent;
+      }
+      function filltable() {
+        start = parseInt(sta.value);
+        width = parseInt(wid.value);
+        lim = parseInt(len.value);
+        var tabh = '<th class="nt"></th>';
+        for (var i = 0; i < width; i++) {
+          tabh += '<th>' + i.toString(16).toUpperCase() + '</th>';
+        }
+        tabl.innerHTML = '<tr>' + tabh + '</tr>';
+        var tabc = '';
+        for (var i = start; i < (start + lim); i += width) {
+          var ts = '<td class="nt">' + Math.floor(i).toString(16).toUpperCase().padStart(5, '0') + '</td>';
+          for (var j = i; j < (i + width); j++) {
+            if (j < 256) {
+              ts += '<td>' + escapeHTML(String.fromCodePoint(j)) + '</td>';
+            } else {
+              ts += '<td>' + String.fromCodePoint(j) + '</td>';
+            }
+          }
+          tabc += '<tr>' + ts + '</tr>';
+        }
+        tab.innerHTML = tabc;
+      }
+      onload = filltable;
+      var width = 16;
+      var start = 0;
+      var lim = 1024;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <head>
+    <title>AES Encrypter / Decrypter</title>
+  </head>
+  <body>
+    <button onclick = 'taes()'>Text > AES</button>
+    <button onclick = 'ttex()'>AES > Text</button>
+    <span>Password:</span>
+    <input type = 'text' id = 'mapp'><br>
+    <fieldset>
+      <legend>Plaintext</legend>
+      <textarea id = 'texta' style = 'width:100%;height:200px;'></textarea>
+    </fieldset>
+    <fieldset>
+      <legend>Encrypted AES</legend>
+      <textarea id = 'aesta' style = 'width:100%;height:200px;'></textarea>
+    </fieldset>
+    <script src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js'></script>
+    <script>
+      function taes() {
+        try {
+          aesta.value = CryptoJS.AES.encrypt(texta.value, mapp.value);
+        } catch (e) { alert(e); }
+      }
+      function ttex() {
+        try {
+          texta.value = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(aesta.value, mapp.value));
+        } catch (e) { alert(e); }
+      }
+    </script>
+  </body>
+</html>
