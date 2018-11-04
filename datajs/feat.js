@@ -32,11 +32,12 @@ module.exports = {
   },
   'el' : {
     'cons' : ['/livechat.dat', '/liverchat.json', '/liveviews.dat', '/comms.json', '/colog.dat', '/cologd.dat', '/livechathere.dat', '/livechattyp.dat', '/livechatkick.dat', '/lat.log'],
+    'consv' : ['/s?her=', '/s?typ=', '/a?co=', '/a?cd=', '/a?ccp=', '/a?rc='],
     'lockl' : ['/admin.html', '/colog.dat', '/cologd.dat'],
-    'vhl' : ['/ftx.txt', '/chathid.html', '/chatprivate.html', '/lat.log'],
-    'vhs' : ['/s', '/r', '/a', '/pagg?=', '/oi?vr=', '/livechatd.log?id=', '/user', '/login?v=', '/logout?v='],
+    'vh' : ['/ftx.txt', '/chathid.html', '/chatprivate.html', '/lat.log'],
+    'vhv' : ['/s', '/r', '/a', '/pagg?=', '/oi?vr=', '/livechatd.log?id=', '/user', '/login?v=', '/logout?v='],
     'ajaxl' : ['/livechat.dat', '/liverchat.json', '/liveviews.dat', '/comms.json', '/colog.dat', '/cologd.dat', '/livechathere.dat', '/livechattyp.dat', '/livechatkick.dat', '/lat.log'],
-    'ssl' : ['/s', '/r', '/a'],
+    'vl' : ['/s', '/r', '/a'],
   },
   'idstr' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
   'tempp' : {

@@ -304,14 +304,14 @@ global.serverf = function serverf(req, resa, nolog) {
     }
   }
   global.stime = new Date();
-  if (datajs.feat.debreq) {
+  if (datajs.feat.debreq && datajs.feat.el.cons.indexOf(req.url) < 0 && datajs.feat.el.consv.every(datajs.notstartswith, req.url)) {
     debreq.push(datajs.rm.reqinfo(req, stime.getTime(), ipaddr, proto, url, cookies, nam));
     if (debreq.length > datajs.feat.lim.debreq) {
       debreq.splice(0, debreq.length - datajs.feat.lim.debreq);
     }
   }
   if (!nolog) {
-    if (datajs.feat.el.cons.indexOf(req.url) < 0 && ['/s?her=', '/s?typ=', '/a?co=', '/a?cd=', '/a?ccp=', '/a?rc='].every(datajs.notstartswith, req.url)) {
+    if (datajs.feat.el.cons.indexOf(req.url) < 0 && datajs.feat.el.consv.every(datajs.notstartswith, req.url)) {
       let tsd = stime.toISOString();
       if (baniplist.indexOf(ipaddr.replace('::ffff:', '')) > -1 || (req.connection.remoteAddress != '::ffff:127.0.0.1' && datajs.feat.intmode)) {
         console.log(datajs.tn('[' + tsd + '] ' + datajs.ipform(ipaddr) + ' ' + proto.padEnd(5) + ' ' + req.method + ' ' + url + ' ' + req.url, datajs.feat.lim.cologm) + ' banned');
@@ -334,7 +334,7 @@ global.serverf = function serverf(req, resa, nolog) {
   if (locked && datajs.feat.el.lockl.indexOf(req.url) < 0 && req.url.substr(0, 2) != '/a') {return;}
   if (req.method == 'GET') {
     if (!nolog) {
-      if (datajs.feat.el.vhl.indexOf(req.url) < 0 && datajs.feat.el.vhs.every(datajs.notstartswith, req.url) && Object.keys(datajs.handlerp).every(datajs.notstartswith, req.url)) {
+      if (datajs.feat.el.vh.indexOf(req.url) < 0 && datajs.feat.el.vhv.every(datajs.notstartswith, req.url) && Object.keys(datajs.handlerp).every(datajs.notstartswith, req.url)) {
         if (viewshist[req.url] === undefined) {
           viewshist[req.url] = 1;
         } else {

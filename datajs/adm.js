@@ -125,13 +125,13 @@ module.exports = {
           }
         }
         if (opts.ss == 1) {
-          if (datajs.feat.el.ssl.every(datajs.notstartswith, req.url)) {
+          if (datajs.feat.el.vl.every(datajs.notstartswith, req.url)) {
             tv = tv && false;
           } else {
             tv = tv && true;
           }
         } else if (opts.ss == 2) {
-          if (datajs.feat.el.ssl.every(datajs.notstartswith, req.url)) {
+          if (datajs.feat.el.vl.every(datajs.notstartswith, req.url)) {
             tv = tv && true;
           } else {
             tv = tv && false;
