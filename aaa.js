@@ -84,6 +84,7 @@ global.sha256 = require('./modjs/sha256.js');
 global.rsa = require('./modjs/rsa.js');
 global.util = require('util');
 global.vm = require('vm');
+global.vfs = require('./vfs/vfs.js');
 global.reqg = require('./request_get.js');
 global.reqh = require('./request_head.js');
 if (datajs.feat.enc == 'aes') {
