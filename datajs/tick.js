@@ -19,6 +19,7 @@ module.exports = {
     global.pcpuUsage = cpuUsage;
     global.cpuUsage = process.cpuUsage();
     global.dcpuUsage = { user: cpuUsage.user - pcpuUsage.user, system: cpuUsage.system - pcpuUsage.system };
+    global.memUsage = process.memoryUsage();
     ticks++;
     for (let i in datajs.tick.funcl) {
       datajs.tick.funcl[i](remt);

@@ -156,6 +156,7 @@ global.locked = false;
 global.cpuUsage = process.cpuUsage();
 global.pcpuUsage = global.cpuUsage;
 global.dcpuUsage = { user: 0, system: 0 };
+global.memoryUsage = process.memoryUsage();
 try {
   global.chat = JSON.parse(fs.readFileSync('data/chat.json').toString());
 } catch (e) {
