@@ -176,6 +176,12 @@ module.exports = {
           case 'cpur':
             console.log('User: ' + dcpuUsage.user + 'us, System: ' + dcpuUsage.system + 'us');
             break;
+          case 'mem':
+            console.log('Total: ' + (memUsage.rss / 1048576).toFixed(6) + ' MiB, Heap Total: ' + (memUsage.heapTotal / 1048576).toFixed(6) + ' MiB, Heap Used: ' + (memUsage.heapUsed / 1048576).toFixed(6) + ' MiB, External Modules: ' + (memUsage.external / 1048576).toFixed(6) + ' MiB');
+            break;
+          case 'memr':
+            console.log('Total: ' + memUsage.rss + ', Heap Total: ' + memUsage.heapTotal + ', Heap Used: ' + memUsage.heapUsed + ', External Modules: ' + memUsage.external);
+            break;
         }
         break;
       case 'cc':
