@@ -1,6 +1,6 @@
 // jshint -W061
 module.exports = {
-  'nlist' : ['help', 'say', 'spls', 'splb', 'edtt', 'webban', 'webunban', 'webpardon', 'lock', 'unlock', 'kick', 'ban', 'unban', 'pardon', 'ipban', 'ban-ip', 'ipunban', 'unban-ip', 'ippardon', 'pardon-ip', 'ripban', 'rban-ip', 'ripunban', 'runban-ip', 'rippardon', 'rpardon-ip', 'feat', 'rule', 'cc', 'cct'],
+  'nlist' : ['help', 'say', 'spls', 'splb', 'edtt', 'webban', 'webunban', 'webpardon', 'lock', 'unlock', 'kick', 'ban', 'unban', 'pardon', 'ipban', 'ban-ip', 'ipunban', 'unban-ip', 'ippardon', 'pardon-ip', 'ripban', 'rban-ip', 'ripunban', 'runban-ip', 'rippardon', 'rpardon-ip', 'feat', 'rule', 'get', 'cc', 'cct'],
   'list' : {
     'help' : ['Lists all commands or usage of one.', '[command]'],
     'say' : ['Says something in chat, under the name of "[server]".', '<text>'],
@@ -21,6 +21,7 @@ module.exports = {
     'cadd' : ['Add a command to be run with a key.', '<keyvar> <code>'],
     'caddb' : ['Add a command to be run with multiple keys.', '<keyarr> <code>'],
     'feat' : ['Edit a feature of this website.', '<name> [value]'],
+    'get' : ['Get a statistic about the server', '[statistic]'],
     'cc' : ['Clear the console.', ''],
     'cct' : ['Clear the chat.', '']
   },
@@ -71,6 +72,8 @@ module.exports = {
       case 'feat':
       case 'rule':
         return datajs.comm.list.feat;
+      case 'get':
+        return datajs.comm.list.get;
       case 'cc':
         return datajs.comm.list.cc;
       case 'cct':
@@ -163,6 +166,16 @@ module.exports = {
           return datajs.feat[args[0]];
         } else if (args.length == 2) {
           datajs.feat[args[0]] = eval(args.slice(1, Infinity).join(' '));
+        }
+        break;
+      case 'get':
+        switch (args[0]) {
+          case 'cpu':
+            console.log('User: ' + dcpuUsage.user / 10000 + '%, System: ' + dcpuUsage.system / 10000 + '%');
+            break;
+          case 'cpur':
+            console.log('User: ' + dcpuUsage.user + 'us, System: ' + dcpuUsage.system + 'us');
+            break;
         }
         break;
       case 'cc':

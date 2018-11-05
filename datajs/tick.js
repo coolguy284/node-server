@@ -16,9 +16,12 @@ module.exports = {
     if (global.ticks % datajs.feat.savefreq == 0) {
       savev();
     }
+    global.pcpuUsage = cpuUsage;
+    global.cpuUsage = process.cpuUsage();
+    global.dcpuUsage = { user: cpuUsage.user - pcpuUsage.user, system: cpuUsage.system - pcpuUsage.system };
     ticks++;
     for (let i in datajs.tick.funcl) {
-      datajs.tick.funcl[i](rem);
+      datajs.tick.funcl[i](remt);
     }
   },
   'funcl' : [],

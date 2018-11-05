@@ -153,6 +153,9 @@ global.starttime = new Date().getTime();
 global.ticks = 0;
 global.req10s = false;
 global.locked = false;
+global.cpuUsage = process.cpuUsage();
+global.pcpuUsage = global.cpuUsage;
+global.dcpuUsage = { user: 0, system: 0 };
 try {
   global.chat = JSON.parse(fs.readFileSync('data/chat.json').toString());
 } catch (e) {
