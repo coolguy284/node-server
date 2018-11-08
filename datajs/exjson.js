@@ -2,6 +2,7 @@
 //e={};e.a='b';e.c={'d':'e'};e.c.z='xyz';e.d=e.c;e.e=e.c.z;e.y={'t':e.c.z};e.f=e;e.g={'h':e};e.g.l=e.g
 //e=[];e.push('b');e.push(['e']);e[1].push('xyz');e.push(e[1]);e.push(e[1][1]);e.push([e[1][1]]);e.push(e);e.push([e]);e[6].push(e[6])
 module.exports = {
+  'symbolk' : ['hasInstance', 'isConcatSpreadable', 'iterator', 'match', 'replace', 'search', 'species', 'split', 'toPrimitive', 'toStringTag', 'unscopables'],
   'getarr' : function (obj, rs) {
     let bks = false;
     let bs = '';
@@ -47,7 +48,7 @@ module.exports = {
         return NaN;
       } else if ('0123456789-'.indexOf(val[0]) > -1) {
         if (val[val.length - 1] == 'n') {
-          return BigNum(val);
+          return BigInt(val.substr(0, val.length - 1));
         } else {
           return Number(val);
         }
@@ -55,6 +56,8 @@ module.exports = {
         return JSON.parse(val);
       } else if (val[0] == 's' && val[1] == '"') {
         return Symbol(JSON.parse(val.substr(1, Infinity)));
+      } else if (val[0] == 's' && val[1] == '.') {
+        return Symbol[val.substr(2, Infinity)];
       } else if (val[0] == 'f') {
         return eval('(' + val + ')');
       } else if (val[0] == '/') {
@@ -83,7 +86,7 @@ module.exports = {
       } else if (val[0] == 'm') {
         return new Map(module.exports.parse(val.substr(1, Infinity)));
       } else if (val[0] == 's' && val[1] == 't') {
-        return new Set(module.exports.parse(val.substr(1, Infinity)));
+        return new Set(module.exports.parse(val.substr(2, Infinity)));
       } else if (val[0] == '[') {
         let rv = [];
         if (val == '[]') {
@@ -284,7 +287,7 @@ module.exports = {
   },
   'stringify' : function (val, opts, obja, rs) {
     if (opts === undefined) {
-      opts = {};
+      opts = {nmapp:true};
     }
     let objs = Object.prototype.toString.call(val);
     if (val === undefined) {
@@ -294,12 +297,19 @@ module.exports = {
     } else if (typeof val == 'boolean') {
       return val.toString();
     } else if (typeof val == 'number') {
+      if (Object.is(val, -0)) {
+        return '-0';
+      }
       return val.toString();
-    } else if (typeof val == 'bignum') {
-      return val.toString();
+    } else if (typeof val == 'bigint') {
+      return val.toString() + 'n';
     } else if (typeof val == 'string') {
       return JSON.stringify(val);
     } else if (typeof val == 'symbol') {
+      let sind = module.exports.symbolk.indexOf(val);
+      if (sind > -1) {
+        return 's.' + module.exports.symbolk[sind];
+      }
       let ss = val.toString();
       return 's' + module.exports.stringify(ss.substring(7, ss.length - 1));
     } else if (typeof val == 'function') {
@@ -350,6 +360,10 @@ module.exports = {
         rs = '';
       }
       let pn = Object.getOwnPropertyNames(val);
+      if (opts.incsymbol) {
+        console.log('a');
+        pn.concat(Object.getOwnPropertySymbols(val));
+      }
       let bs = '';
       for (let i in pn) {
         let obj = pn[i];
