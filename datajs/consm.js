@@ -1,47 +1,48 @@
 // jshint -W086
 module.exports = {
-  'create' : function (name, type, consolee, cologe, phash) {
+  'create' : function (name, type, opts) {
     if (type === undefined) {
       type = 'normal';
     }
-    if (!consolee && !cologe) {
-      consolee = new datajs.Console();
-      cologe = consolee.colog;
-    } else if (consolee && !cologe) {
-      cologe = consolee.colog;
-    } else if (!consolee && cologe) {
-      consolee = new datajs.Console(cologe);
+    if (!opts) {
+      opts = {};
+    }
+    if (!opts.console && !opts.colog) {
+      opts.console = new datajs.Console();
+      opts.colog = opts.console.colog;
+    } else if (opts.console && !opts.colog) {
+      opts.colog = console.colog;
+    } else if (!opts.console && opts.colog) {
+      opts.console = new datajs.Console(opts.colog);
     } else {
-      consolee.colog = cologe;
+      opts.console.colog = opts.colog;
     }
-    if (!phash) {
-      phash = undefined;
-    }
-    let co = {type: type, colog: cologe, console: consolee, phash: phash};
-    if (phash) {
+    let co = {type: type, colog: opts.colog, console: opts.console};
+    if (opts.phash) {
       consoleswpenc.push(name);
+      co.phash = opts.phash;
     }
     switch (type) {
       case 'bash':
         co.running = false;
       case 'normal':
-        if (arguments[5]) {
-          co.penc = arguments[5];
-        } else if (phash) {
+        if (opts.penc) {
+          co.penc = opts.penc;
+        } else if (co.phash) {
           co.penc = datajs.shufstr(b64a.se);
         }
         break;
       case 'vm':
-        if (arguments[5]) {
-          co.context = arguments[5];
+        if (opts.context) {
+          co.context = opts.context;
         } else {
           co.context = {};
         }
-        co.context.console = consolee;
-        vm.createContext(co.context, arguments[6]);
-        if (arguments[7]) {
-          co.penc = arguments[7];
-        } else if (phash) {
+        co.context.console = co.console;
+        vm.createContext(co.context, opts.contextopts);
+        if (opts.penc) {
+          co.penc = opts.penc;
+        } else if (co.phash) {
           co.penc = datajs.shufstr(b64a.se);
         }
         break;

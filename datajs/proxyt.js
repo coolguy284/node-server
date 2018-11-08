@@ -8,31 +8,31 @@ module.exports = {
     }
     return {
       getPrototypeOf : function (obj) {
-        cm(name + ' getprototype');
+        cm(name + ' getPrototype');
         return Object.getPrototypeOf(obj);
       },
       setPrototypeOf : function (obj, val) {
-        cm(name + ' setprototype to ' + val);
+        cm(name + ' setPrototype to ' + util.inspect(val));
         return Object.setPrototypeOf(obj, val);
       },
       isExtensible : function (obj) {
-        cm(name + ' isextensible');
+        cm(name + ' isExtensible');
         return Object.isExtensible(obj);
       },
       preventExtensions : function (obj) {
-        cm(name + ' preventextensions');
+        cm(name + ' preventExtensions');
         return Object.preventExtensions(obj);
       },
       getOwnPropertyDescriptor : function (obj, nam) {
-        cm('getpropdes ' + name + '[' + nam + ']');
+        cm('getPropertyDescriptor ' + name + '[' + util.inspect(nam) + ']');
         return Object.getOwnPropertyDescriptor(obj, nam);
       },
       defineProperty : function (obj, nam, val) {
-        cm(name + ' defineproperty ' + nam + ' as ' + val);
+        cm('defineProperty ' + name + '[' + util.inspect(nam) + '] as ' + util.inspect(val));
         return Object.defineProperty(obj, nam, val);
       },
       has : function (obj, nam) {
-        cm(name + ' has ' + nam.toString());
+        cm('has ' + name + '[' + util.inspect(nam) + ']');
         return nam in obj;
       },
       get : function (obj, nam) {
@@ -40,19 +40,19 @@ module.exports = {
         return obj[nam];
       },
       set : function (obj, nam, val) {
-        cm('set ' + name + '[' + util.inspect(nam) + ']' + ' to ' + util.inspect(val));
+        cm('set ' + name + '[' + util.inspect(nam) + '] to ' + util.inspect(val));
         return (obj[nam] = val);
       },
       deleteProperty : function (obj, nam) {
-        cm(name + ' delete ' + nam);
+        cm('delete ' + name + '[' + util.inspect(nam) + ']');
         return delete obj[nam];
       },
       ownKeys : function (obj) {
-        cm(name + ' ownkeys');
+        cm(name + ' ownKeys');
         return Reflect.ownKeys(obj);
       },
       apply : function (obj, thiso, args) {
-        cm(name + ' apply as ' + thiso + ' with ' + args);
+        cm(name + ' apply as ' + util.inspect(thiso) + ' with ' + util.inspect(args));
         return obj.apply(thiso, args);
       },
       construct : function (obj, args) {
