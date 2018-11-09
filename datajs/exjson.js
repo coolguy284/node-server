@@ -3,6 +3,7 @@
 //e=[];e.push('b');e.push(['e']);e[1].push('xyz');e.push(e[1]);e.push(e[1][1]);e.push([e[1][1]]);e.push(e);e.push([e]);e[6].push(e[6])
 module.exports = {
   'symbolk' : ['hasInstance', 'isConcatSpreadable', 'iterator', 'match', 'replace', 'search', 'species', 'split', 'toPrimitive', 'toStringTag', 'unscopables'],
+  'symbolv' : [Symbol.hasInstance, Symbol.isConcatSpreadable, Symbol.iterator, Symbol.match, Symbol.replace, Symbol.search, Symbol.species, Symbol.split, Symbol.toPrimitive, Symbol.toStringTag, Symbol.unscopables],
   'getarr' : function (obj, rs) {
     let bks = false;
     let bs = '';
@@ -17,7 +18,14 @@ module.exports = {
           bs += rs[i];
         } else if (rs[i] == '"' && bks == false && bs != '') {
           bds = false;
-          obj = obj[module.exports.parse(bs + '"')];
+          bs += rs[i];
+        } else if (rs[i] == ']') {
+          bds = false;
+          if (bs == 'st') {
+            obj = Array.from(obj);
+          } else {
+            obj = obj[module.exports.parse(bs)];
+          }
           bs = '';
         } else {
           bs += rs[i];
@@ -25,6 +33,13 @@ module.exports = {
       } else {
         if (rs[i] == '[') {
           bds = true;
+        } else if (rs[i] == ']') {
+          if (bs == 'st') {
+            obj = Array.from(obj);
+          } else {
+            obj = obj[module.exports.parse(bs)];
+          }
+          bs = '';
         }
       }
     }
@@ -86,7 +101,14 @@ module.exports = {
       } else if (val[0] == 'm') {
         return new Map(module.exports.parse(val.substr(1, Infinity)));
       } else if (val[0] == 's' && val[1] == 't') {
-        return new Set(module.exports.parse(val.substr(2, Infinity)));
+        let st = new Set();
+        let sar = module.exports.parse(val.substr(2, Infinity), obj || st, (rs || '') + '[st]', poarr || []);
+        for (let i in sar) {
+          st.add(sar[i]);
+        }
+        return st;
+      } else if (val[0] == 'o') {
+        return module.exports.stringify(val.substr(1, Infinity));
       } else if (val[0] == '[') {
         let rv = [];
         if (val == '[]') {
@@ -287,7 +309,10 @@ module.exports = {
   },
   'stringify' : function (val, opts, obja, rs) {
     if (opts === undefined) {
-      opts = {nmapp:true};
+      opts = {};
+    }
+    if (opts.nmapp === undefined) {
+      opts.nmapp = true;
     }
     let objs = Object.prototype.toString.call(val);
     if (val === undefined) {
@@ -306,7 +331,7 @@ module.exports = {
     } else if (typeof val == 'string') {
       return JSON.stringify(val);
     } else if (typeof val == 'symbol') {
-      let sind = module.exports.symbolk.indexOf(val);
+      let sind = module.exports.symbolv.indexOf(val);
       if (sind > -1) {
         return 's.' + module.exports.symbolk[sind];
       }
@@ -319,16 +344,14 @@ module.exports = {
     } else if (objs == '[object Date]') {
       return 'd' + module.exports.stringify(val.toISOString());
     } else if (objs == '[object Map]') {
-      return 'm' + module.exports.stringify(Array.from(val));
+      if (!obja) obja = [[val], ['']];
+      return 'm' + module.exports.stringify(Array.from(val), opts, obja, (rs || '') + '[st]');
     } else if (objs == '[object Set]') {
-      return 'st' + module.exports.stringify(Array.from(val));
+      if (!obja) obja = [[val], ['']];
+      return 'st' + module.exports.stringify(Array.from(val), opts, obja, (rs || '') + '[st]');
     } else if (Object.prototype.toString.call(val) == '[object Array]') {
-      if (!obja) {
-        obja = [[val], ['']];
-      }
-      if (!rs) {
-        rs = '';
-      }
+      if (!obja) obja = [[val], ['']];
+      if (!rs) rs = '';
       let bs = '';
       let pv = -1;
       for (let i in val) {
@@ -359,10 +382,11 @@ module.exports = {
       if (!rs) {
         rs = '';
       }
-      let pn = Object.getOwnPropertyNames(val);
+      let pn;
       if (opts.incsymbol) {
-        console.log('a');
-        pn.concat(Object.getOwnPropertySymbols(val));
+        pn = Reflect.ownKeys(val);
+      } else {
+        pn = Object.getOwnPropertyNames(val);
       }
       let bs = '';
       for (let i in pn) {

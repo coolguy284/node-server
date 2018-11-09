@@ -8,12 +8,10 @@ global.oclear = console.clear;
 global.cologadd = function cologadd(value, temp, colog) {
   if (value.search('\n') > -1) {
     let sl = value.split('\n');
-    for (let i in sl) {
-      cologadd(sl[i], temp, colog);
-    }
+    for (let i in sl) cologadd(sl[i], temp, colog);
     return;
   }
-  if (!colog) { colog = global.colog; }
+  if (!colog) colog = global.colog;
   colog.push([value, temp || '{}']);
   if (colog.length > datajs.feat.lim.colog) {
     colog.splice(0, colog.length - datajs.feat.lim.colog);
@@ -36,29 +34,29 @@ global.consoleCall = function consoleCall(cn, value) {
     }
     switch (cn) {
       case 'log':
-        cologadd(value, null, this.colog);
+        cologadd(value, null, colog);
         olog(value);
         break;
       case 'info':
-        cologadd(value, null, this.colog);
+        cologadd(value, null, colog);
         oinfo(value);
         break;
       case 'debug':
-        cologadd(value, '<span style = "color:#7f7f7f;">{}</span>', this.colog);
+        cologadd(value, '<span style = "color:#7f7f7f;">{}</span>', colog);
         odebug(value);
         break;
       case 'warn':
-        cologadd(value, '<span style = "color:#3f3f00;background:#ffffcf;min-width:100%;float:left;">{}</span>', this.colog);
+        cologadd(value, '<span style = "color:#3f3f00;background:#ffffcf;min-width:100%;float:left;">{}</span>', colog);
         owarn(value);
         break;
       case 'error':
-        cologadd(value, '<span style = "color:#3f0000;background:#ffcfcf;min-width:100%;float:left;">{}</span>', this.colog);
+        cologadd(value, '<span style = "color:#3f0000;background:#ffcfcf;min-width:100%;float:left;">{}</span>', colog);
         oerror(value);
         break;
     }
   } else {
-    this.colog.splice(0, Infinity);
-    for (let i = 0; i < (this.cologmin || datajs.feat.lim.cologmin); i++) {this.colog.push(['', '{}'])}
+    colog.splice(0, Infinity);
+    for (let i = 0; i < datajs.feat.lim.cologmin; i++) {colog.push(['', '{}'])}
     oclear(value);
   }
 };
@@ -157,7 +155,7 @@ global.locked = false;
 global.cpuUsage = process.cpuUsage();
 global.pcpuUsage = global.cpuUsage;
 global.dcpuUsage = { user: 0, system: 0 };
-global.memoryUsage = process.memoryUsage();
+global.memUsage = process.memoryUsage();
 try {
   global.chat = JSON.parse(fs.readFileSync('data/chat.json').toString());
 } catch (e) {
