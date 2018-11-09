@@ -65,6 +65,10 @@ module.exports = {
       setImmediate(resolve);
     });
   },
+  'immediateSync' : function immediate() {
+    return new Promise(function (resolve) {resolve()});
+  },
+  'stacklessfunc' : require('./stacklessfunc.js'),
   'subdir' : function subdir(parent, dir) {
     const relative = path.relative(parent, dir);
     return !!relative && !relative.startsWith('..') && !path.isAbsolute(relative);
