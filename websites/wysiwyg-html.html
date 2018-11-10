@@ -22,21 +22,124 @@
   </head>
   <body>
     <button onclick = 'dehtm.value = dediv.innerHTML;'>Refresh Code</button>
-    <button onclick = 'dediv.innerHTML = dehtm.value;'>Refresh Rendered Output</button><br>
-    <div id = 'dediv' style = 'border: 1px solid lightgray;' contenteditable = 'true'>Henlo this has some <span style='color:#f00;'>red</span> text.</div>
+    <button onclick = 'dediv.innerHTML = dehtm.value;'>Refresh Rendered Output</button>
+    <label for = 'syncv'>Synchronize: </label>
+    <input type = 'range' id = 'syncv' min = 0 max = 1 value = 1 style = 'width:50px;'><br>
+    <button onclick = 'ShowWYS()'>WYSIWYG</button>
+    <button onclick = 'ShowCode()'>Code</button>
+    <button onclick = 'ShowBoth()'>Both</button><br>
+    <div id = 'dediv' contenteditable = 'true'>Henlo this has some <span style='color:#f00;'>red</span> text.</div>
     <textarea id = 'dehtm'></textarea>
     <script>
+      function insertAtCursorte(txtarea, text) {
+        if (!txtarea) return;
+        var scrollPos = txtarea.scrollTop;
+        var strPos = 0;
+        var br = ((txtarea.selectionStart || txtarea.selectionStart == '0') ?
+          "ff" : (document.selection ? "ie" : false));
+        if (br == "ie") {
+          txtarea.focus();
+          var range = document.selection.createRange();
+          range.moveStart('character', -txtarea.value.length);
+          strPos = range.text.length;
+        } else if (br == "ff") {
+          strPos = txtarea.selectionStart;
+        }
+        var front = txtarea.value.substring(0, strPos);
+        var back = txtarea.value.substring(strPos, txtarea.value.length);
+        txtarea.value = front + text + back;
+        strPos = strPos + text.length;
+        if (br == "ie") {
+          txtarea.focus();
+          var ieRange = document.selection.createRange();
+          ieRange.moveStart('character', -txtarea.value.length);
+          ieRange.moveStart('character', strPos);
+          ieRange.moveEnd('character', 0);
+          ieRange.select();
+        } else if (br == "ff") {
+          txtarea.selectionStart = strPos;
+          txtarea.selectionEnd = strPos;
+          txtarea.focus();
+        }
+        txtarea.scrollTop = scrollPos;
+      }
+      function insertAtCursor(text) {
+        var sel, range, html;
+        if (window.getSelection) {
+          sel = window.getSelection();
+          if (sel.getRangeAt && sel.rangeCount) {
+            range = sel.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(document.createTextNode(text));
+          }
+        } else if (document.selection && document.selection.createRange) {
+          document.selection.createRange().text = text;
+        }
+      }
+      var state = 'both';
+      var edlast = 'wys';
+      function ShowWYS() {
+        dediv.style = 'width: calc(100% - 6px);height: 400px;float: left;overflow: auto;-moz-appearance: textfield-multiline;-webkit-appearance: textarea;border: 1px solid gray;padding: 2px;resize: both;';
+        dehtm.style = 'display:none;';
+        if (parseInt(syncv.value) && state == 'code') {
+          dediv.innerHTML = dehtm.value;
+        }
+        state = 'wys';
+      }
+      function ShowCode() {
+        dediv.style = 'display:none;float: left;overflow: auto;-moz-appearance: textfield-multiline;-webkit-appearance: textarea;border: 1px solid gray;padding: 2px;resize: both;';
+        dehtm.style = 'width: calc(100% - 6px);height: 400px;';
+        if (parseInt(syncv.value) && state == 'wys') {
+          dehtm.value = dediv.innerHTML;
+        }
+        state = 'code';
+      }
+      function ShowBoth() {
+        dediv.style = 'width: calc(50% - 6px);height: 400px;float: left;overflow: auto;-moz-appearance: textfield-multiline;-webkit-appearance: textarea;border: 1px solid gray;padding: 2px;resize: both;';
+        dehtm.style = 'width: calc(50% - 6px);height: 400px;';
+        if (parseInt(syncv.value) && state == 'code') {
+          dediv.innerHTML = dehtm.value;
+        } else if (parseInt(syncv.value) && state == 'wys') {
+          dehtm.value = dediv.innerHTML;
+        }
+        state = 'both';
+      }
       dediv.addEventListener('keydown', function (e) {
         if (e.keyCode == 9) {
           e.preventDefault();
+          insertAtCursor('\t');
         }
-        setTimeout(function () {dehtm.value = dediv.innerHTML;}, 0);
+        if (parseInt(syncv.value) && state == 'both') {
+          setTimeout(function () {dehtm.value = dediv.innerHTML;}, 15);
+        }
+        edlast = 'wys';
+      });
+      dediv.addEventListener('input', function (e) {
+        if (parseInt(syncv.value) && state == 'both') {
+          setTimeout(function () {dehtm.value = dediv.innerHTML;}, 15);
+        }
+        edlast = 'wys';
       });
       dehtm.addEventListener('keydown', function (e) {
         if (e.keyCode == 9) {
           e.preventDefault();
+          insertAtCursorte(dehtm, '\t');
         }
-        setTimeout(function () {dediv.innerHTML = dehtm.value;}, 0);
+        if (parseInt(syncv.value) && state == 'both') {
+          setTimeout(function () {dediv.innerHTML = dehtm.value;}, 15);
+        }
+        edlast = 'code';
+      });
+      syncv.addEventListener('input', function (e) {
+        setTimeout(function () {
+          if (parseInt(syncv.value)) {
+            if (edlast == 'wys') {
+              dehtm.value = dediv.innerHTML;
+            } else if (edlast == 'code') {
+              dediv.innerHTML = dehtm.value;
+            }
+          }
+        }, 15);
       });
       onload = function () {
         dehtm.value = dediv.innerHTML;
