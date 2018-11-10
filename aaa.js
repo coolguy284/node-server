@@ -75,7 +75,7 @@ global.stream = require('stream');
 global.crypto = require('crypto');
 global.datajs = require('./datajs/data.js');
 global.exjson = datajs.exjson;
-global.b64u = require('./modjs/b64.js');
+global.b64 = require('./modjs/b64.js');
 global.b64d = require('./modjs/b64d.js');
 global.b64a = require('./modjs/b64a.js');
 global.sha256 = require('./modjs/sha256.js');
@@ -133,7 +133,6 @@ try {
 } catch (e) {
   console.warn('ps-tree import failed');
 }
-global.b64 = b64u;
 global.savedvars = {timeout:0,maxtimeout:0,uptime:0,maxuptime:0,np:[]};
 global.debreq = [];
 global.consoles = {};

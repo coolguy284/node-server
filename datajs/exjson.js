@@ -398,6 +398,10 @@ module.exports = {
     let objs = Object.prototype.toString.call(obj);
     if (objs == '[object Array]') {
       return 'array';
+    } else if (objs == '[object Map]') {
+      return 'map';
+    } else if (objs == '[object Set]') {
+      return 'set';
     } else {
       return 'object';
     }
@@ -405,7 +409,7 @@ module.exports = {
   'serialize' : function (obj, opts, ra) {
     let init = false;
     if (opts === undefined) opts = {};
-    if (ra === undefined) {ra = [[], []]; init = true;}
+    if (ra === undefined) {ra = [[], [], []]; init = true;}
     let objs = Object.prototype.toString.call(obj);
     if (obj === undefined) {
       return {type : 'undefined'};
@@ -429,42 +433,52 @@ module.exports = {
       return {type : 'regexp', value : obj.toString()};
     } else if (objs == '[object Date]') {
       return {type : 'date', value : obj.getTime()};
-    } /*else if (objs == '[object Array]') {
-      ra[0].push('array');
-      ra[1].push(obj);
-      for (let i in obj) {
-        if (ra[1].indexOf(obj[i]) < 0) {
-          let rv = module.exports.serialize(obj[i], opts, ra);
-          if (rv) {
-            obj[i] = rv;
-          } else {
-            obj[i] = {type : module.exports.gettype(obj[i]), value : obj[i]};
-          }
-        }
-      }
-    }*/ else if (typeof obj == 'object') {
+    } else if (objs == '[object Array]') {
       ra[0].push(module.exports.gettype(obj));
       ra[1].push(obj);
+      let robj = [];
+      ra[2].push(robj);
       for (let i in obj) {
         if (ra[1].indexOf(obj[i]) < 0) {
           let rv = module.exports.serialize(obj[i], opts, ra);
           if (rv) {
-            obj[i] = rv;
+            robj[i] = rv;
           } else {
-            obj[i] = {type : module.exports.gettype(obj[i]), value : obj[i]};
+            robj[i] = {type : module.exports.gettype(obj[i]), value : obj[i]};
           }
+        } else {
+          robj[i] = {type : module.exports.gettype(obj[i]), value : obj[i]};
+        }
+      }
+    } else if (typeof obj == 'object') {
+      ra[0].push(module.exports.gettype(obj));
+      ra[1].push(obj);
+      let robj = {};
+      ra[2].push(robj);
+      for (let i in obj) {
+        if (ra[1].indexOf(obj[i]) < 0) {
+          let rv = module.exports.serialize(obj[i], opts, ra);
+          if (rv) {
+            robj[i] = rv;
+          } else {
+            robj[i] = {type : module.exports.gettype(obj[i]), value : obj[i]};
+          }
+        } else {
+          robj[i] = {type : module.exports.gettype(obj[i]), value : obj[i]};
         }
       }
     }
     if (init) {
       for (let i in ra[1]) {
-        let rao = ra[1][i];
+        let rao = ra[2][i];
         for (let j in rao) {
           if (['object', 'array'].indexOf(rao[j].type) > -1) {
             rao[j].value = ra[1].indexOf(rao[j].value);
           }
         }
       }
+      ra[1] = ra[2];
+      ra.pop();
       return datajs.exjson.stringify(ra);
     }
   },
