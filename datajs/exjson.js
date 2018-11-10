@@ -45,6 +45,109 @@ module.exports = {
     }
     return obj;
   },
+  'stringify' : function (val, opts, obja, rs) {
+    if (opts === undefined) {
+      opts = {};
+    }
+    if (opts.nmapp === undefined) {
+      opts.nmapp = true;
+    }
+    let objs = Object.prototype.toString.call(val);
+    if (val === undefined) {
+      return 'undefined';
+    } else if (val === null) {
+      return 'null';
+    } else if (typeof val == 'boolean') {
+      return val.toString();
+    } else if (typeof val == 'number') {
+      if (Object.is(val, -0)) {
+        return '-0';
+      }
+      return val.toString();
+    } else if (typeof val == 'bigint') {
+      return val.toString() + 'n';
+    } else if (typeof val == 'string') {
+      return JSON.stringify(val);
+    } else if (typeof val == 'symbol') {
+      let sind = module.exports.symbolv.indexOf(val);
+      if (sind > -1) {
+        return 's.' + module.exports.symbolk[sind];
+      }
+      let ss = val.toString();
+      return 's' + module.exports.stringify(ss.substring(7, ss.length - 1));
+    } else if (typeof val == 'function') {
+      return val.toString();
+    } else if (objs == '[object RegExp]') {
+      return val.toString();
+    } else if (objs == '[object Date]') {
+      return 'd' + module.exports.stringify(val.getTime());
+    } else if (objs == '[object Map]') {
+      if (!obja) obja = [[val], ['']];
+      return 'm' + module.exports.stringify(Array.from(val), opts, obja, (rs || '') + '[st]');
+    } else if (objs == '[object Set]') {
+      if (!obja) obja = [[val], ['']];
+      return 'st' + module.exports.stringify(Array.from(val), opts, obja, (rs || '') + '[st]');
+    } else if (Object.prototype.toString.call(val) == '[object Array]') {
+      if (!obja) obja = [[val], ['']];
+      if (!rs) rs = '';
+      let bs = '';
+      let pv = -1;
+      for (let i in val) {
+        if (parseInt(i) != (pv + 1)) {
+          bs += 'i' + i + ':';
+        }
+        let ind = obja[0].indexOf(val[i]);
+        if (ind < 0) {
+          let ms = module.exports.stringify(i);
+          if (!opts.nmapp || typeof val[i] == 'object' || typeof val[i] == 'function') {
+            obja[0].push(val[i]);
+            obja[1].push(rs + '[' + ms + ']');
+          }
+          bs += module.exports.stringify(val[i], opts, obja, rs + '[' + ms + ']');
+        } else {
+          bs += 'p' + module.exports.stringify(obja[1][ind]);
+        }
+        if (i < val.length - 1) {
+          bs += ',';
+        }
+        pv = parseInt(i);
+      }
+      return '[' + bs + ']';
+    } else if (typeof val == 'object') {
+      if (!obja) {
+        obja = [[val], ['']];
+      }
+      if (!rs) {
+        rs = '';
+      }
+      let pn;
+      if (opts.incsymbol) {
+        pn = Reflect.ownKeys(val);
+      } else {
+        pn = Object.getOwnPropertyNames(val);
+      }
+      let bs = '';
+      for (let i in pn) {
+        let obj = pn[i];
+        bs += module.exports.stringify(obj) + ':';
+        let ind = obja[0].indexOf(val[obj]);
+        if (ind < 0) {
+          let ms = module.exports.stringify(obj);
+          if (!opts.nmapp || typeof val[obj] == 'object' || typeof val[obj] == 'function') {
+            obja[0].push(val[obj]);
+            obja[1].push(rs + '[' + ms + ']');
+          }
+          bs += module.exports.stringify(val[obj], opts, obja, rs + '[' + ms + ']');
+        } else {
+          bs += 'p' + module.exports.stringify(obja[1][ind]);
+        }
+        if (i < pn.length - 1) {
+          bs += ',';
+        }
+      }
+      return '{' + bs + '}';
+    }
+  },
   'parse' : function (val, obj, rs, poarr) {
     if (val.length > 0) {
       if (val == 'undefined') {
@@ -76,26 +179,8 @@ module.exports = {
       } else if (val[0] == 'f') {
         return eval('(' + val + ')');
       } else if (val[0] == '/') {
-        let esc = false, ep = false, rs = '', rs2 = '';
-        val = val.substr(1, Infinity);
-        for (let i in val) {
-          if (!ep) {
-            if (val[i] == '\\' && esc == false) {
-              esc = true;
-              rs += val[i];
-            } else if (val[i] == '\\' && esc == true) {
-              esc = false;
-              rs += val[i];
-            } else if (val[i] == '/' && esc == false) {
-              ep = true;
-            } else {
-              rs += val[i];
-            }
-          } else {
-            rs2 += val[i];
-          }
-        }
-        return RegExp(rs, rs2);
+        let rp = /\/(.*)\/(.*)/.exec(val);
+        return RegExp(rp[0], rp[1]);
       } else if (val[0] == 'd') {
         return new Date(module.exports.parse(val.substr(1, Infinity)));
       } else if (val[0] == 'm') {
@@ -107,6 +192,8 @@ module.exports = {
           st.add(sar[i]);
         }
         return st;
+      } else if (val[0] == 'r') {
+        return new Object(module.exports.parse(val.substr(1, Infinity)));
       } else if (val[0] == 'o') {
         return module.exports.stringify(val.substr(1, Infinity));
       } else if (val[0] == '[') {
@@ -307,107 +394,114 @@ module.exports = {
       }
     }
   },
-  'stringify' : function (val, opts, obja, rs) {
-    if (opts === undefined) {
-      opts = {};
-    }
-    if (opts.nmapp === undefined) {
-      opts.nmapp = true;
-    }
-    let objs = Object.prototype.toString.call(val);
-    if (val === undefined) {
-      return 'undefined';
-    } else if (val === null) {
-      return 'null';
-    } else if (typeof val == 'boolean') {
-      return val.toString();
-    } else if (typeof val == 'number') {
-      if (Object.is(val, -0)) {
-        return '-0';
-      }
-      return val.toString();
-    } else if (typeof val == 'bigint') {
-      return val.toString() + 'n';
-    } else if (typeof val == 'string') {
-      return JSON.stringify(val);
-    } else if (typeof val == 'symbol') {
-      let sind = module.exports.symbolv.indexOf(val);
-      if (sind > -1) {
-        return 's.' + module.exports.symbolk[sind];
-      }
-      let ss = val.toString();
-      return 's' + module.exports.stringify(ss.substring(7, ss.length - 1));
-    } else if (typeof val == 'function') {
-      return val.toString();
-    } else if (objs == '[object RegExp]') {
-      return val.toString();
-    } else if (objs == '[object Date]') {
-      return 'd' + module.exports.stringify(val.toISOString());
-    } else if (objs == '[object Map]') {
-      if (!obja) obja = [[val], ['']];
-      return 'm' + module.exports.stringify(Array.from(val), opts, obja, (rs || '') + '[st]');
-    } else if (objs == '[object Set]') {
-      if (!obja) obja = [[val], ['']];
-      return 'st' + module.exports.stringify(Array.from(val), opts, obja, (rs || '') + '[st]');
-    } else if (Object.prototype.toString.call(val) == '[object Array]') {
-      if (!obja) obja = [[val], ['']];
-      if (!rs) rs = '';
-      let bs = '';
-      let pv = -1;
-      for (let i in val) {
-        if (parseInt(i) != (pv + 1)) {
-          bs += 'i' + i + ':';
-        }
-        let ind = obja[0].indexOf(val[i]);
-        if (ind < 0) {
-          let ms = module.exports.stringify(i);
-          if (!opts.nmapp || typeof val[i] == 'object' || typeof val[i] == 'function') {
-            obja[0].push(val[i]);
-            obja[1].push(rs + '[' + ms + ']');
-          }
-          bs += module.exports.stringify(val[i], opts, obja, rs + '[' + ms + ']');
-        } else {
-          bs += 'p' + module.exports.stringify(obja[1][ind]);
-        }
-        if (i < val.length - 1) {
-          bs += ',';
-        }
-        pv = parseInt(i);
-      }
-      return '[' + bs + ']';
-    } else if (typeof val == 'object') {
-      if (!obja) {
-        obja = [[val], ['']];
-      }
-      if (!rs) {
-        rs = '';
-      }
-      let pn;
-      if (opts.incsymbol) {
-        pn = Reflect.ownKeys(val);
-      } else {
-        pn = Object.getOwnPropertyNames(val);
-      }
-      let bs = '';
-      for (let i in pn) {
-        let obj = pn[i];
-        bs += module.exports.stringify(obj) + ':';
-        let ind = obja[0].indexOf(val[obj]);
-        if (ind < 0) {
-          let ms = module.exports.stringify(obj);
-          if (!opts.nmapp || typeof val[obj] == 'object' || typeof val[obj] == 'function') {
-            obja[0].push(val[obj]);
-            obja[1].push(rs + '[' + ms + ']');
-          }
-          bs += module.exports.stringify(val[obj], opts, obja, rs + '[' + ms + ']');
-        } else {
-          bs += 'p' + module.exports.stringify(obja[1][ind]);
-        }
-        if (i < pn.length - 1) {
-          bs += ',';
-        }
-      }
-      return '{' + bs + '}';
+  'gettype' : function (obj) {
+    let objs = Object.prototype.toString.call(obj);
+    if (objs == '[object Array]') {
+      return 'array';
+    } else {
+      return 'object';
     }
   },
+  'serialize' : function (obj, opts, ra) {
+    let init = false;
+    if (opts === undefined) opts = {};
+    if (ra === undefined) {ra = [[], []]; init = true;}
+    let objs = Object.prototype.toString.call(obj);
+    if (obj === undefined) {
+      return {type : 'undefined'};
+    } else if (obj === null) {
+      return {type : 'null'};
+    } else if (typeof obj == 'boolean') {
+      return {type : 'boolean', value : obj.toString()};
+    } else if (typeof obj == 'number') {
+      if (Object.is(obj, -0)) {
+        return {type : 'number', value : '-0'};
+      } else {
+        return {type : 'number', value : obj.toString()};
+      }
+    } else if (typeof obj == 'bigint') {
+      return {type : 'bigint', value : obj.toString()};
+    } else if (typeof obj == 'string') {
+      return {type : 'string', value : obj};
+    } else if (typeof obj == 'function') {
+      return {type : 'function', value : obj.toString()};
+    } else if (objs == '[object RegExp]') {
+      return {type : 'regexp', value : obj.toString()};
+    } else if (objs == '[object Date]') {
+      return {type : 'date', value : obj.getTime()};
+    } /*else if (objs == '[object Array]') {
+      ra[0].push('array');
+      ra[1].push(obj);
+      for (let i in obj) {
+        if (ra[1].indexOf(obj[i]) < 0) {
+          let rv = module.exports.serialize(obj[i], opts, ra);
+          if (rv) {
+            obj[i] = rv;
+          } else {
+            obj[i] = {type : module.exports.gettype(obj[i]), value : obj[i]};
+          }
+        }
+      }
+    }*/ else if (typeof obj == 'object') {
+      ra[0].push(module.exports.gettype(obj));
+      ra[1].push(obj);
+      for (let i in obj) {
+        if (ra[1].indexOf(obj[i]) < 0) {
+          let rv = module.exports.serialize(obj[i], opts, ra);
+          if (rv) {
+            obj[i] = rv;
+          } else {
+            obj[i] = {type : module.exports.gettype(obj[i]), value : obj[i]};
+          }
+        }
+      }
+    }
+    if (init) {
+      for (let i in ra[1]) {
+        let rao = ra[1][i];
+        for (let j in rao) {
+          if (['object', 'array'].indexOf(rao[j].type) > -1) {
+            rao[j].value = ra[1].indexOf(rao[j].value);
+          }
+        }
+      }
+      return datajs.exjson.stringify(ra);
+    }
+  },
+  'deserialize' : function (ra, opts) {
+    if (opts === undefined) opts = {};
+    ra = datajs.exjson.parse(ra);
+    for (let i in ra[1]) {
+      let rao = ra[1][i];
+      for (let j in rao) {
+        if (['object', 'array'].indexOf(rao[j].type) > -1) {
+          rao[j] = ra[1][rao[j].value];
+        } else if (rao[j].type == 'undefined') {
+          rao[j] = undefined;
+        } else if (rao[j].type == 'null') {
+          rao[j] = null;
+        } else if (rao[j].type == 'boolean') {
+          rao[j] = Boolean(rao[j].value);
+        } else if (rao[j].type == 'number') {
+          rao[j] = Number(rao[j].value);
+        } else if (rao[j].type == 'bigint') {
+          rao[j] = BigInt(rao[j].value);
+        } else if (rao[j].type == 'string') {
+          rao[j] = rao[j].value;
+        } else if (rao[j].type == 'function') {
+          rao[j] = eval(rao[j].value);
+        } else if (rao[j].type == 'regexp') {
+          let rp = /\/(.*)\/(.*)/.exec(rao[j].value);
+          rao[j] = new RegExp(rp[0], rp[1]);
+        } else if (rao[j].type == 'date') {
+          rao[j] = new Date(rao[j].value);
+        }
+      }
+    }
+    if (opts.debug) {
+      return ra;
+    } else {
+      return ra[1][0];
+    }
+  }
 };

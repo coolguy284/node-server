@@ -85,6 +85,7 @@ module.exports = {
   'proxyt' : require('./proxyt.js'),
   'bw' : require('./bw.js'),
   'exjson' : require('./exjson.js'),
+  'debreq' : require('./debreq.js'),
   'adm' : require('./adm.js'),
   'comm' : require('./comm.js'),
   'consm' : require('./consm.js'),
