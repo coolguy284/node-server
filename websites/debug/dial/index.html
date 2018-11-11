@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Dials</title>
+  </head>
+  <body>
+    <p align = 'center'>
+      <canvas id = 'mycanvas'></canvas><br>
+      <input type = 'range' id = 'vinp' min = 0 max = 1 step = 'any' value = 0 oninput = 'updnum()' style = 'width:400px;'><br>
+      <input type = 'range' id = 'vinpr' min = 0 max = 1 step = 'any' value = 0 oninput = 'updnumr()' style = 'width:400px;'><br>
+      <input type = 'text' id = 'vinpn'>
+      <button onclick = 'updnums()'>Set</button>
+    </p>
+    <script src = 'https://cdn.jsdelivr.net/processing.js/1.4.8/processing.min.js'></script>
+    <script src = 'index.js'></script>
+  </body>
+</html>
