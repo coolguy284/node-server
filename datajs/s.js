@@ -55,7 +55,7 @@ module.exports = {
         for (let i = 0; i < size; i++) {
           ra.push(this.val);
         }
-        rv = this.push(ra.length > 0 ? new Buffer(ra) : null);
+        rv = this.push(ra.length > 0 ? Buffer.from(ra) : null);
         this.tolim -= size;
         if (this.tolim <= 0) {
           rv = false;
@@ -82,7 +82,7 @@ module.exports = {
         for (let i = 0; i < size; i++) {
           ra.push(Math.floor(Math.random() * 256));
         }
-        rv = this.push(ra.length > 0 ? new Buffer(ra) : null);
+        rv = this.push(ra.length > 0 ? Buffer.from(ra) : null);
         this.tolim -= size;
         if (this.tolim <= 0) {
           rv = false;
@@ -104,8 +104,8 @@ module.exports = {
         if (this.ibuf.length < size) {
           size = this.ibuf.length;
         }
-        let rb = new Buffer(size);
-        let nibuf = new Buffer(this.ibuf.length - size);
+        let rb = Buffer.allocUnsafe(size);
+        let nibuf = Buffer.allocUnsafe(this.ibuf.length - size);
         this.ibuf.copy(rb, 0, 0, size);
         this.ibuf.copy(nibuf, 0, size, this.ibuf.length);
         this.ibuf = nibuf;
@@ -117,22 +117,64 @@ module.exports = {
     }
   },
   'BufWriteStream' : class BufWriteStream extends stream.Writable {
-    constructor(ibuf, options) {
+    constructor(ibuf, dyn, options) {
       super(options);
-      if (!ibuf) {
-        ibuf = Buffer.alloc(0);
+      if (dyn === undefined) {
+        dyn = false;
       }
-      this.ibuf = ibuf;
+      if (dyn) {
+        if (!ibuf) {
+          ibuf = [];
+        }
+        this.ibufa = ibuf;
+        Object.defineProperty(this, 'ibuf', {
+          configurable: true,
+          enumerable: true,
+          get: function () {
+            return Buffer.concat(this.ibufa);
+          },
+          set: function (val) {
+            this.ibufa = [Buffer.from(val)];
+          },
+        });
+      } else {
+        if (!ibuf) {
+          ibuf = Buffer.alloc(0);
+        }
+        this.ibuf = ibuf;
+      }
+      this.dyn = dyn;
     }
     _write(chunk, enc, done) {
-      this.ibuf = Buffer.concat([this.ibuf, chunk]);
+      if (this.dyn) {
+        this.ibufa.push(chunk);
+      } else {
+        this.ibuf = Buffer.concat([this.ibuf, chunk]);
+      }
       done();
     }
     _writev(chunks, done) {
       chunks = chunks.map(function (val) {return val.chunk;});
-      chunks.shift(this.ibuf);
-      this.ibuf = Buffer.concat(chunks);
+      if (this.dyn) {
+        for (let i in chunks) {
+          this.ibufa.push(chunk[i]);
+        }
+      } else {
+        chunks.shift(this.ibuf);
+        this.ibuf = Buffer.concat(chunks);
+      }
       done();
+    }
+    _final(done) {
+      if (this.dyn) {
+        Object.defineProperty(this, 'ibuf', {
+          configurable: true,
+          enumerable: true,
+          writable: true,
+          value: Buffer.concat(this.ibufa)
+        });
+        delete this.ibufa;
+      }
     }
   },
   'SimCompDecode' : class SimpCompEncode extends stream.Transform {
