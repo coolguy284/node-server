@@ -1,4 +1,5 @@
 // jshint maxerr:1000 -W041
+global.sst = new Date().getTime();
 global.olog = console.log;
 global.oinfo = console.info;
 global.odebug = console.debug;
@@ -73,21 +74,17 @@ global.os = require('os');
 global.cp = require('child_process');
 global.stream = require('stream');
 global.crypto = require('crypto');
+global.util = require('util');
 global.datajs = require('./datajs/data.js');
 global.exjson = datajs.exjson;
+if (datajs.feat.enc == 'aes') {
+  global.CryptoJS = require('./modjs/crypto-js.min.js');
+}
 global.b64 = require('./modjs/b64.js');
 global.b64d = require('./modjs/b64d.js');
 global.b64a = require('./modjs/b64a.js');
 global.sha256 = require('./modjs/sha256.js');
 global.rsa = require('./modjs/rsa.js');
-global.util = require('util');
-global.vm = require('vm');
-global.vfs = require('./vfs/vfs.js');
-global.reqg = require('./request_get.js');
-global.reqh = require('./request_head.js');
-if (datajs.feat.enc == 'aes') {
-  global.CryptoJS = require('./modjs/crypto-js.min.js');
-}
 try {
   switch (datajs.feat.enc) {
     case 'b64':
@@ -117,6 +114,10 @@ try {
     console.error(e);
   }
 }
+global.vm = require('vm');
+global.vfs = require('./vfs/vfs.js');
+global.reqg = require('./request_get.js');
+global.reqh = require('./request_head.js');
 try {
   global.mime = require('mime');
 } catch (e) {
@@ -374,9 +375,10 @@ global.serverf = function serverf(req, resa, nolog) {
   }
 };
 global.serv = http.createServer(serverf).listen(8080, undefined, function (err) {
+  global.slt = new Date().getTime();
   if (err) {
     console.log('[' + new Date().toISOString() + '] Error: ' + err);
   } else {
-    console.log('[' + new Date().toISOString() + '] Server Listening on Port 8080');
+    console.log('[' + new Date().toISOString() + '] Server Listening on Port 8080 (starting time: ' + (slt - sst) + 'ms)');
   }
 });
