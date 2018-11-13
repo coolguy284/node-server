@@ -20,6 +20,16 @@ class FileSystem {
     if (inodarr === undefined) {
       let ctime = getcTime();
       inodarr = [['d', 1, ctime, ctime, ctime, 0o777, 'root', 'root']];
+      /*inodarr = [Buffer.from([
+        0x01,
+        0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x01, 0xff,
+        0x72, 0x6f, 0x6f, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x72, 0x6f, 0x6f, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+      ])];*/
     }
     if (fi === undefined) fi = [];
     if (groups === undefined) groups = {};
@@ -27,6 +37,7 @@ class FileSystem {
     this.inoarr = inoarr;
     this.inodarr = inodarr;
     this.fi = fi;
+    this.groups = groups;
   }
   parseFolder(buf) {
     return buf.toString().split('\n').map(x => x.split(':'));
@@ -35,6 +46,7 @@ class FileSystem {
     if (!this.writable) throw new Error('read-only filesystem');
     if (this.fi.length > 0) {
       let ino = this.fi.splice(0, 1)[0];
+      let ctime = getcTime();
       this.inoarr[ino] = Buffer.alloc(0);
       this.inodarr[ino] = [typ, 0, ctime, ctime, ctime, 0o777, 'root', 'root'];
       return ino;
@@ -80,8 +92,8 @@ class FileSystem {
     }
     return ino;
   }
-  geteInode(path) {
-    let rv = this.getInode(path);
+  geteInode(path, symlink) {
+    let rv = this.getInode(path, symlink);
     if (rv === null) {
       throw new Error('ENOENT no such file or directory: ' + path);
     }
@@ -93,8 +105,8 @@ class FileSystem {
     this.inodarr[ino][1]++;
     return ino;
   }
-  getcInode(path, typ) {
-    let ino = this.getInode(path);
+  getcInode(path, typ, symlink) {
+    let ino = this.getInode(path, symlink);
     if (ino === null) {
       return this.createFile(path, typ);
     } else {
@@ -208,7 +220,7 @@ class FileSystem {
   unlink(path) {
     if (!this.writable) throw new Error('read-only filesystem');
     let inop = this.geteInode(parentPath(path));
-    let ino = this.geteInode(path);
+    let ino = this.geteInode(path, true);
     let pf = this.parseFolder(this.inoarr[inop]);
     let delino = null;
     for (let i in pf) {
@@ -228,7 +240,7 @@ class FileSystem {
   readdir(path) {
     let ino = this.geteInode(path);
     if (this.writable) this.inodarr[ino][4] = getcTime();
-    return this.parseFolder(this.inoarr[ino]);
+    return this.parseFolder(this.inoarr[ino]).map(x => x[0]);
   }
   readlink(path, options) {
     let ino = this.geteInode(path, false);
@@ -246,6 +258,25 @@ class FileSystem {
     this.unlink(pathf);
   }
   // rmdir :(
+  stat(path) {
+    let ino = this.geteInode(path);
+    let inof;
+    switch (this.inodarr[ino][0]) {
+      case 'f':
+        inof = 0o100000;
+        break;
+      case 'd':
+        inof = 0o40000;
+        break;
+      case 's':
+        inof = 0o120000;
+        break;
+    }
+    return new fs.Stat(null, this.inodarr[ino][5] + inof);
+  }
+  lstat(path) {
+    
+  }
   symlink(target, path) {
     if (this.exists(path)) this.unlink(path);
     let ino = this.getcInode(path, 's');
@@ -266,6 +297,11 @@ class FileSystem {
     let ctime = getcTime();
     this.inodarr[ino][3] = ctime;
     this.inodarr[ino][4] = ctime;
+  }
+  utimes(path, atime, mtime) {
+    let ino = this.geteInode(path);
+    this.inodarr[ino][4] = Number(atime);
+    this.inodarr[ino][3] = Number(mtime);
   }
 }
 class FileSystemView {
