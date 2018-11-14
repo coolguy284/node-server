@@ -23,9 +23,9 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       setTimeout(function () {res.end();}, 2000);
       break;
     case '/evtsrc.log':
-      let dfunc2 = function (val) {res.write('event: tester\ndata: ' + val);res.write('\n\n');};
+      let dfunc2 = function (val) {res.write('event: tester\ndata: ' + val + '\n\n');};
       let dfunc3 = function () {res.end();};
-      res.writeHead(200, {'Content-Type':'text/event-stream; charset=utf-8','Connection':'keep-alive','Cache-Control':'no-cache','Transfer-Encoding':'chunked'});
+      res.writeHead(200, {'Content-Type':'text/event-stream','Connection':'keep-alive','Cache-Control':'no-cache','Transfer-Encoding':'chunked'});
       for (let dc = 0; dc < 11; dc++) {
         if (dc == 10) {
           setTimeout(dfunc3, dc * 1000, dc);
@@ -421,7 +421,11 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       if (b64a.upar.hasOwnProperty(uparr[0])) {
         if (b64a.upar[uparr[0]] == sha256.hex(uparr[1])) {
           let id = datajs.genid(32);
-          loginid.push([stime.getTime(), id, uparr[0]]);
+          if (datajs.feat.loginip) {
+            loginid.push([stime.getTime(), id, uparr[0], ipaddr]);
+          } else {
+            loginid.push([stime.getTime(), id, uparr[0]]);
+          }
           datajs.rm.restext(res, id);
         } else {
           datajs.rm.restext(res, '1');
@@ -550,6 +554,20 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
         let rs = fs.createReadStream('websites/p404.html');
         res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
         rs.pipe(res);
+        let rp = 'p404';
+        if (viewshist.reg[req.url]) rp = 'reg';
+        else if (viewshist.ajax[req.url]) rp = 'ajax';
+        if (rp != 'p404') {
+          viewshist[rp][req.url]--;
+          if (viewshist[rp][req.url] <= 0) {
+            delete viewshist.reg[req.url];
+          }
+        }
+        if (!viewshist.p404[req.url]) {
+          viewshist.p404[req.url] = 1;
+        } else {
+          viewshist.p404[req.url]++;
+        }
       }
     }
   }

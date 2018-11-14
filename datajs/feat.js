@@ -15,6 +15,7 @@ module.exports = {
   'tickint' : 1000,
   'savefreq' : 10,
   'intmode' : false,
+  'loginip' : true,
   'bwlimits' : {
     'main' : Infinity,
   },
