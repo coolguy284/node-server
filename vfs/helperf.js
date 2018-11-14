@@ -25,6 +25,6 @@ function normalize(path, cwd) {
       bp.push(patharr[i]);
     }
   }
-  return patharr[0];
+  return bp.join('/');
 }
 module.exports = {getcTime, parentPath, pathEnd, normalize};
