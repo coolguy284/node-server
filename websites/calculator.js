@@ -34,9 +34,22 @@ function ExpBigNum(val) {
   this.type = 'bignum';
   this.val = val;
 }
+function ExpVariable(val) {
+  this.type = 'variable';
+  this.val = val;
+}
 function ExpMatrix(val) {
   this.type = 'mat';
-  this.val = val;
+  var ylen = val.val.length;
+  var xlen = val.val[0].val.length;
+  this.val = [];
+  for (var y = 0; y < ylen; y++) {
+    var ta = [];
+    for (var x = 0; x < xlen; x++) {
+      ta.push(val.val[y].val[x]);
+    }
+    this.val.push(ta);
+  }
 }
 function ExpArray(val) {
   this.type = 'array';
@@ -46,9 +59,17 @@ function ExpOperator(val) {
   this.type = 'op';
   this.val = val;
 }
-function ExpFuncCall(val) {
+function ExpFuncCall(nam, val) {
   this.type = 'funccall';
+  this.nam = nam;
   this.val = val;
+}
+function FuncCall(nam, val) {
+  if (nam == 'mat') {
+    return new ExpMatrix(val);
+  } else {
+    return new ExpFuncCall(nam, val);
+  }
 }
 function ExpFunc(val) {
   this.type = 'func';
@@ -73,12 +94,19 @@ function ToExpArr(val) {
         ba = new ExpArray([]);
         bt = 'array';
         pl = ['a'];
+      } else if ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_'.indexOf(val[i]) > -1) {
+        bs += val[i];
+        bt = 'var';
       }
     } else if (bt == 'number') {
       if ('0123456789.'.indexOf(val[i]) > -1) {
         bs += val[i];
-      }
-      if ('+-*/%^|&'.indexOf(val[i]) > -1) {
+      } else if ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_'.indexOf(val[i]) > -1) {
+        ra.push(new ExpNumber(bs));
+        ra.push(new ExpOperator('*'));
+        bs = val[i];
+        bt = 'var';
+      } else if ('+-*/%^|&'.indexOf(val[i]) > -1) {
         ra.push(new ExpNumber(bs));
         ra.push(new ExpOperator(val[i]));
         bs = '';
@@ -89,6 +117,37 @@ function ToExpArr(val) {
         bs = '';
         bt = 'paren';
         pl = ['p'];
+      }
+    } else if (bt == 'var') {
+      if ('+-*/%^|&'.indexOf(val[i]) > -1) {
+        ra.push(new ExpVariable(bs));
+        ra.push(new ExpOperator(val[i]));
+        bs = '';
+        bt = '';
+      } else if (val[i] == '(') {
+        bt = 'funccall';
+        ba.push(bs);
+        bs = '';
+      } else {
+        bs += val[i];
+      }
+    } else if (bt == 'funccall') {
+      if (val[i] == '(') {
+        pl.push('p');
+      } else if (val[i] == ')') {
+        if (pl[pl.length - 1] == 'p') {
+          pl.pop();
+        } else {
+          throw new SyntaxError('parenthesis or bracket mismatch');
+        }
+      }
+      if (pl.length == 0) {
+        ra.push(FuncCall(ba[0], ToExpArr(bs)));
+        bs = '';
+        bt = '';
+        ba = [];
+      } else {
+        bs += val[i];
       }
     } else if (bt == 'paren') {
       if (val[i] == '(') {
@@ -142,6 +201,10 @@ function ToExpArr(val) {
   }
   if (bt == 'number') {
     ra.push(new ExpNumber(bs));
+    bs = '';
+    bt = '';
+  } else if (bt == 'var') {
+    ra.push(new ExpVariable(bs));
     bs = '';
     bt = '';
   } else if (bt == 'paren') {

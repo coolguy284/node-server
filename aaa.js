@@ -182,7 +182,7 @@ try {
 } catch (e) {
   console.error('viewshist restore failed, viewshist empty');
   console.error(e);
-  global.viewshist = {};
+  global.viewshist = {reg:{},ajax:{},p404:{}};
 }
 try {
   global.savedvarsa = JSON.parse(fs.readFileSync('data/savedvars.json').toString());
@@ -300,9 +300,17 @@ global.serverf = function serverf(req, resa, nolog) {
   }
   cookies = datajs.rm.parsecookies(req);
   if (cookies.sid) {
-    for (let i in loginid) {
-      if (loginid[i][1] == cookies.sid) {
-        nam = loginid[i][2];
+    if (datajs.feat.loginip) {
+      for (let i in loginid) {
+        if (loginid[i][1] == cookies.sid && loginid[i][3] == ipaddr) {
+          nam = loginid[i][2];
+        }
+      }
+    } else {
+      for (let i in loginid) {
+        if (loginid[i][1] == cookies.sid) {
+          nam = loginid[i][2];
+        }
       }
     }
   }
@@ -338,10 +346,14 @@ global.serverf = function serverf(req, resa, nolog) {
   if (req.method == 'GET') {
     if (!nolog) {
       if (datajs.feat.el.vh.indexOf(req.url) < 0 && datajs.feat.el.vhv.every(datajs.notstartswith, req.url) && Object.keys(datajs.handlerp).every(datajs.notstartswith, req.url)) {
-        if (viewshist[req.url] === undefined) {
-          viewshist[req.url] = 1;
+        let rp = 'reg';
+        if (datajs.feat.el.ajaxl.indexOf(req.url) > -1) {
+          rp = 'ajax';
+        }
+        if (viewshist[rp][req.url] === undefined) {
+          viewshist[rp][req.url] = 1;
         } else {
-          viewshist[req.url] += 1;
+          viewshist[rp][req.url]++;
         }
       }
     }
