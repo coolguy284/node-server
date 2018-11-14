@@ -427,12 +427,33 @@ module.exports = {
       return {type : 'bigint', value : obj.toString()};
     } else if (typeof obj == 'string') {
       return {type : 'string', value : obj};
+    } else if (typeof obj == 'symbol') {
+      ra[0].push('symbol');
+      ra[1].push(obj);
+      ra[2].push(obj);
     } else if (typeof obj == 'function') {
       return {type : 'function', value : obj.toString()};
     } else if (objs == '[object RegExp]') {
       return {type : 'regexp', value : obj.toString()};
     } else if (objs == '[object Date]') {
       return {type : 'date', value : obj.getTime()};
+    } else if (objs == '[object Set]' || objs == '[object Map]') {
+      ra[0].push(module.exports.gettype(obj));
+      ra[1].push(obj);
+      let robj = Array.from(obj);
+      ra[2].push(robj);
+      for (let i in robj) {
+        if (ra[1].indexOf(obj[i]) < 0) {
+          let rv = module.exports.serialize(obj[i], opts, ra);
+          if (rv) {
+            robj[i] = rv;
+          } else {
+            robj[i] = {type : module.exports.gettype(obj[i]), value : obj[i]};
+          }
+        } else {
+          robj[i] = {type : module.exports.gettype(obj[i]), value : obj[i]};
+        }
+      }
     } else if (objs == '[object Array]') {
       ra[0].push(module.exports.gettype(obj));
       ra[1].push(obj);
@@ -488,7 +509,7 @@ module.exports = {
     for (let i in ra[1]) {
       let rao = ra[1][i];
       for (let j in rao) {
-        if (['object', 'array'].indexOf(rao[j].type) > -1) {
+        if (['object', 'array', 'set', 'map', 'symbol'].indexOf(rao[j].type) > -1) {
           rao[j] = ra[1][rao[j].value];
         } else if (rao[j].type == 'undefined') {
           rao[j] = undefined;
@@ -510,6 +531,13 @@ module.exports = {
         } else if (rao[j].type == 'date') {
           rao[j] = new Date(rao[j].value);
         }
+      }
+      if (ra[0][i] == 'set') {
+        ra[1][i] = new Set(ra[1][i]);
+      } else if (ra[0][1] == 'map') {
+        ra[1][i] = new Map(ra[1][i]);
+      } else if (ra[0][1] == 'symbol') {
+        ra[1][i] = ra[1][ra[1][i]];
       }
     }
     if (opts.debug) {

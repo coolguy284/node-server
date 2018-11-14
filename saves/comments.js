@@ -155,6 +155,17 @@ fs.readFile('websites' + req.url, function (err, data) {
   while (new Date().getTime() < et) {}
 },*/
 
+//---------------b64.js---------------
+
+Base64.s = '';
+Base64.s += 'TmGn=FzUa4';
+Base64.s += 'SlHo5EyVb9';
+Base64.s += 'RkIp0DxWc3';
+Base64.s += 'QjJq6CwXd8';
+Base64.s += 'PiKr1BvYe/';
+Base64.s += 'OhLs+AuZf7';
+Base64.s += 'NgMt2';
+
 //---------------chat.html---------------
 var keys = [];
 window.addGlobalHotkey = function(callback,keyValues){
