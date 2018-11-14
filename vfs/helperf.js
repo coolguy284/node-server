@@ -17,7 +17,6 @@ function normalize(path, cwd) {
     else path = cwd + path;
   }
   let patharr = path.split('/');
-  patharr.splice(0, 1);
   let bp = [];
   for (let i in patharr) {
     if (patharr[i] == '..') {
