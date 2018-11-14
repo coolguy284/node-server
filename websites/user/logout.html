@@ -20,7 +20,7 @@
       onload = function() {
         logoutreq = new XMLHttpRequest();
         logoutreq.addEventListener('load', logout);
-        logoutreq.open('GET', 'https://server--coolguy284.repl.co/logout?v=' + parsecookies(document.cookie)['sid']);
+        logoutreq.open('GET', '/logout?v=' + parsecookies(document.cookie)['sid']);
         logoutreq.send();
       };
     </script>
