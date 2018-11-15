@@ -554,19 +554,21 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
         let rs = fs.createReadStream('websites/p404.html');
         res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
         rs.pipe(res);
-        let rp = 'p404';
-        if (viewshist.reg[req.url]) rp = 'reg';
-        else if (viewshist.ajax[req.url]) rp = 'ajax';
-        if (rp != 'p404') {
-          viewshist[rp][req.url]--;
-          if (viewshist[rp][req.url] <= 0) {
-            delete viewshist.reg[req.url];
+        if (datajs.feat.el.vh.indexOf(req.url) < 0 && datajs.feat.el.vhv.every(datajs.notstartswith, req.url) && Object.keys(datajs.handlerp).every(datajs.notstartswith, req.url)) {
+          let rp = 'p404';
+          if (viewshist.reg[req.url]) rp = 'reg';
+          else if (viewshist.ajax[req.url]) rp = 'ajax';
+          if (rp != 'p404') {
+            viewshist[rp][req.url]--;
+            if (viewshist[rp][req.url] <= 0) {
+              delete viewshist.reg[req.url];
+            }
           }
-        }
-        if (!viewshist.p404[req.url]) {
-          viewshist.p404[req.url] = 1;
-        } else {
-          viewshist.p404[req.url]++;
+          if (!viewshist.p404[req.url]) {
+            viewshist.p404[req.url] = 1;
+          } else {
+            viewshist.p404[req.url]++;
+          }
         }
       }
     }
