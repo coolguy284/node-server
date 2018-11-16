@@ -38,19 +38,19 @@
         escaper.innerHTML = html;
         return escaper.textContent;
       }
-      function SetEnd(txt) {  
-        if (txt.createTextRange) {  
-          //IE  
-          var FieldRange = txt.createTextRange();  
-          FieldRange.moveStart('character', txt.value.length);  
-          FieldRange.collapse();  
-          FieldRange.select();  
-        } else {  
-          //Firefox and Opera  
-          txt.focus();  
-          var length = txt.value.length;  
-          txt.setSelectionRange(length, length);  
-        }  
+      function SetEnd(txt) {
+        if (txt.createTextRange) {
+          //IE
+          var FieldRange = txt.createTextRange();
+          FieldRange.moveStart('character', txt.value.length);
+          FieldRange.collapse();
+          FieldRange.select();
+        } else {
+          //Firefox and Opera
+          txt.focus();
+          var length = txt.value.length;
+          txt.setSelectionRange(length, length);
+        }
       }
       var conchist = [];
       var histind = 0;
@@ -75,14 +75,11 @@
         }
         try {
         if (document.hidden || cifr.contentWindow.getSelection().toString() == '') {
-          switch (enc.value) {
-            case 'b64':
-              Base64.s = serverp;
-              ara = JSON.parse(Base64.decode(this.responseText));
-              break;
-            case 'aes':
-              ara = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(this.responseText, serverp)));
-              break;
+          if (enc.value == 'b64') {
+            Base64.s = serverp;
+            ara = JSON.parse(Base64.decode(this.responseText));
+          } else if (enc.value == 'aes') {
+            ara = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(this.responseText, serverp)));
           }
           for (var i in ara) {
             ara[i] = ara[i][1].replace('{}', escapeHTML(ara[i][0]));
@@ -102,6 +99,7 @@
       function reqgp() {
         if (this.responseText != '') {
           serverp = Base64.decode(this.responseText);
+          Base64.s = serverp;
         }
       }
       function reqsp() {
@@ -185,14 +183,11 @@
         reqr.addEventListener('load', reqsp);
         var et;
         if (dc.value == 'reg' || dc.value == 'deb') {
-          switch (enc.value) {
-            case 'b64':
-              Base64.s = server;
-              et = Base64.encode(JSON.stringify([server, conc.value]));
-              break;
-            case 'aes':
-              et = CryptoJS.AES.encrypt(JSON.stringify([server, conc.value]), serverp).toString();
-              break;
+          if (enc.value == 'b64') {
+            Base64.s = server;
+            et = Base64.encode(JSON.stringify([server, conc.value]));
+          } else if (enc.value == 'aes') {
+            et = CryptoJS.AES.encrypt(JSON.stringify([server, conc.value]), serverp).toString();
           }
         }
         switch (dc.value) {

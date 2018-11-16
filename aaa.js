@@ -86,31 +86,27 @@ global.b64a = require('./modjs/b64a.js');
 global.sha256 = require('./modjs/sha256.js');
 global.rsa = require('./modjs/rsa.js');
 try {
-  switch (datajs.feat.enc) {
-    case 'b64':
-      global.colog = JSON.parse(b64a.decode(fs.readFileSync('data/colog.dat').toString()));
-      global.cologd = JSON.parse(b64a.decode(fs.readFileSync('data/cologd.dat').toString()));
-      break;
-    case 'aes':
-      global.colog = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(fs.readFileSync('data/colog.dat').toString(), b64a.server)));
-      global.cologd = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(fs.readFileSync('data/cologd.dat').toString(), b64a.server)));
-      break;
+  if (datajs.feat.enc == 'b64') {
+    global.colog = JSON.parse(b64a.decode(fs.readFileSync(datajs.feat.datadir + '/colog.dat').toString()));
+    global.cologd = JSON.parse(b64a.decode(fs.readFileSync(datajs.feat.datadir + '/cologd.dat').toString()));
+  } else if (datajs.feat.enc == 'aes') {
+    global.colog = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(fs.readFileSync(datajs.feat.datadir + '/colog.dat').toString(), b64a.server)));
+    global.cologd = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(fs.readFileSync(datajs.feat.datadir + '/cologd.dat').toString(), b64a.server)));
   }
 } catch (a) {
   try {
-    switch (datajs.feat.enc) {
-      case 'b64':
-        global.colog = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(fs.readFileSync('data/colog.dat'), b64a.server)));
-        global.cologd = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(fs.readFileSync('data/cologd.dat'), b64a.server)));
-        break;
-      case 'aes':
-        global.colog = JSON.parse(b64a.decode(fs.readFileSync('data/colog.dat').toString()));
-        global.cologd = JSON.parse(b64a.decode(fs.readFileSync('data/cologd.dat').toString()));
+    if (datajs.feat.enc == 'b64') {
+      global.colog = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(fs.readFileSync(datajs.feat.datadir + '/colog.dat'), b64a.server)));
+      global.cologd = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(fs.readFileSync(datajs.feat.datadir + '/cologd.dat'), b64a.server)));
+    } else if (datajs.feat.enc == 'aes') {
+      global.colog = JSON.parse(b64a.decode(fs.readFileSync(datajs.feat.datadir + '/colog.dat').toString()));
+      global.cologd = JSON.parse(b64a.decode(fs.readFileSync(datajs.feat.datadir + '/cologd.dat').toString()));
     }
   } catch (e) {
     global.colog = [];
     global.cologd = [];
     console.error('colog restore failed, colog empty');
+    console.error(a);
     console.error(e);
   }
 }
@@ -207,15 +203,12 @@ global.savev = function savev() {
   fs.writeFile(datajs.feat.datadir + '/rchat.json', JSON.stringify(rchat), function (err) {});
   fs.writeFile(datajs.feat.datadir + '/mchat.json', JSON.stringify(mchat), function (err) {});
   fs.writeFile(datajs.feat.datadir + '/views.json', JSON.stringify(viewshist), function (err) {});
-  switch (datajs.feat.enc) {
-    case 'b64':
-      fs.writeFile(datajs.feat.datadir + '/colog.dat', b64a.encode(JSON.stringify(colog)), function (err) {});
-      fs.writeFile(datajs.feat.datadir + '/cologd.dat', b64a.encode(JSON.stringify(cologd)), function (err) {});
-      break;
-    case 'aes':
-      fs.writeFile(datajs.feat.datadir + '/colog.dat', CryptoJS.AES.encrypt(JSON.stringify(colog), b64a.server), function (err) {});
-      fs.writeFile(datajs.feat.datadir + '/cologd.dat', CryptoJS.AES.encrypt(JSON.stringify(cologd), b64a.server), function (err) {});
-      break;
+  if (datajs.feat.enc == 'b64') {
+    fs.writeFile(datajs.feat.datadir + '/colog.dat', b64a.encode(JSON.stringify(colog)), function (err) {});
+    fs.writeFile(datajs.feat.datadir + '/cologd.dat', b64a.encode(JSON.stringify(cologd)), function (err) {});
+  } else if (datajs.feat.enc == 'aes') {
+    fs.writeFile(datajs.feat.datadir + '/colog.dat', CryptoJS.AES.encrypt(JSON.stringify(colog), b64a.server), function (err) {});
+    fs.writeFile(datajs.feat.datadir + '/cologd.dat', CryptoJS.AES.encrypt(JSON.stringify(cologd), b64a.server), function (err) {});
   }
   fs.writeFile(datajs.feat.datadir + '/savedvars.json', JSON.stringify(savedvars), function (err) {});
   fs.writeFile(datajs.feat.datadir + '/saveddat.json', JSON.stringify(saveddat), function (err) {});

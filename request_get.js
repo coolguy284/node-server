@@ -8,11 +8,9 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       rs.pipe(res);
       break;
     case '/admin.html':
-      fs.readFile('websites/admin.html', function (err, data) {
-        res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
-        res.write(data.toString().replace('{enc}', datajs.feat.enc));
-        res.end();
-      });
+      let ras = fs.createReadStream('websites/admin.html');
+      res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
+      ras.pipe(res);
       break;
     case '/delay.log':
       let dfunc = function (val) {res.write(val + '\n');};
@@ -82,13 +80,10 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
     case '/colog.dat':
       if (datajs.feat.colog) {
         res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
-        switch (datajs.feat.enc) {
-          case 'b64':
-            res.write(b64a.encode(JSON.stringify(colog)));
-            break;
-          case 'aes':
-            res.write(CryptoJS.AES.encrypt(JSON.stringify(colog), b64a.serverp).toString());
-            break;
+        if (datajs.feat.enc == 'b64') {
+          res.write(b64a.encode(JSON.stringify(colog)));
+        } else if (datajs.feat.enc == 'aes') {
+          res.write(CryptoJS.AES.encrypt(JSON.stringify(colog), b64a.serverp).toString());
         }
         res.end();
       } else {datajs.rm.sn(res);}
@@ -96,13 +91,10 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
     case '/cologd.dat':
       if (datajs.feat.colog) {
         res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
-        switch (datajs.feat.enc) {
-          case 'b64':
-            res.write(b64a.encode(JSON.stringify(cologd)));
-            break;
-          case 'aes':
-            res.write(CryptoJS.AES.encrypt(JSON.stringify(cologd), b64a.serverp).toString());
-            break;
+        if (datajs.feat.enc == 'b64') {
+          res.write(b64a.encode(JSON.stringify(cologd)));
+        } else if (datajs.feat.enc == 'aes') {
+          res.write(CryptoJS.AES.encrypt(JSON.stringify(cologd), b64a.serverp).toString());
         }
         res.end();
       } else {datajs.rm.sn(res);}
@@ -264,32 +256,22 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       break;
     case req.url.substr(0, 6) == '/a?cc=':
       try {
-      switch (datajs.feat.enc) {
-        case 'b64':
-          cv = JSON.parse(b64a.decode(req.url.substr(6, Infinity)));
-          break;
-        case 'aes':
-          cv = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(req.url.substr(6, Infinity), b64a.serverp)));
-          break;
+      if (datajs.feat.enc == 'b64') {
+        cv = JSON.parse(b64a.decode(req.url.substr(6, Infinity)));
+      } else if (datajs.feat.enc == 'aes') {
+        cv = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(req.url.substr(6, Infinity), b64a.serverp)));
       }
       if (sha256.hex(cv[0]) == b64a.server) {
         let tx = cv[1];
         console.log('>> ' + tx);
         if (tx[0] != ':') {
           let resp = eval(tx);
-          if (resp !== undefined) {
-            console.log('<- ' + util.inspect(resp));
-          }
+          if (resp !== undefined) console.log('<- ' + util.inspect(resp));
         } else {
           let resp = comm(tx.substr(1, Infinity));
-          if (resp !== undefined) {
-            console.log('<- ' + util.inspect(resp));
-          }
+          if (resp !== undefined) console.log('<- ' + util.inspect(resp));
         }
-      } else {
-        datajs.rm.restext(res, '1');
-        return;
-      }
+      } else { datajs.rm.restext(res, '1'); return; }
       } catch (e) { console.error(e); datajs.rm.restext(res, '2'); return; }
       datajs.rm.sn(res);
       break;
@@ -298,13 +280,10 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       if (datajs.feat.colog && consoles[ra[0]]) {
         if (sha256.hex(ra[1]) == (consoles[ra[0]].phash || b64a.server)) {
           res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
-          switch (datajs.feat.enc) {
-            case 'b64':
-              res.write(b64a.encode(JSON.stringify(consoles[ra[0]].colog)));
-              break;
-            case 'aes':
-              res.write(CryptoJS.AES.encrypt(JSON.stringify(consoles[ra[0]].colog), (consoles[ra[0]].penc || b64a.serverp)).toString());
-              break;
+          if (datajs.feat.enc == 'b64') {
+            res.write(b64a.encode(JSON.stringify(consoles[ra[0]].colog)));
+          } else if (datajs.feat.enc == 'aes') {
+            res.write(CryptoJS.AES.encrypt(JSON.stringify(consoles[ra[0]].colog), (consoles[ra[0]].penc || b64a.serverp)).toString());
           }
           res.end();
         } else {datajs.rm.sn(res);}
@@ -314,35 +293,27 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       let aconsole;
       try {
       try {
-      switch (datajs.feat.enc) {
-        case 'b64':
-          cv = JSON.parse(b64a.decode(req.url.substr(6, Infinity)));
-          break;
-        case 'aes':
-          let pass = false;
-          for (let i in consoleswpenc) {
-            let tcv = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(req.url.substr(6, Infinity), consoles[consoleswpenc[i]].penc));
-            if (tcv != '') {
-              cv = JSON.parse(tcv);
-              pass = true;
-            }
+      if (datajs.feat.enc == 'b64') {
+        cv = JSON.parse(b64a.decode(req.url.substr(6, Infinity)));
+      } else if (datajs.feat.enc == 'aes') {
+        let pass = false;
+        for (let i in consoleswpenc) {
+          let tcv = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(req.url.substr(6, Infinity), consoles[consoleswpenc[i]].penc));
+          if (tcv != '') {
+            cv = JSON.parse(tcv);
+            pass = true;
           }
-          if (!pass) {
-            cv = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(req.url.substr(6, Infinity), b64a.serverp)));
-          }
-          break;
+        }
+        if (!pass) {
+          cv = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(req.url.substr(6, Infinity), b64a.serverp)));
+        }
       }
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) { console.error(e); }
       let consol;
       if (consoles[cv[1]]) {
         aconsole = consoles[cv[1]].console;
         consol = consoles[cv[1]];
-      } else {
-        datajs.rm.sn(res);
-        return;
-      }
+      } else { datajs.rm.sn(res); return; }
       if (sha256.hex(cv[0]) == (consol.phash || b64a.server)) {
         let tx = cv[2];
         aconsole.log('>> ' + tx);
@@ -385,19 +356,12 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
               }
               break;
           }
-          if (resp !== undefined) {
-            aconsole.log('<- ' + util.inspect(resp));
-          }
+          if (resp !== undefined) aconsole.log('<- ' + util.inspect(resp));
         } else {
           let resp = comm(tx.substr(1, Infinity), aconsole);
-          if (resp !== undefined) {
-            aconsole.log('<- ' + util.inspect(resp));
-          }
+          if (resp !== undefined) aconsole.log('<- ' + util.inspect(resp));
         }
-      } else {
-        datajs.rm.restext(res, '0');
-        return;
-      }
+      } else { datajs.rm.restext(res, '0'); return; }
       } catch (e) { aconsole.error(e); datajs.rm.restext(res, '0'); return; }
       datajs.rm.sn(res);
       break;
@@ -533,7 +497,9 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
             runelse = true;
           }
         } else {
-          runelse = true;
+          let rs = fs.createReadStream('/websites/user/signedout.html');
+          res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
+          rs.pipe(res);
         }
       } else {
         runelse = true;
