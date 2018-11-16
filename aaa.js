@@ -157,72 +157,68 @@ global.pcpuUsage = global.cpuUsage;
 global.dcpuUsage = { user: 0, system: 0 };
 global.memUsage = process.memoryUsage();
 try {
-  global.chat = JSON.parse(fs.readFileSync('data/chat.json').toString());
+  global.chat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/chat.json').toString());
 } catch (e) {
   console.error('chat restore failed, chat empty');
   console.error(e);
   global.chat = [];
 }
 try {
-  global.rchat = JSON.parse(fs.readFileSync('data/rchat.json').toString());
+  global.rchat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/rchat.json').toString());
 } catch (e) {
   console.error('rchat restore failed, rchat empty');
   console.error(e);
   global.rchat = [];
 }
 try {
-  global.mchat = JSON.parse(fs.readFileSync('data/mchat.json').toString());
+  global.mchat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/mchat.json').toString());
 } catch (e) {
   console.error('mchat restore failed, mchat empty');
   console.error(e);
   global.mchat = {};
 }
 try {
-  global.viewshist = JSON.parse(fs.readFileSync('data/views.json').toString());
+  global.viewshist = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/views.json').toString());
 } catch (e) {
   console.error('viewshist restore failed, viewshist empty');
   console.error(e);
   global.viewshist = {reg:{},ajax:{},p404:{}};
 }
 try {
-  global.savedvarsa = JSON.parse(fs.readFileSync('data/savedvars.json').toString());
+  global.savedvarsa = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/savedvars.json').toString());
 } catch (e) {
   console.error('savedvars restore failed, savedvars empty');
   console.error(e);
   global.savedvarsa = {};
 }
 try {
-  global.saveddat = JSON.parse(fs.readFileSync('data/saveddat.json').toString());
+  global.saveddat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/saveddat.json').toString());
 } catch (e) {
   console.error('saveddat restore failed, saveddat empty');
   console.error(e);
   global.saveddat = {};
 }
-while (colog.length < datajs.feat.lim.colog) {
-  colog.unshift(['', '{}']);
-}
-while (cologd.length < datajs.feat.lim.cologd) {
-  cologd.unshift(['', '{}']);
-}
+while (colog.length < datajs.feat.lim.cologmin) colog.unshift(['', '{}']);
+while (cologd.length < datajs.feat.lim.cologdmin) cologd.unshift(['', '{}']);
 global.savedvars = Object.assign(savedvars, savedvarsa);
 delete global.savedvarsa;
 global.savev = function savev() {
-  fs.writeFile('data/chat.json', JSON.stringify(chat), function (err) {});
-  fs.writeFile('data/rchat.json', JSON.stringify(rchat), function (err) {});
-  fs.writeFile('data/mchat.json', JSON.stringify(mchat), function (err) {});
-  fs.writeFile('data/views.json', JSON.stringify(viewshist), function (err) {});
+  fs.writeFile(datajs.feat.datadir + '/chat.json', JSON.stringify(chat), function (err) {});
+  fs.writeFile(datajs.feat.datadir + '/rchat.json', JSON.stringify(rchat), function (err) {});
+  fs.writeFile(datajs.feat.datadir + '/mchat.json', JSON.stringify(mchat), function (err) {});
+  fs.writeFile(datajs.feat.datadir + '/views.json', JSON.stringify(viewshist), function (err) {});
   switch (datajs.feat.enc) {
     case 'b64':
-      fs.writeFile('data/colog.dat', b64a.encode(JSON.stringify(colog)), function (err) {});
-      fs.writeFile('data/cologd.dat', b64a.encode(JSON.stringify(cologd)), function (err) {});
+      fs.writeFile(datajs.feat.datadir + '/colog.dat', b64a.encode(JSON.stringify(colog)), function (err) {});
+      fs.writeFile(datajs.feat.datadir + '/cologd.dat', b64a.encode(JSON.stringify(cologd)), function (err) {});
       break;
     case 'aes':
-      fs.writeFile('data/colog.dat', CryptoJS.AES.encrypt(JSON.stringify(colog), b64a.server), function (err) {});
-      fs.writeFile('data/cologd.dat', CryptoJS.AES.encrypt(JSON.stringify(cologd), b64a.server), function (err) {});
+      fs.writeFile(datajs.feat.datadir + '/colog.dat', CryptoJS.AES.encrypt(JSON.stringify(colog), b64a.server), function (err) {});
+      fs.writeFile(datajs.feat.datadir + '/cologd.dat', CryptoJS.AES.encrypt(JSON.stringify(cologd), b64a.server), function (err) {});
       break;
   }
-  fs.writeFile('data/savedvars.json', JSON.stringify(savedvars), function (err) {});
-  fs.writeFile('data/saveddat.json', JSON.stringify(saveddat), function (err) {});
+  fs.writeFile(datajs.feat.datadir + '/savedvars.json', JSON.stringify(savedvars), function (err) {});
+  fs.writeFile(datajs.feat.datadir + '/saveddat.json', JSON.stringify(saveddat), function (err) {});
 };
 adm = datajs.adm;
 comm = datajs.comm.run;
@@ -342,7 +338,7 @@ global.serverf = function serverf(req, resa, nolog) {
     res.end();
     return;
   }
-  if (locked && datajs.feat.el.lockl.indexOf(req.url) < 0 && req.url.substr(0, 2) != '/a') {return;}
+  if (locked && datajs.feat.el.lockl.indexOf(req.url) < 0 && req.url.substr(0, 2) != '/a') return;
   if (req.method == 'GET') {
     if (!nolog) {
       if (datajs.feat.el.vh.indexOf(req.url) < 0 && datajs.feat.el.vhv.every(datajs.notstartswith, req.url) && Object.keys(datajs.handlerp).every(datajs.notstartswith, req.url)) {
