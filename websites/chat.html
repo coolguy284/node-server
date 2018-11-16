@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title id = 'itle'>Chat Test</title>
+    <title>Chat Test</title>
     <style>
       code {
         font-family: monospace;
@@ -9,7 +9,7 @@
       }
     </style>
   </head>
-  <body onresize = "chattext.style = 'width:' + (window.innerWidth - 255 + '') + 'px;';">
+  <body onresize = 'chattext.style = "width:" + (window.innerWidth - 255 + "") + "px;";'>
     <span id = 'begs'>
       <span>Enter Your Name:</span>
       <input type = 'text' id = 'nname'>
@@ -118,8 +118,8 @@
     <script src = '/js/bbcode-parser.js'></script>
     <script src = '/js/base64.js'></script>
     <script>
-      //dont even think of using an invalid tag
-      var ALLOWED_TAGS = ["STRONG", "EM", "BLOCKQUOTE", "Q", "DEL", "INS", "A", "SPAN", "B", "I", "MARK", "SMALL", "SUB", "SUP", "P", "BR", "WBR", "H1", "H2", "H3", "H4", "H5", "H6", "CODE", "PRE", "U", "DL", "DT", "DD", "OL", "UL", "LI", "BDI", "BDO", "BUTTON", "DETAILS", "SUMMARY", "TABLE", "CAPTION", "COLGROUP", "COL", "THEAD", "TBODY", "TFOOT", "TH", "TR", "TD", "METER", "PROGRESS"];
+      //don't even think of using an invalid tag
+      var ALLOWED_TAGS = ['STRONG', 'EM', 'BLOCKQUOTE', 'Q', 'DEL', 'INS', 'A', 'SPAN', 'B', 'I', 'MARK', 'SMALL', 'SUB', 'SUP', 'P', 'BR', 'WBR', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'CODE', 'PRE', 'U', 'DL', 'DT', 'DD', 'OL', 'UL', 'LI', 'BDI', 'BDO', 'BUTTON', 'DETAILS', 'SUMMARY', 'TABLE', 'CAPTION', 'COLGROUP', 'COL', 'THEAD', 'TBODY', 'TFOOT', 'TH', 'TR', 'TD', 'METER', 'PROGRESS'];
       var escaper = document.createElement('textarea');
       function escapeHTML(html) {
         escaper.textContent = html;
@@ -130,8 +130,8 @@
         return escaper.textContent;
       }
       function sanitize(el) {
-        "Remove all tags from element `el' that aren't in the ALLOWED_TAGS list."
-        var tags = Array.prototype.slice.apply(el.getElementsByTagName("*"), [0]);
+        "Remove all tags from element 'el' that aren't in the ALLOWED_TAGS list.";
+        var tags = Array.prototype.slice.apply(el.getElementsByTagName('*'), [0]);
         for (var i = 0; i < tags.length; i++) {
           if (ALLOWED_TAGS.indexOf(tags[i].nodeName) == -1) {
             usurp(tags[i]);
@@ -139,7 +139,7 @@
         }
       }
       function usurp(p) {
-        "Replace parent `p' with its children.";
+        "Replace parent 'p' with its children.";
         var last = p;
         for (var i = p.childNodes.length - 1; i >= 0; i--) {
           var e = p.removeChild(p.childNodes[i]);
@@ -149,7 +149,7 @@
         p.parentNode.removeChild(p);
       }
       function sanitizeString(string) {
-        var div = document.createElement("div");
+        var div = document.createElement('div');
         div.innerHTML = string;
         sanitize(div);
         return div.innerHTML;

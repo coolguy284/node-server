@@ -10,6 +10,7 @@ module.exports = {
   'colog' : true,
   'debreq' : true,
   'enc' : 'aes',
+  'datadir' : '/data/nodedat',
   'httpsf' : true,
   'httpsdm' : 2,
   'tickint' : 1000,

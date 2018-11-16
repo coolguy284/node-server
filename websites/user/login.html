@@ -25,7 +25,11 @@
           alert('Incorrect password.');
         } else {
           document.cookie = 'sid=' + this.responseText + '; Path=/user; secure';
-          location.href = '/user/index.html';
+          if (location.hash != '') {
+            location.href = location.hash.substr(1, Infinity);
+          } else {
+            location.href = '/user/index.html';
+          }
         }
       }
       function Login() {

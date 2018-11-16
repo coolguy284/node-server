@@ -1,14 +1,16 @@
 <!doctype html>
 <html>
   <head>
-    <meta name='referrer' content='no-referrer' />
+    <meta name = 'referrer' content = 'no-referrer' />
     <title>Admin</title>
   </head>
   <body>
     <input type = 'hidden' id = 'enc' value = '{enc}'>
     <input type = 'hidden' id = 'surl' value = ''>
+    <input type = 'text' id = 'lifrsrc' value = '/chat.html' style = 'width:calc(50% - 8px);'>
+    <input type = 'text' id = 'rifrsrc' value = '/views.html' style = 'width:calc(50% - 8px);'><br>
     <iframe src = '/chat.html' style = 'float:left;width:calc(50% - 4px);height:300px;' id = 'lifr'></iframe>
-    <iframe src = '/views.html' style = 'float:left;width:calc(50% - 4px);height:300px;' id = 'rifr'></iframe>
+    <iframe src = '/views.html' style = 'float:left;width:calc(50% - 4px);height:300px;' id = 'rifr'></iframe><br>
     <button onclick = 'lifr.contentWindow.doreload = false; rifr.contentWindow.doreload = false; doreload = false; drlod.innerHTML = "Not Updating"'>Disable Updating</button>
     <button onclick = 'lifr.contentWindow.doreload = true; rifr.contentWindow.doreload = true; doreload = true; drlod.innerHTML = "Updating"; getting = false; gettingt = 0;'>Enable Updating</button>
     <select id = 'dc' onchange = 'ViewsReload();'>
@@ -247,6 +249,16 @@
       onload = function () {
         cifr.contentDocument.body.style = 'font-family:monospace;white-space:pre;width:98%;';
       };
+      lifrsrc.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+          lifr.src = lifrsrc.value;
+        }
+      });
+      rifrsrc.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+          rifr.src = rifrsrc.value;
+        }
+      });
       conc.addEventListener('keydown', function (e) {
         if (e.keyCode === 13) {
           Send();
