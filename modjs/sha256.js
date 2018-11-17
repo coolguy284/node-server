@@ -14,12 +14,12 @@ var hexcase = 0; // hex output format. 0 - lowercase; 1 - uppercase
 var b64pad = ''; // base-64 pad character. '=' for strict RFC compliance
 /* These are the functions you'll usually want to call
  * They take string arguments and return either hex or base-64 encoded strings */
-function hex_sha256(s) { return rstr2hex(rstr_sha256(str2rstr_utf8(s))); }
-function b64_sha256(s) { return rstr2b64(rstr_sha256(str2rstr_utf8(s))); }
-function any_sha256(s, e) { return rstr2any(rstr_sha256(str2rstr_utf8(s)), e); }
-function hex_hmac_sha256(k, d) { return rstr2hex(rstr_hmac_sha256(str2rstr_utf8(k), str2rstr_utf8(d))); }
-function b64_hmac_sha256(k, d) { return rstr2b64(rstr_hmac_sha256(str2rstr_utf8(k), str2rstr_utf8(d))); }
-function any_hmac_sha256(k, d, e) { return rstr2any(rstr_hmac_sha256(str2rstr_utf8(k), str2rstr_utf8(d)), e); }
+function hex_sha256(s) {return rstr2hex(rstr_sha256(str2rstr_utf8(s)));}
+function b64_sha256(s) {return rstr2b64(rstr_sha256(str2rstr_utf8(s)));}
+function any_sha256(s, e) {return rstr2any(rstr_sha256(str2rstr_utf8(s)), e);}
+function hex_hmac_sha256(k, d) {return rstr2hex(rstr_hmac_sha256(str2rstr_utf8(k), str2rstr_utf8(d)));}
+function b64_hmac_sha256(k, d) {return rstr2b64(rstr_hmac_sha256(str2rstr_utf8(k), str2rstr_utf8(d)));}
+function any_hmac_sha256(k, d, e) {return rstr2any(rstr_hmac_sha256(str2rstr_utf8(k), str2rstr_utf8(d)), e);}
 // Perform a simple self-test to see if the VM is working
 function sha256_vm_test() {
   return hex_sha256('abc').toLowerCase() == 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad';
@@ -31,7 +31,7 @@ function rstr_sha256(s) {
 // Calculate the HMAC-sha256 of a key and some data (raw strings)
 function rstr_hmac_sha256(key, data) {
   var bkey = rstr2binb(key);
-  if (bkey.length > 16) { bkey = binb_sha256(bkey, key.length * 8); }
+  if (bkey.length > 16) bkey = binb_sha256(bkey, key.length * 8);
   var ipad = Array(16), opad = Array(16);
   for (var i = 0; i < 16; i++) {
     ipad[i] = bkey[i] ^ 0x36363636;
@@ -61,8 +61,8 @@ function rstr2b64(input) {
   for (var i = 0; i < len; i += 3) {
     var triplet = (input.charCodeAt(i) << 16) | (i + 1 < len ? input.charCodeAt(i+1) << 8 : 0) | (i + 2 < len ? input.charCodeAt(i+2) : 0);
     for (var j = 0; j < 4; j++) {
-      if (i * 8 + j * 6 > input.length * 8) { output += b64pad; }
-      else { output += tab.charAt((triplet >>> 6*(3-j)) & 0x3F); }
+      if (i * 8 + j * 6 > input.length * 8) output += b64pad;
+      else output += tab.charAt((triplet >>> 6*(3-j)) & 0x3F);
     }
   }
   return output;
@@ -88,9 +88,7 @@ function rstr2any(input, encoding) {
       x = (x << 16) + dividend[i];
       q = Math.floor(x / divisor);
       x -= q * divisor;
-      if (quotient.length > 0 || q > 0) {
-        quotient[quotient.length] = q;
-      }
+      if (quotient.length > 0 || q > 0) quotient[quotient.length] = q;
     }
     remainders[remainders.length] = x;
     dividend = quotient;
@@ -153,7 +151,7 @@ function str2rstr_utf16be(input) {
  * Characters >255 have their high-byte silently ignored. */
 function rstr2binb(input) {
   var output = Array(input.length >> 2), i;
-  for (i = 0; i < output.length; i++) { output[i] = 0; }
+  for (i = 0; i < output.length; i++) output[i] = 0;
   for (i = 0; i < input.length * 8; i += 8) {
     output[i>>5] |= (input.charCodeAt(i / 8) & 0xFF) << (24 - i % 32);
   }
@@ -192,8 +190,8 @@ function binb_sha256(m, l) {
   for (i = 0; i < m.length; i += 16) {
     a = HASH[0]; b = HASH[1]; c = HASH[2]; d = HASH[3]; e = HASH[4]; f = HASH[5]; g = HASH[6]; h = HASH[7];
     for (j = 0; j < 64; j++) {
-      if (j < 16) { W[j] = m[j + i]; }
-      else { W[j] = safe_add(safe_add(safe_add(sha256_Gamma1256(W[j - 2]), W[j - 7]), sha256_Gamma0256(W[j - 15])), W[j - 16]); }
+      if (j < 16) W[j] = m[j + i];
+      else W[j] = safe_add(safe_add(safe_add(sha256_Gamma1256(W[j - 2]), W[j - 7]), sha256_Gamma0256(W[j - 15])), W[j - 16]);
       T1 = safe_add(safe_add(safe_add(safe_add(h, sha256_Sigma1256(e)), sha256_Ch(e, f, g)), sha256_K[j]), W[j]);
       T2 = safe_add(sha256_Sigma0256(a), sha256_Maj(a, b, c));
       h = g; g = f; f = e;
