@@ -17,7 +17,7 @@ module.exports = class Console {
     this.error = this.consoleCall.bind(this, 'error');
     this.clear = this.consoleCall.bind(this, 'clear');
   }
-  inspect () {
+  [util.inspect.custom] () {
     return 'Console {}';
   }
   consoleCall (cn, value) {
