@@ -11,9 +11,9 @@ function SecureView(view) {
       return view.cwd;
     },
     set cwd(val) {
-      return view.setCWD(val);
+      return view.chdir(val);
     },
-    setCWD: view.setCWD.bind(view),
+    chdir: view.chdir.bind(view),
     existsSync: view.existsSync.bind(view),
     statSync: view.statSync.bind(view),
     lstatSync: view.lstatSync.bind(view),

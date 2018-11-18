@@ -33,7 +33,7 @@ class FileSystemView {
       return {read: pl & 0o4 ? 1 : 0, write: pl & 0o2 ? 1 : 0, execute: pl & 0o1 ? 1 : 0};
     }
   }
-  setCWD(path) {
+  chdir(path) {
     path = normalize(path, this.cwd);
     if (!this.getPerms(this.fs.geteInode(path)).read) throw new Error('ERRNO 13 no permission');
     this.cwd = path;

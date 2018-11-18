@@ -110,6 +110,14 @@ try {
     console.error(e);
   }
 }
+process.on('uncaughtException', function (err) {
+  console.error('An exception occured and was caught to prevent server shutdown. Server may be unstable.');
+  console.error(err);
+});
+process.on('unhandledRejection', function (reason, p) {
+  console.error('Unhandled rejection from ' + p + ':');
+  console.error(reason);
+});
 global.vm = require('vm');
 global.vfs = require('./vfs/vfs.js');
 global.reqg = require('./request_get.js');
@@ -218,14 +226,6 @@ comm = datajs.comm.run;
 datajs.tick.on();
 datajs.consm.create('default');
 datajs.consm.create('terminal', 'bash');
-process.on('uncaughtException', function (err) {
-  console.error('An exception occured and was caught to prevent server shutdown. Server may be unstable.');
-  console.error(err);
-});
-process.on('unhandledRejection', function (reason, p) {
-  console.error('Unhandled rejection from ' + p + ':');
-  console.error(reason);
-});
 process.on('message', function (val) {
   switch (val[0]) {
     case 'alertcheck':
@@ -241,6 +241,20 @@ process.on('message', function (val) {
       break;
   }
 });
+process.stdin.pipe(new datajs.s.ConsoleStream(function (tx) {
+  if (datajs.feat.stdincons) {
+    try {
+      console.log('>> ' + tx);
+      if (tx[0] != ':') {
+        let resp = eval(tx);
+        if (resp !== undefined) console.log('<- ' + util.inspect(resp));
+      } else {
+        let resp = comm(tx.substr(1, Infinity));
+        if (resp !== undefined) console.log('<- ' + util.inspect(resp));
+      }
+    } catch (e) {console.error(e);}
+  }
+}));
 global.serverf = function serverf(req, resa, nolog) {
   let res, ipaddr, proto, url, cookies, nam = null, sn = false;
   try {

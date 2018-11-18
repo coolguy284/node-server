@@ -245,16 +245,19 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       datajs.rm.sn(res);
       break;
     case req.url.substr(0, 7) == '/a?ccp=':
-      let ta = JSON.parse(b64.decode(req.url.substr(7, 2048)));
-      if (consoles[ta[1]] && consoleswpenc.indexOf(ta[1]) > -1) {
-        if (sha256.hex(ta[0]) == (consoles[ta[1]].phash || b64a.server)) {
-          datajs.rm.restext(res, b64.encode(consoles[ta[1]].penc));
+      if (datajs.feat.cons) {
+        let ta = JSON.parse(b64.decode(req.url.substr(7, 2048)));
+        if (consoles[ta[1]] && consoleswpenc.indexOf(ta[1]) > -1) {
+          if (sha256.hex(ta[0]) == (consoles[ta[1]].phash || b64a.server)) {
+            datajs.rm.restext(res, b64.encode(consoles[ta[1]].penc));
+          }
+        } else if (sha256.hex(ta[0]) == b64a.server) {
+          datajs.rm.restext(res, b64.encode(b64a.serverp));
         }
-      } else if (sha256.hex(ta[0]) == b64a.server) {
-        datajs.rm.restext(res, b64.encode(b64a.serverp));
-      }
+      } else {datajs.rm.sn(res);}
       break;
     case req.url.substr(0, 6) == '/a?cc=':
+      if (datajs.feat.cons) {
       try {
       if (datajs.feat.enc == 'b64') {
         cv = JSON.parse(b64a.decode(req.url.substr(6, Infinity)));
@@ -273,6 +276,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
         }
       } else { datajs.rm.restext(res, '1'); return; }
       } catch (e) { console.error(e); datajs.rm.restext(res, '2'); return; }
+      }
       datajs.rm.sn(res);
       break;
     case req.url.substr(0, 6) == '/a?rc=':
@@ -290,6 +294,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       } else {datajs.rm.sn(res);}
       break;
     case req.url.substr(0, 6) == '/a?sc=':
+      if (datajs.feat.cons) {
       let aconsole;
       try {
       try {
@@ -363,6 +368,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
         }
       } else { datajs.rm.restext(res, '0'); return; }
       } catch (e) { aconsole.error(e); datajs.rm.restext(res, '0'); return; }
+      }
       datajs.rm.sn(res);
       break;
     case req.url.substr(0, 6) == '/a?ng=':
