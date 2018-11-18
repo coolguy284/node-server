@@ -14,13 +14,15 @@ class FileSystemView {
     this.user = user;
   }
   getPerms(ino, user) {
-    let pl = this.fs.inodarr[ino][5];
-    if (user == this.fs.inodarr[ino][6]) {
+    let uid = this.fs.uids.indexOf(user);
+    let pl = this.fs.getInod(ino, 5);
+    if (uid == this.fs.getInod(ino, 6)) {
       return {read: pl & 0o400 ? 1 : 0, write: pl & 0o200 ? 1 : 0, execute: pl & 0o100 ? 1 : 0};
     }
     let group = false;
+    let grp = this.fs.getInod(ino, 7);
     for (let i in this.fs.groups) {
-      if (this.fs.groups[i].indexOf(user) > 1 && i == this.fs.inodarr[ino][7]) {
+      if (this.fs.groups[i].indexOf(uid) > -1 && parseInt(i) == grp) {
         group = true;
         break;
       }
@@ -147,7 +149,7 @@ class FileSystemView {
     if (!this.getPerms(this.fs.geteInode(parentPath(patht))).write) throw new Error('ERRNO 13 no permission');
     if (this.fs.exists(patht))
     if (!this.getPerms(this.fs.geteInode(patht)).write) throw new Error('ERRNO 13 no permission');
-    return this.fs.symlinkSync(pathf, patht);
+    return this.fs.symlink(pathf, patht);
   }
   readdirSync(path) {
     path = normalize(path, this.cwd);
@@ -169,6 +171,11 @@ class FileSystemView {
     if (this.fs.exists(patht))
     if (!this.getPerms(this.fs.geteInode(patht)).write) throw new Error('ERRNO 13 no permission');
     return this.fs.rename(pathf, patht);
+  }
+  rmdirSync(path) {
+    path = normalize(path, this.cwd);
+    if (!this.getPerms(this.fs.geteInode(path)).write) throw new Error('ERRNO 13 no permission');
+    return this.fs.rmdir(path);
   }
 }
 module.exports = {FileSystemView, init};
