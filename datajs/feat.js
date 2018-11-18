@@ -9,6 +9,8 @@ module.exports = {
   'comm' : true,
   'colog' : true,
   'debreq' : true,
+  'cons' : true,
+  'stdincons' : false,
   'enc' : 'aes',
   'datadir' : '/data/nodedat',
   'httpsf' : true,
