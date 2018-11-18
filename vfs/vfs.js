@@ -35,7 +35,8 @@ function SecureView(view) {
     symlinkSync: view.symlinkSync.bind(view),
     readdirSync: view.readdirSync.bind(view),
     mkdirSync: view.mkdirSync.bind(view),
-    renameSync: view.renameSync.bind(view)
+    renameSync: view.renameSync.bind(view),
+    rmdirSync: view.rmdirSync.bind(view)
   };
 }
 let rfs = new FileSystem(true);
@@ -48,4 +49,10 @@ module.exports = {
   rfs,
   fs: fsv,
 };
-fsv.writeFileSync('/tex.txt', Buffer.from('ell'));
+fsv.mkdirSync('/dir');
+fsv.writeFileSync('/dir/Some File.txt', 'This is a test file, inside a folder.');
+fsv.linkSync('/dir/Some File.txt', '/dir/File Hardlink.txt');
+fsv.symlinkSync('Some File.txt', '/dir/File Symlink.txt');
+fsv.mkdirSync('/dir/Some Folder');
+fsv.writeFileSync('/dir/Some Folder/File in Folder.txt', 'A file in a folder, to demonstrate symlinks.');
+fsv.symlinkSync('Some Folder', '/dir/Folder Symlink');

@@ -3,6 +3,7 @@
 global.AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
 global.GeneratorFunction = Object.getPrototypeOf(function*(){}).constructor;
 // jshint ignore:end
+let cons = require('./console.js');
 module.exports = {
   'feat' : require('./feat.js'),
   'mime' : require('./mime.js'),
@@ -89,7 +90,10 @@ module.exports = {
   'adm' : require('./adm.js'),
   'comm' : require('./comm.js'),
   'consm' : require('./consm.js'),
-  'Console' : require('./console.js'),
+  'Console' : cons.Console,
+  '_consolecounts' : cons.counts,
+  '_consoletimes' : cons.times,
+  '_consolegrouplvl' : cons.grouplvl,
   's' : require('./s.js'),
   'splash' : require('./splash.js'),
 };

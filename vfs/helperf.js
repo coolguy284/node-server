@@ -12,9 +12,9 @@ function pathEnd(path) {
 }
 function normalize(path, cwd) {
   if (cwd === undefined) cwd = '';
+  if (cwd[cwd.length - 1] != '/') cwd += '/';
   if (path[0] != '/') {
-    if (path[0] == '.') path = cwd + '/' + path;
-    else path = cwd + path;
+    path = cwd + path;
   }
   let patharr = path.split('/');
   let bp = [];
@@ -25,6 +25,7 @@ function normalize(path, cwd) {
       bp.push(patharr[i]);
     }
   }
-  return bp.join('/');
+  bp = bp.join('/');
+  return bp[0] == '/' ? bp : '/' + bp;
 }
 module.exports = {getcTime, parentPath, pathEnd, normalize};
