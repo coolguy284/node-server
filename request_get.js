@@ -335,7 +335,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
               if (!consol.running) {
                 let ca = datajs.parseexec(tx);
                 consol.running = true;
-                consol.cp = cp.spawn(ca[0], ca.slice(1, Infinity), {windowsHide: true}, function (err) {if (err) {consol.console.error(err);}});
+                consol.cp = cp.spawn(ca[0], ca.slice(1, Infinity), {windowsHide: true}, function (err) {if (err) consol.console.error(err);});
                 consol.cp.stdout.pipe(new datajs.s.ConsoleStream(consol.console.log));
                 consol.cp.stderr.pipe(new datajs.s.ConsoleStream(consol.console.error));
                 consol.cp.on('exit', function () {
@@ -353,7 +353,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
                   });
                 } else {
                   try {
-                    consol.cp.stdin.write(Buffer.from(tx + '\n', 'utf8'));
+                    consol.cp.stdin.write(Buffer.from(tx + '\n'));
                   } catch (e) {
                     consol.running = false;
                   }
