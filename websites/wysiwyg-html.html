@@ -3,8 +3,13 @@
   <head>
     <title>WYSIWYG HTML Editor</title>
     <style>
-      #dediv {
+      #dedivc {
         width: calc(50% - 6px);
+        height: 400px;
+        float: left;
+      }
+      #dediv {
+        width: 100%;
         height: 400px;
         float: left;
         overflow: auto;
@@ -28,7 +33,7 @@
     <button onclick = 'ShowWYS()'>WYSIWYG</button>
     <button onclick = 'ShowCode()'>Code</button>
     <button onclick = 'ShowBoth()'>Both</button><br>
-    <div id = 'dediv' contenteditable = 'true'>Henlo this has some <span style='color:#f00;'>red</span> text.</div>
+    <div id = 'dedivc'><div id = 'dediv' contenteditable = 'true'>Henlo this has some <span style='color:#f00;'>red</span> text.</div></div>
     <textarea id = 'dehtm'></textarea>
     <script>
       function insertAtCursorte(txtarea, text) {
@@ -79,7 +84,8 @@
       var state = 'both';
       var edlast = 'wys';
       function ShowWYS() {
-        dediv.style = 'width: calc(100% - 6px);height: 400px;float: left;overflow: auto;-moz-appearance: textfield-multiline;-webkit-appearance: textarea;border: 1px solid gray;padding: 2px;resize: both;';
+        dedivc.style = 'width: calc(100% - 6px);height: 400px;float: left;';
+        //dediv.style = 'width: calc(100% - 6px);height: 400px;float: left;overflow: auto;-moz-appearance: textfield-multiline;-webkit-appearance: textarea;border: 1px solid gray;padding: 2px;resize: both;';
         dehtm.style = 'display:none;';
         if (parseInt(syncv.value) && state == 'code') {
           dediv.innerHTML = dehtm.value;
@@ -87,7 +93,8 @@
         state = 'wys';
       }
       function ShowCode() {
-        dediv.style = 'display:none;float: left;overflow: auto;-moz-appearance: textfield-multiline;-webkit-appearance: textarea;border: 1px solid gray;padding: 2px;resize: both;';
+        dedivc.style = 'display:none;width: calc(50% - 6px);height: 400px;float: left;';
+        //dediv.style = 'display:none;float: left;overflow: auto;-moz-appearance: textfield-multiline;-webkit-appearance: textarea;border: 1px solid gray;padding: 2px;resize: both;';
         dehtm.style = 'width: calc(100% - 6px);height: 400px;';
         if (parseInt(syncv.value) && state == 'wys') {
           dehtm.value = dediv.innerHTML;
@@ -95,7 +102,8 @@
         state = 'code';
       }
       function ShowBoth() {
-        dediv.style = 'width: calc(50% - 6px);height: 400px;float: left;overflow: auto;-moz-appearance: textfield-multiline;-webkit-appearance: textarea;border: 1px solid gray;padding: 2px;resize: both;';
+        dedivc.style = 'width: calc(50% - 6px);height: 400px;float: left;';
+        //dediv.style = 'width: calc(50% - 6px);height: 400px;float: left;overflow: auto;-moz-appearance: textfield-multiline;-webkit-appearance: textarea;border: 1px solid gray;padding: 2px;resize: both;';
         dehtm.style = 'width: calc(50% - 6px);height: 400px;';
         if (parseInt(syncv.value) && state == 'code') {
           dediv.innerHTML = dehtm.value;

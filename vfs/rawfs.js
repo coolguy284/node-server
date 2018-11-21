@@ -63,7 +63,9 @@ class FileSystem {
     if (this.getInod(ino, 1) <= 0) this.fi.push(ino);
   }
   parseFolder(buf) {
-    return buf.toString().split('\n').map(x => x.split(':'));
+    let foldarr = buf.toString().split('\n');
+    if (foldarr.length == 1 && foldarr[0] == '') foldarr.pop();
+    return foldarr.map(x => x.split(':'));
   }
   popfi(typ) {
     if (!this.writable) throw new Error('read-only filesystem');
@@ -98,6 +100,7 @@ class FileSystem {
     }
     patharr.splice(0, 1);
     for (let i in patharr) {
+      let cp = patharr.slice(0, parseInt(i) + 1).join('/');
       let fc = this.parseFolder(this.inoarr[ino]);
       let nino = null;
       for (let j in fc) {
@@ -112,9 +115,9 @@ class FileSystem {
         return null;
       }
       if (this.getInod(ino, 0) == 12 && (symlink || parseInt(i) != patharr.length - 1)) {
-        ino = this.getInode(normalize(this.inoarr[ino].toString(), patharr.slice(0, i).join('/')));
+        ino = this.getInode(normalize(this.inoarr[ino].toString(), cp));
       } else if (this.getInod(ino, 0) != 4 && parseInt(i) != patharr.length - 1) {
-        throw new Error(patharr.slice(0, i).join('/') + ' not a directory');
+        throw new Error(cp + ' not a directory');
       }
     }
     return ino;
@@ -278,10 +281,8 @@ class FileSystem {
     let inop = this.geteInode(parentPath(path));
     let ino = this.geteInode(path, false);
     let pf = this.parseFolder(this.inoarr[inop]);
-    let delino = null;
-    for (let i in pf) {
-      if (pf[i] == ino) delino = i;
-    }
+    let delino = null, pathlast = path.split('/').slice(-1)[0];
+    for (let i in pf) if (pf[i][0] == pathlast && parseInt(pf[i][1]) == ino) delino = i;
     pf.splice(delino, 1);
     this.inoarr[inop] = Buffer.from(pf.map(x => x.join(':')).join('\n'));
     this.decref(ino);
@@ -327,7 +328,7 @@ class FileSystem {
   }
   rmdir(path) {
     let ino = this.geteInode(path, false);
-    let typ = this.getInod(ino, 0) == 12;
+    let typ = this.getInod(ino, 0);
     if (typ == 10) throw new Error('cannot rmdir a file');
     if (typ == 12) {
       this.unlink(path);

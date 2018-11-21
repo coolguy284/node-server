@@ -11,11 +11,10 @@ function pathEnd(path) {
   return patharr[patharr.length - 1];
 }
 function normalize(path, cwd) {
-  if (cwd === undefined) cwd = '';
+  if (cwd === undefined) cwd = '/';
   if (cwd[cwd.length - 1] != '/') cwd += '/';
-  if (path[0] != '/') {
-    path = cwd + path;
-  }
+  if (path[0] != '/') path = cwd + path;
+  path = path.replace(/\/+$/, '');
   let patharr = path.split('/');
   let bp = [];
   for (let i in patharr) {
