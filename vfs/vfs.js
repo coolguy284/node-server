@@ -2,9 +2,9 @@ let helperf = require('./helperf.js');
 let rawfs = require('./rawfs.js');
 let FileSystem = rawfs.FileSystem;
 rawfs.init(helperf);
-let fsview = require('./fsview.js');
-let FileSystemView = fsview.FileSystemView;
-fsview.init(helperf);
+let fscontext = require('./fscontext.js');
+let FileSystemContext = fscontext.FileSystemContext;
+fscontext.init(helperf);
 function SecureView(view) {
   return {
     get cwd() {
@@ -40,14 +40,18 @@ function SecureView(view) {
   };
 }
 let rfs = new FileSystem(true);
-let fsv = new FileSystemView(rfs);
+let rfs2 = new FileSystem(true);
+let fsv = new FileSystemContext(rfs);
+let fsv2 = new FileSystemContext(rfs2);
 module.exports = {
   helperf,
   FileSystem,
-  FileSystemView,
+  FileSystemContext,
   SecureView,
   rfs,
+  rfs2,
   fs: fsv,
+  fs2: fsv2,
 };
 fsv.mkdirSync('/dir');
 fsv.writeFileSync('/dir/Some File.txt', 'This is a test file, inside a folder.');
@@ -56,3 +60,7 @@ fsv.symlinkSync('Some File.txt', '/dir/File Symlink.txt');
 fsv.mkdirSync('/dir/Some Folder');
 fsv.writeFileSync('/dir/Some Folder/File in Folder.txt', 'A file in a folder, to demonstrate symlinks.');
 fsv.symlinkSync('Some Folder', '/dir/Folder Symlink');
+fsv.mkdirSync('/fs2');
+fsv.mount('/fs2', 0, fsv2, '/ell');
+fsv2.mkdirSync('/ell');
+fsv2.writeFileSync('/ell/test.txt', 'A test text file in a mounted filesystem.');

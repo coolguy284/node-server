@@ -35,9 +35,7 @@ module.exports = {
     return idstr;
   },
   'shufstr' : function shufstr(str, maxlen) {
-    if (maxlen === undefined) {
-      maxlen = Infinity;
-    }
+    if (maxlen === undefined) maxlen = Infinity;
     let sstr = str.split('');
     let bstr = '';
     while (sstr.length > 0 && maxlen > 0) {
@@ -47,11 +45,8 @@ module.exports = {
     return bstr;
   },
   'tn' : function tn(str, lim) {
-    if (str.length > lim) {
-      return str.substr(0, lim) + '...';
-    } else {
-      return str;
-    }
+    if (str.length > lim) return str.substr(0, lim) + '...';
+    else return str;
   },
   'sleep' : function sleep(ms) {
     return new Promise(function (resolve) {
