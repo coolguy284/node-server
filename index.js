@@ -8,7 +8,9 @@ global.rstimes = 0;
 global.timeout = 5000;
 global.maxrstimes = 5;
 function prepserv() {
+  process.stdin.unpipe();
   global.serv = cp.spawn('node', ['aaa.js'], {stdio: ['pipe', 'pipe', 'pipe', 'ipc']});
+  process.stdin.pipe(serv.stdin);
   serv.stdout.pipe(process.stdout);
   serv.stderr.pipe(process.stderr);
   serv.on('message', function(val) {

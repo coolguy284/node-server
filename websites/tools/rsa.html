@@ -23,6 +23,10 @@
     </fieldset>
     <button onclick = 'trsa()'>Text > RSA</button>
     <button onclick = 'ttex()'>RSA > Text</button>
+    <button onclick = 'rsaf.click()'>File > RSA</button>
+    <button onclick = 'texf.click()'>RSA File > Text</button>
+    <input type = 'file' id = 'rsaf' style = 'display:none;' onchange = 'tfrsa(this.files[0])'>
+    <input type = 'file' id = 'texf' style = 'display:none;' onchange = 'tftex(this.files[0])'>
     <fieldset>
       <legend>Plaintext</legend>
       <textarea id = 'texta' style = 'width:100%;height:200px;'></textarea>
@@ -33,6 +37,15 @@
     </fieldset>
     <script src = '/js/rsa.js'></script>
     <script>
+      function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+      }
       function gkey() {
         var crypt = new JSEncrypt({default_key_size : parseInt(keyl.value)});
         crypt.getKey();
@@ -48,6 +61,24 @@
         var crypt = new JSEncrypt();
         crypt.setPrivateKey(prita.value);
         texta.value = crypt.decrypt(rsata.value);
+      }
+      function tfrsa(file) {
+        var fro = new FileReader();
+        fro.onload = function () {
+          var crypt = new JSEncrypt();
+          crypt.setPublicKey(pubta.value);
+          download('rsa.txt', crypt.encrypt(fro.result));
+        }
+        fro.readAsText(file);
+      }
+      function tftex(file) {
+        var fro = new FileReader();
+        fro.onload = function () {
+          var crypt = new JSEncrypt();
+          crypt.setPrivateKey(prita.value);
+          download('file.txt', crypt.decrypt(fro.result));
+        }
+        fro.readAsText(file);
       }
       function updsct() {
         if (keyll.value == '0') {

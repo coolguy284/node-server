@@ -5,6 +5,10 @@
   </head>
   <body>
     <button onclick = 'thash()'>Hash Text</button>
+    <button onclick = 'hashf.click()'>Hash File</button>
+    <input type = 'file' id = 'hashf' style = 'display:none;' onchange = 'tfhash(this.files[0])'>
+    <span>Repeat Times:</span>
+    <input type = 'number' id = 'rept' value = 1>
     <fieldset>
       <legend>Text</legend>
       <textarea id = 'texta' style = 'width:100%;height:200px;'></textarea>
@@ -15,8 +19,28 @@
     </fieldset>
     <script src = '/js/sha256.js'></script>
     <script>
+      function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+      }
       function thash() {
-        shata.value = sha256.hex(texta.value);
+        rept.value = Math.max(parseInt(rept.value), 0);
+        for (var i = parseInt(rept.value), shacur = texta.value; i > 0; i--, shacur = sha256.hex(shacur));
+        shata.value = shacur;
+      }
+      function tfhash(file) {
+        var fro = new FileReader();
+        fro.onload = function () {
+          rept.value = Math.max(parseInt(rept.value), 0);
+          for (var i = parseInt(rept.value), shacur = texta.value; i > 0; i--, shacur = sha256.hex(shacur));
+          download('sha256.txt', shacur);
+        }
+        fro.readAsText(file);
       }
     </script>
   </body>
