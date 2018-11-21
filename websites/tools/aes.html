@@ -6,6 +6,10 @@
   <body>
     <button onclick = 'taes()'>Text > AES</button>
     <button onclick = 'ttex()'>AES > Text</button>
+    <button onclick = 'aesf.click()'>File > AES</button>
+    <button onclick = 'texf.click()'>AES File > Text</button>
+    <input type = 'file' id = 'aesf' style = 'display:none;' onchange = 'tfaes(this.files[0])'>
+    <input type = 'file' id = 'texf' style = 'display:none;' onchange = 'tftex(this.files[0])'>
     <span>Password:</span>
     <input type = 'text' id = 'mapp'><br>
     <fieldset>
@@ -18,6 +22,15 @@
     </fieldset>
     <script src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js'></script>
     <script>
+      function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+      }
       function taes() {
         try {
           aesta.value = CryptoJS.AES.encrypt(texta.value, mapp.value);
@@ -27,6 +40,24 @@
         try {
           texta.value = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(aesta.value, mapp.value));
         } catch (e) { alert(e); }
+      }
+      function tfaes(file) {
+        var fro = new FileReader();
+        fro.onload = function () {
+          try {
+            download('aes.txt', CryptoJS.AES.encrypt(fro.result, mapp.value));
+          } catch (e) { alert(e); }
+        }
+        fro.readAsText(file);
+      }
+      function tftex(file) {
+        var fro = new FileReader();
+        fro.onload = function () {
+          try {
+            download('file.txt',  CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(fro.result, mapp.value)));
+          } catch (e) { alert(e); }
+        }
+        fro.readAsText(file);
       }
     </script>
   </body>

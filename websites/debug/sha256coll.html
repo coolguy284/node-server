@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Truncated Sha256 Collision Tester</title>
+  </head>
+  <body>
+    <script src = '/js/sha256.js'></script>
+    <script>
+      hasharr = [];
+      function collision(init, bl) {
+        hasharr.splice(0, Infinity);
+        hasharr.push(init);
+        for (var i = 0; i < 1000000; i++) {
+          var cv = sha256.hex(hasharr[hasharr.length - 1]).slice(0, bl);
+          var ind = hasharr.indexOf(cv)
+          if (ind > -1) {
+            console.log(`collision: cind: ${hasharr.length}, tind: ${ind}, clen: ${hasharr.length - ind}, val: ${cv}`);
+            hasharr.push(cv);
+            break;
+          }
+          hasharr.push(cv);
+        }
+      }
+    </script>
+  </body>
+</html>

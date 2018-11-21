@@ -6,6 +6,10 @@
   <body>
     <button onclick = 'tb64()'>Text > Base64</button>
     <button onclick = 'ttex()'>Base64 > Text</button>
+    <button onclick = 'b64f.click()'>File > Base64</button>
+    <button onclick = 'texf.click()'>Base64 File > Text</button>
+    <input type = 'file' id = 'b64f' style = 'display:none;' onchange = 'tfb64(this.files[0])'>
+    <input type = 'file' id = 'texf' style = 'display:none;' onchange = 'tftex(this.files[0])'>
     <span>Mapping (normally left blank):</span>
     <input type = 'text' id = 'mapp'>
     <fieldset>
@@ -18,6 +22,15 @@
     </fieldset>
     <script src = '/js/base64.js'></script>
     <script>
+      function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+      }
       function tb64() {
         if (mapp.value != '') {
           Base64.s = mapp.value;
@@ -33,6 +46,30 @@
           Base64.s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
         }
         texta.value = Base64.decode(b64ta.value);
+      }
+      function tfb64(file) {
+        var fro = new FileReader();
+        fro.onload = function () {
+          if (mapp.value != '') {
+            Base64.s = mapp.value;
+          } else {
+            Base64.s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+          }
+          download('base64.txt', Base64.encode(fro.result));
+        }
+        fro.readAsText(file);
+      }
+      function tftex(file) {
+        var fro = new FileReader();
+        fro.onload = function () {
+          if (mapp.value != '') {
+            Base64.s = mapp.value;
+          } else {
+            Base64.s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+          }
+          download('file.txt', Base64.decode(fro.result));
+        }
+        fro.readAsText(file);
       }
     </script>
   </body>
