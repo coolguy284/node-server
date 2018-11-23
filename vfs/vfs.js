@@ -21,6 +21,8 @@ function SecureView(view) {
     lchmodSync: view.lchmodSync.bind(view),
     chownSync: view.chownSync.bind(view),
     lchownSync: view.lchownSync.bind(view),
+    chattrSync: view.chattrSync.bind(view),
+    lchattrSync: view.lchattrSync.bind(view),
     utimesSync: view.utimesSync.bind(view),
     readFileSync: view.readFileSync.bind(view),
     writeFileSync: view.writeFileSync.bind(view),
@@ -60,6 +62,9 @@ fsv.symlinkSync('Some File.txt', '/dir/File Symlink.txt');
 fsv.mkdirSync('/dir/Some Folder');
 fsv.writeFileSync('/dir/Some Folder/File in Folder.txt', 'A file in a folder, to demonstrate symlinks.');
 fsv.symlinkSync('Some Folder', '/dir/Folder Symlink');
+fsv.mkdirSync('/dir/Folder Symlink Loop');
+fsv.symlinkSync('.', '/dir/Folder Symlink Loop/Loop');
+fsv.writeFileSync('/dir/Folder Symlink Loop/file.txt', 'A text file to demonstrate the nested directory structure.');
 fsv.mkdirSync('/fs2');
 fsv.mount('/fs2', 0, fsv2, '/ell');
 fsv2.mkdirSync('/ell');
