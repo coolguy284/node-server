@@ -539,6 +539,9 @@
           notf = false;
         } else {
           notf = true;
+          if (Notification.permission != 'granted' && Notification.permission != 'denied') {
+            Notification.requestPermission();
+          }
         }
       }
       function RedMode(v) {

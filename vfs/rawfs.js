@@ -20,7 +20,7 @@ class FileSystem {
     if (opts.inoarr === undefined) opts.inoarr = [Buffer.alloc(0)];
     if (opts.inodarr === undefined) {
       let ctime = getcTime();
-      //opts.inodarr = [['d', 1, ctime, ctime, ctime, 0o777, 'root', 'root']];
+      //opts.inodarr = [['d', 0, 1, ctime, ctime, ctime, 0o777, 'root', 'root']];
       opts.inodarr = [Buffer.from([0x04, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])];
       opts.inodarr[0].writeUIntBE(ctime, 4, 6);
       opts.inodarr[0].writeUIntBE(ctime, 10, 6);
@@ -306,7 +306,7 @@ class FileSystem {
   }
   link(pathf, patht) {
     if (!this.writable) throw new Error('read-only filesystem');
-    let ino = this.geteInode(pathf);
+    let ino = this.geteInode(pathf, false);
     if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
     if (this.exists(patht)) throw new Error('path already exists');
     this.appendFolder(this.geteInode(parentPath(patht)), pathEnd(patht), ino);
@@ -360,7 +360,7 @@ class FileSystem {
   }
   rename(pathf, patht) {
     if (!this.writable) throw new Error('read-only filesystem');
-    let ino = this.geteInode(pathf);
+    let ino = this.geteInode(pathf, false);
     if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
     if (this.exists(patht)) throw new Error('path already exists');
     this.appendFolder(this.geteInode(parentPath(patht)), pathEnd(patht), ino);

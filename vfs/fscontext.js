@@ -15,8 +15,10 @@ class FileSystemContext {
     this.user = user;
     this.mounts = mounts;
   }
-  mountNormalize(path) {
-    path = normalize(path, this.cwd);
+  mountNormalize(path, symlink, cwd) {
+    if (symlink === undefined) symlink = true;
+    if (cwd === undefined) cwd = this.cwd;
+    path = normalize(path, cwd);
     let patharr = path.split('/');
     for (let i in patharr) {
       let cp = patharr.slice(0, parseInt(i) + 1).join('/');
@@ -25,8 +27,16 @@ class FileSystemContext {
       if (mind > -1) {
         switch (this.mounts[1][mind]) {
           case 0: return this.mounts[2][mind].mountNormalize(this.mounts[3][mind] + crp);
-          case 1: return [{fs: this.mounts[2][mind], cwd: '/'}, this.mounts[3][mind] + crp];
+          case 1: return [{fs: this.mounts[2][mind], cwd: '/', getPerms: function () {return {read:1,write:1,execute:1}}}, this.mounts[3][mind] + crp];
           case 2: return [fs, this.mounts[3][mind] + crp];
+        }
+      }
+      if (parseInt(i) != patharr.length - 1 || symlink) {
+        let ino = this.fs.getInode(cp, false);
+        if (ino != null) {
+          if (this.fs.getInod(ino, 0) == 12) {
+            return this.mountNormalize(this.fs.inoarr[ino].toString(), symlink, parentPath(cp));
+          }
         }
       }
     }
@@ -55,8 +65,8 @@ class FileSystemContext {
   }
   chdir(path) {
     path = normalize(path, this.cwd);
-    let fsc = this.mountNormalize(path);
-    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).read) throw new Error('ERRNO 13 no permission');
+    let fsc = this.mountNormalize(path, false);
+    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1], false)).read) throw new Error('ERRNO 13 no permission');
     this.cwd = path;
   }
   existsSync(path) {
@@ -74,8 +84,8 @@ class FileSystemContext {
     return fsc[0].fs.stat(fsc[1]);
   }
   lstatSync(path) {
-    let fsc = this.mountNormalize(path);
-    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).read) throw new Error('ERRNO 13 no permission');
+    let fsc = this.mountNormalize(path, false);
+    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1], false)).read) throw new Error('ERRNO 13 no permission');
     return fsc[0].fs.lstat(fsc[1]);
   }
   chmodSync(path, mode) {
@@ -84,8 +94,8 @@ class FileSystemContext {
     return fsc[0].fs.chmod(fsc[1], mode);
   }
   lchmodSync(path, mode) {
-    let fsc = this.mountNormalize(path);
-    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new Error('ERRNO 13 no permission');
+    let fsc = this.mountNormalize(path, false);
+    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1], false)).write) throw new Error('ERRNO 13 no permission');
     return fsc[0].fs.lchmod(fsc[1], mode);
   }
   chownSync(path, user, group) {
@@ -94,9 +104,21 @@ class FileSystemContext {
     return fsc[0].fs.chown(fsc[1], user, group);
   }
   lchownSync(path, user, group) {
-    let fsc = this.mountNormalize(path);
-    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new Error('ERRNO 13 no permission');
+    let fsc = this.mountNormalize(path, false);
+    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1], false)).write) throw new Error('ERRNO 13 no permission');
     return fsc[0].fs.lchown(fsc[1], user, group);
+  }
+  chattrSync(path, attrb) {
+    let fsc = this.mountNormalize(path);
+    let uid = fsc[0].fs.uids.indexOf(fsc[0].user);
+    if (uid != fsc[0].fs.getInod(fsc[0].fs.geteInode(fsc[1]), 7)) throw new Error('only owner can change attrs');
+    return fsc[0].fs.chattr(path, attrb);
+  }
+  lchattrSync(path, attrb) {
+    let fsc = this.mountNormalize(path, false);
+    let uid = fsc[0].fs.uids.indexOf(fsc[0].user);
+    if (uid != fsc[0].fs.getInod(fsc[0].fs.geteInode(fsc[1], false), 7)) throw new Error('only owner can change attrs');
+    return fsc[0].fs.lchattr(path, attrb);
   }
   utimesSync(path, atime, mtime) {
     let fsc = this.mountNormalize(path);
@@ -142,18 +164,18 @@ class FileSystemContext {
     return fsc[0].fs.createWriteStream(fsc[1]);
   }
   linkSync(pathf, patht) {
-    let fscf = this.mountNormalize(pathf);
+    let fscf = this.mountNormalize(pathf, false);
     let fsct = this.mountNormalize(patht);
-    if (!Object.is(fscf.fs, fsct.fs)) throw new Error('cannot link to mounted filesystem');
-    if (!fscf[0].getPerms(fscf[0].fs.geteInode(fscf[1])).read) throw new Error('ERRNO 13 no permission');
+    if (!Object.is(fscf.fs, fsct.fs)) throw new Error('cannot link two different filesystems');
+    if (!fscf[0].getPerms(fscf[0].fs.geteInode(fscf[1], false)).read) throw new Error('ERRNO 13 no permission');
     if (!fsct[0].getPerms(fsct[0].fs.geteInode(parentPath(fsct[1]))).write) throw new Error('ERRNO 13 no permission');
     if (fsct[0].fs.exists(fsct[1]))
     if (!fsct[0].getPerms(fsct[0].fs.geteInode(fsct[1])).write) throw new Error('ERRNO 13 no permission');
     return fscf[0].fs.link(fscf[1], fsct[1]);
   }
   unlinkSync(path) {
-    let fsc = this.mountNormalize(path);
-    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new Error('ERRNO 13 no permission');
+    let fsc = this.mountNormalize(path, false);
+    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1], false)).write) throw new Error('ERRNO 13 no permission');
     return fsc[0].fs.unlink(fsc[1]);
   }
   copyFileSync(pathf, patht) {
@@ -169,7 +191,7 @@ class FileSystemContext {
     return fsct[0].fs.writeFile(fsct[1], fscf[0].fs.readFile(fscf[1]));
   }
   readlinkSync(path, options) {
-    let fsc = this.mountNormalize(path);
+    let fsc = this.mountNormalize(path, false);
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1], false)).read) throw new Error('ERRNO 13 no permission');
     return fsc[0].fs.readlink(fsc[1], options);
   }
@@ -193,18 +215,18 @@ class FileSystemContext {
     return fsc[0].fs.mkdir(fsc[1]);
   }
   renameSync(pathf, patht) {
-    let fscf = this.mountNormalize(pathf);
+    let fscf = this.mountNormalize(pathf, false);
     let fsct = this.mountNormalize(patht);
     if (!Object.is(fscf.fs, fsct.fs)) throw new Error('cannot rename to mounted filesystem');
-    if (!fscf[0].getPerms(fscf[0].fs.geteInode(fscf[0])).write) throw new Error('ERRNO 13 no permission');
+    if (!fscf[0].getPerms(fscf[0].fs.geteInode(fscf[0], false)).write) throw new Error('ERRNO 13 no permission');
     if (!fsct[0].getPerms(fsct[0].fs.geteInode(parentPath(fsct[1]))).write) throw new Error('ERRNO 13 no permission');
     if (fsct[0].fs.exists(fsct[1]))
     if (!fsct[0].getPerms(fsct[0].fs.geteInode(fsct[1])).write) throw new Error('ERRNO 13 no permission');
     return fscf[0].fs.rename(fscf[1], fsct[1]);
   }
   rmdirSync(path) {
-    let fsc = this.mountNormalize(path);
-    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new Error('ERRNO 13 no permission');
+    let fsc = this.mountNormalize(path, false);
+    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1], false)).write) throw new Error('ERRNO 13 no permission');
     return fsc[0].fs.rmdir(fsc[1]);
   }
   mount(pathf, typ, fs, patht) {

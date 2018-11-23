@@ -72,7 +72,7 @@ let Console = class Console {
       value = '' + value;
       if (this[times].has(value)) {
         let td = process.hrtime(this[times].get(value));
-        this.log(value + ': ' + td[0] * 1000 + td[1] / 1000000 + 'ms');
+        this.log(value + ': ' + (td[0] * 1000 + td[1] / 1000000) + 'ms');
         this[times].delete(value);
       }
     } else if (cn == 'timeLog') {
