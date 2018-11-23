@@ -35,12 +35,12 @@ class FileSystemContext {
   }
   getPerms(ino) {
     let uid = this.fs.uids.indexOf(this.user);
-    let pl = this.fs.getInod(ino, 5);
-    if (uid == this.fs.getInod(ino, 6)) {
+    let pl = this.fs.getInod(ino, 6);
+    if (uid == this.fs.getInod(ino, 7)) {
       return {read: pl & 0o400 ? 1 : 0, write: pl & 0o200 ? 1 : 0, execute: pl & 0o100 ? 1 : 0};
     }
     let group = false;
-    let grp = this.fs.getInod(ino, 7);
+    let grp = this.fs.getInod(ino, 8);
     for (let i in this.fs.groups) {
       if (this.fs.groups[i].indexOf(uid) > -1 && parseInt(i) == grp) {
         group = true;
