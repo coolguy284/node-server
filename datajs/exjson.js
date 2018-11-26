@@ -1,6 +1,27 @@
 // jshint maxerr:1000 -W041 -W061 -W122
 //e={};e.a='b';e.c={'d':'e'};e.c.z='xyz';e.d=e.c;e.e=e.c.z;e.y={'t':e.c.z};e.f=e;e.g={'h':e};e.g.l=e.g
 //e=[];e.push('b');e.push(['e']);e[1].push('xyz');e.push(e[1]);e.push(e[1][1]);e.push([e[1][1]]);e.push(e);e.push([e]);e[6].push(e[6])
+/*
+testobj = {
+  str: 'ell',
+  'space name': 'val" \' " \'ue',
+  array: [1, 2, 3, Infinity, -0, 'vell', /r ' " ' "/g, new Date(10), new Date(Infinity)],
+  map: new Map([['kartograph', -0], [-1, -Infinity], [1, Infinity], [0, -0]]),
+  set: new Set(['are', 'we', 'set', 'yet', '?', Symbol.for(' '), Symbol.for('maybe'), '.']),
+  smobj: {
+    ven: new Buffer([0xde, 0xad, 0xbe, 0xef]),
+  },
+  [Symbol.unscopables]: ['dex', 'jex', 'krex', -1, -0.00001, 0.00001, 0, Number.MAX_SAFE_INTEGER]
+};
+testobj.array.push(testobj, testobj.array);
+testobj.map.set(testobj.array, testobj.smobj);
+testobj.map.set(testobj, testobj.map);
+testobj.set.add(testobj);
+testobj.set.add(testobj.set);
+testobj.smobj.vel = new Buffer(testobj.smobj.ven.buffer);
+testobj.smobj.target = testobj;
+testobj.smobj.loupe = testobj.smobj;
+*/
 module.exports = {
   'symbolk' : ['hasInstance', 'isConcatSpreadable', 'iterator', 'match', 'replace', 'search', 'species', 'split', 'toPrimitive', 'toStringTag', 'unscopables'],
   'symbolv' : [Symbol.hasInstance, Symbol.isConcatSpreadable, Symbol.iterator, Symbol.match, Symbol.replace, Symbol.search, Symbol.species, Symbol.split, Symbol.toPrimitive, Symbol.toStringTag, Symbol.unscopables],

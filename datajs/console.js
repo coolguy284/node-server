@@ -82,9 +82,7 @@ let Console = class Console {
         this.log.apply(this, [value + ': ' + td[0] * 1000 + td[1] / 1000000 + 'ms', ...Array.prototype.slice.call(arguments, 2, Infinity)]);
       }
     } else if (cn != 'clear') {
-      if (typeof value != 'string') {
-        value = util.inspect(value);
-      }
+      if (typeof value != 'string') value = util.inspect(value);
       if (arguments.length > 2) {
         value = util.format.apply(null, Array.prototype.slice.call(arguments, 1, Infinity));
         return;
@@ -107,7 +105,7 @@ let Console = class Console {
       }
     } else {
       this.colog.splice(0, Infinity);
-      for (let i = 0; i < (this.cologmin || datajs.feat.lim.cologmin); i++) {this.colog.push(['', '{}'])}
+      for (let i = 0; i < (this.cologmin || datajs.feat.lim.cologmin); i++) this.colog.push(['', '{}']);
     }
   }
 };

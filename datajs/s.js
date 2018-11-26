@@ -17,9 +17,7 @@ module.exports = {
           this.cm(cs[i]);
         }
       }
-      if (es != '') {
-        this.pl += es;
-      }
+      if (es != '') this.pl += es;
       done();
     }
     _writev(chunks, done) {
@@ -27,20 +25,14 @@ module.exports = {
       return this._write(Buffer.concat(chunks, chunks.reduce(function (acc, val) {acc += val.length}, 0)), done);
     }
     _final(done) {
-      if (this.pl != '') {
-        this.cm(this.pl);
-      }
+      if (this.pl != '') this.cm(this.pl);
     }
   },
   'ValueStream' : class ValueStream extends stream.Readable {
     constructor(val, lim, options) {
       super(options);
-      if (val === undefined && val === null) {
-        val = 0;
-      }
-      if (lim === undefined && lim === null) {
-        lim = Infinity;
-      }
+      if (val === undefined && val === null) val = 0;
+      if (lim === undefined && lim === null) lim = Infinity;
       this.val = val;
       this.lim = lim;
       this.tolim = lim;
@@ -48,117 +40,82 @@ module.exports = {
     _read(size) {
       let rv = true;
       while (rv) {
-        if (this.tolim < size) {
-          size = this.tolim;
-        }
+        if (this.tolim < size) size = this.tolim;
         let ra = [];
-        for (let i = 0; i < size; i++) {
-          ra.push(this.val);
-        }
+        for (let i = 0; i < size; i++) ra.push(this.val);
         rv = this.push(ra.length > 0 ? Buffer.from(ra) : null);
         this.tolim -= size;
-        if (this.tolim <= 0) {
-          rv = false;
-        }
+        if (this.tolim <= 0) rv = false;
       }
     }
   },
   'RandomStream' : class RandomStream extends stream.Readable {
     constructor(lim, options) {
       super(options);
-      if (lim === undefined && lim === null) {
-        lim = Infinity;
-      }
+      if (lim === undefined && lim === null) lim = Infinity;
       this.lim = lim;
       this.tolim = lim;
     }
     _read(size) {
       let rv = true;
       while (rv) {
-        if (this.tolim < size) {
-          size = this.tolim;
-        }
+        if (this.tolim < size) size = this.tolim;
         let ra = [];
-        for (let i = 0; i < size; i++) {
-          ra.push(Math.floor(Math.random() * 256));
-        }
+        for (let i = 0; i < size; i++) ra.push(Math.floor(Math.random() * 256));
         rv = this.push(ra.length > 0 ? Buffer.from(ra) : null);
         this.tolim -= size;
-        if (this.tolim <= 0) {
-          rv = false;
-        }
+        if (this.tolim <= 0) rv = false;
       }
     }
   },
   'BufReadStream' : class BufReadStream extends stream.Readable {
     constructor(ibuf, options) {
       super(options);
-      if (!ibuf) {
-        ibuf = Buffer.alloc(0);
-      }
+      if (!ibuf) ibuf = Buffer.alloc(0);
       this.ibuf = ibuf;
     }
     _read(size) {
       let rv = true;
       while (rv) {
-        if (this.ibuf.length < size) {
-          size = this.ibuf.length;
-        }
+        if (this.ibuf.length < size) size = this.ibuf.length;
         let rb = Buffer.allocUnsafe(size);
         let nibuf = Buffer.allocUnsafe(this.ibuf.length - size);
         this.ibuf.copy(rb, 0, 0, size);
         this.ibuf.copy(nibuf, 0, size, this.ibuf.length);
         this.ibuf = nibuf;
         rv = this.push(rb.length > 0 ? rb : null);
-        if (this.ibuf.length <= 0) {
-          rv = false;
-        }
+        if (this.ibuf.length <= 0) rv = false;
       }
     }
   },
   'BufWriteStream' : class BufWriteStream extends stream.Writable {
     constructor(ibuf, dyn, options) {
       super(options);
-      if (dyn === undefined) {
-        dyn = false;
-      }
+      if (dyn === undefined) dyn = false;
       if (dyn) {
-        if (!ibuf) {
-          ibuf = [];
-        }
+        if (!ibuf) ibuf = [];
         this.ibufa = ibuf;
         Object.defineProperty(this, 'ibuf', {
           configurable: true,
           enumerable: true,
-          get: function () {
-            return Buffer.concat(this.ibufa);
-          },
-          set: function (val) {
-            this.ibufa = [Buffer.from(val)];
-          },
+          get: function () {return Buffer.concat(this.ibufa);},
+          set: function (val) {this.ibufa = [Buffer.from(val)];}
         });
       } else {
-        if (!ibuf) {
-          ibuf = Buffer.alloc(0);
-        }
+        if (!ibuf) ibuf = Buffer.alloc(0);
         this.ibuf = ibuf;
       }
       this.dyn = dyn;
     }
     _write(chunk, enc, done) {
-      if (this.dyn) {
-        this.ibufa.push(chunk);
-      } else {
-        this.ibuf = Buffer.concat([this.ibuf, chunk]);
-      }
+      if (this.dyn) this.ibufa.push(chunk);
+      else this.ibuf = Buffer.concat([this.ibuf, chunk]);
       done();
     }
     _writev(chunks, done) {
       chunks = chunks.map(function (val) {return val.chunk;});
       if (this.dyn) {
-        for (let i in chunks) {
-          this.ibufa.push(chunk[i]);
-        }
+        for (let i in chunks) this.ibufa.push(chunk[i]);
       } else {
         chunks.shift(this.ibuf);
         this.ibuf = Buffer.concat(chunks);
