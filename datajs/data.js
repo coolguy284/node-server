@@ -89,6 +89,7 @@ module.exports = {
   '_consolecounts' : cons.counts,
   '_consoletimes' : cons.times,
   '_consolegrouplvl' : cons.grouplvl,
+  'term' : require('./terminal.js'),
   's' : require('./s.js'),
   'splash' : require('./splash.js'),
 };
