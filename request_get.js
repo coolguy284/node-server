@@ -433,14 +433,14 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
         res.write(data.toString().replace('{redirect-url}', req.url.replace(/\/{1,}$/g, '')));
         res.end();
       });
-      return;
+      return -1;
     } else if (v[v.length-1] === '' && v[v.length-2].indexOf('.') < 0) {
       fs.readFile('websites/redirecttemplate.html', function (err, data) {
         res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
         res.write(data.toString().replace('{redirect-url}', req.url + 'index.html'));
         res.end();
       });
-      return;
+      return -1;
     }
     if (req.headers.range) {
       if (req.headers.range.substr(0, 6) == 'bytes=') {
@@ -470,11 +470,11 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
           res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
           rs.pipe(res);
         }
-        return;
+        return -1;
       } else {
         res.writeHead(416);
         res.end();
-        return;
+        return -1;
       }
     }
     let rpath = 'websites' + req.url;
@@ -538,22 +538,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
         let rs = fs.createReadStream('websites/p404.html');
         res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
         rs.pipe(res);
-        if (datajs.feat.el.vh.indexOf(req.url) < 0 && datajs.feat.el.vhv.every(datajs.notstartswith, req.url) && Object.keys(datajs.handlerp).every(datajs.notstartswith, req.url)) {
-          let rp = 'p404';
-          if (viewshist.reg[req.url]) rp = 'reg';
-          else if (viewshist.ajax[req.url]) rp = 'ajax';
-          if (rp != 'p404') {
-            viewshist[rp][req.url]--;
-            if (viewshist[rp][req.url] <= 0) {
-              delete viewshist.reg[req.url];
-            }
-          }
-          if (!viewshist.p404[req.url]) {
-            viewshist.p404[req.url] = 1;
-          } else {
-            viewshist.p404[req.url]++;
-          }
-        }
+        return 'p404';
       }
     }
   }

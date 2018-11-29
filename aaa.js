@@ -138,6 +138,7 @@ try {
   global.Throttle = require('advanced-throttle');
 } catch (e) {
   console.warn('advanced-throttle import failed');
+  global.Throttle = stream.PassThrough;
 }
 try {
   global.pstree = require('ps-tree');
@@ -359,11 +360,15 @@ global.serverf = function serverf(req, resa, nolog) {
   }
   if (locked && datajs.feat.el.lockl.indexOf(req.url) < 0 && req.url.substr(0, 2) != '/a') return;
   if (req.method == 'GET') {
-    if (!nolog) {
+    if (req.url.substr(0, 2) == '/s' && datajs.feat.tost) {
+      adm.ipban(ipaddr); 
+    }
+    let rp = reqg(req, res, ipaddr, proto, url, cookies, nam);
+    if (!nolog && rp != -1) {
       if (datajs.feat.el.vh.indexOf(req.url) < 0 && datajs.feat.el.vhv.every(datajs.notstartswith, req.url) && Object.keys(datajs.handlerp).every(datajs.notstartswith, req.url)) {
-        let rp = 'reg';
-        if (datajs.feat.el.ajaxl.indexOf(req.url) > -1) {
-          rp = 'ajax';
+        if (rp != 'p404') {
+          if (datajs.feat.el.ajaxl.indexOf(req.url) < 0) rp = 'reg';
+          else rp = 'ajax';
         }
         if (viewshist[rp][req.url] === undefined) {
           viewshist[rp][req.url] = 1;
@@ -372,10 +377,6 @@ global.serverf = function serverf(req, resa, nolog) {
         }
       }
     }
-    if (req.url.substr(0, 2) == '/s' && datajs.feat.tost) {
-      adm.ipban(ipaddr); 
-    }
-    reqg(req, res, ipaddr, proto, url, cookies, nam);
   } else if (req.method == 'HEAD') {
     reqh(req, res, ipaddr, proto, url, cookies, nam);
   } else {

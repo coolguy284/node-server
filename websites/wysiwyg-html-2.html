@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+  <head>
+    <title>WYSIWYG HTML Editor</title>
+    <style>
+      #dedivc {
+        width: calc(50% - 6px);
+        height: 400px;
+        float: left;
+      }
+      #dediv {
+        width: 100%;
+        height: 400px;
+        float: left;
+        overflow: auto;
+        -moz-appearance: textfield-multiline;
+        -webkit-appearance: textarea;
+        border: 1px solid gray;
+        padding: 2px;
+        resize: both;
+      }
+      #editorc {
+        width: calc(50% - 6px);
+        height: 400px;
+        float: left;
+      }
+      #editor {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <button onclick = 'dehtm.value = dediv.innerHTML;'>Refresh Code</button>
+    <button onclick = 'dediv.innerHTML = dehtm.value;'>Refresh Rendered Output</button>
+    <label for = 'syncv'>Synchronize: </label>
+    <input type = 'range' id = 'syncv' min = 0 max = 1 value = 1 style = 'width:50px;'><br>
+    <button onclick = 'ShowWYS()'>WYSIWYG</button>
+    <button onclick = 'ShowCode()'>Code</button>
+    <button onclick = 'ShowBoth()'>Both</button><br>
+    <div id = 'dedivc'><div id = 'dediv' contenteditable = 'true'>Henlo this has some <span style='color:#f00;'>red</span> text.</div></div>
+    <div id = 'editorc'><div id = 'editor'></div></div>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/ace.js'></script>
+    <script>
+      function insertAtCursor(text) {
+        var sel, range, html;
+        if (window.getSelection) {
+          sel = window.getSelection();
+          if (sel.getRangeAt && sel.rangeCount) {
+            range = sel.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(document.createTextNode(text));
+          }
+        } else if (document.selection && document.selection.createRange) {
+          document.selection.createRange().text = text;
+        }
+      }
+      var state = 'both';
+      var edlast = 'wys';
+      function ShowWYS() {
+        dedivc.style = 'width: calc(100% - 6px);height: 400px;float: left;';
+        editorc.style = 'display:none;';
+        if (parseInt(syncv.value) && state == 'code') {
+          dediv.innerHTML = dehtm.value;
+        }
+        state = 'wys';
+      }
+      function ShowCode() {
+        dedivc.style = 'display:none;width: calc(50% - 6px);height: 400px;float: left;';
+        editorc.style = 'width: calc(100% - 6px);height: 400px;';
+        editor.resize();
+        if (parseInt(syncv.value) && state == 'wys') {
+          dehtm.value = dediv.innerHTML;
+        }
+        state = 'code';
+      }
+      function ShowBoth() {
+        dedivc.style = 'width: calc(50% - 6px);height: 400px;float: left;';
+        editorc.style = 'width: calc(50% - 6px);height: 400px;';
+        editor.resize();
+        if (parseInt(syncv.value) && state == 'code') {
+          dediv.innerHTML = dehtm.value;
+        } else if (parseInt(syncv.value) && state == 'wys') {
+          dehtm.value = dediv.innerHTML;
+        }
+        state = 'both';
+      }
+      var editor = ace.edit('editor');
+      editor.setOptions({
+        tabSize: 2,
+        wrap: true,
+        printMargin: false,
+        theme: 'ace/theme/dreamweaver'
+      });
+      editor.session.setMode('ace/mode/html');
+      dediv.addEventListener('keydown', function (e) {
+        if (e.keyCode == 9) {
+          e.preventDefault();
+          insertAtCursor('\t');
+        }
+        if (parseInt(syncv.value) && state == 'both') {
+          setTimeout(function () {editor.setValue(dediv.innerHTML, 1);}, 15);
+        }
+        edlast = 'wys';
+      });
+      dediv.addEventListener('input', function (e) {
+        if (parseInt(syncv.value) && state == 'both') {
+          setTimeout(function () {editor.setValue(dediv.innerHTML, 1);}, 15);
+        }
+        edlast = 'wys';
+      });
+      document.getElementById('editor').addEventListener('keydown', function (e) {
+        if (e.keyCode == 9) {
+          e.preventDefault();
+          insertAtCursorte(dehtm, '\t');
+        }
+        if (parseInt(syncv.value) && state == 'both') {
+          setTimeout(function () {dediv.innerHTML = editor.getValue();}, 15);
+        }
+        edlast = 'code';
+      });
+      syncv.addEventListener('input', function (e) {
+        setTimeout(function () {
+          if (parseInt(syncv.value)) {
+            if (edlast == 'wys') {
+              editor.setValue(dediv.innerHTML, 1);
+            } else if (edlast == 'code') {
+              dediv.innerHTML = dehtm.value;
+            }
+          }
+        }, 15);
+      });
+      onload = function () {
+        editor.setValue(dediv.innerHTML, 1);
+      }
+    </script>
+  </body>
+</html>

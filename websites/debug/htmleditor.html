@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset = 'utf-8'>
+    <meta name = 'viewport' content = 'width=device-width'>
+    <title>HTML Editor</title>
+    <style>
+      #editord {
+        width: 100%;
+        height: 200px;
+      }
+      #editor {
+        width: 100%;
+        height: 100%;
+        padding: 2px;
+      }
+      #ifra {
+        width: 100%;
+        height: 400px;
+        resize: both;
+      }
+    </style>
+  </head>
+  <body>
+    <button onclick = 'UpdateF()'>Update Frame</button>
+    <button onclick = 'UpdateU()'>Update Url</button>
+    <button onclick = 'ClearF()'>Clear Frame</button><br>
+    <input type = 'url' id = 'urli' style = 'width:50em;resize:both;'><br>
+    <div id = 'editord'>
+      <div id = 'editor'>&lt;!doctype html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Test HTML Page&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;p&gt;A test HTML webpage.&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</div>
+    </div>
+    <iframe id = 'ifra' src = 'javascript:void(0);'></iframe>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/ace.js'></script>
+    <script>
+      UpdateF = function() {
+        ifra.src = 'data:text/html;charset=utf-8,' + escape(editor.getValue());
+      };
+      UpdateU = function() {
+        ifra.src = urli.value;
+      };
+      ClearF = function() {
+        ifra.src = 'data:text/html;charset=utf-8,';
+      };
+      var editor = ace.edit('editor');
+      editor.setOptions({
+        tabSize: 2,
+        wrap: true,
+        printMargin: false,
+        theme: 'ace/theme/solarized_dark'
+      });
+      editor.session.setMode('ace/mode/html');
+      onload = function() {
+        UpdateF();
+      }
+    </script>
+  </body>
+</html>
