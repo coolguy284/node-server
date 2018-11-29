@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+  <head>
+    <title>File Downloader</title>
+  </head>
+  <body>
+    <button onclick = 'tftex()'>Download File</button>
+    <button onclick = 'tfb64()'>Download Base64 Decoded File</button>
+    <span>Mapping (normally left blank):</span>
+    <input type = 'text' id = 'mapp'>
+    <span>Filename:</span>
+    <input type = 'text' id = 'filen'>
+    <fieldset>
+      <legend>Text</legend>
+      <textarea id = 'texta' style = 'width:100%;height:500px;'></textarea>
+    </fieldset>
+    <script src = '../js/base64.js'></script>
+    <script>
+      function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+      }
+      function tftex() {
+        download(filen.value, texta.value);
+      }
+      function tfb64() {
+        download(filen.value, Base64.decode(texta.value));
+      }
+    </script>
+  </body>
+</html>

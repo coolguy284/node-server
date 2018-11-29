@@ -39,7 +39,7 @@
         </tr>
       </table>
     </details>
-    <script src = '/js/base64.js'></script>
+    <script src = 'js/base64.js'></script>
     <script>
       var escaper = document.createElement('textarea');
       function escapeHTML(html) {
@@ -105,7 +105,7 @@
         if ((e || document.hidden || window.getSelection().toString() == '') && doreload) {
           var reqr = new XMLHttpRequest();
           reqr.addEventListener('load', reqg);
-          reqr.open('GET', '/liveviews.dat');
+          reqr.open('GET', 'liveviews.dat');
           reqr.send();
         }
       }
