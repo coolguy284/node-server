@@ -70,7 +70,7 @@
     <script src = 'js/base64.js'></script>
     <script>
       //don't even think of using an invalid tag
-      var ALLOWED_TAGS = ['STRONG', 'EM', 'BLOCKQUOTE', 'Q', 'DEL', 'INS', 'A', 'SPAN', 'B', 'I', 'MARK', 'SMALL', 'SUB', 'SUP', 'P', 'BR', 'WBR', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'CODE', 'PRE', 'U', 'DL', 'DT', 'DD', 'OL', 'UL', 'LI', 'BDI', 'BDO', 'BUTTON', 'DETAILS', 'SUMMARY', 'TABLE', 'CAPTION', 'COLGROUP', 'COL', 'THEAD', 'TBODY', 'TFOOT', 'TH', 'TR', 'TD', 'METER', 'PROGRESS'];
+      var ALLOWED_TAGS = ['B', 'I', 'U', 'S', 'STRIKE', 'STRONG', 'EM', 'DEL', 'INS', 'MARK', 'SMALL', 'SUB', 'SUP', 'BLOCKQUOTE', 'Q', 'A', 'BDI', 'BDO', 'FONT', 'SPAN', 'CODE', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'PRE', 'OL', 'UL', 'LI', 'DL', 'DT', 'DD', 'DETAILS', 'SUMMARY', 'TABLE', 'CAPTION', 'COLGROUP', 'COL', 'THEAD', 'TBODY', 'TFOOT', 'TH', 'TR', 'TD', 'BR', 'WBR', 'BUTTON', 'METER', 'PROGRESS'];
       var escaper = document.createElement('textarea');
       function escapeHTML(html) {
         escaper.textContent = html;

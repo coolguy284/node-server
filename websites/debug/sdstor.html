@@ -15,11 +15,11 @@
     <button onclick = 'ClearA();'>Clear All</button><br>
     <textarea id = 'ta' style = 'width:100%;height:400px;'></textarea>
     <script src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js'></script>
-    <script src = '/js/base64.js'></script>
+    <script src = '../js/base64.js'></script>
     <script>
       var edited = false;
       function Save() {
-        return fetch('/a?ns=' + Base64.encode(JSON.stringify([notev.value, skv.value, CryptoJS.AES.encrypt(ta.value, ekv.value).toString()]))).then(function () {edited = false;});
+        return fetch('../a?ns=' + Base64.encode(JSON.stringify([notev.value, skv.value, CryptoJS.AES.encrypt(ta.value, ekv.value).toString()]))).then(function () {edited = false;});
       }
       function Load() {
         if (edited) {
@@ -27,7 +27,7 @@
             return;
           }
         }
-        fetch('/a?ng=' + Base64.encode(JSON.stringify([notev.value, skv.value]))).then(function (req) {
+        fetch('../a?ng=' + Base64.encode(JSON.stringify([notev.value, skv.value]))).then(function (req) {
           req.text().then(function (text) {
             ta.value = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(text, ekv.value));
           })

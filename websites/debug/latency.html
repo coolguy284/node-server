@@ -10,7 +10,7 @@
       for (var i = 0; i < 10; i ++) {
         let begt = new Date().getTime();
         let req = new XMLHttpRequest();
-        req.open('GET', '/lat.log', false);
+        req.open('GET', '../lat.log', false);
         req.send();
         lattest.innerHTML += (new Date().getTime() - begt) + 'ms<br>';
       }
