@@ -16,7 +16,7 @@
       </fieldset>
       <button onclick = 'Login();' style ='width:100%;height:50px;'>Log In</button>
     </div>
-    <script src = '/js/base64.js'></script>
+    <script src = '../js/base64.js'></script>
     <script>
       function loginload() {
         if (this.responseText == '0') {
@@ -28,14 +28,14 @@
           if (location.hash != '') {
             location.href = location.hash.substr(1, Infinity);
           } else {
-            location.href = '/user/index.html';
+            location.href = 'index.html';
           }
         }
       }
       function Login() {
         var loginreq = new XMLHttpRequest();
         loginreq.addEventListener('load', loginload);
-        loginreq.open('GET', '/login?v=' + Base64.encode(JSON.stringify([user.value, pass.value])));
+        loginreq.open('GET', '../login?v=' + Base64.encode(JSON.stringify([user.value, pass.value])));
         loginreq.send();
       }
       user.addEventListener('keydown', function (e) {

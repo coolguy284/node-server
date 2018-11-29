@@ -79,6 +79,12 @@ global.datajs = require('./datajs/data.js');
 global.exjson = datajs.exjson;
 if (datajs.feat.enc == 'aes') {
   global.CryptoJS = require('./modjs/crypto-js.min.js');
+  global.cjsenc = function (text, pass) {
+    return CryptoJS.AES.encrypt(text, pass).toString();
+  };
+  global.cjsdec = function (ct, pass) {
+    return CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(ct, pass));
+  }
 }
 global.b64 = require('./modjs/b64.js');
 global.b64d = require('./modjs/b64d.js');

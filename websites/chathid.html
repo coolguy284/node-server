@@ -23,14 +23,14 @@
         <option value = 'bbcode'>BBCode</option>
       </select>
       <button onclick = 'Send()'>Send</button>
-      <button onclick = 'HelpTogg()'><img src = '/images/help.png' style = 'width:20px;height:20px;'></button>
-      <button onclick = 'SettingsTogg()'><img src = '/images/settings.png' style = 'width:20px;height:20px;'></button>
+      <button onclick = 'HelpTogg()'><img src = 'images/help.png' style = 'width:20px;height:20px;'></button>
+      <button onclick = 'SettingsTogg()'><img src = 'images/settings.png' style = 'width:20px;height:20px;'></button>
     </div>
     <div id = 'helps' style = 'display:none;'>
-      <button onclick = 'helps.style = "display:none;";' style = 'position:absolute;right:11px;top:2px;'><img src = '/images/close.png' style = 'width:20px;height:20px;'></button>
+      <button onclick = 'helps.style = "display:none;";' style = 'position:absolute;right:11px;top:2px;'><img src = 'images/close.png' style = 'width:20px;height:20px;'></button>
     </div>
     <div id = 'settins' style = 'display:none;'>
-      <button onclick = 'settins.style = "display:none;";' style = 'position:absolute;right:11px;top:2px;'><img src = '/images/close.png' style = 'width:20px;height:20px;'></button>
+      <button onclick = 'settins.style = "display:none;";' style = 'position:absolute;right:11px;top:2px;'><img src = 'images/close.png' style = 'width:20px;height:20px;'></button>
       <table style = 'border:1px solid black;'>
         <tr style = 'border:1px solid black;'>
           <td style = 'border:1px solid black;width:150px;text-align:center;'>
@@ -65,9 +65,9 @@
       <span id = 'garryspan' style = 'position:absolute;bottom:2px;right:10px;display:none;'>Garry</span>
     </div>
     <script src = 'https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.6/showdown.min.js'></script>
-    <script src = '/js/bbcode-config.js'></script>
-    <script src = '/js/bbcode-parser.js'></script>
-    <script src = '/js/base64.js'></script>
+    <script src = 'js/bbcode-config.js'></script>
+    <script src = 'js/bbcode-parser.js'></script>
+    <script src = 'js/base64.js'></script>
     <script>
       //don't even think of using an invalid tag
       var ALLOWED_TAGS = ['STRONG', 'EM', 'BLOCKQUOTE', 'Q', 'DEL', 'INS', 'A', 'SPAN', 'B', 'I', 'MARK', 'SMALL', 'SUB', 'SUP', 'P', 'BR', 'WBR', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'CODE', 'PRE', 'U', 'DL', 'DT', 'DD', 'OL', 'UL', 'LI', 'BDI', 'BDO', 'BUTTON', 'DETAILS', 'SUMMARY', 'TABLE', 'CAPTION', 'COLGROUP', 'COL', 'THEAD', 'TBODY', 'TFOOT', 'TH', 'TR', 'TD', 'METER', 'PROGRESS'];
@@ -233,7 +233,7 @@
         if ((e || document.hidden || window.getSelection().toString() == '') && doreload) {
           var reqr = new XMLHttpRequest();
           reqr.addEventListener('load', reqg);
-          reqr.open('GET', '/liverchat.json');
+          reqr.open('GET', 'liverchat.json');
           reqr.send();
         }
       }
@@ -258,7 +258,7 @@
         }
         var reqr = new XMLHttpRequest();
         reqr.addEventListener('load', function () {});
-        reqr.open('GET', '/r?tex=' + Base64.encode(JSON.stringify(['<' + nnam + '>', sval])));
+        reqr.open('GET', 'r?tex=' + Base64.encode(JSON.stringify(['<' + nnam + '>', sval])));
         reqr.send();
         if (chathist.length > 0) {
           if (chathist[chathist.length-1][0] != chattext.value) {

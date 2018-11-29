@@ -83,7 +83,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
         if (datajs.feat.enc == 'b64') {
           res.write(b64a.encode(JSON.stringify(colog)));
         } else if (datajs.feat.enc == 'aes') {
-          res.write(CryptoJS.AES.encrypt(JSON.stringify(colog), b64a.serverp).toString());
+          res.write(cjsenc(JSON.stringify(colog), b64a.serverp));
         }
         res.end();
       } else {datajs.rm.sn(res);}
@@ -94,7 +94,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
         if (datajs.feat.enc == 'b64') {
           res.write(b64a.encode(JSON.stringify(cologd)));
         } else if (datajs.feat.enc == 'aes') {
-          res.write(CryptoJS.AES.encrypt(JSON.stringify(cologd), b64a.serverp).toString());
+          res.write(cjsenc(JSON.stringify(cologd), b64a.serverp));
         }
         res.end();
       } else {datajs.rm.sn(res);}
@@ -262,7 +262,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       if (datajs.feat.enc == 'b64') {
         cv = JSON.parse(b64a.decode(req.url.substr(6, Infinity)));
       } else if (datajs.feat.enc == 'aes') {
-        cv = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(req.url.substr(6, Infinity), b64a.serverp)));
+        cv = JSON.parse(cjsdec(req.url.substr(6, Infinity), b64a.serverp));
       }
       if (sha256.hex(cv[0]) == b64a.server) {
         let tx = cv[1];
@@ -280,14 +280,25 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       datajs.rm.sn(res);
       break;
     case req.url.substr(0, 6) == '/a?rc=':
-      let ra = JSON.parse(b64.decode(req.url.substr(6, Infinity)));
+      let ra, pass = false;
+      for (let i in consoleswpenc) {
+        let tra = cjsdec(req.url.substr(6, Infinity), consoles[consoleswpenc[i]].penc);
+        if (tra != '') {
+          ra = JSON.parse(tra);
+          pass = true;
+          break;
+        }
+      }
+      if (!pass) {
+        ra = JSON.parse(cjsdec(req.url.substr(6, Infinity), b64a.serverp));
+      }
       if (datajs.feat.colog && consoles[ra[0]]) {
         if (sha256.hex(ra[1]) == (consoles[ra[0]].phash || b64a.server)) {
           res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
           if (datajs.feat.enc == 'b64') {
             res.write(b64a.encode(JSON.stringify(consoles[ra[0]].colog)));
           } else if (datajs.feat.enc == 'aes') {
-            res.write(CryptoJS.AES.encrypt(JSON.stringify(consoles[ra[0]].colog), (consoles[ra[0]].penc || b64a.serverp)).toString());
+            res.write(cjsenc(JSON.stringify(consoles[ra[0]].colog), (consoles[ra[0]].penc || b64a.serverp)));
           }
           res.end();
         } else {datajs.rm.sn(res);}
@@ -303,14 +314,15 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       } else if (datajs.feat.enc == 'aes') {
         let pass = false;
         for (let i in consoleswpenc) {
-          let tcv = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(req.url.substr(6, Infinity), consoles[consoleswpenc[i]].penc));
+          let tcv = cjsdec(req.url.substr(6, Infinity), consoles[consoleswpenc[i]].penc);
           if (tcv != '') {
             cv = JSON.parse(tcv);
             pass = true;
+            break;
           }
         }
         if (!pass) {
-          cv = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(req.url.substr(6, Infinity), b64a.serverp)));
+          cv = JSON.parse(cjsdec(req.url.substr(6, Infinity), b64a.serverp));
         }
       }
       } catch (e) { console.error(e); }

@@ -7,10 +7,10 @@
   <body>
     <input type = 'hidden' id = 'enc' value = 'aes'>
     <input type = 'hidden' id = 'surl' value = ''>
-    <input type = 'text' id = 'lifrsrc' value = '/chat.html' style = 'width:calc(50% - 8px);'>
-    <input type = 'text' id = 'rifrsrc' value = '/views.html' style = 'width:calc(50% - 8px);'><br>
-    <iframe src = '/chat.html' style = 'float:left;width:calc(50% - 4px);height:300px;' id = 'lifr'></iframe>
-    <iframe src = '/views.html' style = 'float:left;width:calc(50% - 4px);height:300px;' id = 'rifr'></iframe><br>
+    <input type = 'text' id = 'lifrsrc' value = 'chat.html' style = 'width:calc(50% - 8px);'>
+    <input type = 'text' id = 'rifrsrc' value = 'views.html' style = 'width:calc(50% - 8px);'><br>
+    <iframe src = 'chat.html' style = 'float:left;width:calc(50% - 4px);height:300px;' id = 'lifr'></iframe>
+    <iframe src = 'views.html' style = 'float:left;width:calc(50% - 4px);height:300px;' id = 'rifr'></iframe><br>
     <button onclick = 'lifr.contentWindow.doreload = false; rifr.contentWindow.doreload = false; doreload = false; drlod.innerHTML = "Not Updating"'>Disable Updating</button>
     <button onclick = 'lifr.contentWindow.doreload = true; rifr.contentWindow.doreload = true; doreload = true; drlod.innerHTML = "Updating"; getting = false; gettingt = 0;'>Enable Updating</button>
     <select id = 'dc' onchange = 'ViewsReload();'>
@@ -26,8 +26,8 @@
     <iframe src = '' style = 'float:left;width:calc(100% - 4px);height:300px;' id = 'cifr'></iframe>
     <input type = 'text' style = 'width:calc(100% - 4px);float:bottom;font-family:monospace;' id = 'conc'>
     <script src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js'></script>
-    <script src = '/js/base64.js'></script>
-    <script src = '/js/rsa.js'></script>
+    <script src = 'js/base64.js'></script>
+    <script src = 'js/rsa.js'></script>
     <script>
       var escaper = document.createElement('textarea');
       function escapeHTML(html) {
@@ -51,6 +51,12 @@
           var length = txt.value.length;
           txt.setSelectionRange(length, length);
         }
+      }
+      function cjsenc(text, pass) {
+        return CryptoJS.AES.encrypt(text, pass).toString();
+      }
+      function cjsdec(ct, pass) {
+        return CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(ct, pass));
       }
       var conchist = [];
       var histind = 0;
@@ -79,7 +85,7 @@
             Base64.s = serverp;
             ara = JSON.parse(Base64.decode(this.responseText));
           } else if (enc.value == 'aes') {
-            ara = JSON.parse(CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(this.responseText, serverp)));
+            ara = JSON.parse(cjsdec(this.responseText, serverp));
           }
           for (var i in ara) {
             ara[i] = ara[i][1].replace('{}', escapeHTML(ara[i][0]));
@@ -130,19 +136,19 @@
               reqr.addEventListener('load', reqg);
               switch (dc.value) {
                 case 'reg':
-                  reqr.open('GET', surl.value + '/colog.dat');
+                  reqr.open('GET', surl.value + 'colog.dat');
                   break;
                 case 'deb':
-                  reqr.open('GET', surl.value + '/cologd.dat');
+                  reqr.open('GET', surl.value + 'cologd.dat');
                   break;
                 case 'cmc':
-                  reqr.open('GET', surl.value + '/a?rc=' + Base64.encode(JSON.stringify(['default', ks.value])));
+                  reqr.open('GET', surl.value + 'a?rc=' + cjsenc(JSON.stringify(['default', ks.value]), serverp));
                   break;
                 case 'bsh':
-                  reqr.open('GET', surl.value + '/a?rc=' + Base64.encode(JSON.stringify(['terminal', ks.value])));
+                  reqr.open('GET', surl.value + 'a?rc=' + cjsenc(JSON.stringify(['terminal', ks.value]), serverp));
                   break;
                 case 'cus':
-                  reqr.open('GET', surl.value + '/a?rc=' + Base64.encode(JSON.stringify([constr.value, ks.value])));
+                  reqr.open('GET', surl.value + 'a?rc=' + cjsenc(JSON.stringify([constr.value, ks.value]), serverp));
                   break;
               }
               reqr.send();
@@ -163,10 +169,10 @@
             case 'deb':
             case 'cmc':
             case 'bsh':
-              req.open('GET', surl.value + '/a?ccp=' + Base64.encode(JSON.stringify([ks.value, null])));
+              req.open('GET', surl.value + 'a?ccp=' + Base64.encode(JSON.stringify([ks.value, null])));
               break;
             case 'cus':
-              req.open('GET', surl.value + '/a?ccp=' + Base64.encode(JSON.stringify([ks.value, constr.value])));
+              req.open('GET', surl.value + 'a?ccp=' + Base64.encode(JSON.stringify([ks.value, constr.value])));
               break;
           }
           req.send();
@@ -187,22 +193,22 @@
             Base64.s = server;
             et = Base64.encode(JSON.stringify([server, conc.value]));
           } else if (enc.value == 'aes') {
-            et = CryptoJS.AES.encrypt(JSON.stringify([server, conc.value]), serverp).toString();
+            et = cjsenc(JSON.stringify([server, conc.value]), serverp);
           }
         }
         switch (dc.value) {
           case 'reg':
           case 'deb':
-            reqr.open('GET', surl.value + '/a?cc=' + et);
+            reqr.open('GET', surl.value + 'a?cc=' + et);
             break;
           case 'cmc':
-            reqr.open('GET', surl.value + '/a?sc=' + CryptoJS.AES.encrypt(JSON.stringify([ks.value, 'default', conc.value]), serverp).toString());
+            reqr.open('GET', surl.value + 'a?sc=' + cjsenc(JSON.stringify([ks.value, 'default', conc.value]), serverp));
             break;
           case 'bsh':
-            reqr.open('GET', surl.value + '/a?sc=' + CryptoJS.AES.encrypt(JSON.stringify([ks.value, 'terminal', conc.value]), serverp).toString());
+            reqr.open('GET', surl.value + 'a?sc=' + cjsenc(JSON.stringify([ks.value, 'terminal', conc.value]), serverp));
             break;
           case 'cus':
-            reqr.open('GET', surl.value + '/a?sc=' + CryptoJS.AES.encrypt(JSON.stringify([ks.value, constr.value, conc.value]), serverp).toString());
+            reqr.open('GET', surl.value + 'a?sc=' + cjsenc(JSON.stringify([ks.value, constr.value, conc.value]), serverp));
             break;
         }
         reqr.send();

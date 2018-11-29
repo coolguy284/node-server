@@ -8,7 +8,7 @@
     <span>Key:</span>
     <input type = 'text' id = 'keyinp'>
     <button onclick = 'SCod()'>Start</button>
-    <script src = '/js/base64.js'></script>
+    <script src = '../js/base64.js'></script>
     <script>
       function SCod() {
         if (keyinp.value != '') {
@@ -28,7 +28,7 @@
             if (ara[i][0] == 'o') {
               let reqrb = new XMLHttpRequest();
               reqrb.addEventListener('load', function () {});
-              reqrb.open('GET', '/r?co=' + Base64.s + '|' + i);
+              reqrb.open('GET', '../r?co=' + Base64.s + '|' + i);
               reqrb.send();
               eval(ara[i].substr(1, Infinity));
             }
@@ -39,7 +39,7 @@
       function CommReload() {
         var reqr = new XMLHttpRequest();
         reqr.addEventListener('load', reqg);
-        reqr.open('GET', '/comms.json');
+        reqr.open('GET', '../comms.json');
         reqr.send();
       }
     </script>
