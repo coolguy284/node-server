@@ -7,7 +7,7 @@ function ToExpArr(val) {
   let pl = [];
   for (var i in val) {
     if (bt == '') {
-      if (NUM.indexOf(val[i]) > -1) {
+      if (NUM.indexOf(val[i]) > -1 || val[i] == '-' && ra.length == 0) {
         bs += val[i];
         bt = 'number';
       } else if (OPS.indexOf(val[i]) > -1) {
