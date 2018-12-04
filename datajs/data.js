@@ -91,5 +91,6 @@ module.exports = {
   '_consolegrouplvl' : cons.grouplvl,
   'term' : require('./terminal.js'),
   's' : require('./s.js'),
+  'Throttle' : require('./throttle.js'),
   'splash' : require('./splash.js'),
 };

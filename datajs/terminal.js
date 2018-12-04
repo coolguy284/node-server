@@ -46,7 +46,7 @@ let c256 = [
   0xffff00, 0xffff5f, 0xffff87, 0xffffaf, 0xffffd7, 0xffffff,
   0x080808, 0x121212, 0x1c1c1c, 0x262626, 0x303030, 0x3a3a3a, 0x444444, 0x4e4e4e, 0x585858, 0x626262, 0x6c6c6c, 0x767676, 0x808080, 0x8a8a8a, 0x949494, 0x9e9e9e, 0xa8a8a8, 0xb2b2b2, 0xbcbcbc, 0xc6c6c6, 0xd0d0d0, 0xdadada, 0xe4e4e4, 0xeeeeee
 ];
-let StdoutStream = class StdoutStream extends stream.Writable {
+let StdoutStream = class StdoutStream extends stream.Duplex {
   constructor(term, options) {
     super(options);
     if (!options) options = {};
@@ -59,6 +59,7 @@ let StdoutStream = class StdoutStream extends stream.Writable {
     this.es = '';
   }
   _write(chunk, enc, done) {
+    this.push(chunk);
     chunk = chunk.toString();
     for (let i in chunk) {
       let v = chunk[i];
@@ -194,6 +195,10 @@ let StdoutStream = class StdoutStream extends stream.Writable {
           }
           this.esc = false;
           this.es = '';
+        } else if (v == 'n') {
+          if (this.es == '6') {
+            this.term.stdin.write('\x1b[' + this.term.y + ';' + this.term.y + 'R');
+          }
         } else if (v == 's') {
           this.sx = this.term.x;
           this.sy = this.term.y;
@@ -219,6 +224,7 @@ let Terminal = class Terminal {
     this.cols = new ArrayBuffer(width * height * 6);
     this.charsv = new DataView(this.chars);
     this.colsv = new DataView(this.cols);
+    this.stdin = new stream.PassThrough();
     this.stdout = new StdoutStream(this);
     this.stderr = new StdoutStream(this, {dfgcolor:0xff0000});
     this.x = 1;

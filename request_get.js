@@ -477,8 +477,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
         return -1;
       }
     }
-    let rpath = 'websites' + req.url;
-    let runelse = false;
+    let rpath = 'websites' + req.url, runelse = false;
     if (fs.existsSync(rpath) && datajs.subdir('websites', rpath)) {
       if (fs.statSync(rpath).isFile()) {
         let rs = fs.createReadStream(rpath);

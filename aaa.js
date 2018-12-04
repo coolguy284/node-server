@@ -77,6 +77,7 @@ global.crypto = require('crypto');
 global.util = require('util');
 global.datajs = require('./datajs/data.js');
 global.exjson = datajs.exjson;
+global.Throttle = datajs.Throttle;
 if (datajs.feat.enc == 'aes') {
   global.CryptoJS = require('./modjs/crypto-js.min.js');
   global.cjsenc = function (text, pass) {
@@ -133,12 +134,6 @@ try {
 } catch (e) {
   console.warn('mime import failed');
   global.mime = {getType: function () {return null;}};
-}
-try {
-  global.Throttle = require('advanced-throttle');
-} catch (e) {
-  console.warn('advanced-throttle import failed');
-  global.Throttle = stream.PassThrough;
 }
 try {
   global.pstree = require('ps-tree');
@@ -276,8 +271,7 @@ global.serverf = function serverf(req, resa, nolog) {
     res = resa;
   } else {
     res = new Throttle({bps:datajs.feat.bwlimits.main});
-  	res.writeHead = resa.writeHead;
-  	res._storeHeader = resa._storeHeader;
+  	res.writeHead = resa.writeHead.bind(resa);
   	res.pipe(resa);
   }
   if (req.headers['x-forwarded-for']) {
