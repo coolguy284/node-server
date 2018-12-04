@@ -42,7 +42,7 @@
     <script>
       OPS = '+-*/%^|&=';
       OPSA = '*^=';
-      NUM = '0123456789.-';
+      NUM = '0123456789.';
       NUMA = '0123456789.e';
       STR = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmopqrstuvwxyz_';
       function ExpBool(val) {
@@ -183,7 +183,7 @@
         let pl = [];
         for (var i in val) {
           if (bt == '') {
-            if (NUM.indexOf(val[i]) > -1) {
+            if (NUM.indexOf(val[i]) > -1 || val[i] == '-' && ra.length == 0) {
               bs += val[i];
               bt = 'number';
             } else if (OPS.indexOf(val[i]) > -1) {
