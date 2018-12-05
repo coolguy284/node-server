@@ -9,6 +9,7 @@ module.exports = class Throttle extends stream.Transform {
     this.chunks = [];
     this.cbs = [];
     this.processing = false;
+    this.paused = false;
   }
   _transform(chunk, enc, cb) {
     let bp = 0;
@@ -36,6 +37,10 @@ module.exports = class Throttle extends stream.Transform {
   process(i) {
     this.processing = true;
     this.push(this.chunks.shift());
+    if (this.paused) {
+      this.processing = false;
+      return;
+    }
     if (this.chunks.length == 0) {
       this.processing = false;
       while (this.cbs.length > 0) setImmediate(this.cbs.shift(), i);
@@ -43,6 +48,13 @@ module.exports = class Throttle extends stream.Transform {
       let ms = this.chunksize / this.bps * 1000;
       setTimeout(this.process.bind(this, i+1), isNaN(ms) ? 0 : ms);
     }
+  }
+  pauseStream() {
+    this.paused = true;
+  }
+  resumeStream() {
+    this.paused = false;
+    if (this.chunks.length != 0 && !this.processing) this.process(0);
   }
 };
 /*module.exports = class Throttle extends stream.Duplex {

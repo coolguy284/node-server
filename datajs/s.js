@@ -134,6 +134,14 @@ module.exports = {
       }
     }
   },
+  'DevNullStream' : class DevNullStream extends stream.Writable {
+    constructor(options) {
+      super(options);
+    }
+    _write(chunk, enc, cb) {
+      cb();
+    }
+  },
   'SimCompDecode' : class SimpCompEncode extends stream.Transform {
     constructor(options) {
       super(options);
