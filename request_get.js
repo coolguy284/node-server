@@ -445,8 +445,8 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
     if (req.headers.range) {
       if (req.headers.range.substr(0, 6) == 'bytes=') {
         let rse = req.headers.range.substr(6, 100).split('-');
-        let rstart = parseInt(rse[0]);
-        let rend = parseInt(rse[1]);
+        let rstart = rse[0] == '' ? 0 : parseInt(rse[0]);
+        let rend = rse[1] == '' ? Infinity : parseInt(rse[1]);
         if (fs.existsSync('websites' + req.url)) {
           let rs = fs.createReadStream('websites' + req.url, {start: rstart, end: rend});
           let size = fs.statSync('websites' + req.url).size;
