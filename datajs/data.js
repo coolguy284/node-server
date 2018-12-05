@@ -9,13 +9,8 @@ module.exports = {
   'mime' : require('./mime.js'),
   'tick' : require('./tick.js'),
   'i32a' : new Int32Array(new SharedArrayBuffer(4)),
-  'handlerp' : {
-    '/hen' : new Function('req', 'res', 'res.writeHead(200, {"Content-Type":"text/plain; chatset=utf-8"});res.write(req.url);res.end();'),
-    '/ng?n=' : new Function('req', 'res', 'savedvars.np.push(decodeURIComponent(req.url.substr(6, Infinity)));res.writeHead(204);')
-  },
-  'handlerf' : {
-    '/dat.html' : new Function('req', 'res', 'res.writeHead(200,{"Content-Type":"text/plain; chatset=utf-8"});res.write(new Date().toString());res.end();')
-  },
+  'handlerp' : require('./handlerp.js'),
+  'handlerf' : require('./handlerf.js'),
   'notstartswith' : function notstartswith(val) {return !this.startsWith(val);},
   'ipform' : function ipform(ipstr) {
     return ipstr.split('.').map(x => x.padStart(3, '-')).join('.');
