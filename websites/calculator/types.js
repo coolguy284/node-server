@@ -10,6 +10,10 @@ function ExpBigNum(val) {
   this.type = 'bignum';
   this.val = BigInt(val);
 }
+function ExpString(val) {
+  this.type = 'string';
+  this.val = val;
+}
 function ExpVariable(val) {
   this.type = 'variable';
   this.val = val;

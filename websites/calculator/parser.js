@@ -1,5 +1,55 @@
 function ParseExpArr(arr) {
   let exp = [], op = [], dov;
+  // parenthesis, function call, variable
+  for (var i in arr) {
+    if (Object.prototype.toString.call(arr[i]) == '[object Array]') {
+      arr[i] = ParseExpArr(arr[i])[0][0];
+    } else if (arr[i].type == 'funccall') {
+      let ar = arr[i].val;
+      for (let i in ar) ar[i] = ParseExpArr(ar[i])[0][0];
+      arr[i] = FuncCallProp(arr[i].nam, ar);
+    } else if (arr[i].type == 'variable') {
+      if (arr[i].val in varns) {
+        arr[i] = varns[arr[i].val];
+      } else {
+        throw new Error('variable ' + arr[i].val + ' nonexistent');
+      }
+    }
+  }
+  // logical not, bitwise not, unary plus, unary negation : right > left
+  dov = true;
+  while (dov) {
+    let nb = false;
+    for (var i = arr.length - 1; i >= 0; i--) {
+      if (arr[i].type == 'op') {
+        if (arr[i].val == '!') {
+          arr.splice(i, 2, ExpLogicalNot(arr[i + 1]));
+          nb = true;
+          break;
+        } else if (arr[i].val == '~') {
+          arr.splice(i, 2, ExpBitwiseNot(arr[i + 1]));
+          nb = true;
+          break;
+        } else if (arr[i].val == '+') {
+          if (arr[i - 1] !== undefined)
+          if (NONUNARY.indexOf(arr[i - 1].type) > -1)
+          continue;
+          arr.splice(i, 2, ExpUnaryPlus(arr[i + 1]));
+          nb = true;
+          break;
+        } else if (arr[i].val == '-') {
+          if (arr[i - 1] !== undefined)
+          if (NONUNARY.indexOf(arr[i - 1].type) > -1)
+          continue;
+          arr.splice(i, 2, ExpUnaryMinus(arr[i + 1]));
+          nb = true;
+          break;
+        }
+      }
+    }
+    dov = nb;
+  }
+  // split up into exp and op
   for (var i = 0; i < arr.length; i++) {
     if (i % 2 == 0) {
       exp.push(arr[i]);
@@ -7,21 +57,7 @@ function ParseExpArr(arr) {
       op.push(arr[i].val);
     }
   }
-  for (var i in exp) {
-    if (Object.prototype.toString.call(exp[i]) == '[object Array]') {
-      exp[i] = ParseExpArr(exp[i])[0][0];
-    } else if (exp[i].type == 'funccall') {
-      let ar = exp[i].val;
-      for (let i in ar) ar[i] = ParseExpArr(ar[i])[0][0];
-      exp[i] = FuncCallProp(exp[i].nam, ar);
-    } else if (exp[i].type == 'variable') {
-      if (exp[i].val in varns) {
-        exp[i] = varns[exp[i].val];
-      } else {
-        throw new Error('variable ' + exp[i].val + ' nonexistent');
-      }
-    }
-  }
+  // exponents : right > left
   dov = true;
   while (dov) {
     let nb = false;
@@ -35,6 +71,7 @@ function ParseExpArr(arr) {
     }
     dov = nb;
   }
+  // multiply, divide, remainder : left > right
   dov = true;
   while (dov) {
     let nb = false;
@@ -58,6 +95,7 @@ function ParseExpArr(arr) {
     }
     dov = nb;
   }
+  // addition, subtraction : left > right
   dov = true;
   while (dov) {
     let nb = false;
