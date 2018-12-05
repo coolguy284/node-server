@@ -3,7 +3,7 @@ var calcarr = [];
 var cinphist = [];
 var histind = 0;
 var currtext = '';
-function SettingsTogg() {
+var SettingsTogg = function SettingsTogg() {
   if (settins.style.cssText == 'display: none;') {
     settins.style = 'position:fixed;top:2px;width:100%;height:400px;background:white;';
   } else {
@@ -15,6 +15,7 @@ function AllComp(v) {
     ccul.style = '';
   } else {
     ccul.style = 'display:none;';
+    ccul.value = 'cal';
   }
 }
 function ShowSett(v) {
@@ -22,17 +23,22 @@ function ShowSett(v) {
     SettingsTogg = ASettingsTogg;
     delete ASettingsTogg;
   } else {
+    settins.style = 'display:none;';
     ASettingsTogg = SettingsTogg;
     SettingsTogg = function () {};
   }
 }
 function ObjToText(val) {
   if (val.type == 'bool') {
-    return '' + val.val
+    return '' + val.val;
   } else if (val.type == 'num') {
-    return '' + val.val
+    return '' + val.val;
   } else if (val.type == 'bignum') {
-    return '' + val.val + 'n'
+    return '' + val.val + 'n';
+  } else if (val.type == 'string') {
+    return inspect(val.val);
+  } else {
+    return inspect(val);
   }
 }
 function ParseText(val) {
@@ -50,18 +56,18 @@ function ParseText(val) {
     } else if (val.substr(0, 7) == 'delete ') {
       delete varns[val.substr(7, Infinity)];
       rval = undefined;
-    } else {
+    } else if (val != '') {
       rval = ObjToText(ParseExpArr(ToExpArr(val))[0][0]);
+    } else {
+      rval = undefined;
     }
   } catch (e) {
     rval = e.toString() + '\n' + e.stack;
   }
   if (ccul.value == 'cat') {
-    rval = rval + ' cats';
-  } else {
-    rval = rval;
+    rval += ' cats';
   }
-  rval = rval.replace(/\n/g, '<br>');
+  if (rval !== undefined) rval = rval.replace(/\n/g, '<br>');
   if (parseInt(enenh.value) == 1) {
     document.write('<body style = "background:#e8e8ff;"><div style = "text-align:center;padding:40px;"><p style = "font-family:monospace;font-size:48px;">The answer is:</p><p style = "font-family:monospace;font-size:72px;">' + rval + '</p><p style = "font-family:monospace;font-size:48px;">Thank you for using my calculator!</p></div></body>');
   }
@@ -74,6 +80,7 @@ cinp.addEventListener('keydown', function (e) {
     if (pv !== undefined) calcarr.push('<- ' + pv);
     if (calcarr.length > 100) calcarr.splice(0, calcarr.length - 100);
     calcres.innerHTML = calcarr.join('<br>');
+    calcres.scrollTop = calcres.scrollHeight;
     if (cinphist[cinphist.length-1] != cinp.value) {
       cinphist.push(cinp.value);
     }
