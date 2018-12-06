@@ -88,3 +88,54 @@ function ExpSubtract(val1, val2) {
     throw new Error('unsupported operand type(s) for -: \'' + val1.type + '\' and \'' + val2.type + '\'');
   }
 }
+function ExpGreaterThan(val1, val2) {
+  return new ExpBool(val1.val > val2.val);
+}
+function ExpLessThan(val1, val2) {
+  return new ExpBool(val1.val < val2.val);
+}
+function ExpGreaterThanEqual(val1, val2) {
+  return new ExpBool(val1.val >= val2.val);
+}
+function ExpLessThanEqual(val1, val2) {
+  return new ExpBool(val1.val <= val2.val);
+}
+function ExpEqual(val1, val2) {
+  return new ExpBool(val1.val == val2.val);
+}
+function ExpNotEqual(val1, val2) {
+  return new ExpBool(val1.val != val2.val);
+}
+function ExpBitwiseAnd(val1, val2) {
+  if (val1.type == 'num' && val2.type == 'num') {
+    return new ExpNumber(val1.val & val2.val);
+  } else if (val1.type == 'bignum' && val2.type == 'bignum') {
+    return new ExpBigNum(val1.val & val2.val);
+  } else {
+    throw new Error('unsupported operand type(s) for &: \'' + val1.type + '\' and \'' + val2.type + '\'');
+  }
+}
+function ExpBitwiseXor(val1, val2) {
+  if (val1.type == 'num' && val2.type == 'num') {
+    return new ExpNumber(val1.val ^ val2.val);
+  } else if (val1.type == 'bignum' && val2.type == 'bignum') {
+    return new ExpBigNum(val1.val ^ val2.val);
+  } else {
+    throw new Error('unsupported operand type(s) for ^: \'' + val1.type + '\' and \'' + val2.type + '\'');
+  }
+}
+function ExpBitwiseOr(val1, val2) {
+  if (val1.type == 'num' && val2.type == 'num') {
+    return new ExpNumber(val1.val | val2.val);
+  } else if (val1.type == 'bignum' && val2.type == 'bignum') {
+    return new ExpBigNum(val1.val | val2.val);
+  } else {
+    throw new Error('unsupported operand type(s) for |: \'' + val1.type + '\' and \'' + val2.type + '\'');
+  }
+}
+function ExpLogicalAnd(val1, val2) {
+  return new ExpBool(val1.val && val2.val);
+}
+function ExpLogicalOr(val1, val2) {
+  return new ExpBool(val1.val || val2.val);
+}

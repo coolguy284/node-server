@@ -62,7 +62,7 @@ function ParseExpArr(arr) {
   while (dov) {
     let nb = false;
     for (var i = op.length - 1; i >= 0; i--) {
-      if (op[i] == '**') {
+      if (op[i] == '**' || op[i] == '^') {
         exp.splice(parseInt(i), 2, ExpExponentiate(exp[i], exp[parseInt(i) + 1]));
         op.splice(parseInt(i), 1);
         nb = true;
@@ -107,6 +107,124 @@ function ParseExpArr(arr) {
         break;
       } else if (op[i] == '-') {
         exp.splice(parseInt(i), 2, ExpSubtract(exp[i], exp[parseInt(i) + 1]));
+        op.splice(parseInt(i), 1);
+        nb = true;
+        break;
+      }
+    }
+    dov = nb;
+  }
+  // greater than, less than, greater than equal, less than equal : left > right
+  dov = true;
+  while (dov) {
+    let nb = false;
+    for (var i = 0; i < op.length; i++) {
+      if (op[i] == '>') {
+        exp.splice(parseInt(i), 2, ExpGreaterThan(exp[i], exp[parseInt(i) + 1]));
+        op.splice(parseInt(i), 1);
+        nb = true;
+        break;
+      } else if (op[i] == '<') {
+        exp.splice(parseInt(i), 2, ExpLessThan(exp[i], exp[parseInt(i) + 1]));
+        op.splice(parseInt(i), 1);
+        nb = true;
+        break;
+      } else if (op[i] == '>=') {
+        exp.splice(parseInt(i), 2, ExpGreaterThanEqual(exp[i], exp[parseInt(i) + 1]));
+        op.splice(parseInt(i), 1);
+        nb = true;
+        break;
+      } else if (op[i] == '<=') {
+        exp.splice(parseInt(i), 2, ExpLessThanEqual(exp[i], exp[parseInt(i) + 1]));
+        op.splice(parseInt(i), 1);
+        nb = true;
+        break;
+      }
+    }
+    dov = nb;
+  }
+  // equality, inequality : left > right
+  dov = true;
+  while (dov) {
+    let nb = false;
+    for (var i = 0; i < op.length; i++) {
+      if (op[i] == '==') {
+        exp.splice(parseInt(i), 2, ExpEqual(exp[i], exp[parseInt(i) + 1]));
+        op.splice(parseInt(i), 1);
+        nb = true;
+        break;
+      } else if (op[i] == '!=') {
+        exp.splice(parseInt(i), 2, ExpNotEqual(exp[i], exp[parseInt(i) + 1]));
+        op.splice(parseInt(i), 1);
+        nb = true;
+        break;
+      }
+    }
+    dov = nb;
+  }
+  // bitwise and : left > right
+  dov = true;
+  while (dov) {
+    let nb = false;
+    for (var i = 0; i < op.length; i++) {
+      if (op[i] == '&') {
+        exp.splice(parseInt(i), 2, ExpBitwiseAnd(exp[i], exp[parseInt(i) + 1]));
+        op.splice(parseInt(i), 1);
+        nb = true;
+        break;
+      }
+    }
+    dov = nb;
+  }
+  // bitwise xor : left > right
+  dov = true;
+  while (dov) {
+    let nb = false;
+    for (var i = 0; i < op.length; i++) {
+      if (op[i] == '#') {
+        exp.splice(parseInt(i), 2, ExpBitwiseXor(exp[i], exp[parseInt(i) + 1]));
+        op.splice(parseInt(i), 1);
+        nb = true;
+        break;
+      }
+    }
+    dov = nb;
+  }
+  // bitwise or : left > right
+  dov = true;
+  while (dov) {
+    let nb = false;
+    for (var i = 0; i < op.length; i++) {
+      if (op[i] == '|') {
+        exp.splice(parseInt(i), 2, ExpBitwiseOr(exp[i], exp[parseInt(i) + 1]));
+        op.splice(parseInt(i), 1);
+        nb = true;
+        break;
+      }
+    }
+    dov = nb;
+  }
+  // logical and : left > right
+  dov = true;
+  while (dov) {
+    let nb = false;
+    for (var i = 0; i < op.length; i++) {
+      if (op[i] == '&&') {
+        exp.splice(parseInt(i), 2, ExpLogicaAnd(exp[i], exp[parseInt(i) + 1]));
+        op.splice(parseInt(i), 1);
+        nb = true;
+        break;
+      }
+    }
+    dov = nb;
+  }
+  // logical or : left > right
+  dov = true;
+  while (dov) {
+    let nb = false;
+    for (var i = 0; i < op.length; i++) {
+      if (op[i] == '||') {
+        exp.splice(parseInt(i), 2, ExpLogicalOr(exp[i], exp[parseInt(i) + 1]));
         op.splice(parseInt(i), 1);
         nb = true;
         break;
