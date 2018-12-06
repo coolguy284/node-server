@@ -41,7 +41,7 @@ function ToExpArr(val) {
     } else if (bt == 'number') {
       if (NUMA.indexOf(val[i]) > -1) {
         bs += val[i];
-      } else if (VAR.indexOf(val[i]) > -1) {
+      } else if (VARN.indexOf(val[i]) > -1) {
         ra.push(new ExpNumber(bs));
         ra.push(new ExpOperator('*'));
         bs = val[i];
@@ -60,6 +60,10 @@ function ToExpArr(val) {
         bs = '';
         bt = 'paren';
         pl = ['p'];
+      } else if (val[i] == ' ') {
+        ra.push(new ExpNumber(bs));
+        bs = '';
+        bt = '';
       }
     } else if (bt == 'bignum') {
       if (VAR.indexOf(val[i]) > -1) {
@@ -159,6 +163,10 @@ function ToExpArr(val) {
       if (OPS.indexOf(val[i]) > -1) {
         ra.push(new ExpVariable(bs));
         ra.push(new ExpOperator(val[i]));
+        bs = '';
+        bt = '';
+      } else if (val[i] == ' ') {
+        ra.push(new ExpVariable(bs));
         bs = '';
         bt = '';
       } else if (val[i] == '(') {
