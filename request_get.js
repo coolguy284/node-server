@@ -526,9 +526,9 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       let hanp = '';
       Object.keys(datajs.handlerp).forEach(function (val) {if (req.url.startsWith(val) && val.startsWith(hanp)) {hanp = val;}});
       if (hanp) {
-        datajs.handlerp[hanp](req, res);
+        return datajs.handlerp[hanp](req, res);
       } else if (datajs.handlerf.hasOwnProperty(req.url)) {
-        datajs.handlerf[req.url](req, res);
+        return datajs.handlerf[req.url](req, res);
       } else if (datajs.feat.tempp.hasOwnProperty(req.url)) {
         res.writeHead(200, datajs.feat.tempp[req.url][0]);
         res.write(datajs.feat.tempp[req.url][1]);

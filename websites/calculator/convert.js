@@ -15,8 +15,8 @@ function ToExpArr(val) {
         ba.push(val[i], false, 0, '');
       } else if (OPS.indexOf(val[i]) > -1) {
         let li = ra[ra.length - 1];
-        if (li !== undefined) {
-          if (li.type == 'op' && li.val == '*' && OPSA.indexOf(val[i]) > -1) {
+        if (li && li.type == 'op') {
+          if (OPSA[li.val] && OPSA[li.val].indexOf(val[i]) > -1) {
             li.val += val[i];
           } else {
             ra.push(new ExpOperator(val[i]));
