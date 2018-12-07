@@ -120,23 +120,23 @@ function ParseExpArr(arr) {
     let nb = false;
     for (var i = 0; i < op.length; i++) {
       if (op[i] == '>') {
-        exp.splice(parseInt(i), 2, ExpGreaterThan(exp[i], exp[parseInt(i) + 1]));
-        op.splice(parseInt(i), 1);
+        exp.splice(i, 2, ExpGreaterThan(exp[i], exp[i + 1]));
+        op.splice(i, 1);
         nb = true;
         break;
       } else if (op[i] == '<') {
-        exp.splice(parseInt(i), 2, ExpLessThan(exp[i], exp[parseInt(i) + 1]));
-        op.splice(parseInt(i), 1);
+        exp.splice(i, 2, ExpLessThan(exp[i], exp[i + 1]));
+        op.splice(i, 1);
         nb = true;
         break;
       } else if (op[i] == '>=') {
-        exp.splice(parseInt(i), 2, ExpGreaterThanEqual(exp[i], exp[parseInt(i) + 1]));
-        op.splice(parseInt(i), 1);
+        exp.splice(i, 2, ExpGreaterThanEqual(exp[i], exp[i + 1]));
+        op.splice(i, 1);
         nb = true;
         break;
       } else if (op[i] == '<=') {
-        exp.splice(parseInt(i), 2, ExpLessThanEqual(exp[i], exp[parseInt(i) + 1]));
-        op.splice(parseInt(i), 1);
+        exp.splice(i, 2, ExpLessThanEqual(exp[i], exp[i + 1]));
+        op.splice(i, 1);
         nb = true;
         break;
       }
@@ -149,13 +149,13 @@ function ParseExpArr(arr) {
     let nb = false;
     for (var i = 0; i < op.length; i++) {
       if (op[i] == '==') {
-        exp.splice(parseInt(i), 2, ExpEqual(exp[i], exp[parseInt(i) + 1]));
-        op.splice(parseInt(i), 1);
+        exp.splice(i, 2, ExpEqual(exp[i], exp[i + 1]));
+        op.splice(i, 1);
         nb = true;
         break;
       } else if (op[i] == '!=') {
-        exp.splice(parseInt(i), 2, ExpNotEqual(exp[i], exp[parseInt(i) + 1]));
-        op.splice(parseInt(i), 1);
+        exp.splice(i, 2, ExpNotEqual(exp[i], exp[i + 1]));
+        op.splice(i, 1);
         nb = true;
         break;
       }
@@ -168,8 +168,8 @@ function ParseExpArr(arr) {
     let nb = false;
     for (var i = 0; i < op.length; i++) {
       if (op[i] == '&') {
-        exp.splice(parseInt(i), 2, ExpBitwiseAnd(exp[i], exp[parseInt(i) + 1]));
-        op.splice(parseInt(i), 1);
+        exp.splice(i, 2, ExpBitwiseAnd(exp[i], exp[i + 1]));
+        op.splice(i, 1);
         nb = true;
         break;
       }
@@ -182,8 +182,8 @@ function ParseExpArr(arr) {
     let nb = false;
     for (var i = 0; i < op.length; i++) {
       if (op[i] == '#') {
-        exp.splice(parseInt(i), 2, ExpBitwiseXor(exp[i], exp[parseInt(i) + 1]));
-        op.splice(parseInt(i), 1);
+        exp.splice(i, 2, ExpBitwiseXor(exp[i], exp[i + 1]));
+        op.splice(i, 1);
         nb = true;
         break;
       }
@@ -196,8 +196,8 @@ function ParseExpArr(arr) {
     let nb = false;
     for (var i = 0; i < op.length; i++) {
       if (op[i] == '|') {
-        exp.splice(parseInt(i), 2, ExpBitwiseOr(exp[i], exp[parseInt(i) + 1]));
-        op.splice(parseInt(i), 1);
+        exp.splice(i, 2, ExpBitwiseOr(exp[i], exp[parseInt(i) + 1]));
+        op.splice(i, 1);
         nb = true;
         break;
       }
@@ -210,8 +210,8 @@ function ParseExpArr(arr) {
     let nb = false;
     for (var i = 0; i < op.length; i++) {
       if (op[i] == '&&') {
-        exp.splice(parseInt(i), 2, ExpLogicaAnd(exp[i], exp[parseInt(i) + 1]));
-        op.splice(parseInt(i), 1);
+        exp.splice(i, 2, ExpLogicalAnd(exp[i], exp[i + 1]));
+        op.splice(i, 1);
         nb = true;
         break;
       }
@@ -224,8 +224,22 @@ function ParseExpArr(arr) {
     let nb = false;
     for (var i = 0; i < op.length; i++) {
       if (op[i] == '||') {
-        exp.splice(parseInt(i), 2, ExpLogicalOr(exp[i], exp[parseInt(i) + 1]));
-        op.splice(parseInt(i), 1);
+        exp.splice(i, 2, ExpLogicalOr(exp[i], exp[i + 1]));
+        op.splice(i, 1);
+        nb = true;
+        break;
+      }
+    }
+    dov = nb;
+  }
+  // assignment : right > left
+  dov = true;
+  while (dov) {
+    let nb = false;
+    for (var i = 0; i < op.length; i++) {
+      if (op[i] == '=') {
+        exp.splice(i, 2, ExpLogicalOr(exp[i], exp[i + 1]));
+        op.splice(i, 1);
         nb = true;
         break;
       }

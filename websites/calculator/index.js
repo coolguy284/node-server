@@ -37,6 +37,8 @@ function ObjToText(val) {
     return '' + val.val + 'n';
   } else if (val.type == 'string') {
     return inspect(val.val);
+  } else if (val.type == 'array') {
+    return '[ ' + val.val.map(x=>ObjToText(x)).join(', ') + ' ]';
   } else {
     return inspect(val);
   }
@@ -46,8 +48,8 @@ function ParseText(val) {
   try {
     if (val[0] == ':') {
       rval = inspect(eval(val.substr(1, Infinity)));
-    } else if (val.indexOf('=') > 0) {
-      let st = val.split('=');
+    } else if (/(?:[A-Za-z])[A-Za-z0-9_]*\s*=\s*/g.test(val)) {
+      let st = val.split(/\s*=\s*/g);
       varns[st[0]] = ParseExpArr(ToExpArr(st[1]))[0][0];
       rval = undefined;
     } else if (val.substr(0, 4) == 'del ') {
