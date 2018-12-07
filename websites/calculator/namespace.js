@@ -19,7 +19,7 @@ function log(v, b) {
   return Math.log(v) / Math.log(b);
 }
 function tet(b, x) {
-  var val;
+  let val;
   if (x < -1) {
     val = tet(b, Mod1(x)-1);
     while (x <= -1) {
@@ -48,12 +48,12 @@ function tet(b, x) {
   return val;
 }
 function sroot(v, x) {
-	var xv = 2;
-	var min = 1;
-	var max = 1e12;
-	var ct = 1000;
+	let xv = 2;
+	let min = 1;
+	let max = 1e12;
+	let ct = 1000;
 	while (Math.abs(max-min)>1e-12) {
-	  var val = tet(xv, x);
+	  let val = tet(xv, x);
 	  if (val > v) {
 	    max=xv;
 	    xv=(min+xv)/2;
@@ -70,13 +70,21 @@ function sroot(v, x) {
 	return xv;
 }
 function slog(v, b) {
-  var val;
+  let val;
 	if (v < 0) {
-	  return slog(pow(b, v), b) - 1;
+    try {
+      return slog(pow(b, v), b) - 1;
+    } catch (e) {
+      return -Infinity;
+    }
 	} else if (v <= 1) {
 		val = -1 + ((2 * log(b)) / (1 + log(b))) * v + ((1 - log(b)) / (1 + log(b))) * pow(v, 2);
 	} else if (v > 1) {
-	  return slog(log(v, b), b) + 1;
+    try {
+      return slog(log(v, b), b) + 1;
+    } catch (e) {
+      return Infinity;
+    }
 	}
 	return val;
 }
@@ -84,8 +92,8 @@ function wtn(b, x) {
   return pow(b, pow(b, (x - 1)));
 }
 function wpn(b, x) {
-  var val = b;
-  for (var i = 0; i < x - 1; i++) {
+  let val = b;
+  for (let i = 0; i < x - 1; i++) {
     val = tet(val, b);
   }
   return val;
@@ -105,17 +113,17 @@ function g(a, b, c) {
   }
 }
 function gamma(n) {
-  var g = 7,
+  let g = 7,
       p = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
   if (n < 0.5) {
     return Math.PI / Math.sin(n * Math.PI) / gamma(1 - n);
   } else {
     n--;
-    var x = p[0];
-    for (var i = 1; i < g + 2; i++) {
+    let x = p[0];
+    for (let i = 1; i < g + 2; i++) {
       x += p[i] / (n + i);
     }
-    var t = n + g + 0.5;
+    let t = n + g + 0.5;
     return Math.sqrt(2 * Math.PI) * Math.pow(t, (n + 0.5)) * Math.exp(-t) * x;
   }
 }
@@ -129,6 +137,30 @@ var varns = {
   phi: new ExpNumber((1 + 5 ** 0.5) / 2),
   sqrt2: new ExpNumber(Math.SQRT2),
   sqrt1_2: new ExpNumber(Math.SQRT1_2),
+  Boolean: new ExpFunc(function (args) {
+    return new ExpBool(args[0].val);
+  }),
+  Number: new ExpFunc(function (args) {
+    return new ExpNumber(args[0].val);
+  }),
+  BigInt: new ExpFunc(function (args) {
+    return new ExpBigInt(args[0].val);
+  }),
+  String: new ExpFunc(function (args) {
+    return new ExpString(args[0].val);
+  }),
+  Array: new ExpFunc(function (args) {
+    if (args.length == 0) {
+      return new ExpArray([]);
+    } else if (args.length == 1) {
+      return new ExpArray(args[0].val);
+    } else {
+      return new ExpArray(args);
+    }
+  }),
+  Matrix: new ExpFunc(function (args) {
+    return new ExpMatrix(args[0]);
+  }),
   sign: new ExpFunc(function (args) {
     if (args[0].val > 0) {
       return 1;
@@ -146,8 +178,8 @@ var varns = {
     }
     if (args[0].type == 'num') {
       return new ExpNumber(args[0].val);
-    } else if (args[0].type == 'bignum') {
-      return new ExpBigNum(args[0].val);
+    } else if (args[0].type == 'bigint') {
+      return new ExpBigInt(args[0].val);
     }
   }),
   max: new ExpFunc(function (args) {
@@ -180,29 +212,29 @@ var varns = {
   floor: new ExpFunc(function (args) {
     if (args[0].type == 'num') {
       return new ExpNumber(Math.floor(args[0].val));
-    } else if (args[0].type == 'bignum') {
-      return new ExpBigNum(args[0].val);
+    } else if (args[0].type == 'bigint') {
+      return new ExpBigInt(args[0].val);
     }
   }),
   ceil: new ExpFunc(function (args) {
     if (args[0].type == 'num') {
       return new ExpNumber(Math.ceil(args[0].val));
-    } else if (args[0].type == 'bignum') {
-      return new ExpBigNum(args[0].val);
+    } else if (args[0].type == 'bigint') {
+      return new ExpBigInt(args[0].val);
     }
   }),
   round: new ExpFunc(function (args) {
     if (args[0].type == 'num') {
       return new ExpNumber(Math.round(args[0].val));
-    } else if (args[0].type == 'bignum') {
-      return new ExpBigNum(args[0].val);
+    } else if (args[0].type == 'bigint') {
+      return new ExpBigInt(args[0].val);
     }
   }),
   trunc: new ExpFunc(function (args) {
     if (args[0].type == 'num') {
       return new ExpNumber(Math.trunc(args[0].val));
-    } else if (args[0].type == 'bignum') {
-      return new ExpBigNum(args[0].val);
+    } else if (args[0].type == 'bigint') {
+      return new ExpBigInt(args[0].val);
     }
   }),
   sqrt: new ExpFunc(function (args) {
@@ -233,7 +265,7 @@ var varns = {
   log10: new ExpFunc(function (args) {
     if (args[0].type == 'num') {
       return new ExpNumber(Math.log10(args[0].val));
-    } else if (args[0].type == 'bignum') {
+    } else if (args[0].type == 'bigint') {
       let es = args[0].val.toString();
       return new ExpNumber(Math.log10(Number(es.substr(0, 12))) - 11 + es.length);
     }
@@ -244,17 +276,13 @@ var varns = {
     }
   }),
   pow: new ExpFunc(function (args) {
-    if (args[0].type == 'num' && args[1].type == 'num') {
-      return new ExpNumber(args[0].val ** args[1].val);
-    } else if (args[0].type == 'bignum' && args[1].type == 'bignum') {
-      return new ExpBigNum(args[0].val ** args[1].val);
-    }
+    return ExpExponentiate(args[0], args[1]);
   }),
   root: new ExpFunc(function (args) {
     if (args[0].type == 'num' && args[1].type == 'num') {
       return new ExpNumber(args[0].val ** (1 / args[1].val));
-    } else if (args[0].type == 'bignum' && args[1].type == 'bignum') {
-      return new ExpBigNum(args[0].val ** (1 / args[1].val));
+    } else if (args[0].type == 'bigint' && args[1].type == 'bigint') {
+      return new ExpBigInt(args[0].val ** (1 / args[1].val));
     }
   }),
   logn: new ExpFunc(function (args) {
@@ -291,11 +319,11 @@ var varns = {
       } else {
         return new ExpNumber(gamma(fv + 1));
       }
-    } else if (args[0].type == 'bignum') {
+    } else if (args[0].type == 'bigint') {
       if (fv >= 0) {
         let bv = BigInt(1);
         while (fv > 0 && bv < Infinity) bv *= fv;
-        return new ExpBigNum(bv);
+        return new ExpBigInt(bv);
       } else if (fv < 0) {
         return new ExpNumber(NaN);
       }
@@ -387,7 +415,7 @@ var varns = {
     return new ExpString(args[0].val.toString(10));
   }),
   tobasestr: new ExpFunc(function (args) {
-    //fix and add from variants too
+    return new ExpString(args[0].val.toString(args[1].val));
   }),
   fromhexstr: new ExpFunc(function (args) {
     return new ExpNumber(parseInt(args[0].val, 16));
@@ -397,7 +425,7 @@ var varns = {
     for (let i = str.length - 1, em = BigInt(0); i >= 0; i--, em++) {
       bi += BigInt(parseInt(str[i], 16)) * (BigInt(16) ** em);
     }
-    return new ExpBigNum(bi);
+    return new ExpBigInt(bi);
   }),
   fromoctstr: new ExpFunc(function (args) {
     return new ExpNumber(parseInt(args[0].val, 8));
@@ -407,7 +435,7 @@ var varns = {
     for (let i = str.length - 1, em = BigInt(0); i >= 0; i--, em++) {
       bi += BigInt(parseInt(str[i], 8)) * (BigInt(8) ** em);
     }
-    return new ExpBigNum(bi);
+    return new ExpBigInt(bi);
   }),
   frombinstr: new ExpFunc(function (args) {
     return new ExpNumber(parseInt(args[0].val, 2));
@@ -417,12 +445,22 @@ var varns = {
     for (let i = str.length - 1, em = BigInt(0); i >= 0; i--, em++) {
       bi += BigInt(parseInt(str[i], 2)) * (BigInt(2) ** em);
     }
-    return new ExpBigNum(bi);
+    return new ExpBigInt(bi);
   }),
   fromdecstr: new ExpFunc(function (args) {
     return new ExpNumber(parseInt(args[0].val, 10));
   }),
   fromdecstrn: new ExpFunc(function (args) {
-    return new ExpBigNum(args[0].val);
+    return new ExpBigInt(args[0].val);
+  }),
+  frombasestr: new ExpFunc(function (args) {
+    return new ExpNumber(parseInt(args[0].val, args[1].val));
+  }),
+  frombasestrn: new ExpFunc(function (args) {
+    let bi = BigInt(0), str = args[0].val;
+    for (let i = str.length - 1, em = BigInt(0); i >= 0; i--, em++) {
+      bi += BigInt(parseInt(str[i], args[1].val)) * (BigInt(args[1].val) ** em);
+    }
+    return new ExpBigInt(bi);
   }),
 };

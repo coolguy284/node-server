@@ -10,6 +10,13 @@ var SettingsTogg = function SettingsTogg() {
     settins.style = 'display:none;';
   }
 };
+function LrExp(v) {
+  if (parseInt(v) == 1) {
+    BIGLIMIT = 1000;
+  } else {
+    BIGLIMIT = Infinity;
+  }
+}
 function AllComp(v) {
   if (parseInt(v) == 1) {
     ccul.style = '';
@@ -33,7 +40,7 @@ function ObjToText(val) {
     return '' + val.val;
   } else if (val.type == 'num') {
     return '' + val.val;
-  } else if (val.type == 'bignum') {
+  } else if (val.type == 'bigint') {
     return '' + val.val + 'n';
   } else if (val.type == 'string') {
     return inspect(val.val);

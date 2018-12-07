@@ -1,265 +1,336 @@
+function ExpArrString(val, p) {
+  if (p.bas[1] && p.bas[2] == 0) {
+    if (val == '\\') {
+      p.bs += '\\';
+      p.bas[1] = false;
+    } else if (val == 'n') {
+      p.bs += '\n';
+      p.bas[1] = false;
+    } else if (val == 't') {
+      p.bs += '\t';
+      p.bas[1] = false;
+    } else if (val == 'x') {
+      p.bas[2] = 1;
+    } else if (val == 'u') {
+      p.bas[2] = 4;
+    } else if (val == 'U') {
+      p.bas[2] = 9;
+    } else {
+      p.bs += val;
+      p.bas[1] = false;
+    }
+  } else if (p.bas[1] && p.bas[2] == 2) {
+    p.bas[3] += val;
+    p.bas[2] = 3;
+  } else if (p.bas[1] && p.bas[2] == 3) {
+    p.bas[3] += val;
+    p.bs += String.fromCharCode(parseInt(p.bas[3], 16));
+    p.bas[1] = false;
+    p.bas[2] = 0;
+    p.bas[3] = '';
+  } else if (p.bas[1] && p.bas[2] == 4) {
+    if (val != '{') {
+      p.bas[3] += val;
+      p.bas[2] = 5;
+    } else {
+      p.bas[2] = 8;
+    }
+  } else if (p.bas[1] && p.bas[2] <= 6) {
+    p.bas[3] += val;
+    p.bas[2]++;
+  } else if (p.bas[1] && p.bas[2] == 7) {
+    p.bas[3] += val;
+    p.bs += String.fromCharCode(parseInt(p.bas[3], 16));
+    p.bas[1] = false;
+    p.bas[2] = 0;
+    p.bas[3] = '';
+  } else if (p.bas[1] && p.bas[2] == 8) {
+    if (val != '}') {
+      p.bas[3] += val;
+    } else {
+      p.bs += String.fromCharCode(parseInt(p.bas[3], 16));
+      p.bas[1] = false;
+      p.bas[2] = 0;
+      p.bas[3] = '';
+    }
+  } else if (p.bas[1] && p.bas[2] == 9) {
+    p.bas[3] = val;
+    p.bas[2] = 10;
+  } else if (p.bas[1] && p.bas[2] <= 15) {
+    p.bas[3] += val;
+    p.bas[2]++;
+  } else if (p.bas[1] && p.bas[2] == 16) {
+    p.bas[3] += val;
+    p.bs += String.fromCharCode(parseInt(p.bas[3], 16));
+    p.bas[1] = false;
+    p.bas[2] = 0;
+    p.bas[3] = '';
+  } else {
+    if (val == p.bas[0]) {
+      p.ra.push(new ExpString(p.bs));
+      p.bs = '';
+      p.bt = '';
+      p.bas.splice(0, Infinity);
+    } else if (val == '\\') {
+      p.bas[1] = true;
+    } else {
+      p.bs += val;
+    }
+  }
+}
+function ExpArrayComment(val, p) {
+  if (p.bac[0] == 0) {
+    if (val == '/') {
+      return p.ra;
+    } else if (val == '*') {
+      p.bac[0] = 1;
+    }
+  } else if (p.bac[0] == 1) {
+    if (val == '*') {
+      p.bac[0] = 2;
+    }
+  } else if (p.bac[0] == 2) {
+    if (val == '/') {
+      p.bt = '';
+    } else {
+      p.bac[0] = 1;
+    }
+  }
+}
 function ToExpArr(val) {
   // 0123456789.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+-*/%^|&()[]
-  let ra = [];
-  let bs = '';
-  let ba = [];
-  let bt = '';
-  let pl = [];
+  let p = {
+    ra: [],
+    bs: '',
+    ba: [],
+    bas: [],
+    bac: [],
+    bt: '',
+    pl: [],
+  };
   for (var i in val) {
-    if (bt == '') {
+    if (p.bt == '') {
       if (NUM.indexOf(val[i]) > -1) {
-        bs += val[i];
-        bt = 'number';
+        p.bs += val[i];
+        p.bt = 'number';
       } else if (STR.indexOf(val[i]) > -1) {
-        bt = 'string';
-        ba.push(val[i], false, 0, '');
+        p.bt = 'string';
+        p.bas.push(val[i], false, 0, '');
       } else if (OPS.indexOf(val[i]) > -1) {
-        let li = ra[ra.length - 1];
+        let li = p.ra[p.ra.length - 1];
         if (li && li.type == 'op') {
           if (OPSA[li.val] && OPSA[li.val].indexOf(val[i]) > -1) {
             li.val += val[i];
           } else {
-            ra.push(new ExpOperator(val[i]));
+            p.ra.push(new ExpOperator(val[i]));
           }
         } else {
-          ra.push(new ExpOperator(val[i]));
+          p.ra.push(new ExpOperator(val[i]));
         }
       } else if (val[i] == '(') {
-        if (Object.prototype.toString.call(ra[ra.length - 1]) == '[object Array]') {
-          ra.push(new ExpOperator('*'));
+        if (Object.prototype.toString.call(p.ra[p.ra.length - 1]) == '[object Array]') {
+          p.ra.push(new ExpOperator('*'));
         }
-        bt = 'paren';
-        pl = ['p'];
+        p.bt = 'paren';
+        p.pl = ['p'];
       } else if (val[i] == '[') {
-        ba = new ExpArray([]);
-        bt = 'array';
-        pl = ['a'];
-      } else if (VAR.indexOf(val[i]) > -1) {
-        bs += val[i];
-        bt = 'var';
+        p.ba = new ExpArray([]);
+        p.bt = 'array';
+        p.pl = ['a'];
+      } else if (VAR.indexOf(val[i]) < 0) {
+        p.bs += val[i];
+        p.bt = 'var';
+      } else if (val[i] == '/') {
+        p.bt = 'sm';
+        p.bac.push(0);
       }
-    } else if (bt == 'number') {
+    } else if (p.bt == 'number') {
       if (NUMA.indexOf(val[i]) > -1) {
-        bs += val[i];
-      } else if (VARN.indexOf(val[i]) > -1) {
-        ra.push(new ExpNumber(bs));
-        ra.push(new ExpOperator('*'));
-        bs = val[i];
-        bt = 'var';
+        p.bs += val[i];
+      } else if (VARN.indexOf(val[i]) < 0) {
+        p.ra.push(new ExpNumber(p.bs));
+        p.ra.push(new ExpOperator('*'));
+        p.bs = val[i];
+        p.bt = 'var';
       } else if (val[i] == 'n') {
-        ra.push(new ExpBigNum(bs));
-        bt = 'bignum';
+        p.ra.push(new ExpBigInt(p.bs));
+        p.bt = 'bigint';
       } else if (OPS.indexOf(val[i]) > -1) {
-        ra.push(new ExpNumber(bs));
-        ra.push(new ExpOperator(val[i]));
-        bs = '';
-        bt = '';
+        p.ra.push(new ExpNumber(p.bs));
+        p.ra.push(new ExpOperator(val[i]));
+        p.bs = '';
+        p.bt = '';
       } else if (val[i] == '(') {
-        ra.push(new ExpNumber(bs));
-        ra.push(new ExpOperator('*'));
-        bs = '';
-        bt = 'paren';
-        pl = ['p'];
+        p.ra.push(new ExpNumber(p.bs));
+        p.ra.push(new ExpOperator('*'));
+        p.bs = '';
+        p.bt = 'paren';
+        p.pl = ['p'];
       } else if (val[i] == ' ') {
-        ra.push(new ExpNumber(bs));
-        bs = '';
-        bt = '';
+        p.ra.push(new ExpNumber(p.bs));
+        p.bs = '';
+        p.bt = '';
       }
-    } else if (bt == 'bignum') {
-      if (VAR.indexOf(val[i]) > -1) {
-        ra.push(new ExpOperator('*'));
-        bs = val[i];
-        bt = 'var';
+    } else if (p.bt == 'bigint') {
+      if (VAR.indexOf(val[i]) < 0) {
+        p.ra.push(new ExpOperator('*'));
+        p.bs = val[i];
+        p.bt = 'var';
       } else if (OPS.indexOf(val[i]) > -1) {
-        ra.push(new ExpOperator(val[i]));
-        bs = '';
-        bt = '';
+        p.ra.push(new ExpOperator(val[i]));
+        p.bs = '';
+        p.bt = '';
       } else if (val[i] == '(') {
-        ra.push(new ExpOperator('*'));
-        bs = '';
-        bt = 'paren';
-        pl = ['p'];
+        p.ra.push(new ExpOperator('*'));
+        p.bs = '';
+        p.bt = 'paren';
+        p.pl = ['p'];
       }
-    } else if (bt == 'string') {
-      if (ba[1] && ba[2] == 0) {
-        if (val[i] == '\\') {
-          bs += '\\';
-          ba[1] = false;
-        } else if (val[i] == 'n') {
-          bs += '\n';
-          ba[1] = false;
-        } else if (val[i] == 't') {
-          bs += '\t';
-          ba[1] = false;
-        } else if (val[i] == 'x') {
-          ba[2] = 1;
-        } else if (val[i] == 'u') {
-          ba[2] = 4;
-        } else if (val[i] == 'U') {
-          ba[2] = 9;
-        } else {
-          bs += val[i];
-          ba[1] = false;
-        }
-      } else if (ba[1] && ba[2] == 2) {
-        ba[3] += val[i];
-        ba[2] = 3;
-      } else if (ba[1] && ba[2] == 3) {
-        ba[3] += val[i];
-        bs += String.fromCharCode(parseInt(ba[3], 16));
-        ba[1] = false;
-        ba[2] = 0;
-        ba[3] = '';
-      } else if (ba[1] && ba[2] == 4) {
-        if (val[i] != '{') {
-          ba[3] += val[i];
-          ba[2] = 5;
-        } else {
-          ba[2] = 8;
-        }
-      } else if (ba[1] && ba[2] <= 6) {
-        ba[3] += val[i];
-        ba[2]++;
-      } else if (ba[1] && ba[2] == 7) {
-        ba[3] += val[i];
-        bs += String.fromCharCode(parseInt(ba[3], 16));
-        ba[1] = false;
-        ba[2] = 0;
-        ba[3] = '';
-      } else if (ba[1] && ba[2] == 8) {
-        if (val[i] != '}') {
-          ba[3] += val[i];
-        } else {
-          bs += String.fromCharCode(parseInt(ba[3], 16));
-          ba[1] = false;
-          ba[2] = 0;
-          ba[3] = '';
-        }
-      } else if (ba[1] && ba[2] == 9) {
-        ba[3] = val[i];
-        ba[2] = 10;
-      } else if (ba[1] && ba[2] <= 15) {
-        ba[3] += val[i];
-        ba[2]++;
-      } else if (ba[1] && ba[2] == 16) {
-        ba[3] += val[i];
-        bs += String.fromCharCode(parseInt(ba[3], 16));
-        ba[1] = false;
-        ba[2] = 0;
-        ba[3] = '';
-      } else {
-        if (val[i] == ba[0]) {
-          ra.push(new ExpString(bs));
-          bs = '';
-          bt = '';
-          ba.splice(0, Infinity);
-        } else if (val[i] == '\\') {
-          ba[1] = true;
-        } else {
-          bs += val[i];
-        }
-      }
-    } else if (bt == 'var') {
+    } else if (p.bt == 'string') {
+      ExpArrString(val[i], p);
+    } else if (p.bt == 'var') {
       if (OPS.indexOf(val[i]) > -1) {
-        ra.push(new ExpVariable(bs));
-        ra.push(new ExpOperator(val[i]));
-        bs = '';
-        bt = '';
+        p.ra.push(new ExpVariable(p.bs));
+        p.ra.push(new ExpOperator(val[i]));
+        p.bs = '';
+        p.bt = '';
       } else if (val[i] == ' ') {
-        ra.push(new ExpVariable(bs));
-        bs = '';
-        bt = '';
+        p.ra.push(new ExpVariable(p.bs));
+        p.bs = '';
+        p.bt = '';
       } else if (val[i] == '(') {
-        bt = 'funccall';
-        ba.push(bs);
-        pl.push('p');
-        bs = '';
+        p.bt = 'funccall';
+        p.ba.push(p.bs);
+        p.pl.push('p');
+        p.bs = '';
       } else {
-        bs += val[i];
+        p.bs += val[i];
       }
-    } else if (bt == 'funccall') {
-      if (val[i] == '(') {
-        pl.push('p');
-      } else if (val[i] == ')') {
-        if (pl[pl.length - 1] == 'p') {
-          pl.pop();
-        } else {
-          throw new SyntaxError('parenthesis or bracket mismatch');
+    } else if (p.bt == 'funccall') {
+      if (p.pl[p.pl.length - 1] != 's') {
+        if (val[i] == '(') {
+          p.pl.push('p');
+        } else if (val[i] == ')') {
+          if (p.pl[p.pl.length - 1] == 'p') {
+            p.pl.pop();
+          } else {
+            throw new SyntaxError('parenthesis or bracket mismatch');
+          }
+        } else if (val[i] == ',' && p.pl.length == 1) {
+          p.ba.push(p.bs);
+          p.bs = '';
+        } else if (STR.indexOf(val[i]) > -1) {
+          p.pl.push('s');
+          p.bas.push(val[i], false, 0, '');
         }
-      } else if (val[i] == ',' && pl.length == 1) {
-        ba.push(bs);
-        bs = '';
-      }
-      if (pl.length == 0) {
-        if (bs != '') ba.push(bs);
-        for (var i in ba) ba[i] = ToExpArr(ba[i]);
-        ra.push(FuncCall(ba[0], ba.slice(1, Infinity)));
-        bs = '';
-        bt = '';
-        ba = [];
+        if (p.pl.length == 0) {
+          if (p.bs != '') p.ba.push(p.bs);
+          for (var i in p.ba) p.ba[i] = ToExpArr(p.ba[i]);
+          p.ra.push(FuncCall(p.ba[0], p.ba.slice(1, Infinity)));
+          p.bs = '';
+          p.bt = '';
+          p.ba = [];
+        } else {
+          p.bs += val[i];
+        }
       } else {
-        bs += val[i];
-      }
-    } else if (bt == 'paren') {
-      if (val[i] == '(') {
-        pl.push('p');
-      } else if (val[i] == ')') {
-        if (pl[pl.length - 1] == 'p') {
-          pl.pop();
-        } else {
-          throw new SyntaxError('parenthesis or bracket mismatch');
+        let pobj = {ra:[],bs:'',bas:p.bas,bt:'string'};
+        ExpArrString(val[i], pobj);
+        if (pobj.bt == '') {
+          p.pl.pop();
         }
+        p.bs += val[i];
       }
-      if (pl.length == 0) {
-        ra.push(ToExpArr(bs));
-        bs = '';
-        bt = '';
+    } else if (p.bt == 'paren') {
+      if (p.pl[p.pl.length - 1] != 's') {
+        if (val[i] == '(') {
+          p.pl.push('p');
+        } else if (val[i] == ')') {
+          if (p.pl[p.pl.length - 1] == 'p') {
+            p.pl.pop();
+          } else {
+            throw new SyntaxError('parenthesis or bracket mismatch');
+          }
+        } else if (STR.indexOf(val[i]) > -1) {
+          p.pl.push('s');
+          p.bas.push(val[i], false, 0, '');
+        }
+        if (p.pl.length == 0) {
+          p.ra.push(ToExpArr(p.bs));
+          p.bs = '';
+          p.bt = '';
+        } else {
+          p.bs += val[i];
+        }
       } else {
-        bs += val[i];
+        let pobj = {ra:[],bs:'',bas:p.bas,bt:'string'};
+        ExpArrString(val[i], pobj);
+        if (pobj.bt == '') {
+          p.pl.pop();
+        }
+        p.bs += val[i];
       }
-    } else if (bt == 'array') {
-      if (val[i] == '(') {
-        pl.push('p');
-      } else if (val[i] == ')') {
-        if (pl[pl.length - 1] == 'p') {
-          pl.pop();
+    } else if (p.bt == 'array') {
+      if (p.pl[p.pl.length - 1] != 's') {
+        if (val[i] == '(') {
+          p.pl.push('p');
+        } else if (val[i] == ')') {
+          if (p.pl[p.pl.length - 1] == 'p') {
+            p.pl.pop();
+          } else {
+            throw new SyntaxError('parenthesis or bracket mismatch');
+          }
+        } else if (val[i] == '[') {
+          p.pl.push('a');
+        } else if (val[i] == ']') {
+          if (p.pl[p.pl.length - 1] == 'a') {
+            p.pl.pop();
+          } else {
+            throw new SyntaxError('parenthesis or bracket mismatch');
+          }
+        } else if (val[i] == ',' && p.pl.length == 1) {
+          p.ba.val.push(ToExpArr(p.bs));
+          p.bs = '';
+        } else if (STR.indexOf(val[i]) > -1) {
+          p.pl.push('s');
+          p.bas.push(val[i], false, 0, '');
+        }
+        if (p.pl.length == 0) {
+          if (p.bs != '') {
+            p.ba.val.push(ToExpArr(p.bs));
+            p.bs = '';
+          }
+          p.ra.push(p.ba);
+          p.ba = [];
+          p.bt = '';
         } else {
-          throw new SyntaxError('parenthesis or bracket mismatch');
+          p.bs += val[i];
         }
-      } else if (val[i] == '[') {
-        pl.push('a');
-      } else if (val[i] == ']') {
-        if (pl[pl.length - 1] == 'a') {
-          pl.pop();
-        } else {
-          throw new SyntaxError('parenthesis or bracket mismatch');
-        }
-      } else if (val[i] == ',' && pl.length == 1) {
-        ba.val.push(ToExpArr(bs));
-      }
-      if (pl.length == 0) {
-        if (bs != '') {
-          ba.val.push(ToExpArr(bs));
-          bs = '';
-        }
-        ra.push(ba);
-        ba = [];
-        bt = '';
       } else {
-        bs += val[i];
+        let pobj = {ra:[],bs:'',bas:p.bas,bt:'string'};
+        ExpArrString(val[i], pobj);
+        if (pobj.bt == '') {
+          p.pl.pop();
+        }
+        p.bs += val[i];
+      }
+    } else if (p.bt == 'sm') {
+      let v = ExpArrComment(val[i], p);
+      if (v !== undefined) {
+        return v;
       }
     }
   }
-  if (bt == 'number') {
-    ra.push(new ExpNumber(bs));
-    bs = '';
-    bt = '';
-  } else if (bt == 'var') {
-    ra.push(new ExpVariable(bs));
-    bs = '';
-    bt = '';
-  } else if (bt == 'paren' || bt == 'funccall' || bt == 'string') {
+  if (p.bt == 'number') {
+    p.ra.push(new ExpNumber(p.bs));
+    p.bs = '';
+    p.bt = '';
+  } else if (p.bt == 'var') {
+    p.ra.push(new ExpVariable(p.bs));
+    p.bs = '';
+    p.bt = '';
+  } else if (p.bt == 'paren' || p.bt == 'funccall' || p.bt == 'string') {
     throw new SyntaxError('parenthesis or bracket mismatch');
   }
-  return ra;
+  return p.ra;
 }

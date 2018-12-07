@@ -6,8 +6,8 @@ function ExpNumber(val) {
   this.type = 'num';
   this.val = Number(val);
 }
-function ExpBigNum(val) {
-  this.type = 'bignum';
+function ExpBigInt(val) {
+  this.type = 'bigint';
   this.val = BigInt(val);
 }
 function ExpString(val) {

@@ -8,6 +8,10 @@ function ParseExpArr(arr) {
       let ar = arr[i].val;
       for (let i in ar) ar[i] = ParseExpArr(ar[i])[0][0];
       arr[i] = FuncCallProp(arr[i].nam, ar);
+    } else if (arr[i].type == 'array') {
+      for (let j in arr[i].val) {
+        arr[i].val[j] = ParseExpArr(arr[i].val[j])[0][0];
+      }
     } else if (arr[i].type == 'variable') {
       if (arr[i].val in varns) {
         arr[i] = varns[arr[i].val];
