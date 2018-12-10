@@ -1,8 +1,5 @@
 // jshint maxerr:1000 -W041 -W051 -W060 -W061
-var calcarr = [];
-var cinphist = [];
-var histind = 0;
-var currtext = '';
+var calcarr = [], cinphist = [], histind = 0, currtext = '';
 var SettingsTogg = function SettingsTogg() {
   if (settins.style.cssText == 'display: none;') {
     settins.style = 'position:fixed;top:2px;width:100%;height:400px;background:white;';
@@ -36,7 +33,11 @@ function ShowSett(v) {
   }
 }
 function ObjToText(val) {
-  if (val.type == 'bool') {
+  if (val.type == 'undefined') {
+    return 'undefined';
+  } else if (val.type == 'null') {
+    return 'null';
+  } else if (val.type == 'bool') {
     return '' + val.val;
   } else if (val.type == 'num') {
     return '' + val.val;
@@ -46,6 +47,8 @@ function ObjToText(val) {
     return inspect(val.val);
   } else if (val.type == 'array') {
     return '[ ' + val.val.map(x=>ObjToText(x)).join(', ') + ' ]';
+  } else if (val.type == 'jsobj') {
+    return 'JSObj { ' + inspect(val.val) + ' }';
   } else {
     return inspect(val);
   }
@@ -53,23 +56,8 @@ function ObjToText(val) {
 function ParseText(val) {
   let rval;
   try {
-    if (val[0] == ':') {
-      rval = inspect(eval(val.substr(1, Infinity)));
-    } else if (/(?:[A-Za-z])[A-Za-z0-9_]*\s*=\s*/g.test(val)) {
-      let st = val.split(/\s*=\s*/g);
-      varns[st[0]] = ParseExpArr(ToExpArr(st[1]))[0][0];
-      rval = undefined;
-    } else if (val.substr(0, 4) == 'del ') {
-      delete varns[val.substr(4, Infinity)];
-      rval = undefined;
-    } else if (val.substr(0, 7) == 'delete ') {
-      delete varns[val.substr(7, Infinity)];
-      rval = undefined;
-    } else if (val != '') {
-      rval = ObjToText(ParseExpArr(ToExpArr(val))[0][0]);
-    } else {
-      rval = undefined;
-    }
+    if (val[0] == ':') rval = inspect(eval(val.substr(1, Infinity)));
+    else rval = ObjToText(ParseExpArr(ToExpArr(val), varns, varns)[0][0]);
   } catch (e) {
     rval = e.toString() + '\n' + e.stack;
   }

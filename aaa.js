@@ -189,6 +189,7 @@ try {
 try {
   global.viewshist = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/views.json').toString());
   if (Object.prototype.toString.call(viewshist) != '[object Object]') throw new Error('invalid viewshist object');
+  if (Object.keys(viewshist).indexOf('reg') < 0) throw new Error('invalid viewshist object');
 } catch (e) {
   console.error('viewshist restore failed, viewshist empty');
   console.error(e);

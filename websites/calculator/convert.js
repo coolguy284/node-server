@@ -108,7 +108,7 @@ function ToExpArr(val) {
     bt: '',
     pl: [],
   };
-  for (var i in val) {
+  for (let i in val) {
     if (p.bt == '') {
       if (NUM.indexOf(val[i]) > -1) {
         p.bs += val[i];
@@ -225,7 +225,7 @@ function ToExpArr(val) {
         }
         if (p.pl.length == 0) {
           if (p.bs != '') p.ba.push(p.bs);
-          for (var i in p.ba) p.ba[i] = ToExpArr(p.ba[i]);
+          for (let i in p.ba) p.ba[i] = ToExpArr(p.ba[i]);
           p.ra.push(FuncCall(p.ba[0], p.ba.slice(1, Infinity)));
           p.bs = '';
           p.bt = '';
@@ -332,5 +332,6 @@ function ToExpArr(val) {
   } else if (p.bt == 'paren' || p.bt == 'funccall' || p.bt == 'string') {
     throw new SyntaxError('parenthesis or bracket mismatch');
   }
+  for (var i in p.ra) if (p.ra[i].type == 'variable' && OPSKW.indexOf(p.ra[i].val) > -1) p.ra[i] = new ExpOperator(p.ra[i].val);
   return p.ra;
 }
