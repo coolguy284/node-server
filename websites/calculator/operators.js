@@ -1,3 +1,6 @@
+function ExpTypeof(val) {
+  return new ExpString(val.type);
+}
 function ExpLogicalNot(val) {
   return new ExpBool(!val.val);
 }

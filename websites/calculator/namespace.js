@@ -127,7 +127,11 @@ function gamma(n) {
     return Math.sqrt(2 * Math.PI) * Math.pow(t, (n + 0.5)) * Math.exp(-t) * x;
   }
 }
+var CL_UNDEFINED = new ExpUndefined();
+var CL_NULL = new ExpNull();
 var varns = {
+  undefined: CL_UNDEFINED,
+  null: CL_NULL,
   true: new ExpBool(true),
   false: new ExpBool(false),
   NaN: new ExpNumber(NaN),
@@ -160,6 +164,11 @@ var varns = {
   }),
   Matrix: new ExpFunc(function (args) {
     return new ExpMatrix(args[0]);
+  }),
+  eval: new ExpFunc(function (args) {
+    if (args[0].type == 'string') {
+      return ParseExpArr(ToExpArr(args[0].val), (args[1] && args[1].val) || varns, (args[2] && args[2].val) || varns)[0][0];
+    }
   }),
   sign: new ExpFunc(function (args) {
     if (args[0].val > 0) {
@@ -310,8 +319,7 @@ var varns = {
       let fv = args[0].val;
       if (Number.isInteger(fv)) {
         if (fv >= 0) {
-          let bv = 1;
-          while (fv > 0 && bv < Infinity) bv *= fv;
+          for (let bv = 1; fv > 0 && bv < Infinity; fv--) bv *= fv;
           return new ExpNumber(bv);
         } else if (fv < 0) {
           return new ExpNumber(NaN);
@@ -321,8 +329,7 @@ var varns = {
       }
     } else if (args[0].type == 'bigint') {
       if (fv >= 0) {
-        let bv = BigInt(1);
-        while (fv > 0 && bv < Infinity) bv *= fv;
+        for (let bv = BigInt(1); fv > 0 && bv < Infinity; fv--) bv *= fv;
         return new ExpBigInt(bv);
       } else if (fv < 0) {
         return new ExpNumber(NaN);

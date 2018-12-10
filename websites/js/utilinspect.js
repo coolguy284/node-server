@@ -1,322 +1,222 @@
-// https://raw.githubusercontent.com/deecewan/browser-util-inspect/master/index.js
-var inspecto = {};
-(function (module) {
-// Module exports.
-module.exports = inspect;
-/**
- * Echos the value of a value. Trys to print the value out
- * in the best way possible given the different types.
- *
- * @param {Object} obj The object to print out.
- * @param {Object} opts Optional options object that alters the output.
- * @license MIT (© Joyent)
- */
-// legacy: obj, showHidden, depth, colors
-function inspect(obj, opts, addl) {
-  var objtss = typeof obj == 'object' ? objectToString(obj) : '';
-  if (typeof obj == 'bigint') {
-    return obj.toString() + 'n';
-  } else if (objtss == '[object Error]') {
-    return obj.stack;
-  } else if (['[object Int8Array]', '[object Uint8Array]', '[object Uint8ClampedArray]', '[object Int16Array]', '[object Uint16Array]', '[object Int32Array]', '[object Uint32Array]', '[object Float32Array]', '[object BigInt64Array]', '[object BigUint64Array]', '[object Float64Array]'].indexOf(objtss) > -1) {
-    return objtss.substring(8, objtss.length - 1) + ' [' + obj.join(', ') + ']';
-  } else if (/\[object .+\]/.test(objtss) && objtss != '[object Object]' && objtss != '[object Array]' && objtss != '[object DedicatedWorkerGlobalScope]' && !addl) {
-    objts = objtss.substring(8, objtss.length - 1);
-    return objts + ' ' + inspect(Object.getPrototypeOf(obj), {protoEnum: true,baseObj:obj}, true);
-  }
-  if (opts) {
-    if (opts.protoEnum) {
-      var bs = [];
-      var pl = Object.getOwnPropertyNames(obj);
-      var pind = pl.indexOf('constructor');
-      if (pind > -1) pl.splice(pind, 1);
-      for (var i = 0; i < pl.length; i++) {
-        var bo = opts.baseObj[pl[i]];
-        if (typeof bo != 'function') bs.push(pl[i] + ': ' + bo);
-      }
-      return '{ ' + bs.join(', ') + ' }';
-    }
-  }
-  // default options
-  var ctx = {
-    seen: [],
-    stylize: stylizeNoColor
-  };
-  // legacy...
-  if (arguments.length >= 3) ctx.depth = arguments[2];
-  if (arguments.length >= 4) ctx.colors = arguments[3];
-  if (isBoolean(opts)) {
-    // legacy...
-    ctx.showHidden = opts;
-  } else if (opts) {
-    // got an "options" object
-    _extend(ctx, opts);
-  }
-  // set default options
-  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
-  if (isUndefined(ctx.depth)) ctx.depth = 2;
-  if (isUndefined(ctx.colors)) ctx.colors = false;
-  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
-  if (ctx.colors) ctx.stylize = stylizeWithColor;
-  return formatValue(ctx, obj, ctx.depth);
-}
-// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
-inspect.colors = {
-  'bold' : [1, 22],
-  'italic' : [3, 23],
-  'underline' : [4, 24],
-  'inverse' : [7, 27],
-  'white' : [37, 39],
-  'grey' : [90, 39],
-  'black' : [30, 39],
-  'blue' : [34, 39],
-  'cyan' : [36, 39],
-  'green' : [32, 39],
-  'magenta' : [35, 39],
-  'red' : [31, 39],
-  'yellow' : [33, 39]
+let defaultOptions = {
+  showHidden: false,
+  depth: 2,
+  colors: false,
+  customInspect: true,
+  maxArrayLength: 100,
+  breakLength: 60,
+  compact: true,
+  sorted: false,
 };
-// Don't use 'blue' not visible on cmd.exe
-inspect.styles = {
-  'special': 'cyan',
-  'number': 'yellow',
-  'boolean': 'yellow',
-  'undefined': 'grey',
-  'null': 'bold',
-  'string': 'green',
-  'date': 'magenta',
-  // "name": intentionally not styling
-  'regexp': 'red'
-};
-function stylizeNoColor(str, styleType) {
-  return str;
+let typedArrays = ['Int8Array', 'Uint8Array', 'Uint8ClampedArray', 'Int16Array', 'Uint16Array', 'Int32Array', 'Uint32Array', 'BigInt64Array', 'BigUint64Array', 'Float32Array', 'Float64Array'];
+let boxedPrimitives = ['Boolean', 'Number', 'BigInt', 'Symbol', 'String'];
+function className(val) {
+  return val.constructor.name;
 }
-function isBoolean(arg) {
-  return typeof arg === 'boolean';
+function objectToString(val) {
+  let tv = Object.prototype.toString.call(val);
+  return tv.substring(8, tv.length - 1);
 }
-function isUndefined(arg) {
-  return arg === void 0;
+function stringProp(val) {
+  if (typeof val == 'symbol') return '[' + inspect(val) + ']';
+  if ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$_'.indexOf(val[0]) < 0) return inspect(val);
+  for (let i in val) if ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$_'.indexOf(val[i]) < 0) return inspect(val);
+  return val;
 }
-function stylizeWithColor(str, styleType) {
-  var style = inspect.styles[styleType];
-  if (style) return '\u001b[' + inspect.colors[style][0] + 'm' + str + '\u001b[' + inspect.colors[style][1] + 'm';
-  else return str;
+function inspect(val, opts) {
+  if (opts === undefined) opts = {};
+  if (opts.showHidden === undefined) opts.showHidden = defaultOptions.showHidden;
+  if (opts.depth === undefined) opts.depth = defaultOptions.depth;
+  if (opts.colors === undefined) opts.colors = defaultOptions.colors;
+  if (opts.customInspect === undefined) opts.customInspect = defaultOptions.customInspect;
+  if (opts.maxArrayLength === undefined) opts.maxArrayLength = defaultOptions.maxArrayLength;
+  if (opts.breakLength === undefined) opts.breakLength = defaultOptions.breakLength;
+  if (opts.compact === undefined) opts.compact = defaultOptions.compact;
+  if (opts.sorted === undefined) opts.sorted = defaultOptions.sorted;
+  opts.indentLvl = 0;
+  opts.objs = [];
+  return formatValue(val, opts);
 }
-function isFunction(arg) {
-  return typeof arg === 'function';
-}
-function isString(arg) {
-  return typeof arg === 'string';
-}
-function isNumber(arg) {
-  return typeof arg === 'number';
-}
-function isNull(arg) {
-  return arg === null;
-}
-function hasOwn(obj, prop) {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
-function isRegExp(re) {
-  return isObject(re) && objectToString(re) === '[object RegExp]';
-}
-function isObject(arg) {
-  return typeof arg === 'object' && arg !== null;
-}
-function isError(e) {
-  return isObject(e) && (objectToString(e) === '[object Error]' || e instanceof Error);
-}
-function isDate(d) {
-  return isObject(d) && objectToString(d) === '[object Date]';
-}
-function objectToString(o) {
-  return Object.prototype.toString.call(o);
-}
-function arrayToHash(array) {
-  var hash = {};
-  array.forEach(function(val, idx) {
-    hash[val] = true;
+function formatObject(val, opts, keys, ins) {
+  if (opts.depth < 0) return ins || '[Object]';
+  if (opts.objs.indexOf(val) > -1) return '[Circular]';
+  opts = Object.assign({}, opts);
+  opts.objs = [...opts.objs, val];
+  if (keys === undefined) {
+    if (opts.showHidden == true) keys = Reflect.ownKeys(val);
+    else keys = Object.keys(val);
+  }
+  if (opts.sorted == true) keys.sort();
+  else if (opts.sorted != false) keys.sort(opts.sorted);
+  let ba = keys.map(function (i) {
+    return stringProp(i) + ': ' + formatValue(val[i], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2}));
   });
-  return hash;
+  let baj = ba.join(', ');
+  if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
+  if (baj == '') return ins || '{}';
+  else return '{ ' + (ins !== undefined ? ins + ' ' : '') + baj + ' }';
 }
-function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
-  var output = [];
-  for (var i = 0, l = value.length; i < l; ++i) {
-    if (hasOwn(value, String(i))) {
-      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys, String(i), true));
-    } else {
-      output.push('');
-    }
+function formatArray(val, opts, bkeys) {
+  if (opts.depth < 0) return '[Array]';
+  if (opts.objs.indexOf(val) > -1) return '[Circular]';
+  opts = Object.assign({}, opts);
+  opts.objs = [...opts.objs, val];
+  let ba = [], ind = -1, vkeys;
+  if (bkeys === undefined) {
+    if (opts.showHidden == true) bkeys = Reflect.ownKeys(val);
+    else bkeys = Object.keys(val);
   }
-  keys.forEach(function(key) {
-    if (!key.match(/^\d+$/)) {
-      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys, key, true));
+  keys = bkeys.filter(x => !(!isNaN(x) && Number.isInteger(Number(x)) && Number(x) >= 0) && x != 'length');
+  vkeys = bkeys.filter(x => (!isNaN(x) && Number.isInteger(Number(x)) && Number(x) >= 0) && x != 'length');
+  if (opts.sorted == true) keys.sort();
+  else if (opts.sorted != false) keys.sort(opts.sorted);
+  for (var iv in vkeys) {
+    let i = vkeys[iv];
+    if (ba.length + 1 > opts.maxArrayLength) {
+      ba.push('... ' + (val.length - i) + ' more items');
+      break;
     }
+    if (i != ind + 1) {
+      let ia = i - ind - 1;
+      if (ia > 1) ba.push('<' + ia + ' empty items>');
+      else ba.push('<1 empty item>');
+    }
+    ba.push(formatValue(val[i], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
+    ind = parseInt(i);
+  }
+  keys.forEach(function (i) {
+    ba.push(stringProp(i) + ': ' + formatValue(val[i], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
   });
-  return output;
+  let baj = ba.join(', ');
+  if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
+  if (baj == '') return '[]';
+  else return '[ ' + baj + ' ]';
 }
-function formatError(value) {
-  return '[' + Error.prototype.toString.call(value) + ']';
+function formatMap(val, opts, keys) {
+  if (opts.depth < 0) return '[Map]';
+  if (opts.objs.indexOf(val) > -1) return '[Circular]';
+  opts = Object.assign({}, opts);
+  opts.objs = [...opts.objs, val];
+  let ba = Array.from(val);
+  if (opts.sorted == true) ba.sort((a, b) => (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0));
+  else if (opts.sorted != false) ba.sort((a, b) => opts.sorted(a[0], b[0]));
+  ba = ba.map(x => formatValue(x[0], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})) + ' => ' + formatValue(x[1], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
+  if (keys === undefined) {
+    if (opts.showHidden == true) keys = Reflect.ownKeys(val);
+    else keys = Object.keys(val);
+  }
+  if (opts.sorted == true) keys.sort();
+  else if (opts.sorted != false) keys.sort(opts.sorted);
+  keys.forEach(function (i) {
+    ba.push(stringProp(i) + ': ' + formatValue(val[i], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
+  });
+  let baj = ba.join(', ');
+  if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
+  if (baj == '') return '{}';
+  else return '{ ' + baj + ' }';
 }
-function formatValue(ctx, value, recurseTimes) {
-  // Provide a hook for user-specified inspect functions.
-  // Check that value is an object with an inspect function on it
-  if (ctx.customInspect && value && isFunction(value.inspect) &&
-      // Filter out the util module, it's inspect function is special
-      value.inspect !== inspect &&
-      // Also filter out any prototype objects using the circular check.
-      !(value.constructor && value.constructor.prototype === value)) {
-    var ret = value.inspect(recurseTimes, ctx);
-    if (!isString(ret)) ret = formatValue(ctx, ret, recurseTimes);
-    return ret;
+function formatSet(val, opts, keys) {
+  if (opts.depth < 0) return '[Set]';
+  if (opts.objs.indexOf(val) > -1) return '[Circular]';
+  opts = Object.assign({}, opts);
+  opts.objs = [...opts.objs, val];
+  let ba = Array.from(val);
+  if (opts.sorted == true) ba.sort();
+  else if (opts.sorted != false) ba.sort(opts.sorted);
+  ba = ba.map(x => formatValue(x, Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
+  if (keys === undefined) {
+    if (opts.showHidden == true) keys = Reflect.ownKeys(val);
+    else keys = Object.keys(val);
   }
-  // Primitive types cannot have properties
-  var primitive = formatPrimitive(ctx, value);
-  if (primitive) return primitive;
-  // Look up the keys of the object.
-  var keys = Object.keys(value);
-  var visibleKeys = arrayToHash(keys);
-  try {
-    if (ctx.showHidden && Object.getOwnPropertyNames) {
-      keys = Object.getOwnPropertyNames(value);
-    }
-  } catch (e) {/* ignore */}
-  // IE doesn't make error fields non-enumerable
-  // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
-  if (isError(value) && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
-    return formatError(value);
-  }
-  // Some type of object without properties can be shortcutted.
-  if (keys.length === 0) {
-    if (isFunction(value)) {
-      var name = value.name ? ': ' + value.name : '';
-      return ctx.stylize('[Function' + name + ']', 'special');
-    }
-    if (isRegExp(value)) return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-    if (isDate(value)) return ctx.stylize(Date.prototype.toString.call(value), 'date');
-    if (isError(value)) return formatError(value);
-  }
-  var base = '', array = false, braces = ['{', '}'];
-  // Make Array say that they are Array
-  if (Array.isArray(value)) {
-    array = true;
-    braces = ['[', ']'];
-  }
-  // Make functions say that they are functions
-  if (isFunction(value)) {
-    var n = value.name ? ': ' + value.name : '';
-    base = ' [Function' + n + ']';
-  }
-  // Make RegExps say that they are RegExps
-  if (isRegExp(value)) base = ' ' + RegExp.prototype.toString.call(value);
-  // Make dates with properties first say the date
-  if (isDate(value)) base = ' ' + Date.prototype.toUTCString.call(value);
-  // Make error with message first say the error
-  if (isError(value)) base = ' ' + formatError(value);
-  if (keys.length === 0 && (!array || value.length == 0)) {
-    return braces[0] + base + braces[1];
-  }
-  if (recurseTimes < 0) {
-    if (isRegExp(value)) {
-      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+  if (opts.sorted == true) keys.sort();
+  else if (opts.sorted != false) keys.sort(opts.sorted);
+  keys.forEach(function (i) {
+    ba.push(stringProp(i) + ': ' + formatValue(val[i], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
+  });
+  let baj = ba.join(', ');
+  if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
+  if (baj == '') return '{}';
+  else return '{ ' + baj + ' }';
+}
+function formatValue(val, opts) {
+  if (val === undefined) {
+    return 'undefined';
+  } else if (val === null) {
+    return 'null';
+  } else if (typeof val == 'boolean') {
+    return val.toString();
+  } else if (typeof val == 'number') {
+    if (Object.is(val, -0)) {
+      return '-0';
     } else {
-      return ctx.stylize('[Object]', 'special');
+      return val.toString();
     }
-  }
-  ctx.seen.push(value);
-  var output;
-  if (array) {
-    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
+  } else if (typeof val == 'bigint') {
+    return val.toString() + 'n';
+  } else if (typeof val == 'symbol') {
+    return val.toString();
+  } else if (typeof val == 'string') {
+    let js = JSON.stringify(val);
+    return '\'' + js.substring(1, js.length - 1).replace(/'/g, '\\\'').replace(/\\"/g, '"') + '\'';
+  } else if (typeof val == 'function') {
+    let keys, fn, cn = className(val);
+    if (opts.showHidden) {
+      keys = Reflect.ownKeys(val).filter(x => x != 'prototype');
+    } else {
+      keys = Object.keys(val);
+    }
+    if (val.name == '') fn = '[' + cn + ']';
+    else fn = '[' + cn + ': ' + val.name + ']';
+    if (keys.length == 0) {
+      return fn;
+    } else {
+      let rs = formatObject(val, opts, keys, fn);
+      return rs;
+    }
   } else {
-    output = keys.map(function(key) {
-      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
-    });
-  }
-  ctx.seen.pop();
-  return reduceToSingleString(output, base, braces);
-}
-function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
-  var name, str, desc;
-  desc = { value: void 0 };
-  try {
-    // ie6 › navigator.toString
-    // throws Error: Object doesn't support this property or method
-    desc.value = value[key];
-  } catch (e) {/* ignore */}
-  try {
-    // ie10 › Object.getOwnPropertyDescriptor(window.location, 'hash')
-    // throws TypeError: Object doesn't support this action
-    if (Object.getOwnPropertyDescriptor) desc = Object.getOwnPropertyDescriptor(value, key) || desc;
-  } catch (e) {/* ignore */}
-  if (desc.get) {
-    if (desc.set) str = ctx.stylize('[Getter/Setter]', 'special');
-    else str = ctx.stylize('[Getter]', 'special');
-  } else {
-    if (desc.set) str = ctx.stylize('[Setter]', 'special');
-  }
-  if (!hasOwn(visibleKeys, key)) name = '[' + key + ']';
-  if (!str) {
-    if (ctx.seen.indexOf(desc.value) < 0) {
-      if (isNull(recurseTimes)) str = formatValue(ctx, desc.value, null);
-      else str = formatValue(ctx, desc.value, recurseTimes - 1);
-      if (str.indexOf('\n') > -1) {
-        if (array) {
-          str = str.split('\n').map(function(line) {
-            return '  ' + line;
-          }).join('\n').substr(2);
-        } else {
-          str = '\n' + str.split('\n').map(function(line) {
-            return '   ' + line;
-          }).join('\n');
-        }
+    if (opts.customInspect) {
+      if (val[inspect.custom]) return val[inspect.custom]();
+      if (val.inspect) return val.inspect();
+    }
+    let cn = className(val), objs = objectToString(val);
+    if (opts.depth < 0) {
+      if (cn == objs) return '[' + cn + ']';
+      else return cn + ' [' + objs + ']';
+    }
+    if (cn == 'Object') {
+      return formatObject(val, opts);
+    } else if (cn == 'Array') {
+      return formatArray(val, opts);
+    } else if (typedArrays.indexOf(cn) > -1) {
+      return cn + ' ' + formatArray(val, opts);
+    } else if (boxedPrimitives.indexOf(cn) > -1) {
+      let ov = '[' + cn + ': ' + inspect(val.valueOf()) + ']', keys;
+      if (opts.showHidden) {
+        keys = Reflect.ownKeys(val);
+      } else {
+        keys = Object.keys(val);
       }
+      if (keys.length == 0) {
+        return ov;
+      } else {
+        let rs = formatObject(val, opts, keys, ov);
+        return rs;
+      }
+    } else if (val instanceof Error) {
+      return val.stack;
+    } else if (cn == 'WeakMap' || cn == 'WeakSet') {
+      return cn + '{ [items unknown] }';
+    } else if (cn == 'Map') {
+      return cn + ' ' + formatMap(val, opts);
+    } else if (cn == 'Set') {
+      return cn + ' ' + formatSet(val, opts);
+    } else if (cn == 'Date') {
+      return val.toISOString();
+    } else if (cn == objs || objs == 'Object') {
+      return cn + ' ' + formatObject(val, opts);
     } else {
-      str = ctx.stylize('[Circular]', 'special');
+      return cn + ' [' + objs + '] ' + formatObject(val, opts);
     }
   }
-  if (isUndefined(name)) {
-    if (array && key.match(/^\d+$/)) return str;
-    name = JSON.stringify('' + key);
-    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
-      name = name.substr(1, name.length - 2);
-      name = ctx.stylize(name, 'name');
-    } else {
-      name = name.replace(/'/g, "\\'").replace(/\\"/g, '"').replace(/(^"|"$)/g, "'");
-      name = ctx.stylize(name, 'string');
-    }
-  }
-  return name + ': ' + str;
 }
-function formatPrimitive(ctx, value) {
-  if (isUndefined(value)) return ctx.stylize('undefined', 'undefined');
-  if (isString(value)) {
-    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '').replace(/'/g, "\\'").replace(/\\"/g, '"') + '\'';
-    return ctx.stylize(simple, 'string');
-  }
-  if (isNumber(value)) return ctx.stylize('' + value, 'number');
-  if (isBoolean(value)) return ctx.stylize('' + value, 'boolean');
-  // For some reason typeof null is "object", so special case here.
-  if (isNull(value)) return ctx.stylize('null', 'null');
-}
-function reduceToSingleString(output, base, braces) {
-  var numLinesEst = 0;
-  var length = output.reduce(function(prev, cur) {
-    numLinesEst++;
-    if (cur.indexOf('\n') >= 0) numLinesEst++;
-    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
-  }, 0);
-  if (length > 60) {
-    return braces[0] + (base === '' ? '' : base + '\n ') + ' ' + output.join(',\n  ') + ' ' + braces[1];
-  }
-  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
-}
-function _extend(origin, add) {
-  // Don't do anything if add isn't an object
-  if (!add || !isObject(add)) return origin;
-  var keys = Object.keys(add);
-  var i = keys.length;
-  while (i--) origin[keys[i]] = add[keys[i]];
-  return origin;
-}
-})(inspecto);
-inspect = inspecto.exports;
+inspect.custom = Symbol('util.inspect.custom');

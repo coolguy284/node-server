@@ -1,3 +1,11 @@
+function ExpUndefined() {
+  this.type = 'undefined';
+  this.val = undefined;
+}
+function ExpNull() {
+  this.type = 'null';
+  this.val = null;
+}
 function ExpBool(val) {
   this.type = 'bool';
   this.val = Boolean(val);
@@ -12,7 +20,7 @@ function ExpBigInt(val) {
 }
 function ExpString(val) {
   this.type = 'string';
-  this.val = val;
+  this.val = String(val);
 }
 function ExpVariable(val) {
   this.type = 'variable';
@@ -20,19 +28,21 @@ function ExpVariable(val) {
 }
 function ExpMatrix(val) {
   this.type = 'mat';
-  var ylen = val.val.length;
-  var xlen = val.val[0].val.length;
+  let ylen = val.val.length;
+  let xlen = val.val[0].val.length;
   this.val = [];
-  for (var y = 0; y < ylen; y++) {
-    var ta = [];
-    for (var x = 0; x < xlen; x++) {
-      ta.push(val.val[y].val[x]);
-    }
+  for (let y = 0; y < ylen; y++) {
+    let ta = [];
+    for (let x = 0; x < xlen; x++) ta.push(val.val[y].val[x]);
     this.val.push(ta);
   }
 }
 function ExpArray(val) {
   this.type = 'array';
+  this.val = val;
+}
+function ExpObject(val) {
+  this.type = 'object';
   this.val = val;
 }
 function ExpOperator(val) {
@@ -46,5 +56,9 @@ function ExpFuncCall(nam, val) {
 }
 function ExpFunc(val) {
   this.type = 'func';
+  this.val = val;
+}
+function ExpJSObj(val) {
+  this.type = 'jsobj';
   this.val = val;
 }
