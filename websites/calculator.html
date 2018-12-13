@@ -5,38 +5,59 @@
   </head>
   <body>
     <div id = 'calcres' style = 'width:100%;height:400px;overflow:auto;font-family:monospace;white-space:pre;'></div>
-    <input type = 'text' id = 'cinp' style = 'width:calc(100% - 60px);height:40px;font-size:36px;font-family:monospace;'>
-    <button onclick = 'SettingsTogg()' style = 'position:relative;top:10px;padding:0;margin:0;'><img src = 'images/settings.png' style = 'width:40px;height:40px;'></button><br>
+    <input type = 'text' id = 'cinp' style = 'width:calc(100% - 110px);height:40px;font-size:36px;font-family:monospace;'>
+    <button onclick = 'HelpTogg()' style = 'position:relative;top:10px;padding:0;margin:0;'><img src = '../images/help.png' style = 'width:40px;height:40px;'></button>
+    <button onclick = 'SettingsTogg()' style = 'position:relative;top:10px;padding:0;margin:0;'><img src = '../images/settings.png' style = 'width:40px;height:40px;'></button><br>
     <select id = 'ccul' style = 'display:none;float:right;'>
       <option value = 'cal'>Calculate</option>
       <option value = 'cat'>Catculate</option>
     </select>
+    <div id = 'helpdiv' style = 'display:none;word-break:break-word;'>
+      <button onclick = 'helpdiv.style = "display:none;";' style = 'position:absolute;right:20px;top:5px;margin:0;padding:0;'><img src = '../images/close.png' style = 'width:40px;height:40px;'></button>
+      This is a calculator that has support for advanced operations such as bitwise operations and expression and function evaluation. It is used like you would expect, just type in numbers and operations like you would on paper, then press enter.<br>
+      The supported operators are +, -, * (multiply), / (divide), % (remainder), ^ or ** (exponentiation), &gt;, &lt;, &gt;=, &lt;=, ==, != (equality and inequality operators)<br>
+      There is support for all trigonometric functions, and conversion between degrees and radians.<br>
+      To evaluate regular javascript, put a ":" before text.
+    </div>
     <div id = 'settins' style = 'display:none;'>
-      <button onclick = 'settins.style = "display:none;";' style = 'position:absolute;right:20px;top:5px;margin:0;padding:0;'><img src = 'images/close.png' style = 'width:40px;height:40px;'></button>
-      <table style = 'border:1px solid black;'>
+      <button onclick = 'settins.style = "display:none;";' style = 'position:absolute;right:20px;top:5px;margin:0;padding:0;'><img src = '../images/close.png' style = 'width:40px;height:40px;'></button>
+      <table style = 'border:1px solid black;float:left;'>
         <tr style = 'border:1px solid black;'>
           <td style = 'border:1px solid black;width:150px;text-align:center;'>
-            <span>Allow Complex Catculations:</span><br>
+            <span>Large Operation Protection:</span><br>
             <span>Off</span>
-            <input id = 'allcom' type = 'range' min = 0 max = 1 value = 0 onchange = 'AllComp(allcom.value);' style = 'width:30px;'>
-            <span>On</span>
-          </td>
-          <td style = 'border:1px solid black;width:150px;text-align:center;'>
-            <span>Enable Enhanced Calculating Experience:</span><br>
-            <span>Off</span>
-            <input id = 'enenh' type = 'range' min = 0 max = 1 value = 0 style = 'width:30px;'>
-            <span>On</span>
-          </td>
-        </tr>
-        <tr style = 'border:1px solid black;'>
-          <td style = 'border:1px solid black;width:150px;text-align:center;' colspan = 2>
-            <span>Enable Settings Menu:</span><br>
-            <span>Off</span>
-            <input id = 'ensett' type = 'range' min = 0 max = 1 value = 1 onchange = 'ShowSett(showsett.value);' style = 'width:30px;'>
+            <input id = 'lrexp' type = 'range' min = 0 max = 1 value = 1 onchange = 'LrExp(lrexp.value);' style = 'width:30px;'>
             <span>On</span>
           </td>
         </tr>
       </table>
+      <details style = 'float:left;width:400px;margin:10px;'>
+        <summary>Special Settings</summary>
+        <table style = 'border:1px solid black;float:left;'>
+          <tr style = 'border:1px solid black;'>
+            <td style = 'border:1px solid black;width:150px;text-align:center;'>
+              <span>Allow Complex Catculations:</span><br>
+              <span>Off</span>
+              <input id = 'allcom' type = 'range' min = 0 max = 1 value = 0 onchange = 'AllComp(allcom.value);' style = 'width:30px;'>
+              <span>On</span>
+            </td>
+            <td style = 'border:1px solid black;width:150px;text-align:center;'>
+              <span>Enable Enhanced Calculating Experience:</span><br>
+              <span>Off</span>
+              <input id = 'enenh' type = 'range' min = 0 max = 1 value = 0 style = 'width:30px;'>
+              <span>On</span>
+            </td>
+          </tr>
+          <tr style = 'border:1px solid black;'>
+            <td style = 'border:1px solid black;width:150px;text-align:center;' colspan = 2>
+              <span>Enable Settings Menu:</span><br>
+              <span>Off</span>
+              <input id = 'ensett' type = 'range' min = 0 max = 1 value = 1 onchange = 'ShowSett(ensett.value);' style = 'width:30px;'>
+              <span>On</span>
+            </td>
+          </tr>
+        </table>
+      </details>
     </div>
     <script>
       let defaultOptions = {
@@ -261,32 +282,31 @@
         }
       }
       inspect.custom = Symbol('util.inspect.custom');
-      var OPS = '!~+-*/%^|&#><=';
-      var OPSA = {'!':'=',
-              '~':'=',
-              '+':'=',
-              '-':'=',
-              '*':'*=',
-              '/':'=',
-              '%':'=',
-              '**' : '=',
-              '^^' : '=',
-              '^':'^=',
-              '|':'|=',
-              '&':'&=',
-              '#':'=',
-              '>':'=',
-              '<':'=',
-              '=':'='};
+      var PARR = {p: ')', a: ']', o: '}'};
+      var OPS = '.!~+-*/%^|&#><=';
+      var OPSA = {'!':'=', '~':'=',
+              '+':'=', '-':'=',
+              '*':'*=', '/':'=', '%':'=',
+              '**' : '=', '^^' : '=', '^':'^=',
+              '|':'|=', '&':'&=', '#':'=',
+              '>>': '=', '<<': '=',
+              '>':'>=', '<':'<=', '=':'='};
       var OPSKW = ['typeof', 'void', 'del', 'delete'];
-      var OPSNV = ['=', 'del', 'delete'];
+      var OPSNVF = ['=', '+=', '-=', '*=', '/=', '%=', '**=', '^=', '>>=', '<<=', '|=', '&=', '#='];
+      var OPSNVB = ['del', 'delete'];
       var NUM = '0123456789.';
       var NUMA = '0123456789.e';
       var STR = '\'"';
       var VAR = '0123456789!~+-*/%^|&#><=()[]{}\\/,@;:\'"` \n\r\t';
       var VARN = '0123456789n!~+-*/%^|&#><=()[]{}\\/,@;:\'"` \n\r\t';
-      var NONUNARY = ['undefined', 'null', 'bool', 'num', 'bigint', 'string'];
-      var BIGLIMIT = 1000;
+      var NONUNARY = ['undefined', 'null', 'bool', 'number', 'bigint', 'string', 'array', 'object'];
+      var BIGLIMIT = {digit: 1000, strlen: 100000};
+      var VARRESCLS = function (arr, i) {
+        return !(arr[i - 1] && arr[i - 1].type == 'op' && arr[i - 1].val == '.') && ((arr[i + 1] && arr[i + 1].type == 'op' && arr[i + 1].val == '.') || (!(arr[i - 1] && arr[i - 1].type == 'op' && OPSNVB.indexOf(arr[i - 1].val) > -1) && !(arr[i + 1] && arr[i + 1].type == 'op' && OPSNVF.indexOf(arr[i + 1].val) > -1)));
+      };
+      var PROPACCCLS = function (arr, i) {
+        return (arr[i + 1] && arr[i + 1].type == 'op' && arr[i + 1].val == '.') && (!((arr[i - 1] && arr[i - 1].type == 'op' && OPSNVB.indexOf(arr[i - 1].val) > -1) || (arr[i + 3] && arr[i + 3].type == 'op' && OPSNVF.indexOf(arr[i + 3].val) > -1)) || (arr[i + 3] && arr[i + 3].type == 'op' && arr[i + 3].val == '.'));
+      };
       function ExpUndefined() {
         this.type = 'undefined';
         this.val = undefined;
@@ -300,7 +320,7 @@
         this.val = Boolean(val);
       }
       function ExpNumber(val) {
-        this.type = 'num';
+        this.type = 'number';
         this.val = Number(val);
       }
       function ExpBigInt(val) {
@@ -338,9 +358,8 @@
         this.type = 'op';
         this.val = val;
       }
-      function ExpFuncCall(nam, val) {
+      function ExpFuncCall(val) {
         this.type = 'funccall';
-        this.nam = nam;
         this.val = val;
       }
       function ExpFunc(val) {
@@ -351,6 +370,10 @@
         this.type = 'jsobj';
         this.val = val;
       }
+      function ExpPropAcc(val1, val2) {
+        var rv = val1.val[val2.val];;
+        return rv === undefined ? CL_UNDEFINED : rv;
+      }
       function ExpTypeof(val) {
         return new ExpString(val.type);
       }
@@ -358,57 +381,48 @@
         return new ExpBool(!val.val);
       }
       function ExpBitwiseNot(val) {
-        if (val.type == 'num') {
-          return new ExpNumber(~val.val);
-        } else if (val.type == 'bigint') {
-          return new ExpBigInt(~val.val);
-        } else {
-          throw new Error('bad operand type(s) for unary ~: \'' + val.type + '\'');
-        }
+        if (val.type == 'number') return new ExpNumber(~val.val);
+        else if (val.type == 'bigint') return new ExpBigInt(~val.val);
+        else throw new Error('bad operand type(s) for unary ~: \'' + val.type + '\'');
       }
       function ExpUnaryPlus(val) {
-        if (val.type == 'num' || val.type == 'string') {
-          return new ExpNumber(+val.val);
-        } else if (val.type == 'bigint') {
-          return new ExpBigInt(+val.val);
-        } else {
-          throw new Error('bad operand type(s) for unary +: \'' + val.type + '\'');
-        }
+        if (val.type == 'number' || val.type == 'string') return new ExpNumber(+val.val);
+        else if (val.type == 'bigint') return new ExpBigInt(+val.val);
+        else throw new Error('bad operand type(s) for unary +: \'' + val.type + '\'');
       }
       function ExpUnaryMinus(val) {
-        if (val.type == 'num' || val.type == 'string') {
-          return new ExpNumber(-val.val);
-        } else if (val.type == 'bigint') {
-          return new ExpBigInt(-val.val);
-        } else {
-          throw new Error('bad operand type(s) for unary -: \'' + val.type + '\'');
-        }
+        if (val.type == 'number' || val.type == 'string') return new ExpNumber(-val.val);
+        else if (val.type == 'bigint') return new ExpBigInt(-val.val);
+        else throw new Error('bad operand type(s) for unary -: \'' + val.type + '\'');
       }
       function ExpExponentiate(val1, val2) {
-        if (val1.toString().length * Number(val2.val) > BIGLIMIT) throw new Error('large exponentation attempted, to disable warning turn off in settings.');
-        if (val1.type == 'num' && val2.type == 'num') {
+        if (val1.type == 'number' && val2.type == 'number') {
           return new ExpNumber(val1.val ** val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
+          if (val1.val.toString().length * Number(val2.val) > BIGLIMIT.digit) throw new Error('large exponentation attempted, to disable warning turn off in settings.');
           return new ExpBigInt(val1.val ** val2.val);
         } else {
           throw new Error('unsupported operand type(s) for **: \'' + val1.type + '\' and \'' + val2.type + '\'');
         }
       }
       function ExpMultiply(val1, val2) {
-        if (val1.type == 'num' && val2.type == 'num') {
+        if (val1.type == 'number' && val2.type == 'number') {
           return new ExpNumber(val1.val * val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
+          if (val1.val.toString().length + val2.val.toString().length > BIGLIMIT.digit) throw new Error('large multiplication attempted, to disable warning turn off in settings.');
           return new ExpBigInt(val1.val * val2.val);
-        } else if (val1.type == 'string' && val2.type == 'num') {
+        } else if (val1.type == 'string' && val2.type == 'number') {
+          if (val1.val.length * val2.val > BIGLIMIT.strlen) throw new Error('large string repeat attempted, to disable warning turn off in settings.');
           return new ExpString(val1.val.repeat(val2.val));
-        } else if (val1.type == 'num' && val2.type == 'string') {
+        } else if (val1.type == 'number' && val2.type == 'string') {
+          if (val2.val.length * val1.val > BIGLIMIT.strlen) throw new Error('large string repeat attempted, to disable warning turn off in settings.');
           return new ExpString(val2.val.repeat(val1.val));
         } else {
           throw new Error('unsupported operand type(s) for *: \'' + val1.type + '\' and \'' + val2.type + '\'');
         }
       }
       function ExpDivide(val1, val2) {
-        if (val1.type == 'num' && val2.type == 'num') {
+        if (val1.type == 'number' && val2.type == 'number') {
           return new ExpNumber(val1.val / val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
           return new ExpBigInt(val1.val / val2.val);
@@ -417,7 +431,7 @@
         }
       }
       function ExpRemainder(val1, val2) {
-        if (val1.type == 'num' && val2.type == 'num') {
+        if (val1.type == 'number' && val2.type == 'number') {
           return new ExpNumber(val1.val % val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
           return new ExpBigInt(val1.val % val2.val);
@@ -426,7 +440,7 @@
         }
       }
       function ExpAdd(val1, val2) {
-        if (val1.type == 'num' && val2.type == 'num') {
+        if (val1.type == 'number' && val2.type == 'number') {
           return new ExpNumber(val1.val + val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
           return new ExpBigInt(val1.val + val2.val);
@@ -437,7 +451,7 @@
         }
       }
       function ExpSubtract(val1, val2) {
-        if (val1.type == 'num' && val2.type == 'num') {
+        if (val1.type == 'number' && val2.type == 'number') {
           return new ExpNumber(val1.val - val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
           return new ExpBigInt(val1.val - val2.val);
@@ -464,7 +478,7 @@
         return new ExpBool(val1.val != val2.val);
       }
       function ExpBitwiseAnd(val1, val2) {
-        if (val1.type == 'num' && val2.type == 'num') {
+        if (val1.type == 'number' && val2.type == 'number') {
           return new ExpNumber(val1.val & val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
           return new ExpBigInt(val1.val & val2.val);
@@ -473,7 +487,7 @@
         }
       }
       function ExpBitwiseXor(val1, val2) {
-        if (val1.type == 'num' && val2.type == 'num') {
+        if (val1.type == 'number' && val2.type == 'number') {
           return new ExpNumber(val1.val ^ val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
           return new ExpBigInt(val1.val ^ val2.val);
@@ -482,7 +496,7 @@
         }
       }
       function ExpBitwiseOr(val1, val2) {
-        if (val1.type == 'num' && val2.type == 'num') {
+        if (val1.type == 'number' && val2.type == 'number') {
           return new ExpNumber(val1.val | val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
           return new ExpBigInt(val1.val | val2.val);
@@ -498,41 +512,24 @@
       }
       function FuncCall(nam, val) {
         nam = nam[0].val;
-        if (nam == 'mat') {
-          return new ExpMatrix(val);
-        } else {
-          return new ExpFuncCall(nam, val);
-        }
+        if (nam == 'mat') return new ExpMatrix(val);
+        else return new ExpFuncCall(val);
       }
-      function FuncCallProp(nam, val) {
-        if (varns[nam]) {
-          if (varns[nam].type = 'func') {
-            return varns[nam].val(val);
-          } else {
-            throw new Error('variable ' + inspect(nam) + ' not function');
-          }
-        } else {
-          throw new Error('nonexistent function');
-        }
+      function FuncCallProp(func, val, globals, locals) {
+        if (func.type != 'func') throw new Error('variable not a function');
+        return func.val(val, globals, locals);
       }
       function Mod1(x) {
-        if (x >= 0) {
-          return x % 1;
-        } else {
-          return (1 - (-x % 1)) % 1;
-        }
+        if (x >= 0) return x % 1;
+        else return (1 - (-x % 1)) % 1;
       }
       function pow(b, x) {
         return Math.pow(b, x);
       }
       function log(v, b) {
-        if (b == 2) {
-          return Math.log2(v);
-        } else if (b == 10) {
-          return Math.log10(v);
-        } else if (b === undefined) {
-          return Math.log(v);
-        }
+        if (b == 2) return Math.log2(v);
+        else if (b == 10) return Math.log10(v);
+        else if (b === undefined) return Math.log(v);
         return Math.log(v) / Math.log(b);
       }
       function tet(b, x) {
@@ -540,9 +537,7 @@
         if (x < -1) {
           val = tet(b, Mod1(x)-1);
           while (x <= -1) {
-            if (isNaN(val)) {
-              break;
-            }
+            if (isNaN(val)) break;
             val = log(val, b);
             x++;
           }
@@ -555,9 +550,7 @@
         } else if (x > 0) {
           val = tet(b, Mod1(x)-1);
           while (x >= 0) {
-            if (val == Infinity) {
-              break;
-            }
+            if (val == Infinity) break;
             val = pow(b, val);
             x--;
           }
@@ -580,9 +573,7 @@
           } else {
             break;
           }
-          if (!--ct) {
-            break;
-          }
+          if (!--ct) break;
         }
         return xv;
       }
@@ -610,24 +601,15 @@
       }
       function wpn(b, x) {
         let val = b;
-        for (let i = 0; i < x - 1; i++) {
-          val = tet(val, b);
-        }
+        for (let i = 0; i < x - 1; i++) val = tet(val, b);
         return val;
       }
       function g(a, b, c) {
-        if (a > 3) {
-          return g(a-1,g(a-1,b,c),c);
-        }
-        if (a == 0) {
-          return c + b;
-        } else if (a == 1) {
-          return c * b;
-        } else if (a == 2) {
-          return pow(c, b);
-        } else if (a == 3) {
-          return tet(c, b);
-        }
+        if (a > 3) return g(a-1,g(a-1,b,c),c);
+        if (a == 0) return c + b;
+        else if (a == 1) return c * b;
+        else if (a == 2) return pow(c, b);
+        else if (a == 3) return tet(c, b);
       }
       function gamma(n) {
         let g = 7,
@@ -637,12 +619,18 @@
         } else {
           n--;
           let x = p[0];
-          for (let i = 1; i < g + 2; i++) {
-            x += p[i] / (n + i);
-          }
+          for (let i = 1; i < g + 2; i++) x += p[i] / (n + i);
           let t = n + g + 0.5;
           return Math.sqrt(2 * Math.PI) * Math.pow(t, (n + 0.5)) * Math.exp(-t) * x;
         }
+      }
+      function randBigInt32() {
+        return BigInt(Math.floor(Math.random() * 4294967296));
+      }
+      function gaussianBoxMuller() {
+        let u = Math.random();
+        let v = Math.random();
+        return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
       }
       var CL_UNDEFINED = new ExpUndefined();
       var CL_NULL = new ExpNull();
@@ -658,6 +646,8 @@
         phi: new ExpNumber((1 + 5 ** 0.5) / 2),
         sqrt2: new ExpNumber(Math.SQRT2),
         sqrt1_2: new ExpNumber(Math.SQRT1_2),
+        ln2: new ExpNumber(Math.LN2),
+        ln10: new ExpNumber(Math.LN10),
         Boolean: new ExpFunc(function (args) {
           return new ExpBool(args[0].val);
         }),
@@ -679,164 +669,220 @@
             return new ExpArray(args);
           }
         }),
+        Object: new ExpFunc(function (args) {
+          if (args.length == 0) return new ExpObject({});
+        }),
         Matrix: new ExpFunc(function (args) {
           return new ExpMatrix(args[0]);
         }),
-        eval: new ExpFunc(function (args) {
+        globals: new ExpFunc(function (args, globals, locals) {
+          return new ExpObject(globals);
+        }),
+        locals: new ExpFunc(function (args, globals, locals) {
+          return new ExpObject(locals);
+        }),
+        compileExpr: new ExpFunc(function (args) {
+          if (args[0].type == 'string') return new ExpJSObj(ToExpArr(args[0].val));
+        }),
+        evalExpr: new ExpFunc(function (args) {
           if (args[0].type == 'string') {
             return ParseExpArr(ToExpArr(args[0].val), (args[1] && args[1].val) || varns, (args[2] && args[2].val) || varns)[0][0];
+          } else if (args[0].type == 'jsobj') {
+            return ParseExpArr(args[0].val, (args[1] && args[1].val) || varns, (args[2] && args[2].val) || varns)[0][0];
           }
+        }),
+        compile: new ExpFunc(function (args) {
+          if (args[0].type == 'string') return new ExpJSObj(ToStmtArr(args[0].val));
+        }),
+        eval: new ExpFunc(function (args) {
+          if (args[0].type == 'string') {
+            return ParseStmtArr(ToStmtArr(args[0].val), (args[1] && args[1].val) || varns, (args[2] && args[2].val) || varns)[0][0];
+          } else if (args[0].type == 'jsobj') {
+            return ParseStmtArr(args[0].val, (args[1] && args[1].val) || varns, (args[2] && args[2].val) || varns)[0][0];
+          }
+        }),
+        repr: new ExpFunc(function (args) {
+          return new ExpString(ObjToText(args[0]));
+        }),
+        print: new ExpFunc(function (args) {
+          if (args[0].type == 'string') calcarr.push(args[0].val);
+          else calcarr.push(ObjToText(args[0]));
+          CalcArrRefresh();
+          return CL_UNDEFINED;
         }),
         sign: new ExpFunc(function (args) {
-          if (args[0].val > 0) {
-            return 1;
-          } else if (args[0].val < 0) {
-            return -1;
-          } else if (args[0].val == 0) {
-            return 0;
-          } else {
-            return NaN;
-          }
+          if (args[0].val > 0) return 1;
+          else if (args[0].val < 0) return -1;
+          else if (args[0].val == 0) return 0;
+          else return NaN;
         }),
         abs: new ExpFunc(function (args) {
-          if (args[0].val < 0) {
-            args[0].val = -args[0].val;
-          }
-          if (args[0].type == 'num') {
-            return new ExpNumber(args[0].val);
-          } else if (args[0].type == 'bigint') {
-            return new ExpBigInt(args[0].val);
-          }
+          if (args[0].val < 0) args[0].val = -args[0].val;
+          if (args[0].type == 'number') return new ExpNumber(args[0].val);
+          else if (args[0].type == 'bigint') return new ExpBigInt(args[0].val);
         }),
         max: new ExpFunc(function (args) {
-          console.log(args);
           let mv = -Infinity;
-          for (let i in args) {
-            if (args[i].val > mv) {
-              mv = args[i].val;
-            }
-          }
-          if (typeof mv == 'number') {
-            return new ExpNumber(mv);
-          } else if (typeof mv == 'bigint') {
-            return new ExpBigInt(mv);
-          }
+          for (let i in args) if (args[i].val > mv) mv = args[i].val;
+          if (typeof mv == 'number') return new ExpNumber(mv);
+          else if (typeof mv == 'bigint') return new ExpBigInt(mv);
         }),
         min: new ExpFunc(function (args) {
           let mv = Infinity;
-          for (let i in args) {
-            if (args[i].val < mv) {
-              mv = args[i].val;
-            }
-          }
-          if (typeof mv == 'number') {
-            return new ExpNumber(mv);
-          } else if (typeof mv == 'bigint') {
-            return new ExpBigInt(mv);
-          }
+          for (let i in args) if (args[i].val < mv) mv = args[i].val;
+          if (typeof mv == 'number') return new ExpNumber(mv);
+          else if (typeof mv == 'bigint') return new ExpBigInt(mv);
         }),
         floor: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.floor(args[0].val));
-          } else if (args[0].type == 'bigint') {
-            return new ExpBigInt(args[0].val);
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.floor(args[0].val));
+          else if (args[0].type == 'bigint') return new ExpBigInt(args[0].val);
         }),
         ceil: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.ceil(args[0].val));
-          } else if (args[0].type == 'bigint') {
-            return new ExpBigInt(args[0].val);
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.ceil(args[0].val));
+          else if (args[0].type == 'bigint') return new ExpBigInt(args[0].val);
         }),
         round: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.round(args[0].val));
-          } else if (args[0].type == 'bigint') {
-            return new ExpBigInt(args[0].val);
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.round(args[0].val));
+          else if (args[0].type == 'bigint') return new ExpBigInt(args[0].val);
         }),
         trunc: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.trunc(args[0].val));
-          } else if (args[0].type == 'bigint') {
-            return new ExpBigInt(args[0].val);
+          if (args[0].type == 'number') return new ExpNumber(Math.trunc(args[0].val));
+          else if (args[0].type == 'bigint') return new ExpBigInt(args[0].val);
+        }),
+        lerp: new ExpFunc(function (args) {
+          let dif = ExpSubtract(args[1].val, args[0].val);
+          return ExpAdd(ExpMultiply(dif, args[2]), args[0]);
+        }),
+        map: new ExpFunc(function (args) {
+          let dif1 = ExpSubtract(args[2], args[1]);
+          let dif2 = ExpSubtract(args[4], args[3]);
+          return ExpAdd(ExpMultiply(ExpDivide(ExpSubtract(args[0], args[1]), dif1), dif2), args[3]);
+        }),
+        norm: new ExpFunc(function (args) {
+          let dif1 = ExpSubtract(args[2], args[1]);
+          return ExpDivide(ExpSubtract(args[0], args[1]), dif1);
+        }),
+        constrain: new ExpFunc(function (args) {
+          return varns.min.val([varns.max.val([args[0], args[1]]), args[2]])
+        }),
+        dist: new ExpFunc(function (args) {
+          let hl = args.length / 2;
+          let ap1 = args.slice(0, hl);
+          let ap2 = args.slice(h1, Infinity);
+          return new ExpNumber(Math.hypot.apply(ap1.map((x, i) => ap2[i].val - x.val)));
+        }),
+        random: new ExpFunc(function (args) {
+          if (args.length == 0) {
+            return new ExpNumber(Math.random());
+          } else if (args.length == 1) {
+            return new ExpNumber(Math.random() * args[0].val);
+          } else if (args.length == 2) {
+            let dif = args[1].val - args[0].val;
+            return new ExpNumber(Math.random() * dif + args[0].val);
           }
+        }),
+        randint: new ExpFunc(function (args) {
+          if (args.length == 0) {
+            return new ExpNumber(Math.round(Math.random()));
+          } else if (args.length == 1) {
+            return new ExpNumber(Math.floor(Math.random() * args[0].val));
+          } else if (args.length == 2) {
+            let dif = args[1].val - args[0].val;
+            return new ExpNumber(Math.floor(Math.random() * dif + args[0].val));
+          }
+        }),
+        randintn: new ExpFunc(function (args) {
+          if (args.length == 0) {
+            return new ExpBigInt(Math.round(Math.random()));
+          } else if (args.length == 1) {
+            if (args[0].val < 0) return varns.randintn.val([new ExpBigNum(-args[0].val)]);
+            if (args[0].val < BigInt(4294967296)) {
+              return ExpDivide(new ExpBigInt(randBigInt32()), ExpDivide(args[0], new ExpBigInt(4294967296)));
+            }
+          } else if (args.length == 2) {
+            let dif = args[1].val - args[0].val;
+            return ExpAdd(BigInt(dif), varns.randintn.val([new ExpBigInt(dif)]));
+          }
+        }),
+        randgauss: new ExpFunc(function (args) {
+          if (args.length == 0) return new ExpNumber(gaussianBoxMuller());
+          else if (args.length == 1) return new ExpNumber(gaussianBoxMuller() * args[0].val);
+          else if (args.length == 2) return new ExpNumber(gaussianBoxMuller() * args[0].val + args[1].val);
+        }),
+        sq: new ExpFunc(function (args) {
+          return ExpMultiply(args[0], args[0]);
         }),
         sqrt: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.sqrt(x));
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.sqrt(x));
         }),
         cbrt: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.cbrt(x));
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.cbrt(x));
         }),
         hypot: new ExpFunc(function (args) {
-          if (args.every(x => x.type == 'num')) {
-            return new ExpNumber(Math.hypot.apply(Math, args.map(x => x.val)));
-          }
+          if (args.every(x => x.type == 'number')) return new ExpNumber(Math.hypot.apply(Math, args.map(x => x.val)));
         }),
         exp: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.exp(args[0].val));
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.exp(args[0].val));
         }),
         log: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.log(args[0].val));
+          let val;
+          if (args[0].type == 'number') {
+            if (args[1]) {
+              if (args[1].val == 2) return Math.log2(args[0].val);
+              else if (args[1].val == 10) return Math.log10(args[0].val);
+              else val = Math.log(args[0].val);
+            } else val = Math.log(args[0].val);
+          } else if (args[0].type == 'bigint') {
+            if (args[1]) {
+              if (args[1].val == 10) return varns.log10.val(args[0]).val;
+              else val = varns.log10.val(args[0]).val * varns.ln10.val;
+            } else val = varns.log10.val(args[0]).val * varns.ln10.val;
           }
+          if (args.length == 1) return val;
+          else return val / Math.log(args[1].val);
         }),
         log10: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
+          if (args[0].type == 'number') {
             return new ExpNumber(Math.log10(args[0].val));
           } else if (args[0].type == 'bigint') {
             let es = args[0].val.toString();
-            return new ExpNumber(Math.log10(Number(es.substr(0, 12))) - 11 + es.length);
+            let tv = Math.log10(Number(es.substr(0, 12)));
+            return new ExpNumber((tv - Math.floor(tv)) - 1 + es.length);
           }
         }),
         log2: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
+          if (args[0].type == 'number') {
             return new ExpNumber(Math.log2(args[0].val));
+          } else if (args[0].type == 'bigint') {
+            return new ExpNumber(varns.log10.val(args[0]).val * varns.ln10.val / varns.ln2.val);
           }
         }),
         pow: new ExpFunc(function (args) {
           return ExpExponentiate(args[0], args[1]);
         }),
         root: new ExpFunc(function (args) {
-          if (args[0].type == 'num' && args[1].type == 'num') {
+          if (args[0].type == 'number' && args[1].type == 'number') {
             return new ExpNumber(args[0].val ** (1 / args[1].val));
           } else if (args[0].type == 'bigint' && args[1].type == 'bigint') {
             return new ExpBigInt(args[0].val ** (1 / args[1].val));
           }
         }),
-        logn: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(log(args[0].val, args[1].val));
-          }
-        }),
         tet: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(tet(args[0].val, args[1].val));
-          }
+          if (args[0].type == 'number') return new ExpNumber(tet(args[0].val, args[1].val));
         }),
         sroot: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(sroot(args[0].val, args[1].val));
-          }
+          if (args[0].type == 'number') return new ExpNumber(sroot(args[0].val, args[1].val));
         }),
         slog: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(slog(args[0].val, args[1].val));
-          }
+          if (args[0].type == 'number') return new ExpNumber(slog(args[0].val, args[1].val));
         }),
         fact: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
+          if (args[0].type == 'number') {
             let fv = args[0].val;
             if (Number.isInteger(fv)) {
               if (fv >= 0) {
-                for (let bv = 1; fv > 0 && bv < Infinity; fv--) bv *= fv;
+                let bv = 1;
+                for (; fv > 0 && bv < Infinity; fv--) bv *= fv;
                 return new ExpNumber(bv);
               } else if (fv < 0) {
                 return new ExpNumber(NaN);
@@ -854,77 +900,52 @@
           }
         }),
         gamma: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(gamma(args[0].val));
-          }
+          if (args[0].type == 'number') return new ExpNumber(gamma(args[0].val));
+        }),
+        degrees: new ExpFunc(function (args) {
+          if (args[0].type == 'number') return new ExpNumber(args[0].val / Math.PI * 180);
+        }),
+        radians: new ExpFunc(function (args) {
+          if (args[0].type == 'number') return new ExpNumber(args[0].val / 180 * Math.PI);
         }),
         sin: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.sin(args[0].val));
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.sin(args[0].val));
         }),
         cos: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.cos(args[0].val));
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.cos(args[0].val));
         }),
         tan: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.tan(args[0].val));
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.tan(args[0].val));
         }),
         asin: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.asin(args[0].val));
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.asin(args[0].val));
         }),
         acos: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.acos(args[0].val));
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.acos(args[0].val));
         }),
         atan: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.atan(args[0].val));
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.atan(args[0].val));
         }),
         atan2: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.atan2(args[0].val, args[1].val));
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.atan2(args[0].val, args[1].val));
         }),
         sinh: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.sinh(args[0].val));
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.sinh(args[0].val));
         }),
         cosh: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.cosh(args[0].val));
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.cosh(args[0].val));
         }),
         tanh: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.tanh(args[0].val));
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.tanh(args[0].val));
         }),
         asinh: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.asinh(args[0].val));
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.asinh(args[0].val));
         }),
         acosh: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.acosh(args[0].val));
-          }
+          if (args[0].type == 'number') return new ExpNumber(Math.acosh(args[0].val));
         }),
         atanh: new ExpFunc(function (args) {
-          if (args[0].type == 'num') {
-            return new ExpNumber(Math.atanh(args[0].val));
-          }
-        }),
-        random: new ExpFunc(function (args) {
-          return new ExpNumber(Math.random());
+          if (args[0].type == 'number') return new ExpNumber(Math.atanh(args[0].val));
         }),
         tohexstr: new ExpFunc(function (args) {
           return new ExpString(args[0].val.toString(16));
@@ -987,7 +1008,9 @@
           }
           return new ExpBigInt(bi);
         }),
+        vn: new ExpObject({e: new ExpString('val')}),
       };
+      varns.vn.val.v = varns.vn;
       function ExpArrString(val, p) {
         if (p.bas[1] && p.bas[2] == 0) {
           if (val == '\\') {
@@ -1068,36 +1091,9 @@
           }
         }
       }
-      function ExpArrayComment(val, p) {
-        if (p.bac[0] == 0) {
-          if (val == '/') {
-            return p.ra;
-          } else if (val == '*') {
-            p.bac[0] = 1;
-          }
-        } else if (p.bac[0] == 1) {
-          if (val == '*') {
-            p.bac[0] = 2;
-          }
-        } else if (p.bac[0] == 2) {
-          if (val == '/') {
-            p.bt = '';
-          } else {
-            p.bac[0] = 1;
-          }
-        }
-      }
       function ToExpArr(val) {
         // 0123456789.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+-*/%^|&()[]
-        let p = {
-          ra: [],
-          bs: '',
-          ba: [],
-          bas: [],
-          bac: [],
-          bt: '',
-          pl: [],
-        };
+        let p = {ra: [], bs: '', objn: '', ba: [], bas: [], bt: '', pl: []};
         for (let i in val) {
           if (p.bt == '') {
             if (NUM.indexOf(val[i]) > -1) {
@@ -1127,12 +1123,13 @@
               p.ba = new ExpArray([]);
               p.bt = 'array';
               p.pl = ['a'];
+            } else if (val[i] == '{') {
+              p.ba = new ExpObject({});
+              p.bt = 'object';
+              p.pl = ['o'];
             } else if (VAR.indexOf(val[i]) < 0) {
               p.bs += val[i];
               p.bt = 'var';
-            } else if (val[i] == '/') {
-              p.bt = 'sm';
-              p.bac.push(0);
             }
           } else if (p.bt == 'number') {
             if (NUMA.indexOf(val[i]) > -1) {
@@ -1189,9 +1186,36 @@
               p.bs = '';
               p.bt = '';
             } else if (val[i] == '(') {
-              p.bt = 'funccall';
+              p.ra.push(new ExpVariable(p.bs));
               p.ba.push(p.bs);
               p.pl.push('p');
+              p.bs = '';
+              p.bt = 'funccall';
+            } else if (val[i] == '[') {
+              p.bt = 'propacc';
+              p.ra.push(new ExpVariable(p.bs));
+              p.ra.push(new ExpOperator('.'));
+              p.pl.push('a');
+              p.bs = '';
+            } else {
+              p.bs += val[i];
+            }
+          } else if (p.bt == 'vars') {
+            if (OPS.indexOf(val[i]) > -1) {
+              p.ra.push(new ExpOperator(val[i]));
+              p.bs = '';
+              p.bt = '';
+            } else if (val[i] == ' ') {
+              p.bs = '';
+              p.bt = '';
+            } else if (val[i] == '(') {
+              p.bt = 'funccall';
+              p.pl.push('p');
+              p.bs = '';
+            } else if (val[i] == '[') {
+              p.bt = 'propacc';
+              p.ra.push(new ExpOperator('.'));
+              p.pl.push('a');
               p.bs = '';
             } else {
               p.bs += val[i];
@@ -1201,11 +1225,18 @@
               if (val[i] == '(') {
                 p.pl.push('p');
               } else if (val[i] == ')') {
-                if (p.pl[p.pl.length - 1] == 'p') {
-                  p.pl.pop();
-                } else {
-                  throw new SyntaxError('parenthesis or bracket mismatch');
-                }
+                if (p.pl[p.pl.length - 1] == 'p') p.pl.pop();
+                else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
+              } else if (val[i] == '[') {
+                p.pl.push('a');
+              } else if (val[i] == ']') {
+                if (p.pl[p.pl.length - 1] == 'a') p.pl.pop();
+                else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
+              } else if (val[i] == '{') {
+                p.pl.push('o');
+              } else if (val[i] == '}') {
+                if (p.pl[p.pl.length - 1] == 'o') p.pl.pop();
+                else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
               } else if (val[i] == ',' && p.pl.length == 1) {
                 p.ba.push(p.bs);
                 p.bs = '';
@@ -1226,9 +1257,31 @@
             } else {
               let pobj = {ra:[],bs:'',bas:p.bas,bt:'string'};
               ExpArrString(val[i], pobj);
-              if (pobj.bt == '') {
-                p.pl.pop();
+              if (pobj.bt == '') p.pl.pop();
+              p.bs += val[i];
+            }
+          } else if (p.bt == 'propacc') {
+            if (p.pl[p.pl.length - 1] != 's') {
+              if (val[i] == '[') {
+                p.pl.push('a');
+              } else if (val[i] == ']') {
+                if (p.pl[p.pl.length - 1] == 'a') p.pl.pop();
+                else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
+              } else if (STR.indexOf(val[i]) > -1) {
+                p.pl.push('s');
+                p.bas.push(val[i], false, 0, '');
               }
+              if (p.pl.length == 0) {
+                p.ra.push(ToExpArr(p.bs));
+                p.bs = '';
+                p.bt = 'vars';
+              } else {
+                p.bs += val[i];
+              }
+            } else {
+              let pobj = {ra:[],bs:'',bas:p.bas,bt:'string'};
+              ExpArrString(val[i], pobj);
+              if (pobj.bt == '') p.pl.pop();
               p.bs += val[i];
             }
           } else if (p.bt == 'paren') {
@@ -1236,11 +1289,8 @@
               if (val[i] == '(') {
                 p.pl.push('p');
               } else if (val[i] == ')') {
-                if (p.pl[p.pl.length - 1] == 'p') {
-                  p.pl.pop();
-                } else {
-                  throw new SyntaxError('parenthesis or bracket mismatch');
-                }
+                if (p.pl[p.pl.length - 1] == 'p') p.pl.pop();
+                else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
               } else if (STR.indexOf(val[i]) > -1) {
                 p.pl.push('s');
                 p.bas.push(val[i], false, 0, '');
@@ -1255,9 +1305,7 @@
             } else {
               let pobj = {ra:[],bs:'',bas:p.bas,bt:'string'};
               ExpArrString(val[i], pobj);
-              if (pobj.bt == '') {
-                p.pl.pop();
-              }
+              if (pobj.bt == '') p.pl.pop();
               p.bs += val[i];
             }
           } else if (p.bt == 'array') {
@@ -1265,19 +1313,18 @@
               if (val[i] == '(') {
                 p.pl.push('p');
               } else if (val[i] == ')') {
-                if (p.pl[p.pl.length - 1] == 'p') {
-                  p.pl.pop();
-                } else {
-                  throw new SyntaxError('parenthesis or bracket mismatch');
-                }
+                if (p.pl[p.pl.length - 1] == 'p') p.pl.pop();
+                else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
               } else if (val[i] == '[') {
                 p.pl.push('a');
               } else if (val[i] == ']') {
-                if (p.pl[p.pl.length - 1] == 'a') {
-                  p.pl.pop();
-                } else {
-                  throw new SyntaxError('parenthesis or bracket mismatch');
-                }
+                if (p.pl[p.pl.length - 1] == 'a') p.pl.pop();
+                else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
+              } else if (val[i] == '{') {
+                p.pl.push('o');
+              } else if (val[i] == '}') {
+                if (p.pl[p.pl.length - 1] == 'o') p.pl.pop();
+                else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
               } else if (val[i] == ',' && p.pl.length == 1) {
                 p.ba.val.push(ToExpArr(p.bs));
                 p.bs = '';
@@ -1299,15 +1346,53 @@
             } else {
               let pobj = {ra:[],bs:'',bas:p.bas,bt:'string'};
               ExpArrString(val[i], pobj);
-              if (pobj.bt == '') {
-                p.pl.pop();
-              }
+              if (pobj.bt == '') p.pl.pop();
               p.bs += val[i];
             }
-          } else if (p.bt == 'sm') {
-            let v = ExpArrComment(val[i], p);
-            if (v !== undefined) {
-              return v;
+          } else if (p.bt == 'object') {
+            if (p.pl[p.pl.length - 1] != 's') {
+              if (val[i] == '(') {
+                p.pl.push('p');
+              } else if (val[i] == ')') {
+                if (p.pl[p.pl.length - 1] == 'p') p.pl.pop();
+                else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
+              } else if (val[i] == '[') {
+                p.pl.push('a');
+              } else if (val[i] == ']') {
+                if (p.pl[p.pl.length - 1] == 'a') p.pl.pop();
+                else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
+              } else if (val[i] == '{') {
+                p.pl.push('o');
+              } else if (val[i] == '}') {
+                if (p.pl[p.pl.length - 1] == 'o') p.pl.pop();
+                else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
+              } else if (val[i] == ':' && p.pl.length == 1) {
+                p.objn = ToExpArr(p.bs)[0].val;
+                p.bs = '';
+              } else if (val[i] == ',' && p.pl.length == 1) {
+                p.ba.val[p.objn] = ToExpArr(p.bs);
+                p.bs = '';
+                p.objn = '';
+              } else if (STR.indexOf(val[i]) > -1) {
+                p.pl.push('s');
+                p.bas.push(val[i], false, 0, '');
+              }
+              if (p.pl.length == 0) {
+                if (p.bs != '') {
+                  p.ba.val[p.objn] = ToExpArr(p.bs);
+                  p.bs = '';
+                }
+                p.ra.push(p.ba);
+                p.ba = [];
+                p.bt = '';
+              } else {
+                p.bs += val[i];
+              }
+            } else {
+              let pobj = {ra:[],bs:'',bas:p.bas,bt:'string'};
+              ExpArrString(val[i], pobj);
+              if (pobj.bt == '') p.pl.pop();
+              p.bs += val[i];
             }
           }
         }
@@ -1319,34 +1404,39 @@
           p.ra.push(new ExpVariable(p.bs));
           p.bs = '';
           p.bt = '';
-        } else if (p.bt == 'paren' || p.bt == 'funccall' || p.bt == 'string') {
-          throw new SyntaxError('parenthesis or bracket mismatch');
+        } else if (p.bt == 'paren' || p.bt == 'funccall' || p.bt == 'array' || p.bt == 'object' || p.bt == 'string') {
+          throw new SyntaxError('parenthesis, bracket, or object mismatch');
         }
         for (var i in p.ra) if (p.ra[i].type == 'variable' && OPSKW.indexOf(p.ra[i].val) > -1) p.ra[i] = new ExpOperator(p.ra[i].val);
         return p.ra;
       }
       function ParseExpArr(arr, globals, locals) {
         let exp = [], op = [], dov;
-        // parenthesis, function call, variable
+        // parenthesis
         for (let i = 0; i < arr.length; i++) {
-          if (Object.prototype.toString.call(arr[i]) == '[object Array]') {
-            arr[i] = ParseExpArr(arr[i], globals, locals)[0][0];
-          } else if (arr[i].type == 'funccall') {
-            let ar = arr[i].val;
-            for (let j in ar) ar[j] = ParseExpArr(ar[j], globals, locals)[0][0];
-            arr[i] = FuncCallProp(arr[i].nam, ar);
-          } else if (arr[i].type == 'array') {
-            for (let j in arr[i].val) arr[i].val[j] = ParseExpArr(arr[i].val[j], globals, locals)[0][0];
-          } else if (arr[i].type == 'variable' && !(
-            arr[i + 1] && arr[i + 1].type == 'op' && OPSNV.indexOf(arr[i + 1].val) > -1 || arr[i - 1] && arr[i - 1].type == 'op' && OPSNV.indexOf(arr[i - 1].val) > -1
-            )) {
+          if (Object.prototype.toString.call(arr[i]) == '[object Array]') arr[i] = ParseExpArr(arr[i], globals, locals)[0][0];
+        }
+        // function call, variable, property access
+        for (let i = 0; i < arr.length; i++) {
+          if (arr[i].type == 'variable' && VARRESCLS(arr, i)) {
             if (arr[i].val in locals) arr[i] = locals[arr[i].val];
             else if (arr[i].val in globals) arr[i] = globals[arr[i].val];
             else throw new Error('variable ' + arr[i].val + ' nonexistent');
+          } else if (arr[i].type == 'array') {
+            for (let j in arr[i].val) arr[i].val[j] = ParseExpArr(arr[i].val[j], globals, locals)[0][0];
+          } else if (arr[i].type == 'object') {
+            for (let j in arr[i].val) arr[i].val[j] = ParseExpArr(arr[i].val[j], globals, locals)[0][0];
+          }
+          while (PROPACCCLS(arr, i)) arr.splice(i, 3, ExpPropAcc(arr[i], arr[i + 2]));
+          if (arr[i + 1] && arr[i + 1].type == 'funccall') {
+            let ar = arr[i + 1].val;
+            for (let j in ar) ar[j] = ParseExpArr(ar[j], globals, locals)[0][0];
+            let fcres = FuncCallProp(arr[i], ar, globals, locals);
+            if (fcres === undefined) throw new Error('function returns undefined');
+            arr.splice(i, 2, fcres);
           }
         }
-        console.log(arr);
-        // logical not, bitwise not, unary plus, unary negation : right > left
+        // logical not, bitwise not, unary plus, unary negation, typeof, void, delete : right > left
         dov = true;
         while (dov) {
           let nb = false;
@@ -1361,16 +1451,12 @@
                 nb = true;
                 break;
               } else if (arr[i].val == '+') {
-                if (arr[i - 1] !== undefined)
-                if (NONUNARY.indexOf(arr[i - 1].type) > -1)
-                continue;
+                if (arr[i - 1] && NONUNARY.indexOf(arr[i - 1].type) > -1) continue;
                 arr.splice(i, 2, ExpUnaryPlus(arr[i + 1]));
                 nb = true;
                 break;
               } else if (arr[i].val == '-') {
-                if (arr[i - 1] !== undefined)
-                if (NONUNARY.indexOf(arr[i - 1].type) > -1)
-                continue;
+                if (arr[i - 1] && NONUNARY.indexOf(arr[i - 1].type) > -1) continue;
                 arr.splice(i, 2, ExpUnaryMinus(arr[i + 1]));
                 nb = true;
                 break;
@@ -1379,14 +1465,20 @@
               } else if (arr[i].val == 'void') {
                 arr.splice(i, 2, CL_UNDEFINED);
               } else if (arr[i].val == 'del' || arr[i].val == 'delete') {
-                let varn = arr[i + 1];
-                if (varn.type != 'variable') throw new Error('delete: unexpected token');
-                varn = varn.val;
-                if (varn in locals) {
-                  arr.splice(i, 2, new ExpBool(true));
-                  delete locals[varn];
+                if (arr[i + 2] && arr[i + 2].type == 'op' && arr[i + 2].val == '.') {
+                  let nam = arr[i + 3].val;
+                  delete arr[i + 1].val[nam];
+                  arr.splice(i, 4, new ExpBool(true));
                 } else {
-                  arr.splice(i, 2, new ExpBool(false));
+                  let varn = arr[i + 1];
+                  if (varn.type != 'variable') throw new Error('delete: unexpected token');
+                  varn = varn.val;
+                  if (varn in locals) {
+                    arr.splice(i, 2, new ExpBool(true));
+                    delete locals[varn];
+                  } else {
+                    arr.splice(i, 2, new ExpBool(false));
+                  }
                 }
               }
             }
@@ -1577,15 +1669,24 @@
         dov = true;
         while (dov) {
           let nb = false;
-          for (let i = 0; i < op.length; i++) {
+          for (let i = op.length - 1; i >= 0; i--) {
             if (op[i] == '=') {
-              if (exp[i].type != 'variable') throw new Error('invalid left-hand side in assignment');
-              let nam = exp[i].val, val = exp[i + 1];
-              locals[nam] = val;
-              exp.splice(i, 2, val);
-              op.splice(i, 1);
-              nb = true;
-              break;
+              if (op[i - 1] && op[i - 1] == '.') {
+                let nam = exp[i].val, val = exp[i + 1];
+                exp[i - 1].val[nam] = val;
+                exp.splice(i - 1, 3, val);
+                op.splice(i - 1, 2);
+                nb = true;
+                break;
+              } else {
+                if (exp[i].type != 'variable') throw new Error('invalid left-hand side in assignment');
+                let nam = exp[i].val, val = exp[i + 1];
+                locals[nam] = val;
+                exp.splice(i, 2, val);
+                op.splice(i, 1);
+                nb = true;
+                break;
+              }
             }
           }
           dov = nb;
@@ -1593,8 +1694,78 @@
         if (exp.length == 0) exp.push(CL_UNDEFINED);
         return [exp, op];
       }
+      function ToStmtArr(val) {
+        let p = {ra: [], bs: '', exp: false, com: 0};
+        for (let i in val) {
+          if (p.exp == false) {
+            if (p.com == 0) {
+              if (val[i] == '\\') {
+                p.exp = true;
+              } else if (val[i] == '/') {
+                p.com == 1;
+              } else if (val[i] == '\n' || val[i] == '\r') {
+                p.ra.push(ToExpArr(p.bs));
+                p.bs = '';
+              } else {
+                p.bs += val[i];
+              }
+            } else if (p.com == 1) {
+              if (val[i] == '/') {
+                p.com = 2;
+                p.ra.push(ToExpArr(p.bs));
+                p.bs = '';
+              } else if (val[i] == '*') {
+                p.com = 3;
+              } else if (val[i] == '\n' || val[i] == '\r') {
+                p.com = 0;
+                p.bs += '/';
+                p.ra.push(ToExpArr(p.bs));
+                p.bs = '';
+              } else {
+                p.com = 0;
+                p.bs += '/';
+              }
+            } else if (p.com == 2) {
+              if (val[i] == '/n' || val[i] == '/r') {
+                p.com = 0;
+              }
+            } else if (p.com == 3) {
+              if (val[i] == '*') {
+                p.com = 4;
+              }
+            } else if (p.com == 4) {
+              if (val[i] == '/') {
+                p.com = 0;
+              } else {
+                p.com = 3;
+              }
+            }
+          } else {
+            if (val[i] != '\n' && val[i] != '\r') {
+              p.esc = false;
+            } else {
+              p.bs += val[i];
+              p.esc = false;
+            }
+          }
+        }
+        if (p.bs != '') p.ra.push(ToExpArr(p.bs));
+        return p.ra;
+      }
+      function ParseStmtArr(val, globals, locals) {
+        let rv;
+        for (let i in val) rv = ParseExpArr(val[i], globals, locals);
+        return rv;
+      }
       // jshint maxerr:1000 -W041 -W051 -W060 -W061
       var calcarr = [], cinphist = [], histind = 0, currtext = '';
+      function HelpTogg() {
+        if (helpdiv.style.cssText == 'display: none;') {
+          helpdiv.style = 'position:fixed;top:2px;width:100%;height:400px;background:white;';
+        } else {
+          helpdiv.style = 'display:none;';
+        }
+      };
       var SettingsTogg = function SettingsTogg() {
         if (settins.style.cssText == 'display: none;') {
           settins.style = 'position:fixed;top:2px;width:100%;height:400px;background:white;';
@@ -1604,9 +1775,11 @@
       };
       function LrExp(v) {
         if (parseInt(v) == 1) {
-          BIGLIMIT = 1000;
+          BIGLIMIT.digit = 1000;
+          BIGLIMIT.strlen = 1000;
         } else {
-          BIGLIMIT = Infinity;
+          BIGLIMIT.digit = Infinity;
+          BIGLIMIT.strlen = Infinity;
         }
       }
       function AllComp(v) {
@@ -1627,21 +1800,33 @@
           SettingsTogg = function () {};
         }
       }
-      function ObjToText(val) {
+      function ObjToText(val, va) {
+        if (va === undefined) va = [];
+        va = Array.from(va);
         if (val.type == 'undefined') {
           return 'undefined';
         } else if (val.type == 'null') {
           return 'null';
         } else if (val.type == 'bool') {
           return '' + val.val;
-        } else if (val.type == 'num') {
+        } else if (val.type == 'number') {
           return '' + val.val;
         } else if (val.type == 'bigint') {
           return '' + val.val + 'n';
         } else if (val.type == 'string') {
           return inspect(val.val);
         } else if (val.type == 'array') {
-          return '[ ' + val.val.map(x=>ObjToText(x)).join(', ') + ' ]';
+          if (va.indexOf(val) >= 0) return '[Circular]';
+          va.push(val);
+          if (val.val.length == 0) return '[]';
+          return '[ ' + val.val.map(x=>ObjToText(x, va)).join(', ') + ' ]';
+        } else if (val.type == 'object') {
+          if (va.indexOf(val) >= 0) return '[Circular]';
+          va.push(val);
+          let ka = Object.keys(val.val), ba = [];
+          if (ka.length == 0) return '{}';
+          for (let i in ka) ba.push(inspect(ka[i]) + ': ' + ObjToText(val.val[ka[i]], va));
+          return '{ ' + ba.join(', ') + ' }';
         } else if (val.type == 'jsobj') {
           return 'JSObj { ' + inspect(val.val) + ' }';
         } else {
@@ -1656,26 +1841,25 @@
         } catch (e) {
           rval = e.toString() + '\n' + e.stack;
         }
-        if (ccul.value == 'cat') {
-          rval += ' cats';
-        }
+        if (ccul.value == 'cat') rval += ' cats';
         if (rval !== undefined) rval = rval.replace(/\n/g, '<br>');
         if (parseInt(enenh.value) == 1) {
           document.write('<body style = "background:#e8e8ff;"><div style = "text-align:center;padding:40px;"><p style = "font-family:monospace;font-size:48px;">The answer is:</p><p style = "font-family:monospace;font-size:72px;">' + rval + '</p><p style = "font-family:monospace;font-size:48px;">Thank you for using my calculator!</p></div></body>');
         }
         return rval;
       }
+      function CalcArrRefresh() {
+        if (calcarr.length > 100) calcarr.splice(0, calcarr.length - 100);
+        calcres.innerHTML = calcarr.join('<br>');
+        calcres.scrollTop = calcres.scrollHeight;
+      }
       cinp.addEventListener('keydown', function (e) {
         if (e.keyCode == 13) {
           calcarr.push('>> ' + cinp.value);
           let pv = ParseText(cinp.value);
           if (pv !== undefined) calcarr.push('<- ' + pv);
-          if (calcarr.length > 100) calcarr.splice(0, calcarr.length - 100);
-          calcres.innerHTML = calcarr.join('<br>');
-          calcres.scrollTop = calcres.scrollHeight;
-          if (cinphist[cinphist.length-1] != cinp.value) {
-            cinphist.push(cinp.value);
-          }
+          CalcArrRefresh();
+          if (cinphist[cinphist.length-1] != cinp.value) cinphist.push(cinp.value);
           if (cinphist.length > 100) cinphist.splice(0, cinphist.length - 100);
           cinp.value = '';
           histind = cinphist.length;
@@ -1696,7 +1880,7 @@
             cinp.value = currtext;
           }
           setTimeout(function(){ cinp.selectionStart = cinp.selectionEnd = 10000; }, 0);
-          SetEnd(cinp);
+          //SetEnd(cinp);
         } else if (e.keyCode === 8) {
           histind = cinphist.length;
           setTimeout(function() {currtext = cinp.value;}, 0);

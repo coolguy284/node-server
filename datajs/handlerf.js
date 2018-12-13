@@ -9,8 +9,10 @@ module.exports = {
     res.write(Buffer.concat([fs.readFileSync('websites/calculator/operators.js'), v]));
     res.write(Buffer.concat([fs.readFileSync('websites/calculator/funccall.js'), v]));
     res.write(Buffer.concat([fs.readFileSync('websites/calculator/namespace.js'), v]));
-    res.write(Buffer.concat([fs.readFileSync('websites/calculator/convert.js'), v]));
-    res.write(Buffer.concat([fs.readFileSync('websites/calculator/parser.js'), v]));
+    res.write(Buffer.concat([fs.readFileSync('websites/calculator/exprconvert.js'), v]));
+    res.write(Buffer.concat([fs.readFileSync('websites/calculator/exprparser.js'), v]));
+    res.write(Buffer.concat([fs.readFileSync('websites/calculator/stmtconvert.js'), v]));
+    res.write(Buffer.concat([fs.readFileSync('websites/calculator/stmtparser.js'), v]));
     res.write(fs.readFileSync('websites/calculator/index.js'));
     res.end();
     return -1;
