@@ -11,7 +11,7 @@ function ExpBool(val) {
   this.val = Boolean(val);
 }
 function ExpNumber(val) {
-  this.type = 'num';
+  this.type = 'number';
   this.val = Number(val);
 }
 function ExpBigInt(val) {
@@ -49,9 +49,8 @@ function ExpOperator(val) {
   this.type = 'op';
   this.val = val;
 }
-function ExpFuncCall(nam, val) {
+function ExpFuncCall(val) {
   this.type = 'funccall';
-  this.nam = nam;
   this.val = val;
 }
 function ExpFunc(val) {

@@ -78,36 +78,9 @@ function ExpArrString(val, p) {
     }
   }
 }
-function ExpArrayComment(val, p) {
-  if (p.bac[0] == 0) {
-    if (val == '/') {
-      return p.ra;
-    } else if (val == '*') {
-      p.bac[0] = 1;
-    }
-  } else if (p.bac[0] == 1) {
-    if (val == '*') {
-      p.bac[0] = 2;
-    }
-  } else if (p.bac[0] == 2) {
-    if (val == '/') {
-      p.bt = '';
-    } else {
-      p.bac[0] = 1;
-    }
-  }
-}
 function ToExpArr(val) {
   // 0123456789.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+-*/%^|&()[]
-  let p = {
-    ra: [],
-    bs: '',
-    ba: [],
-    bas: [],
-    bac: [],
-    bt: '',
-    pl: [],
-  };
+  let p = {ra: [], bs: '', objn: '', ba: [], bas: [], bt: '', pl: []};
   for (let i in val) {
     if (p.bt == '') {
       if (NUM.indexOf(val[i]) > -1) {
@@ -137,12 +110,13 @@ function ToExpArr(val) {
         p.ba = new ExpArray([]);
         p.bt = 'array';
         p.pl = ['a'];
+      } else if (val[i] == '{') {
+        p.ba = new ExpObject({});
+        p.bt = 'object';
+        p.pl = ['o'];
       } else if (VAR.indexOf(val[i]) < 0) {
         p.bs += val[i];
         p.bt = 'var';
-      } else if (val[i] == '/') {
-        p.bt = 'sm';
-        p.bac.push(0);
       }
     } else if (p.bt == 'number') {
       if (NUMA.indexOf(val[i]) > -1) {
@@ -199,9 +173,36 @@ function ToExpArr(val) {
         p.bs = '';
         p.bt = '';
       } else if (val[i] == '(') {
-        p.bt = 'funccall';
+        p.ra.push(new ExpVariable(p.bs));
         p.ba.push(p.bs);
         p.pl.push('p');
+        p.bs = '';
+        p.bt = 'funccall';
+      } else if (val[i] == '[') {
+        p.bt = 'propacc';
+        p.ra.push(new ExpVariable(p.bs));
+        p.ra.push(new ExpOperator('.'));
+        p.pl.push('a');
+        p.bs = '';
+      } else {
+        p.bs += val[i];
+      }
+    } else if (p.bt == 'vars') {
+      if (OPS.indexOf(val[i]) > -1) {
+        p.ra.push(new ExpOperator(val[i]));
+        p.bs = '';
+        p.bt = '';
+      } else if (val[i] == ' ') {
+        p.bs = '';
+        p.bt = '';
+      } else if (val[i] == '(') {
+        p.bt = 'funccall';
+        p.pl.push('p');
+        p.bs = '';
+      } else if (val[i] == '[') {
+        p.bt = 'propacc';
+        p.ra.push(new ExpOperator('.'));
+        p.pl.push('a');
         p.bs = '';
       } else {
         p.bs += val[i];
@@ -211,11 +212,18 @@ function ToExpArr(val) {
         if (val[i] == '(') {
           p.pl.push('p');
         } else if (val[i] == ')') {
-          if (p.pl[p.pl.length - 1] == 'p') {
-            p.pl.pop();
-          } else {
-            throw new SyntaxError('parenthesis or bracket mismatch');
-          }
+          if (p.pl[p.pl.length - 1] == 'p') p.pl.pop();
+          else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
+        } else if (val[i] == '[') {
+          p.pl.push('a');
+        } else if (val[i] == ']') {
+          if (p.pl[p.pl.length - 1] == 'a') p.pl.pop();
+          else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
+        } else if (val[i] == '{') {
+          p.pl.push('o');
+        } else if (val[i] == '}') {
+          if (p.pl[p.pl.length - 1] == 'o') p.pl.pop();
+          else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
         } else if (val[i] == ',' && p.pl.length == 1) {
           p.ba.push(p.bs);
           p.bs = '';
@@ -236,9 +244,31 @@ function ToExpArr(val) {
       } else {
         let pobj = {ra:[],bs:'',bas:p.bas,bt:'string'};
         ExpArrString(val[i], pobj);
-        if (pobj.bt == '') {
-          p.pl.pop();
+        if (pobj.bt == '') p.pl.pop();
+        p.bs += val[i];
+      }
+    } else if (p.bt == 'propacc') {
+      if (p.pl[p.pl.length - 1] != 's') {
+        if (val[i] == '[') {
+          p.pl.push('a');
+        } else if (val[i] == ']') {
+          if (p.pl[p.pl.length - 1] == 'a') p.pl.pop();
+          else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
+        } else if (STR.indexOf(val[i]) > -1) {
+          p.pl.push('s');
+          p.bas.push(val[i], false, 0, '');
         }
+        if (p.pl.length == 0) {
+          p.ra.push(ToExpArr(p.bs));
+          p.bs = '';
+          p.bt = 'vars';
+        } else {
+          p.bs += val[i];
+        }
+      } else {
+        let pobj = {ra:[],bs:'',bas:p.bas,bt:'string'};
+        ExpArrString(val[i], pobj);
+        if (pobj.bt == '') p.pl.pop();
         p.bs += val[i];
       }
     } else if (p.bt == 'paren') {
@@ -246,11 +276,8 @@ function ToExpArr(val) {
         if (val[i] == '(') {
           p.pl.push('p');
         } else if (val[i] == ')') {
-          if (p.pl[p.pl.length - 1] == 'p') {
-            p.pl.pop();
-          } else {
-            throw new SyntaxError('parenthesis or bracket mismatch');
-          }
+          if (p.pl[p.pl.length - 1] == 'p') p.pl.pop();
+          else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
         } else if (STR.indexOf(val[i]) > -1) {
           p.pl.push('s');
           p.bas.push(val[i], false, 0, '');
@@ -265,9 +292,7 @@ function ToExpArr(val) {
       } else {
         let pobj = {ra:[],bs:'',bas:p.bas,bt:'string'};
         ExpArrString(val[i], pobj);
-        if (pobj.bt == '') {
-          p.pl.pop();
-        }
+        if (pobj.bt == '') p.pl.pop();
         p.bs += val[i];
       }
     } else if (p.bt == 'array') {
@@ -275,19 +300,18 @@ function ToExpArr(val) {
         if (val[i] == '(') {
           p.pl.push('p');
         } else if (val[i] == ')') {
-          if (p.pl[p.pl.length - 1] == 'p') {
-            p.pl.pop();
-          } else {
-            throw new SyntaxError('parenthesis or bracket mismatch');
-          }
+          if (p.pl[p.pl.length - 1] == 'p') p.pl.pop();
+          else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
         } else if (val[i] == '[') {
           p.pl.push('a');
         } else if (val[i] == ']') {
-          if (p.pl[p.pl.length - 1] == 'a') {
-            p.pl.pop();
-          } else {
-            throw new SyntaxError('parenthesis or bracket mismatch');
-          }
+          if (p.pl[p.pl.length - 1] == 'a') p.pl.pop();
+          else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
+        } else if (val[i] == '{') {
+          p.pl.push('o');
+        } else if (val[i] == '}') {
+          if (p.pl[p.pl.length - 1] == 'o') p.pl.pop();
+          else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
         } else if (val[i] == ',' && p.pl.length == 1) {
           p.ba.val.push(ToExpArr(p.bs));
           p.bs = '';
@@ -309,15 +333,53 @@ function ToExpArr(val) {
       } else {
         let pobj = {ra:[],bs:'',bas:p.bas,bt:'string'};
         ExpArrString(val[i], pobj);
-        if (pobj.bt == '') {
-          p.pl.pop();
-        }
+        if (pobj.bt == '') p.pl.pop();
         p.bs += val[i];
       }
-    } else if (p.bt == 'sm') {
-      let v = ExpArrComment(val[i], p);
-      if (v !== undefined) {
-        return v;
+    } else if (p.bt == 'object') {
+      if (p.pl[p.pl.length - 1] != 's') {
+        if (val[i] == '(') {
+          p.pl.push('p');
+        } else if (val[i] == ')') {
+          if (p.pl[p.pl.length - 1] == 'p') p.pl.pop();
+          else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
+        } else if (val[i] == '[') {
+          p.pl.push('a');
+        } else if (val[i] == ']') {
+          if (p.pl[p.pl.length - 1] == 'a') p.pl.pop();
+          else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
+        } else if (val[i] == '{') {
+          p.pl.push('o');
+        } else if (val[i] == '}') {
+          if (p.pl[p.pl.length - 1] == 'o') p.pl.pop();
+          else throw new SyntaxError('expected ' + PARR[p.pl[p.pl.length - 1]] + ' got ' + val[i]);
+        } else if (val[i] == ':' && p.pl.length == 1) {
+          p.objn = ToExpArr(p.bs)[0].val;
+          p.bs = '';
+        } else if (val[i] == ',' && p.pl.length == 1) {
+          p.ba.val[p.objn] = ToExpArr(p.bs);
+          p.bs = '';
+          p.objn = '';
+        } else if (STR.indexOf(val[i]) > -1) {
+          p.pl.push('s');
+          p.bas.push(val[i], false, 0, '');
+        }
+        if (p.pl.length == 0) {
+          if (p.bs != '') {
+            p.ba.val[p.objn] = ToExpArr(p.bs);
+            p.bs = '';
+          }
+          p.ra.push(p.ba);
+          p.ba = [];
+          p.bt = '';
+        } else {
+          p.bs += val[i];
+        }
+      } else {
+        let pobj = {ra:[],bs:'',bas:p.bas,bt:'string'};
+        ExpArrString(val[i], pobj);
+        if (pobj.bt == '') p.pl.pop();
+        p.bs += val[i];
       }
     }
   }
@@ -329,8 +391,8 @@ function ToExpArr(val) {
     p.ra.push(new ExpVariable(p.bs));
     p.bs = '';
     p.bt = '';
-  } else if (p.bt == 'paren' || p.bt == 'funccall' || p.bt == 'string') {
-    throw new SyntaxError('parenthesis or bracket mismatch');
+  } else if (p.bt == 'paren' || p.bt == 'funccall' || p.bt == 'array' || p.bt == 'object' || p.bt == 'string') {
+    throw new SyntaxError('parenthesis, bracket, or object mismatch');
   }
   for (var i in p.ra) if (p.ra[i].type == 'variable' && OPSKW.indexOf(p.ra[i].val) > -1) p.ra[i] = new ExpOperator(p.ra[i].val);
   return p.ra;

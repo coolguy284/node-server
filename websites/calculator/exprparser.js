@@ -1,25 +1,30 @@
 function ParseExpArr(arr, globals, locals) {
   let exp = [], op = [], dov;
-  // parenthesis, function call, variable
+  // parenthesis
   for (let i = 0; i < arr.length; i++) {
-    if (Object.prototype.toString.call(arr[i]) == '[object Array]') {
-      arr[i] = ParseExpArr(arr[i], globals, locals)[0][0];
-    } else if (arr[i].type == 'funccall') {
-      let ar = arr[i].val;
-      for (let j in ar) ar[j] = ParseExpArr(ar[j], globals, locals)[0][0];
-      arr[i] = FuncCallProp(arr[i].nam, ar);
-    } else if (arr[i].type == 'array') {
-      for (let j in arr[i].val) arr[i].val[j] = ParseExpArr(arr[i].val[j], globals, locals)[0][0];
-    } else if (arr[i].type == 'variable' && !(
-      arr[i + 1] && arr[i + 1].type == 'op' && OPSNV.indexOf(arr[i + 1].val) > -1 || arr[i - 1] && arr[i - 1].type == 'op' && OPSNV.indexOf(arr[i - 1].val) > -1
-      )) {
+    if (Object.prototype.toString.call(arr[i]) == '[object Array]') arr[i] = ParseExpArr(arr[i], globals, locals)[0][0];
+  }
+  // function call, variable, property access
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i].type == 'variable' && VARRESCLS(arr, i)) {
       if (arr[i].val in locals) arr[i] = locals[arr[i].val];
       else if (arr[i].val in globals) arr[i] = globals[arr[i].val];
       else throw new Error('variable ' + arr[i].val + ' nonexistent');
+    } else if (arr[i].type == 'array') {
+      for (let j in arr[i].val) arr[i].val[j] = ParseExpArr(arr[i].val[j], globals, locals)[0][0];
+    } else if (arr[i].type == 'object') {
+      for (let j in arr[i].val) arr[i].val[j] = ParseExpArr(arr[i].val[j], globals, locals)[0][0];
+    }
+    while (PROPACCCLS(arr, i)) arr.splice(i, 3, ExpPropAcc(arr[i], arr[i + 2]));
+    if (arr[i + 1] && arr[i + 1].type == 'funccall') {
+      let ar = arr[i + 1].val;
+      for (let j in ar) ar[j] = ParseExpArr(ar[j], globals, locals)[0][0];
+      let fcres = FuncCallProp(arr[i], ar, globals, locals);
+      if (fcres === undefined) throw new Error('function returns undefined');
+      arr.splice(i, 2, fcres);
     }
   }
-  console.log(arr);
-  // logical not, bitwise not, unary plus, unary negation : right > left
+  // logical not, bitwise not, unary plus, unary negation, typeof, void, delete : right > left
   dov = true;
   while (dov) {
     let nb = false;
@@ -34,16 +39,12 @@ function ParseExpArr(arr, globals, locals) {
           nb = true;
           break;
         } else if (arr[i].val == '+') {
-          if (arr[i - 1] !== undefined)
-          if (NONUNARY.indexOf(arr[i - 1].type) > -1)
-          continue;
+          if (arr[i - 1] && NONUNARY.indexOf(arr[i - 1].type) > -1) continue;
           arr.splice(i, 2, ExpUnaryPlus(arr[i + 1]));
           nb = true;
           break;
         } else if (arr[i].val == '-') {
-          if (arr[i - 1] !== undefined)
-          if (NONUNARY.indexOf(arr[i - 1].type) > -1)
-          continue;
+          if (arr[i - 1] && NONUNARY.indexOf(arr[i - 1].type) > -1) continue;
           arr.splice(i, 2, ExpUnaryMinus(arr[i + 1]));
           nb = true;
           break;
@@ -52,14 +53,20 @@ function ParseExpArr(arr, globals, locals) {
         } else if (arr[i].val == 'void') {
           arr.splice(i, 2, CL_UNDEFINED);
         } else if (arr[i].val == 'del' || arr[i].val == 'delete') {
-          let varn = arr[i + 1];
-          if (varn.type != 'variable') throw new Error('delete: unexpected token');
-          varn = varn.val;
-          if (varn in locals) {
-            arr.splice(i, 2, new ExpBool(true));
-            delete locals[varn];
+          if (arr[i + 2] && arr[i + 2].type == 'op' && arr[i + 2].val == '.') {
+            let nam = arr[i + 3].val;
+            delete arr[i + 1].val[nam];
+            arr.splice(i, 4, new ExpBool(true));
           } else {
-            arr.splice(i, 2, new ExpBool(false));
+            let varn = arr[i + 1];
+            if (varn.type != 'variable') throw new Error('delete: unexpected token');
+            varn = varn.val;
+            if (varn in locals) {
+              arr.splice(i, 2, new ExpBool(true));
+              delete locals[varn];
+            } else {
+              arr.splice(i, 2, new ExpBool(false));
+            }
           }
         }
       }
@@ -250,15 +257,24 @@ function ParseExpArr(arr, globals, locals) {
   dov = true;
   while (dov) {
     let nb = false;
-    for (let i = 0; i < op.length; i++) {
+    for (let i = op.length - 1; i >= 0; i--) {
       if (op[i] == '=') {
-        if (exp[i].type != 'variable') throw new Error('invalid left-hand side in assignment');
-        let nam = exp[i].val, val = exp[i + 1];
-        locals[nam] = val;
-        exp.splice(i, 2, val);
-        op.splice(i, 1);
-        nb = true;
-        break;
+        if (op[i - 1] && op[i - 1] == '.') {
+          let nam = exp[i].val, val = exp[i + 1];
+          exp[i - 1].val[nam] = val;
+          exp.splice(i - 1, 3, val);
+          op.splice(i - 1, 2);
+          nb = true;
+          break;
+        } else {
+          if (exp[i].type != 'variable') throw new Error('invalid left-hand side in assignment');
+          let nam = exp[i].val, val = exp[i + 1];
+          locals[nam] = val;
+          exp.splice(i, 2, val);
+          op.splice(i, 1);
+          nb = true;
+          break;
+        }
       }
     }
     dov = nb;

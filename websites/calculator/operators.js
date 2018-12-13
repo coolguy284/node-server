@@ -1,3 +1,7 @@
+function ExpPropAcc(val1, val2) {
+  var rv = val1.val[val2.val];;
+  return rv === undefined ? CL_UNDEFINED : rv;
+}
 function ExpTypeof(val) {
   return new ExpString(val.type);
 }
@@ -5,57 +9,48 @@ function ExpLogicalNot(val) {
   return new ExpBool(!val.val);
 }
 function ExpBitwiseNot(val) {
-  if (val.type == 'num') {
-    return new ExpNumber(~val.val);
-  } else if (val.type == 'bigint') {
-    return new ExpBigInt(~val.val);
-  } else {
-    throw new Error('bad operand type(s) for unary ~: \'' + val.type + '\'');
-  }
+  if (val.type == 'number') return new ExpNumber(~val.val);
+  else if (val.type == 'bigint') return new ExpBigInt(~val.val);
+  else throw new Error('bad operand type(s) for unary ~: \'' + val.type + '\'');
 }
 function ExpUnaryPlus(val) {
-  if (val.type == 'num' || val.type == 'string') {
-    return new ExpNumber(+val.val);
-  } else if (val.type == 'bigint') {
-    return new ExpBigInt(+val.val);
-  } else {
-    throw new Error('bad operand type(s) for unary +: \'' + val.type + '\'');
-  }
+  if (val.type == 'number' || val.type == 'string') return new ExpNumber(+val.val);
+  else if (val.type == 'bigint') return new ExpBigInt(+val.val);
+  else throw new Error('bad operand type(s) for unary +: \'' + val.type + '\'');
 }
 function ExpUnaryMinus(val) {
-  if (val.type == 'num' || val.type == 'string') {
-    return new ExpNumber(-val.val);
-  } else if (val.type == 'bigint') {
-    return new ExpBigInt(-val.val);
-  } else {
-    throw new Error('bad operand type(s) for unary -: \'' + val.type + '\'');
-  }
+  if (val.type == 'number' || val.type == 'string') return new ExpNumber(-val.val);
+  else if (val.type == 'bigint') return new ExpBigInt(-val.val);
+  else throw new Error('bad operand type(s) for unary -: \'' + val.type + '\'');
 }
 function ExpExponentiate(val1, val2) {
-  if (val1.toString().length * Number(val2.val) > BIGLIMIT) throw new Error('large exponentation attempted, to disable warning turn off in settings.');
-  if (val1.type == 'num' && val2.type == 'num') {
+  if (val1.type == 'number' && val2.type == 'number') {
     return new ExpNumber(val1.val ** val2.val);
   } else if (val1.type == 'bigint' && val2.type == 'bigint') {
+    if (val1.val.toString().length * Number(val2.val) > BIGLIMIT.digit) throw new Error('large exponentation attempted, to disable warning turn off in settings.');
     return new ExpBigInt(val1.val ** val2.val);
   } else {
     throw new Error('unsupported operand type(s) for **: \'' + val1.type + '\' and \'' + val2.type + '\'');
   }
 }
 function ExpMultiply(val1, val2) {
-  if (val1.type == 'num' && val2.type == 'num') {
+  if (val1.type == 'number' && val2.type == 'number') {
     return new ExpNumber(val1.val * val2.val);
   } else if (val1.type == 'bigint' && val2.type == 'bigint') {
+    if (val1.val.toString().length + val2.val.toString().length > BIGLIMIT.digit) throw new Error('large multiplication attempted, to disable warning turn off in settings.');
     return new ExpBigInt(val1.val * val2.val);
-  } else if (val1.type == 'string' && val2.type == 'num') {
+  } else if (val1.type == 'string' && val2.type == 'number') {
+    if (val1.val.length * val2.val > BIGLIMIT.strlen) throw new Error('large string repeat attempted, to disable warning turn off in settings.');
     return new ExpString(val1.val.repeat(val2.val));
-  } else if (val1.type == 'num' && val2.type == 'string') {
+  } else if (val1.type == 'number' && val2.type == 'string') {
+    if (val2.val.length * val1.val > BIGLIMIT.strlen) throw new Error('large string repeat attempted, to disable warning turn off in settings.');
     return new ExpString(val2.val.repeat(val1.val));
   } else {
     throw new Error('unsupported operand type(s) for *: \'' + val1.type + '\' and \'' + val2.type + '\'');
   }
 }
 function ExpDivide(val1, val2) {
-  if (val1.type == 'num' && val2.type == 'num') {
+  if (val1.type == 'number' && val2.type == 'number') {
     return new ExpNumber(val1.val / val2.val);
   } else if (val1.type == 'bigint' && val2.type == 'bigint') {
     return new ExpBigInt(val1.val / val2.val);
@@ -64,7 +59,7 @@ function ExpDivide(val1, val2) {
   }
 }
 function ExpRemainder(val1, val2) {
-  if (val1.type == 'num' && val2.type == 'num') {
+  if (val1.type == 'number' && val2.type == 'number') {
     return new ExpNumber(val1.val % val2.val);
   } else if (val1.type == 'bigint' && val2.type == 'bigint') {
     return new ExpBigInt(val1.val % val2.val);
@@ -73,7 +68,7 @@ function ExpRemainder(val1, val2) {
   }
 }
 function ExpAdd(val1, val2) {
-  if (val1.type == 'num' && val2.type == 'num') {
+  if (val1.type == 'number' && val2.type == 'number') {
     return new ExpNumber(val1.val + val2.val);
   } else if (val1.type == 'bigint' && val2.type == 'bigint') {
     return new ExpBigInt(val1.val + val2.val);
@@ -84,7 +79,7 @@ function ExpAdd(val1, val2) {
   }
 }
 function ExpSubtract(val1, val2) {
-  if (val1.type == 'num' && val2.type == 'num') {
+  if (val1.type == 'number' && val2.type == 'number') {
     return new ExpNumber(val1.val - val2.val);
   } else if (val1.type == 'bigint' && val2.type == 'bigint') {
     return new ExpBigInt(val1.val - val2.val);
@@ -111,7 +106,7 @@ function ExpNotEqual(val1, val2) {
   return new ExpBool(val1.val != val2.val);
 }
 function ExpBitwiseAnd(val1, val2) {
-  if (val1.type == 'num' && val2.type == 'num') {
+  if (val1.type == 'number' && val2.type == 'number') {
     return new ExpNumber(val1.val & val2.val);
   } else if (val1.type == 'bigint' && val2.type == 'bigint') {
     return new ExpBigInt(val1.val & val2.val);
@@ -120,7 +115,7 @@ function ExpBitwiseAnd(val1, val2) {
   }
 }
 function ExpBitwiseXor(val1, val2) {
-  if (val1.type == 'num' && val2.type == 'num') {
+  if (val1.type == 'number' && val2.type == 'number') {
     return new ExpNumber(val1.val ^ val2.val);
   } else if (val1.type == 'bigint' && val2.type == 'bigint') {
     return new ExpBigInt(val1.val ^ val2.val);
@@ -129,7 +124,7 @@ function ExpBitwiseXor(val1, val2) {
   }
 }
 function ExpBitwiseOr(val1, val2) {
-  if (val1.type == 'num' && val2.type == 'num') {
+  if (val1.type == 'number' && val2.type == 'number') {
     return new ExpNumber(val1.val | val2.val);
   } else if (val1.type == 'bigint' && val2.type == 'bigint') {
     return new ExpBigInt(val1.val | val2.val);
