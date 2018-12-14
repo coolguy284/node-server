@@ -3,7 +3,7 @@
   <head>
     <title>Calculator</title>
   </head>
-  <body>
+  <body style = 'width:100%;'>
     <div id = 'calcres' style = 'width:100%;height:400px;overflow:auto;font-family:monospace;white-space:pre;'></div>
     <input type = 'text' id = 'cinp' style = 'width:calc(100% - 110px);height:40px;font-size:36px;font-family:monospace;'>
     <button onclick = 'HelpTogg()' style = 'position:relative;top:10px;padding:0;margin:0;'><img src = '../images/help.png' style = 'width:40px;height:40px;'></button>
@@ -12,7 +12,7 @@
       <option value = 'cal'>Calculate</option>
       <option value = 'cat'>Catculate</option>
     </select>
-    <div id = 'helpdiv' style = 'display:none;word-break:break-word;'>
+    <div id = 'helpdiv' style = 'display:none;width:100%;word-break:break-word;'>
       <button onclick = 'helpdiv.style = "display:none;";' style = 'position:absolute;right:20px;top:5px;margin:0;padding:0;'><img src = '../images/close.png' style = 'width:40px;height:40px;'></button>
       This is a calculator that has support for advanced operations such as bitwise operations and expression and function evaluation. It is used like you would expect, just type in numbers and operations like you would on paper, then press enter.<br>
       The supported operators are +, -, * (multiply), / (divide), % (remainder), ^ or ** (exponentiation), &gt;, &lt;, &gt;=, &lt;=, ==, != (equality and inequality operators)<br>

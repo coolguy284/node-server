@@ -10,19 +10,22 @@ function ParseExpArr(arr, globals, locals) {
       if (arr[i].val in locals) arr[i] = locals[arr[i].val];
       else if (arr[i].val in globals) arr[i] = globals[arr[i].val];
       else throw new Error('variable ' + arr[i].val + ' nonexistent');
-    } else if (arr[i].type == 'array') {
+    } else if (arr[i].type == 'tarray') {
       for (let j in arr[i].val) arr[i].val[j] = ParseExpArr(arr[i].val[j], globals, locals)[0][0];
-    } else if (arr[i].type == 'object') {
+      arr[i] = new ExpArray(arr[i].val);
+    } else if (arr[i].type == 'tobject') {
       for (let j in arr[i].val) arr[i].val[j] = ParseExpArr(arr[i].val[j], globals, locals)[0][0];
+      arr[i] = new ExpObject(arr[i].val);
     }
     while (PROPACCCLS(arr, i)) arr.splice(i, 3, ExpPropAcc(arr[i], arr[i + 2]));
     if (arr[i + 1] && arr[i + 1].type == 'funccall') {
       let ar = arr[i + 1].val;
       for (let j in ar) ar[j] = ParseExpArr(ar[j], globals, locals)[0][0];
       let fcres = FuncCallProp(arr[i], ar, globals, locals);
-      if (fcres === undefined) throw new Error('function returns undefined');
+      if (fcres === undefined) throw new Error('function returned undefined');
       arr.splice(i, 2, fcres);
     }
+    while (PROPACCCLS(arr, i)) arr.splice(i, 3, ExpPropAcc(arr[i], arr[i + 2]));
   }
   // logical not, bitwise not, unary plus, unary negation, typeof, void, delete : right > left
   dov = true;

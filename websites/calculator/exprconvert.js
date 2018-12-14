@@ -107,11 +107,11 @@ function ToExpArr(val) {
         p.bt = 'paren';
         p.pl = ['p'];
       } else if (val[i] == '[') {
-        p.ba = new ExpArray([]);
+        p.ba = new ExpTArray([]);
         p.bt = 'array';
         p.pl = ['a'];
       } else if (val[i] == '{') {
-        p.ba = new ExpObject({});
+        p.ba = new ExpTObject({});
         p.bt = 'object';
         p.pl = ['o'];
       } else if (VAR.indexOf(val[i]) < 0) {
