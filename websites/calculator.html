@@ -3,7 +3,7 @@
   <head>
     <title>Calculator</title>
   </head>
-  <body>
+  <body style = 'width:100%;'>
     <div id = 'calcres' style = 'width:100%;height:400px;overflow:auto;font-family:monospace;white-space:pre;'></div>
     <input type = 'text' id = 'cinp' style = 'width:calc(100% - 110px);height:40px;font-size:36px;font-family:monospace;'>
     <button onclick = 'HelpTogg()' style = 'position:relative;top:10px;padding:0;margin:0;'><img src = '../images/help.png' style = 'width:40px;height:40px;'></button>
@@ -12,7 +12,7 @@
       <option value = 'cal'>Calculate</option>
       <option value = 'cat'>Catculate</option>
     </select>
-    <div id = 'helpdiv' style = 'display:none;word-break:break-word;'>
+    <div id = 'helpdiv' style = 'display:none;width:100%;word-break:break-word;'>
       <button onclick = 'helpdiv.style = "display:none;";' style = 'position:absolute;right:20px;top:5px;margin:0;padding:0;'><img src = '../images/close.png' style = 'width:40px;height:40px;'></button>
       This is a calculator that has support for advanced operations such as bitwise operations and expression and function evaluation. It is used like you would expect, just type in numbers and operations like you would on paper, then press enter.<br>
       The supported operators are +, -, * (multiply), / (divide), % (remainder), ^ or ** (exponentiation), &gt;, &lt;, &gt;=, &lt;=, ==, != (equality and inequality operators)<br>
@@ -294,7 +294,7 @@
       var OPSKW = ['typeof', 'void', 'del', 'delete'];
       var OPSNVF = ['=', '+=', '-=', '*=', '/=', '%=', '**=', '^=', '>>=', '<<=', '|=', '&=', '#='];
       var OPSNVB = ['del', 'delete'];
-      var NUM = '0123456789.';
+      var NUM = '0123456789';
       var NUMA = '0123456789.e';
       var STR = '\'"';
       var VAR = '0123456789!~+-*/%^|&#><=()[]{}\\/,@;:\'"` \n\r\t';
@@ -352,6 +352,14 @@
       }
       function ExpObject(val) {
         this.type = 'object';
+        this.val = val;
+      }
+      function ExpTArray(val) {
+        this.type = 'tarray';
+        this.val = val;
+      }
+      function ExpTObject(val) {
+        this.type = 'tobject';
         this.val = val;
       }
       function ExpOperator(val) {
@@ -684,22 +692,30 @@
         compileExpr: new ExpFunc(function (args) {
           if (args[0].type == 'string') return new ExpJSObj(ToExpArr(args[0].val));
         }),
-        evalExpr: new ExpFunc(function (args) {
+        evalExpr: new ExpFunc(function (args, globals, locals) {
+          let ca;
           if (args[0].type == 'string') {
-            return ParseExpArr(ToExpArr(args[0].val), (args[1] && args[1].val) || varns, (args[2] && args[2].val) || varns)[0][0];
+            ca = ToExpArr(args[0].val);
           } else if (args[0].type == 'jsobj') {
-            return ParseExpArr(args[0].val, (args[1] && args[1].val) || varns, (args[2] && args[2].val) || varns)[0][0];
+            ca = args[0].val;
           }
+          if (args.length == 1) return ParseExpArr(ca, globals, locals)[0][0];
+          else if (args.length == 2) return ParseExpArr(ca, args[1].val, args[1].val)[0][0];
+          else return ParseExpArr(ca, args[1].val, args[2].val)[0][0];
         }),
         compile: new ExpFunc(function (args) {
           if (args[0].type == 'string') return new ExpJSObj(ToStmtArr(args[0].val));
         }),
-        eval: new ExpFunc(function (args) {
+        eval: new ExpFunc(function (args, globals, locals) {
+          let ca;
           if (args[0].type == 'string') {
-            return ParseStmtArr(ToStmtArr(args[0].val), (args[1] && args[1].val) || varns, (args[2] && args[2].val) || varns)[0][0];
+            ca = ToStmtArr(args[0].val);
           } else if (args[0].type == 'jsobj') {
-            return ParseStmtArr(args[0].val, (args[1] && args[1].val) || varns, (args[2] && args[2].val) || varns)[0][0];
+            ca = args[0].val;
           }
+          if (args.length == 1) return ParseStmtArr(ca, globals, locals)[0][0];
+          else if (args.length == 2) return ParseStmtArr(ca, args[1].val, args[1].val)[0][0];
+          else return ParseStmtArr(ca, args[1].val, args[2].val)[0][0];
         }),
         repr: new ExpFunc(function (args) {
           return new ExpString(ObjToText(args[0]));
@@ -1120,11 +1136,11 @@
               p.bt = 'paren';
               p.pl = ['p'];
             } else if (val[i] == '[') {
-              p.ba = new ExpArray([]);
+              p.ba = new ExpTArray([]);
               p.bt = 'array';
               p.pl = ['a'];
             } else if (val[i] == '{') {
-              p.ba = new ExpObject({});
+              p.ba = new ExpTObject({});
               p.bt = 'object';
               p.pl = ['o'];
             } else if (VAR.indexOf(val[i]) < 0) {
@@ -1422,19 +1438,22 @@
             if (arr[i].val in locals) arr[i] = locals[arr[i].val];
             else if (arr[i].val in globals) arr[i] = globals[arr[i].val];
             else throw new Error('variable ' + arr[i].val + ' nonexistent');
-          } else if (arr[i].type == 'array') {
+          } else if (arr[i].type == 'tarray') {
             for (let j in arr[i].val) arr[i].val[j] = ParseExpArr(arr[i].val[j], globals, locals)[0][0];
-          } else if (arr[i].type == 'object') {
+            arr[i] = new ExpArray(arr[i].val);
+          } else if (arr[i].type == 'tobject') {
             for (let j in arr[i].val) arr[i].val[j] = ParseExpArr(arr[i].val[j], globals, locals)[0][0];
+            arr[i] = new ExpObject(arr[i].val);
           }
           while (PROPACCCLS(arr, i)) arr.splice(i, 3, ExpPropAcc(arr[i], arr[i + 2]));
           if (arr[i + 1] && arr[i + 1].type == 'funccall') {
             let ar = arr[i + 1].val;
             for (let j in ar) ar[j] = ParseExpArr(ar[j], globals, locals)[0][0];
             let fcres = FuncCallProp(arr[i], ar, globals, locals);
-            if (fcres === undefined) throw new Error('function returns undefined');
+            if (fcres === undefined) throw new Error('function returned undefined');
             arr.splice(i, 2, fcres);
           }
+          while (PROPACCCLS(arr, i)) arr.splice(i, 3, ExpPropAcc(arr[i], arr[i + 2]));
         }
         // logical not, bitwise not, unary plus, unary negation, typeof, void, delete : right > left
         dov = true;

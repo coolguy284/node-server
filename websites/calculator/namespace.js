@@ -163,22 +163,30 @@ var varns = {
   compileExpr: new ExpFunc(function (args) {
     if (args[0].type == 'string') return new ExpJSObj(ToExpArr(args[0].val));
   }),
-  evalExpr: new ExpFunc(function (args) {
+  evalExpr: new ExpFunc(function (args, globals, locals) {
+    let ca;
     if (args[0].type == 'string') {
-      return ParseExpArr(ToExpArr(args[0].val), (args[1] && args[1].val) || varns, (args[2] && args[2].val) || varns)[0][0];
+      ca = ToExpArr(args[0].val);
     } else if (args[0].type == 'jsobj') {
-      return ParseExpArr(args[0].val, (args[1] && args[1].val) || varns, (args[2] && args[2].val) || varns)[0][0];
+      ca = args[0].val;
     }
+    if (args.length == 1) return ParseExpArr(ca, globals, locals)[0][0];
+    else if (args.length == 2) return ParseExpArr(ca, args[1].val, args[1].val)[0][0];
+    else return ParseExpArr(ca, args[1].val, args[2].val)[0][0];
   }),
   compile: new ExpFunc(function (args) {
     if (args[0].type == 'string') return new ExpJSObj(ToStmtArr(args[0].val));
   }),
-  eval: new ExpFunc(function (args) {
+  eval: new ExpFunc(function (args, globals, locals) {
+    let ca;
     if (args[0].type == 'string') {
-      return ParseStmtArr(ToStmtArr(args[0].val), (args[1] && args[1].val) || varns, (args[2] && args[2].val) || varns)[0][0];
+      ca = ToStmtArr(args[0].val);
     } else if (args[0].type == 'jsobj') {
-      return ParseStmtArr(args[0].val, (args[1] && args[1].val) || varns, (args[2] && args[2].val) || varns)[0][0];
+      ca = args[0].val;
     }
+    if (args.length == 1) return ParseStmtArr(ca, globals, locals)[0][0];
+    else if (args.length == 2) return ParseStmtArr(ca, args[1].val, args[1].val)[0][0];
+    else return ParseStmtArr(ca, args[1].val, args[2].val)[0][0];
   }),
   repr: new ExpFunc(function (args) {
     return new ExpString(ObjToText(args[0]));

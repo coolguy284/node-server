@@ -45,6 +45,14 @@ function ExpObject(val) {
   this.type = 'object';
   this.val = val;
 }
+function ExpTArray(val) {
+  this.type = 'tarray';
+  this.val = val;
+}
+function ExpTObject(val) {
+  this.type = 'tobject';
+  this.val = val;
+}
 function ExpOperator(val) {
   this.type = 'op';
   this.val = val;
