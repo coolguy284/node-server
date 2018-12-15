@@ -1,0 +1,509 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset = 'utf-8'>
+    <meta name = 'viewport' content = 'width=device-width'>
+    <title>Advanced Time</title>
+    <style>
+      .mono {
+        margin: 0;
+        padding: 0;
+        font-family: Monospace;
+        font-size: 14px;
+      }
+      .inl {
+        display: inline;
+      }
+      input[type=checkbox] {
+        margin:0;
+        padding:0;
+      }
+    </style>
+  </head>
+  <body style = 'font-family:arial;'>
+    <details>
+      <summary style = 'font-size:24px;'>Settings</summary>
+      <table>
+        <tr>
+          <td colspan = 3>
+            <h3 class = 'inl'>Countdown Settings</h3>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <h4 class = 'inl'>Day Span</h4>
+            <p class = 'mono'>Time Format:</p>
+            <p class = 'mono'><span class = 'spac'>&#8202;&#8202;</span>YYYY-MM-DD</p>
+            <input class = 'mono' type = 'text' id = 'endvald' style = 'width: 8em;'><br>
+            <select id = 'optd' onchange = 'SetMod();Setf(1)'>
+              <option value = 'today'>Today</option>
+              <option value = 'valentine'>Valentine's Day</option>
+              <option value = 'begindst'>Beginning of DST</option>
+              <option value = 'mothersday'>Mother's Day</option>
+              <option value = 'memorialday'>Memorial Day</option>
+              <option value = 'beginsummer'>Beginning of Summer</option>
+              <option value = 'fathersday'>Father's Day</option>
+              <option value = 'fourthjuly'>Fourth of July</option>
+              <option value = 'endsummer'>End of Summer</option>
+              <option value = 'laborday'>Labor Day</option>
+              <option value = 'halloween'>Halloween</option>
+              <option value = 'enddst'>End of DST</option>
+              <option value = 'thanksgiving'>Thanksgiving</option>
+              <option value = 'christmas'>Christmas</option>
+              <option value = 'newyear'>New Year's Day</option>
+              <option value = 'custom'>Custom</option>
+            </select>
+            <button onclick = 'Setf()'>Set</button>
+          </td>
+          <td>
+            <h4 class = 'inl'>Week Span</h4>
+            <table>
+              <tr style = 'font-family:monospace;'>
+                <td>S</td><td>M</td><td>T</td><td>W</td><td>T</td><td>F</td><td>S</td>
+              </tr>
+              <tr>
+                <td><input type = 'checkbox' id = 'daysun' onchange = 'Setf()' checked = true></td>
+                <td><input type = 'checkbox' id = 'daymon' onchange = 'Setf()' checked = true></td>
+                <td><input type = 'checkbox' id = 'daytue' onchange = 'Setf()' checked = true></td>
+                <td><input type = 'checkbox' id = 'daywed' onchange = 'Setf()' checked = true></td>
+                <td><input type = 'checkbox' id = 'daythu' onchange = 'Setf()' checked = true></td>
+                <td><input type = 'checkbox' id = 'dayfri' onchange = 'Setf()' checked = true></td>
+                <td><input type = 'checkbox' id = 'daysat' onchange = 'Setf()' checked = true></td>
+              </tr>
+            </table>
+            <select id = 'optp' onchange = 'SetMod();Setf(1)'>
+              <option value = 'everyday' selected>Every Day</option>
+              <option value = 'workdays'>Work Days</option>
+              <option value = 'custom'>Custom</option>
+            </select>
+            <button onclick = 'Setf()'>Set</button>
+          </td>
+          <td>
+            <h4 class = 'inl'>Time Span</h4>
+            <p class = 'mono'>Time Format:</p>
+            <p class = 'mono'><span class = 'spac'>&#8202;&#8202;</span>HH:MM:SS.LLL</p>
+            <input class = 'mono' type = 'text' id = 'startvalt' style = 'width: 8em;'><br>
+            <input class = 'mono' type = 'text' id = 'endvalt' style = 'width: 8em;'><br>
+            <select id = 'optt' onchange = 'SetMod();Setf(1)'>
+              <option value = 'fullday' selected>Full Day</option>
+              <option value = 'school'>School Hours</option>
+              <option value = 'custom'>Custom</option>
+            </select>
+            <button onclick = 'Setf()'>Set</button>
+          </td>
+        </tr>
+      </table>
+    </details>
+    <p class = 'mono' align = 'center'>
+        <canvas id = 'mycanvas'>
+          Your browser does not support canvases.  Please switch to the simple tab. :(
+        </canvas>
+      </p>
+    <script src = 'https://cdn.jsdelivr.net/processing.js/1.4.8/processing.min.js'></script>
+    <script>
+      var widthe = 600, heighte = 400, tab = 'stopwatch', cd = new Date(), pdate = 0;
+      var mouseon = false, mousebutton = [0, 0, 0];
+      var stopw = {
+        state: 0,
+        runt: 0,
+        pt: new Date().getTime(),
+      };
+      var countd = {
+        ed: undefined,
+        fro: undefined,
+        to: undefined,
+        ddur: undefined,
+        pdur: undefined,
+        ta: {
+          ed: undefined,
+          pd: {
+            everyday: [true, true, true, true, true, true, true],
+            workdays: [false, true, true, true, true, true, false],
+          },
+          td: {
+            fullday: {
+              fro: '00:00:00.000',
+              to: '24:00:00.000'
+            },
+            school: {
+              fro: '08:00:00.000',
+              to: '14:25:00.000'
+            }
+          },
+          edr: {
+            today: 'Today',
+            valentine: 'Valentine\'s Day',
+            begindst: 'Beginning of DST',
+            mothersday: 'Mother\'s Day',
+            memorialday: 'Memorial Day',
+            beginsummer: 'Beginning of Summer',
+            fathersday: 'Fathers\'s Day',
+            fourthjuly: 'Fourth of July',
+            endsummer: 'End of Summer',
+            laborday: 'Labor Day',
+            halloween: 'Halloween',
+            enddst: 'End of DST',
+            thanksgiving: 'Thanksgiving',
+            christmas: 'Christmas',
+            newyear: 'New Year\'s Day',
+            get custom() {return FromDateNum(countd.ed)}
+          }
+        }
+      };
+      function Upd() {
+        countd.ta.ed = {
+          today: FromDateNum(cd),
+          valentine: cd.getFullYear() + '-02-14',
+          begindst: FromDateNum(GetDateByDay(cd.getFullYear(), 2, 2, 0)),
+          mothersday: FromDateNum(GetDateByDay(cd.getFullYear(), 4, 2, 0)),
+          memorialday: FromDateNum(GetDateByDay(cd.getFullYear(), 5, 0, 1)),
+          beginsummer: cd.getFullYear() + '-06-02',
+          fathersday: FromDateNum(GetDateByDay(cd.getFullYear(), 5, 3, 0)),
+          fourthjuly: cd.getFullYear() + '-07-04',
+          endsummer: cd.getFullYear() + '-08-26',
+          laborday: FromDateNum(GetDateByDay(cd.getFullYear(), 8, 1, 1)),
+          halloween: cd.getFullYear() + '-10-31',
+          enddst: FromDateNum(GetDateByDay(cd.getFullYear(), 10, 1, 0)),
+          thanksgiving: FromDateNum(GetDateByDay(cd.getFullYear(), 10, 4, 4)),
+          christmas: cd.getFullYear() + '-12-25',
+          newyear: cd.getFullYear() + 1 + '-01-01',
+        };
+      }
+      function arrayEqual(a, b) {
+        if (a === b) return true;
+        if (a == null || b == null) return false;
+        if (a.length != b.length) return false;
+        for (var i = 0; i < a.length; ++i) if (a[i] !== b[i]) return false;
+        return true;
+      }
+      function ToNum(str) {
+        var strs = str.split('.');
+        var stra = strs[0].split(':');
+        return Number(stra[0]) * 3600000 + Number(stra[1]) * 60000 + Number(stra[2] || 0) * 1000 + Number(strs[1] || 0);
+      }
+      function FromNum(num) {
+        return String(Math.floor(num / 3600000 % 60)).padStart(2, '0') + ':' + String(Math.floor(num / 60000 % 60)).padStart(2, '0') + ':' + String(Math.floor(num / 1000 % 60)).padStart(2, '0') + '.' + String(Math.floor(num % 1000)).padStart(3, '0');
+      }
+      function ToDateNum(str) {
+        var strs = str.split('-');
+        return new Date(strs[0], strs[1] - 1, strs[2]).getTime();
+      }
+      function FromDateNum(num) {
+        var dto = new Date(num);
+        return dto.getFullYear() + '-' + String(dto.getMonth() + 1).padStart(2, '0') + '-' + String(dto.getDate()).padStart(2, '0');
+      }
+      function GetDateNum(date) {
+        return date.getHours() * 3600000 + date.getMinutes() * 60000 + date.getSeconds() * 1000 + date.getMilliseconds();
+      }
+      function GetDateByDay(year, month, week, day) {
+        var fd = new Date(2018, month, 1).getDay();
+        if (day < fd) fd = day - fd + 7;
+        else fd = day - fd;
+        return new Date(year, month, fd + week * 7 - 6);
+      }
+      function GetPeriodArr() {
+        return [daysun.checked, daymon.checked, daytue.checked, daywed.checked, daythu.checked, dayfri.checked, daysat.checked];
+      }
+      function SetPeriodArr(arr) {
+        daysun.checked = arr[0];
+        daymon.checked = arr[1];
+        daytue.checked = arr[2];
+        daywed.checked = arr[3];
+        daythu.checked = arr[4];
+        dayfri.checked = arr[5];
+        daysat.checked = arr[6];
+      }
+      function Setf(nm) {
+        countd.ed = ToDateNum(endvald.value);
+        countd.fro = ToNum(startvalt.value);
+        countd.to = ToNum(endvalt.value);
+        countd.ddur = countd.to - countd.fro;
+        countd.pdur = GetPeriodArr().reduce((a, b) => a + b, 0);
+        endvald.value = FromDateNum(countd.ed);
+        startvalt.value = FromNum(countd.fro);
+        endvalt.value = FromNum(countd.to);
+        console.log('Set End Date To: ' + FromDateNum(countd.ed) + ', Start To: ' + FromNum(countd.fro) + ', End To: ' + FromNum(countd.to));
+        if (!nm) GetMod();
+      }
+      function SetMod() {
+        if (optd.value != 'custom') {
+          endvald.value = countd.ta.ed[optd.value];
+        }
+        if (optp.value != 'custom') {
+          SetPeriodArr(countd.ta.pd[optp.value]);
+        }
+        if (optt.value != 'custom') {
+          startvalt.value = countd.ta.td[optt.value].fro;
+          endvalt.value = countd.ta.td[optt.value].to;
+        }
+      }
+      function GetMod() {
+        let cus;
+        cus = true;
+        for (var i in countd.ta.ed) {
+          if (countd.ta.ed[i] == endvald.value) {
+            optd.value = i;
+            cus = false;
+            break;
+          }
+        }
+        if (cus) optd.value = 'custom';
+        cus = true;
+        for (var i in countd.ta.pd) {
+          if (arrayEqual(countd.ta.pd[i], GetPeriodArr())) {
+            optp.value = i;
+            cus = false;
+            break;
+          }
+        }
+        if (cus) optp.value = 'custom';
+        cus = true;
+        for (var i in countd.ta.td) {
+          if (countd.ta.td[i].fro == startvalt.value && countd.ta.td[i].to == endvalt.value) {
+            optt.value = i;
+            cus = false;
+            break;
+          }
+        }
+        if (cus) optt.value = 'custom';
+      }
+      function WeeksBetween(date1, date2) {
+        var db = (date2.getTime() - date1.getTime()) / 86400000;
+        return (Math.floor(db) - (6 - date1.getDay()) - date2.getDay()) / 7;
+      }
+      function DaysBefore() {
+        var ds = 0;
+        for (var d = cd.getDay() + 1; d < 7; d++) {
+          if (GetPeriodArr()[d]) ds += 1;
+        }
+        return ds;
+      }
+      function DaysAfter(day) {
+        var ds = 0;
+        for (var d = 0; d < day + 1; d++) {
+          if (GetPeriodArr()[d]) ds += 1;
+        }
+        return ds;
+      }
+      function DaysWeek(day1, day2) {
+        if (day1 > day2) return -DaysWeek(day2, day1);
+        var ds = 0;
+        for (var d = day1 + 1; d < day2 + 1; d++) {
+          if (GetPeriodArr()[d]) ds += 1;
+        }
+        return ds;
+      }
+      function SameWeek(date1, date2) {
+        var td = Math.floor(date2.getTime() / 86400000) - Math.floor(date1.getTime() / 86400000);
+        if (Math.abs(td) > 7) return false;
+        if (td >= 0) return date2.getDay() >= date1.getDay();
+        if (td < 0) return date2.getDay() < date1.getDay();
+      }
+      function drawtop() {
+        p.strokeWeight(1);
+        p.stroke(255);
+        p.fill(0);
+        p.rect(0, 0, 50, 50);
+        p.rect(50, 0, 50, 50);
+        p.rect(100, 0, 500, 50);
+        p.strokeWeight(5);
+        p.ellipse(25, 30, 30, 30);
+        p.ellipse(75, 25, 40, 40);
+        p.line(75, 25, 75, 12);
+        p.line(75, 25, 88, 25);
+        p.strokeWeight(1);
+      }
+      function mousein(x1, y1, x2, y2) {
+        return (p.mouseX >= x1) && (p.mouseY >= y1) && (p.mouseX < x2) && (p.mouseY < y2);
+      }
+      function zf2(s) {
+        return ('' + s).padStart(2, '0');
+      }
+      function zf3(s) {
+        return ('' + s).padStart(3, '0');
+      }
+      function formt(t) {
+        if (t < 0) {
+          return '-' + formt(-t);
+        }
+        return zf3(Math.floor(t/86400)) + ':' + zf2(Math.floor(t/3600%24)) + ':' + zf2(Math.floor(t/60%60)) + ':' + zf2(Math.floor(t%60)) + '.' + zf3(Math.floor(t*1000%1000));
+      }
+      function formts(t) {
+        if (t < 0) {
+          return '-' + formts(-t);
+        }
+        return zf3(Math.floor(t/86400000)) + 'd ' + zf2(Math.floor(t/3600000%24)) + 'h ' + zf2(Math.floor(t/60000%60)) + 'm ' + zf2(Math.floor(t/1000%60)) + 's';// + zf3(Math.floor(t%1000));
+      }
+      var sketchProc = function(p) {
+        p.size(widthe, heighte, 1);
+        p.keyPressed = function() {
+          if (tab == 'stopwatch') {
+            if (p.keyCode == 32) {
+              stopw.state = 1 - stopw.state;
+            }
+            if (p.keyCode == 16) {
+              stopw.state = 0;
+              stopw.runt = 0;
+            }
+          }
+          console.log(p.keyCode);
+        };
+        p.mouseOver = function() {
+          mouseon = true;
+        };
+        p.mouseOut = function() {
+          mouseon = false;
+        };
+        p.mousePressed = function() {
+          if (p.mouseButton == 37) {
+            mousebutton[0] = 1;
+          } else if (p.mouseButton == 3) {
+            mousebutton[1] = 1;
+          } else if (p.mouseButton == 39) {
+            mousebutton[2] = 1;
+          }
+          if (mousein(212, 263, 287, 338) && mousebutton[0]) stopw.state = !stopw.state;
+          if (mousein(313, 263, 388, 338) && mousebutton[0]) stopw.runt = 0;
+          if (mousein(0, 0, 50, 50) && mousebutton[0]) tab = 'stopwatch';
+          else if (mousein(50, 0, 100, 50) && mousebutton[0]) tab = 'countdown';
+        };
+        p.mouseReleased = function() {
+          if (p.mouseButton == 37) {
+            mousebutton[0] = 0;
+          } else if (p.mouseButton == 3) {
+            mousebutton[1] = 0;
+          } else if (p.mouseButton == 39) {
+            mousebutton[2] = 0;
+          }
+        };
+        p.draw = function() {
+          cd = new Date();
+          if (pdate != cd.getDate()) {
+            Upd();
+            pdate = cd.getDate();
+          }
+          p.background(0);
+          drawtop();
+          p.textSize(12);
+          p.textAlign(37, 102);
+          if (mousein(0, 0, 50, 50) && mouseon) {
+            p.fill(0);
+            p.stroke(255);
+            p.rect(p.mouseX, p.mouseY-18, 62, 16);
+            p.fill(255);
+            p.text('Stopwatch', p.mouseX+3, p.mouseY-3);
+          } else if (mousein(50, 0, 100, 50) && mouseon) {
+            p.fill(0);
+            p.stroke(255);
+            p.rect(p.mouseX, p.mouseY-18, 85, 16);
+            p.fill(255);
+            p.text('Countdown/up', p.mouseX+3, p.mouseY-3);
+          }
+          if (tab == 'stopwatch') {
+            t2 = new Date().getTime();
+            diff = t2 - stopw.pt;
+            stopw.pt = new Date().getTime();
+            if (stopw.state) {
+              stopw.runt += diff / 1000;
+            }
+            p.fill(255);
+            p.textAlign(3, 3);
+            p.textSize(40);
+            p.text('Stopwatch:', 300, 130);
+            p.textSize(50);
+            p.text(formt(stopw.runt), 300, 200);
+            p.fill(0);
+            p.rect(212, 263, 75, 75);
+            p.rect(313, 263, 75, 75);
+            p.fill(255);
+            p.noStroke();
+            if (stopw.state) {
+              p.rect(222, 273, 20, 55);
+              p.rect(257, 273, 20, 55);
+              //p.textSize(50);
+              //p.text('❚ ❚', 250, 295);
+            } else {
+              p.triangle(222, 273, 277, 300.5, 222, 328);
+              //p.textSize(75);
+              //p.text('►', 250, 295);
+            }
+            p.noFill();
+            p.stroke(255);
+            p.strokeWeight(5);
+            p.arc(350.5, 300.5, 50, 50, 0.7, 5.6);
+            p.line(361, 287, 371, 287);
+            p.line(371, 276, 371, 286);
+            //p.textSize(75);
+            //p.text('↻', 350, 302);
+          } else if (tab == 'countdown') {
+            p.fill(255);
+            p.textSize(35);
+            p.textAlign(3, 3);
+            p.text('Time Left Until ' + countd.ta.edr[optd.value] + ':', 300, 130);
+            p.textSize(50);
+            if (SameWeek(new Date(countd.ed), cd)) {
+              p.text(formts(Math.max(countd.to - GetDateNum(cd), 0) + DaysWeek(cd.getDay(), new Date(countd.ed).getDay()) * 86400000), 300, 200);
+            } else {
+              p.text(formts(Math.min(Math.max(countd.to - GetDateNum(cd), 0), countd.ddur) + (WeeksBetween(cd, new Date(countd.ed)) * countd.pdur + DaysBefore() + DaysAfter(new Date(countd.ed).getDay())) * 86400000), 300, 200);
+            }
+            p.textSize(35);
+            p.text('Current Time:', 300, 280);
+            p.textSize(20);
+            p.text(cd.toString(), 300, 330);
+          }
+        };
+      };
+      var p = new Processing(mycanvas, sketchProc);
+      onload = function() {
+        Upd();
+        var ta = String(localStorage.attab);
+        var evd = String(localStorage.atendvald);
+        var epd = String(localStorage.atper);
+        var svt = String(localStorage.atstartvalt);
+        var evt = String(localStorage.atendvalt);
+        if (ta == '' || ta == 'undefined') {
+          tab = 'stopwatch';
+        } else tab = ta;
+        if (evd == '' || evd == 'undefined') {
+          evd = countd.ta.ed[optd.value];
+        }
+        if (epd == '' || epd == 'undefined') {
+          epd = countd.ta.pd[optp.value];
+        }
+        if (svt == '' || evt == '' || svt == 'undefined' || evt == 'undefined') {
+          svt = countd.ta.td[optt.value].fro;
+          evt = countd.ta.td[optt.value].to;
+        }
+        endvald.value = evd;
+        try {SetPeriodArr(JSON.parse(epd));} catch (e) {console.error(e)}
+        startvalt.value = svt;
+        endvalt.value = evt;
+        GetMod();
+        Setf();
+      };
+      onunload = onbeforeunload = function() {
+        localStorage.attab = tab;
+        localStorage.atendvald = endvald.value;
+        localStorage.atper = JSON.stringify(GetPeriodArr());
+        localStorage.atstartvalt = startvalt.value;
+        localStorage.atendvalt = endvalt.value;
+        onunload = function () {};
+      };
+      endvald.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+          Setf();
+        }
+      });
+      startvalt.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+          Setf();
+        }
+      });
+      endvalt.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+          Setf();
+        }
+      });
+    </script>
+  </body>
+</html>

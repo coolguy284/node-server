@@ -68,6 +68,10 @@ function ObjToText(val, va) {
     if (ka.length == 0) return '{}';
     for (let i in ka) ba.push(inspect(ka[i]) + ': ' + ObjToText(val.val[ka[i]], va));
     return '{ ' + ba.join(', ') + ' }';
+  } else if (val.type == 'matrix') {
+    if (va.indexOf(val) >= 0) return '[Circular]';
+    va.push(val);
+    return 'Matrix([' + val.val.map(x => '[' + x.map(y => ObjToText(y, va)) + ']').join(',\n           ') + '])';
   } else if (val.type == 'jsobj') {
     return 'JSObj { ' + inspect(val.val) + ' }';
   } else {

@@ -49,7 +49,7 @@ function formatObject(val, opts, keys, ins) {
   if (opts.sorted == true) keys.sort();
   else if (opts.sorted != false) keys.sort(opts.sorted);
   let ba = keys.map(function (i) {
-    return stringProp(i) + ': ' + formatValue(val[i], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2}));
+    return stringProp(i) + ': ' + formatPropDes(Object.getOwnPropertyDescriptor(val, i), Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2}));
   });
   let baj = ba.join(', ');
   if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
@@ -70,7 +70,7 @@ function formatArray(val, opts, bkeys) {
   vkeys = bkeys.filter(x => (!isNaN(x) && Number.isInteger(Number(x)) && Number(x) >= 0) && x != 'length');
   if (opts.sorted == true) keys.sort();
   else if (opts.sorted != false) keys.sort(opts.sorted);
-  for (var iv in vkeys) {
+  for (let iv in vkeys) {
     let i = vkeys[iv];
     if (ba.length + 1 > opts.maxArrayLength) {
       ba.push('... ' + (val.length - i) + ' more items');
@@ -85,7 +85,7 @@ function formatArray(val, opts, bkeys) {
     ind = parseInt(i);
   }
   keys.forEach(function (i) {
-    ba.push(stringProp(i) + ': ' + formatValue(val[i], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
+    ba.push(stringProp(i) + ': ' + formatPropDes(Object.getOwnPropertyDescriptor(val, i), Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
   });
   let baj = ba.join(', ');
   if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
@@ -108,7 +108,7 @@ function formatMap(val, opts, keys) {
   if (opts.sorted == true) keys.sort();
   else if (opts.sorted != false) keys.sort(opts.sorted);
   keys.forEach(function (i) {
-    ba.push(stringProp(i) + ': ' + formatValue(val[i], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
+    ba.push(stringProp(i) + ': ' + formatPropDes(Object.getOwnPropertyDescriptor(val, i), Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
   });
   let baj = ba.join(', ');
   if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
@@ -131,12 +131,18 @@ function formatSet(val, opts, keys) {
   if (opts.sorted == true) keys.sort();
   else if (opts.sorted != false) keys.sort(opts.sorted);
   keys.forEach(function (i) {
-    ba.push(stringProp(i) + ': ' + formatValue(val[i], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
+    ba.push(stringProp(i) + ': ' + formatPropDes(Object.getOwnPropertyDescriptor(val, i), Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
   });
   let baj = ba.join(', ');
   if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
   if (baj == '') return '{}';
   else return '{ ' + baj + ' }';
+}
+function formatPropDes(val, opts) {
+  if (val.get && val.set) return '[Getter/Setter]';
+  else if (val.get) return '[Getter]';
+  else if (val.set) return '[Setter]';
+  return formatValue(val.value, opts);
 }
 function formatValue(val, opts) {
   if (val === undefined) {
