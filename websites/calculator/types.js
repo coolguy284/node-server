@@ -27,9 +27,11 @@ function ExpVariable(val) {
   this.val = val;
 }
 function ExpMatrix(val) {
-  this.type = 'mat';
+  this.type = 'matrix';
   let ylen = val.val.length;
   let xlen = val.val[0].val.length;
+  this.w = xlen;
+  this.h = ylen;
   this.val = [];
   for (let y = 0; y < ylen; y++) {
     let ta = [];
