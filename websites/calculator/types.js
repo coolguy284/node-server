@@ -26,17 +26,26 @@ function ExpVariable(val) {
   this.type = 'variable';
   this.val = val;
 }
-function ExpMatrix(val) {
+function ExpMatrix(val, val2) {
   this.type = 'matrix';
-  let ylen = val.val.length;
-  let xlen = val.val[0].val.length;
-  this.w = xlen;
-  this.h = ylen;
-  this.val = [];
-  for (let y = 0; y < ylen; y++) {
-    let ta = [];
-    for (let x = 0; x < xlen; x++) ta.push(val.val[y].val[x]);
-    this.val.push(ta);
+  if (typeof val == 'number' && typeof val2 == 'number') {
+    this.w = val2;
+    this.h = val;
+    this.val = [];
+    for (let y = 0; y < this.h; y++) {
+      let ta = [];
+      for (let x = 0; x < this.w; x++) ta.push(0);
+      this.val.push(ta);
+    }
+  } else {
+    this.w = val.val.length;
+    this.h = val.val[0].val.length;
+    this.val = [];
+    for (let y = 0; y < this.h; y++) {
+      let ta = [];
+      for (let x = 0; x < this.w; x++) ta.push(val.val[y].val[x]);
+      this.val.push(ta);
+    }
   }
 }
 function ExpArray(val) {
