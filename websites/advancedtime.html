@@ -8,15 +8,28 @@
       .mono {
         margin: 0;
         padding: 0;
-        font-family: Monospace;
+        font-family: monospace;
+        font-size: 14px;
+      }
+      .monos {
+        position: relative;
+        left: 1px;
+        margin: 0;
+        padding: 0;
+        font-family: monospace;
         font-size: 14px;
       }
       .inl {
         display: inline;
+        margin: 0;
+        padding: 0;
       }
-      input[type=checkbox] {
+      input[type=checkbox], input[type=range] {
         margin:0;
         padding:0;
+      }
+      td {
+        border: 1px solid black;
       }
     </style>
   </head>
@@ -30,10 +43,24 @@
           </td>
         </tr>
         <tr>
+          <td colspan = 3>
+            <table>
+              <tr>
+                <td>
+                  <h4 class = 'inl'>Mode: </h4> Strips <input type = 'range' id = 'countmod' value = 0 min = 0 max = 1 onchange = 'StriTogg(countmod.value)' style = 'width:50px;'> Continuous
+                </td>
+                <td>
+                  <h4 class = 'inl'>Time Render: </h4> (d, h, m, s) <input type = 'range' id = 'timrend' value = 0 min = 0 max = 1 onchange = 'countd.trmod = Boolean(parseInt(timrend.value))' style = 'width:50px;'> (:::.)
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr id = 'strs'>
           <td>
             <h4 class = 'inl'>Day Span</h4>
             <p class = 'mono'>Time Format:</p>
-            <p class = 'mono'><span class = 'spac'>&#8202;&#8202;</span>YYYY-MM-DD</p>
+            <p class = 'monos'>YYYY-MM-DD</p>
             <input class = 'mono' type = 'text' id = 'endvald' style = 'width: 8em;'><br>
             <select id = 'optd' onchange = 'SetMod();Setf(1)'>
               <option value = 'today'>Today</option>
@@ -81,7 +108,7 @@
           <td>
             <h4 class = 'inl'>Time Span</h4>
             <p class = 'mono'>Time Format:</p>
-            <p class = 'mono'><span class = 'spac'>&#8202;&#8202;</span>HH:MM:SS.LLL</p>
+            <p class = 'monos'>HH:MM:SS.LLL</p>
             <input class = 'mono' type = 'text' id = 'startvalt' style = 'width: 8em;'><br>
             <input class = 'mono' type = 'text' id = 'endvalt' style = 'width: 8em;'><br>
             <select id = 'optt' onchange = 'SetMod();Setf(1)'>
@@ -90,6 +117,25 @@
               <option value = 'custom'>Custom</option>
             </select>
             <button onclick = 'Setf()'>Set</button>
+          </td>
+        </tr>
+        <tr id = 'conts' style = 'display:none;'>
+          <td>
+            <h4 class = 'inl'>Time Span</h4>
+            <p class = 'mono'>Time Format:</p>
+            <p class = 'monos'>YYYY-MM-DDTHH:MM:SS.LLLZ</p>
+            <input class = 'mono' type = 'text' id = 'startvalc' style = 'width: 14em;'><br>
+            <input class = 'mono' type = 'text' id = 'endvalc' style = 'width: 14em;'><br>
+            <select id = 'optc' onchange = 'SetModc();Setfc(1)'>
+              <option value = 'minute'>Minute</option>
+              <option value = 'hour'>Hour</option>
+              <option value = 'day' selected>Day</option>
+              <option value = 'week'>Week</option>
+              <option value = 'month'>Month</option>
+              <option value = 'year'>Year</option>
+              <option value = 'custom'>Custom</option>
+            </select>
+            <button onclick = 'Setfc()'>Set</button>
           </td>
         </tr>
       </table>
@@ -101,6 +147,17 @@
       </p>
     <script src = 'https://cdn.jsdelivr.net/processing.js/1.4.8/processing.min.js'></script>
     <script>
+      function StriTogg(v) {
+        if (parseInt(v) == 1) {
+          countd.contd = true;
+          strs.style = 'display:none;';
+          conts.style = '';
+        } else {
+          countd.contd = false;
+          strs.style = '';
+          conts.style = 'display:none;';
+        }
+      }
       var widthe = 600, heighte = 400, tab = 'stopwatch', cd = new Date(), pdate = 0;
       var mouseon = false, mousebutton = [0, 0, 0];
       var stopw = {
@@ -109,11 +166,16 @@
         pt: new Date().getTime(),
       };
       var countd = {
+        contd: false,
+        trmod: false,
         ed: undefined,
         fro: undefined,
         to: undefined,
         ddur: undefined,
         pdur: undefined,
+        froc: undefined,
+        toc: undefined,
+        dur: undefined,
         ta: {
           ed: undefined,
           pd: {
@@ -129,6 +191,32 @@
               fro: '08:00:00.000',
               to: '14:25:00.000'
             }
+          },
+          tdc: {
+            minute: {
+              fro: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate()) + 'T' + zf2(cd.getHours()) + ':' + zf2(cd.getMinutes()) + ':00.000Z',
+              to: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate()) + 'T' + zf2(cd.getHours()) + ':' + zf2(cd.getMinutes() + 1) + ':00.000Z',
+            },
+            hour: {
+              fro: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate()) + 'T' + zf2(cd.getHours()) + ':00:00.000Z',
+              to: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate()) + 'T' + zf2(cd.getHours() + 1) + ':00:00.000Z',
+            },
+            day: {
+              fro: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate()) + 'T00:00:00.000Z',
+              to: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate() + 1) + 'T00:00:00.000Z',
+            },
+            week: {
+              fro: FromDateTimeNum(getMonday(cd)),
+              to: FromDateTimeNum(getNextMonday(cd)),
+            },
+            month: {
+              fro: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-01T00:00:00.000Z',
+              to: cd.getFullYear() + '-' + zf2(cd.getMonth() + 2) + '-01T00:00:00.000Z',
+            },
+            year: {
+              fro: cd.getFullYear() + '-01-01T00:00:00.000Z',
+              to: (cd.getFullYear() + 1) + '-01-01T00:00:00.000Z',
+            },
           },
           edr: {
             today: 'Today',
@@ -147,7 +235,16 @@
             christmas: 'Christmas',
             newyear: 'New Year\'s Day',
             get custom() {return FromDateNum(countd.ed)}
-          }
+          },
+          edrc: {
+            minute: 'Minute',
+            hour: 'Hour',
+            day: 'Day',
+            week: 'Week',
+            month: 'Month',
+            year: 'Year',
+            get custom() {return FromDateTimeNum(countd.toc)}
+          },
         }
       };
       function Upd() {
@@ -188,9 +285,20 @@
         var strs = str.split('-');
         return new Date(strs[0], strs[1] - 1, strs[2]).getTime();
       }
+      function ToDateTimeNum(str) {
+        var strt = str.split('Z')[0].split('T');
+        var strs = strt[0].split('-');
+        var strtm = strt[1].split(':');
+        var strtm2 = strtm[2].split('.');
+        return new Date(strs[0], strs[1] - 1, strs[2], strtm[0], strtm[1], strtm2[0], strtm2[1]).getTime();
+      }
       function FromDateNum(num) {
         var dto = new Date(num);
         return dto.getFullYear() + '-' + String(dto.getMonth() + 1).padStart(2, '0') + '-' + String(dto.getDate()).padStart(2, '0');
+      }
+      function FromDateTimeNum(num) {
+        var dto = new Date(num);
+        return dto.getFullYear() + '-' + String(dto.getMonth() + 1).padStart(2, '0') + '-' + String(dto.getDate()).padStart(2, '0') + 'T' + String(dto.getHours()).padStart(2, '0') + ':' + String(dto.getMinutes()).padStart(2, '0') + ':' + String(dto.getSeconds()).padStart(2, '0') + '.' + String(dto.getMilliseconds()).padStart(3, '0');
       }
       function GetDateNum(date) {
         return date.getHours() * 3600000 + date.getMinutes() * 60000 + date.getSeconds() * 1000 + date.getMilliseconds();
@@ -225,6 +333,13 @@
         console.log('Set End Date To: ' + FromDateNum(countd.ed) + ', Start To: ' + FromNum(countd.fro) + ', End To: ' + FromNum(countd.to));
         if (!nm) GetMod();
       }
+      function Setfc(nm) {
+        countd.froc = ToDateTimeNum(startvalc.value);
+        countd.toc = ToDateTimeNum(endvalc.value);
+        countd.dur = countd.toc - countd.froc;
+        console.log('Set Start To: ' + FromDateTimeNum(countd.froc) + ', End To: ' + FromDateTimeNum(countd.toc));
+        if (!nm) GetMod();
+      }
       function SetMod() {
         if (optd.value != 'custom') {
           endvald.value = countd.ta.ed[optd.value];
@@ -235,6 +350,12 @@
         if (optt.value != 'custom') {
           startvalt.value = countd.ta.td[optt.value].fro;
           endvalt.value = countd.ta.td[optt.value].to;
+        }
+      }
+      function SetModc() {
+        if (optc.value != 'custom') {
+          startvalc.value = countd.ta.tdc[optc.value].fro;
+          endvalc.value = countd.ta.tdc[optc.value].to;
         }
       }
       function GetMod() {
@@ -266,6 +387,28 @@
           }
         }
         if (cus) optt.value = 'custom';
+      }
+      function GetModc() {
+        let cus;
+        cus = true;
+        for (var i in countd.ta.tdc) {
+          if (countd.ta.tdc[i].fro == startvalc.value && countd.ta.tdc[i].to == endvalc.value) {
+            optc.value = i;
+            cus = false;
+            break;
+          }
+        }
+        if (cus) optc.value = 'custom';
+      }
+      function getMonday(d) {
+        var day = d.getDay(),
+            diff = d.getDate() - day + (day == 0 ? -6:1);
+        return new Date(d.setDate(diff));
+      }
+      function getNextMonday(d) {
+        var day = d.getDay(),
+            diff = d.getDate() - day + (day == 0 ? -6:1) + 7;
+        return new Date(d.setDate(diff));
       }
       function WeeksBetween(date1, date2) {
         var db = (date2.getTime() - date1.getTime()) / 86400000;
@@ -326,7 +469,7 @@
         if (t < 0) {
           return '-' + formt(-t);
         }
-        return zf3(Math.floor(t/86400)) + ':' + zf2(Math.floor(t/3600%24)) + ':' + zf2(Math.floor(t/60%60)) + ':' + zf2(Math.floor(t%60)) + '.' + zf3(Math.floor(t*1000%1000));
+        return zf3(Math.floor(t/86400000)) + ':' + zf2(Math.floor(t/3600000%24)) + ':' + zf2(Math.floor(t/60000%60)) + ':' + zf2(Math.floor(t/1000%60)) + '.' + zf3(Math.floor(t%1000));
       }
       function formts(t) {
         if (t < 0) {
@@ -378,9 +521,9 @@
         };
         p.draw = function() {
           cd = new Date();
-          if (pdate != cd.getDate()) {
+          if (pdate != cd.getMinutes()) {
             Upd();
-            pdate = cd.getDate();
+            pdate = cd.getMinutes();
           }
           p.background(0);
           drawtop();
@@ -404,7 +547,7 @@
             diff = t2 - stopw.pt;
             stopw.pt = new Date().getTime();
             if (stopw.state) {
-              stopw.runt += diff / 1000;
+              stopw.runt += diff;
             }
             p.fill(255);
             p.textAlign(3, 3);
@@ -440,11 +583,22 @@
             p.textSize(35);
             p.textAlign(3, 3);
             p.text('Time Left Until ' + countd.ta.edr[optd.value] + ':', 300, 130);
-            p.textSize(50);
-            if (SameWeek(new Date(countd.ed), cd)) {
-              p.text(formts(Math.max(countd.to - GetDateNum(cd), 0) + DaysWeek(cd.getDay(), new Date(countd.ed).getDay()) * 86400000), 300, 200);
+            var td;
+            if (countd.contd) {
+              td = countd.toc - cd.getTime();
             } else {
-              p.text(formts(Math.min(Math.max(countd.to - GetDateNum(cd), 0), countd.ddur) + (WeeksBetween(cd, new Date(countd.ed)) * countd.pdur + DaysBefore() + DaysAfter(new Date(countd.ed).getDay())) * 86400000), 300, 200);
+              if (SameWeek(new Date(countd.ed), cd)) {
+                td = (GetPeriodArr()[cd.getDay()] ? Math.min(Math.max(countd.to - GetDateNum(cd), 0), countd.ddur) : 0) + DaysWeek(cd.getDay(), new Date(countd.ed).getDay()) * 86400000;
+              } else {
+                td = (GetPeriodArr()[cd.getDay()] ? Math.min(Math.max(countd.to - GetDateNum(cd), 0), countd.ddur) : 0) + (WeeksBetween(cd, new Date(countd.ed)) * countd.pdur + DaysBefore() + DaysAfter(new Date(countd.ed).getDay())) * 86400000;
+              }
+            }
+            if (countd.trmod) {
+              p.textSize(50);
+              p.text(formt(td), 300, 200);
+            } else {
+              p.textSize(50);
+              p.text(formts(td), 300, 200);
             }
             p.textSize(35);
             p.text('Current Time:', 300, 280);
@@ -457,13 +611,39 @@
       onload = function() {
         Upd();
         var ta = String(localStorage.attab);
+        var ctd = String(localStorage.atcontd);
+        var trm = String(localStorage.attrmod);
         var evd = String(localStorage.atendvald);
         var epd = String(localStorage.atper);
         var svt = String(localStorage.atstartvalt);
         var evt = String(localStorage.atendvalt);
+        var froc = String(localStorage.atfroc);
+        var toc = String(localStorage.attoc);
         if (ta == '' || ta == 'undefined') {
           tab = 'stopwatch';
         } else tab = ta;
+        if (ctd == '' || ctd == 'undefined') {
+          countd.contd = false;
+        } else if (ctd == 'true') {
+          countd.contd = true;
+          strs.style = 'display:none;';
+          conts.style = '';
+          countmod.value = 1;
+        } else if (ctd == 'false') {
+          countd.contd = false;
+          strs.style = '';
+          conts.style = 'display:none;';
+          countmod.value = 0;
+        }
+        if (trm == '' || trm == 'undefined') {
+          countd.trmod = false;
+        } else if (trm == 'true') {
+          countd.trmod = true;
+          timrend.value = 1;
+        } else if (trm == 'false') {
+          countd.trmod = false;
+          timrend.value = 0;
+        }
         if (evd == '' || evd == 'undefined') {
           evd = countd.ta.ed[optd.value];
         }
@@ -474,35 +654,47 @@
           svt = countd.ta.td[optt.value].fro;
           evt = countd.ta.td[optt.value].to;
         }
+        if (froc == '' || toc == '' || froc == 'undefined' || toc == 'undefined') {
+          froc = countd.ta.tdc[optc.value].fro;
+          toc = countd.ta.tdc[optc.value].to;
+        }
         endvald.value = evd;
         try {SetPeriodArr(JSON.parse(epd));} catch (e) {console.error(e)}
         startvalt.value = svt;
         endvalt.value = evt;
+        startvalc.value = froc;
+        endvalc.value = toc;
         GetMod();
-        Setf();
+        GetModc();
+        Setf(1);
+        Setfc();
       };
       onunload = onbeforeunload = function() {
         localStorage.attab = tab;
+        localStorage.atcontd = countd.contd;
+        localStorage.attrmod = countd.trmod;
         localStorage.atendvald = endvald.value;
         localStorage.atper = JSON.stringify(GetPeriodArr());
         localStorage.atstartvalt = startvalt.value;
         localStorage.atendvalt = endvalt.value;
+        localStorage.atfroc = startvalc.value;
+        localStorage.attoc = endvalc.value;
         onunload = function () {};
       };
       endvald.addEventListener('keydown', function (e) {
-        if (e.keyCode === 13) {
-          Setf();
-        }
+        if (e.keyCode === 13) Setf();
       });
       startvalt.addEventListener('keydown', function (e) {
-        if (e.keyCode === 13) {
-          Setf();
-        }
+        if (e.keyCode === 13) Setf();
       });
       endvalt.addEventListener('keydown', function (e) {
-        if (e.keyCode === 13) {
-          Setf();
-        }
+        if (e.keyCode === 13) Setf();
+      });
+      startvalc.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) Setfc();
+      });
+      endvalc.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) Setfc();
       });
     </script>
   </body>
