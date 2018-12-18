@@ -12,7 +12,7 @@ module.exports = {
   'cons' : true,
   'stdincons' : false,
   'enc' : 'aes',
-  'datadir' : '/data/nodedat',
+  'datadir' : 'data',
   'httpsf' : true,
   'httpsdm' : 2,
   'tickint' : 1000,
