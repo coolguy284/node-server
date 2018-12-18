@@ -17,15 +17,22 @@ function ParseExpArr(arr, globals, locals) {
       for (let j in arr[i].val) arr[i].val[j] = ParseExpArr(arr[i].val[j], globals, locals)[0][0];
       arr[i] = new ExpObject(arr[i].val);
     }
-    while (PROPACCCLS(arr, i)) arr.splice(i, 3, ExpPropAcc(arr[i], arr[i + 2]));
-    if (arr[i + 1] && arr[i + 1].type == 'funccall') {
-      let ar = arr[i + 1].val;
-      for (let j in ar) ar[j] = ParseExpArr(ar[j], globals, locals)[0][0];
-      let fcres = FuncCallProp(arr[i], ar, globals, locals);
-      if (fcres === undefined) throw new Error('function returned undefined');
-      arr.splice(i, 2, fcres);
+    let clss = true;
+    while (clss) {
+      clss = false;
+      while (PROPACCCLS(arr, i)) {
+        arr.splice(i, 3, ExpPropAcc(arr[i], arr[i + 2]));
+        clss = true;
+      }
+      if (arr[i + 1] && arr[i + 1].type == 'funccall') {
+        let ar = arr[i + 1].val;
+        for (let j in ar) ar[j] = ParseExpArr(ar[j], globals, locals)[0][0];
+        let fcres = FuncCallProp(arr[i], ar, globals, locals);
+        if (fcres === undefined) throw new Error('function returned undefined');
+        arr.splice(i, 2, fcres);
+        clss = true;
+      }
     }
-    while (PROPACCCLS(arr, i)) arr.splice(i, 3, ExpPropAcc(arr[i], arr[i + 2]));
   }
   // logical not, bitwise not, unary plus, unary negation, typeof, void, delete : right > left
   dov = true;
@@ -42,12 +49,12 @@ function ParseExpArr(arr, globals, locals) {
           nb = true;
           break;
         } else if (arr[i].val == '+') {
-          if (arr[i - 1] && NONUNARY.indexOf(arr[i - 1].type) > -1) continue;
+          if (arr[i - 1] && arr[i - 1].type != 'op') continue;
           arr.splice(i, 2, ExpUnaryPlus(arr[i + 1]));
           nb = true;
           break;
         } else if (arr[i].val == '-') {
-          if (arr[i - 1] && NONUNARY.indexOf(arr[i - 1].type) > -1) continue;
+          if (arr[i - 1] && arr[i - 1].type != 'op') continue;
           arr.splice(i, 2, ExpUnaryMinus(arr[i + 1]));
           nb = true;
           break;

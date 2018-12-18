@@ -162,6 +162,7 @@ global.cpuUsage = process.cpuUsage();
 global.pcpuUsage = global.cpuUsage;
 global.dcpuUsage = { user: 0, system: 0 };
 global.memUsage = process.memoryUsage();
+global.port = process.env.PORT || 8080;
 try {
   global.chat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/chat.json').toString());
   if (Object.prototype.toString.call(chat) != '[object Array]') throw new Error('invalid chat object');
@@ -397,11 +398,11 @@ global.serverf = function serverf(req, resa, nolog) {
     }
   }
 };
-global.serv = http.createServer(serverf).listen(8080, undefined, function (err) {
+global.serv = http.createServer(serverf).listen(port, undefined, function (err) {
   global.slt = new Date().getTime();
   if (err) {
     console.log('[' + new Date().toISOString() + '] Error: ' + err);
   } else {
-    console.log('[' + new Date().toISOString() + '] Server Listening on Port 8080 (starting time: ' + (slt - sst) + 'ms)');
+    console.log('[' + new Date().toISOString() + '] Server Listening on Port ' + port + ' (starting time: ' + (slt - sst) + 'ms)');
   }
 });

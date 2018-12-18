@@ -152,7 +152,15 @@ var varns = {
     if (args.length == 0) return new ExpObject({});
   }),
   Matrix: new ExpFunc(function (args) {
-    return new ExpMatrix(args[0]);
+    if (args.length == 1) return new ExpMatrix(args[0]);
+    else return new ExpMatrix(args[0].val, args[1].val);
+  }),
+  Surreal: new ExpFunc(function (args) {
+    if (args[0].type == 'array') {
+      return new ExpSurreal(args[0].val.map(x => x.val));
+    } else if (args[0].type == 'string') {
+      return new ExpSurreal(args[0].val);
+    }
   }),
   globals: new ExpFunc(function (args, globals, locals) {
     return new ExpObject(globals);
