@@ -105,15 +105,22 @@ function ToExpArr(val) {
           p.ra.push(new ExpOperator('*'));
         }
         p.bt = 'paren';
-        p.pl = ['p'];
+        p.pl.push('p');
       } else if (val[i] == '[') {
-        p.ba = new ExpTArray([]);
-        p.bt = 'array';
-        p.pl = ['a'];
+        if (p.ra.length > 0 && p.ra[p.ra.length - 1].type == 'funccall') {
+          p.bt = 'propacc';
+          p.ra.push(new ExpOperator('.'));
+          p.pl.push('a');
+          p.bs = '';
+        } else {
+          p.ba = new ExpTArray([]);
+          p.bt = 'array';
+          p.pl.push('a');
+        }
       } else if (val[i] == '{') {
         p.ba = new ExpTObject({});
         p.bt = 'object';
-        p.pl = ['o'];
+        p.pl.push('o');
       } else if (VAR.indexOf(val[i]) < 0) {
         p.bs += val[i];
         p.bt = 'var';
@@ -139,7 +146,7 @@ function ToExpArr(val) {
         p.ra.push(new ExpOperator('*'));
         p.bs = '';
         p.bt = 'paren';
-        p.pl = ['p'];
+        p.pl.push('p');
       } else if (val[i] == ' ') {
         p.ra.push(new ExpNumber(p.bs));
         p.bs = '';
@@ -158,7 +165,7 @@ function ToExpArr(val) {
         p.ra.push(new ExpOperator('*'));
         p.bs = '';
         p.bt = 'paren';
-        p.pl = ['p'];
+        p.pl.push('p');
       }
     } else if (p.bt == 'string') {
       ExpArrString(val[i], p);

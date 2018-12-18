@@ -37,15 +37,27 @@ function ExpMatrix(val, val2) {
       for (let x = 0; x < this.w; x++) ta.push(0);
       this.val.push(ta);
     }
-  } else {
-    this.w = val.val.length;
-    this.h = val.val[0].val.length;
+  } else if ('val' in val) {
+    this.w = val.val[0].val.length;
+    this.h = val.val.length;
     this.val = [];
     for (let y = 0; y < this.h; y++) {
       let ta = [];
       for (let x = 0; x < this.w; x++) ta.push(val.val[y].val[x]);
       this.val.push(ta);
     }
+  } else {
+    this.w = val[0].length;
+    this.h = val.length;
+    this.val = val;
+  }
+}
+function ExpSurreal(val) {
+  this.type = 'surreal';
+  if (typeof val == 'object') {
+    this.val = val;
+  } else {
+    
   }
 }
 function ExpArray(val) {

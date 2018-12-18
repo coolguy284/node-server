@@ -1,6 +1,12 @@
 function ExpPropAcc(val1, val2) {
-  var rv = val1.val[val2.val];;
-  return rv === undefined ? CL_UNDEFINED : rv;
+  var rv = val1.val[val2.val];
+  if (rv !== undefined) return rv;
+  if (val2.val == 'val' || val2.val == 'type') return CL_UNDEFINED;
+  else if (val2.val in val1) {
+    if (typeof val1[val2.val] == 'function') return new ExpFunc(args => val1[val2.val].apply(val1, args));
+    else return CL_UNDEFINED;
+  }
+  return CL_UNDEFINED;
 }
 function ExpTypeof(val) {
   return new ExpString(val.type);
@@ -61,10 +67,10 @@ function ExpMultiply(val1, val2) {
     if (val1.__mul__) {
       let rv = val1.__mul__(val2);
       if (rv !== undefined) return rv;
-      if (val2.__rmul__) {
-        let rv = val2.__rmul__(val2);
-        if (rv !== undefined) return rv;
-      }
+    }
+    if (val2.__rmul__) {
+      let rv = val2.__rmul__(val1);
+      if (rv !== undefined) return rv;
     }
     throw new Error('unsupported operand type(s) for *: \'' + val1.type + '\' and \'' + val2.type + '\'');
   }
@@ -78,10 +84,10 @@ function ExpDivide(val1, val2) {
     if (val1.__div__) {
       let rv = val1.__div__(val2);
       if (rv !== undefined) return rv;
-      if (val2.__rdiv__) {
-        let rv = val2.__rdiv__(val2);
-        if (rv !== undefined) return rv;
-      }
+    }
+    if (val2.__rdiv__) {
+      let rv = val2.__rdiv__(val1);
+      if (rv !== undefined) return rv;
     }
     throw new Error('unsupported operand type(s) for /: \'' + val1.type + '\' and \'' + val2.type + '\'');
   }
@@ -106,10 +112,10 @@ function ExpAdd(val1, val2) {
     if (val1.__add__) {
       let rv = val1.__add__(val2);
       if (rv !== undefined) return rv;
-      if (val2.__radd__) {
-        let rv = val2.__radd__(val2);
-        if (rv !== undefined) return rv;
-      }
+    }
+    if (val2.__radd__) {
+      let rv = val2.__radd__(val1);
+      if (rv !== undefined) return rv;
     }
     throw new Error('unsupported operand type(s) for +: \'' + val1.type + '\' and \'' + val2.type + '\'');
   }
@@ -123,10 +129,10 @@ function ExpSubtract(val1, val2) {
     if (val1.__sub__) {
       let rv = val1.__sub__(val2);
       if (rv !== undefined) return rv;
-      if (val2.__rsub__) {
-        let rv = val2.__rsub__(val2);
-        if (rv !== undefined) return rv;
-      }
+    }
+    if (val2.__rsub__) {
+      let rv = val2.__rsub__(val1);
+      if (rv !== undefined) return rv;
     }
     throw new Error('unsupported operand type(s) for -: \'' + val1.type + '\' and \'' + val2.type + '\'');
   }
