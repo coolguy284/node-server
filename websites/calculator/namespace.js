@@ -120,6 +120,7 @@ var varns = {
   false: new ExpBool(false),
   NaN: new ExpNumber(NaN),
   Infinity: new ExpNumber(Infinity),
+  w: new ExpSurreal([[1, 1]]),
   pi: new ExpNumber(Math.PI),
   e: new ExpNumber(Math.E),
   phi: new ExpNumber((1 + 5 ** 0.5) / 2),

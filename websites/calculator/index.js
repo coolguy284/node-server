@@ -72,6 +72,8 @@ function ObjToText(val, va) {
     if (va.indexOf(val) >= 0) return '[Circular]';
     va.push(val);
     return 'Matrix([' + val.val.map(x => '[' + x.map(y => ObjToText(y, va)) + ']').join(',\n           ') + '])';
+  } else if (val.type == 'surreal') {
+    return ExpSurrToStr(val.valarr);
   } else if (val.type == 'jsobj') {
     return 'JSObj { ' + inspect(val.val) + ' }';
   } else {

@@ -55,9 +55,11 @@ function ExpMatrix(val, val2) {
 function ExpSurreal(val) {
   this.type = 'surreal';
   if (typeof val == 'object') {
-    this.val = val;
+    this.valarr = val;
+  } else if (typeof val == 'string') {
+    this.valarr = ExpSurrToValArr(val);
   } else {
-    
+    this.valarr = [val, 0];
   }
 }
 function ExpArray(val) {
