@@ -163,53 +163,62 @@ global.pcpuUsage = global.cpuUsage;
 global.dcpuUsage = { user: 0, system: 0 };
 global.memUsage = process.memoryUsage();
 global.port = process.env.PORT || 8080;
-try {
-  global.chat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/chat.json').toString());
-  if (Object.prototype.toString.call(chat) != '[object Array]') throw new Error('invalid chat object');
-} catch (e) {
-  console.error('chat restore failed, chat empty');
-  console.error(e);
+if (datajs.feat.datadir != '') {
+  try {
+    global.chat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/chat.json').toString());
+    if (Object.prototype.toString.call(chat) != '[object Array]') throw new Error('invalid chat object');
+  } catch (e) {
+    console.error('chat restore failed, chat empty');
+    console.error(e);
+    global.chat = [];
+  }
+  try {
+    global.rchat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/rchat.json').toString());
+    if (Object.prototype.toString.call(rchat) != '[object Array]') throw new Error('invalid rchat object');
+  } catch (e) {
+    console.error('rchat restore failed, rchat empty');
+    console.error(e);
+    global.rchat = [];
+  }
+  try {
+    global.mchat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/mchat.json').toString());
+    if (Object.prototype.toString.call(mchat) != '[object Object]') throw new Error('invalid mchat object');
+  } catch (e) {
+    console.error('mchat restore failed, mchat empty');
+    console.error(e);
+    global.mchat = {};
+  }
+  try {
+    global.viewshist = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/views.json').toString());
+    if (Object.prototype.toString.call(viewshist) != '[object Object]') throw new Error('invalid viewshist object');
+    if (Object.keys(viewshist).indexOf('reg') < 0) throw new Error('invalid viewshist object');
+  } catch (e) {
+    console.error('viewshist restore failed, viewshist empty');
+    console.error(e);
+    global.viewshist = {reg:{},ajax:{},p404:{}};
+  }
+  try {
+    global.savedvarsa = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/savedvars.json').toString());
+    if (Object.prototype.toString.call(savedvarsa) != '[object Object]') throw new Error('invalid savedvarsa object');
+  } catch (e) {
+    console.error('savedvars restore failed, savedvars empty');
+    console.error(e);
+    global.savedvarsa = {};
+  }
+  try {
+    global.saveddat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/saveddat.json').toString());
+    if (Object.prototype.toString.call(saveddat) != '[object Object]') throw new Error('invalid saveddat object');
+  } catch (e) {
+    console.error('saveddat restore failed, saveddat empty');
+    console.error(e);
+    global.saveddat = {};
+  }
+} else {
   global.chat = [];
-}
-try {
-  global.rchat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/rchat.json').toString());
-  if (Object.prototype.toString.call(rchat) != '[object Array]') throw new Error('invalid rchat object');
-} catch (e) {
-  console.error('rchat restore failed, rchat empty');
-  console.error(e);
   global.rchat = [];
-}
-try {
-  global.mchat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/mchat.json').toString());
-  if (Object.prototype.toString.call(mchat) != '[object Object]') throw new Error('invalid mchat object');
-} catch (e) {
-  console.error('mchat restore failed, mchat empty');
-  console.error(e);
   global.mchat = {};
-}
-try {
-  global.viewshist = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/views.json').toString());
-  if (Object.prototype.toString.call(viewshist) != '[object Object]') throw new Error('invalid viewshist object');
-  if (Object.keys(viewshist).indexOf('reg') < 0) throw new Error('invalid viewshist object');
-} catch (e) {
-  console.error('viewshist restore failed, viewshist empty');
-  console.error(e);
   global.viewshist = {reg:{},ajax:{},p404:{}};
-}
-try {
-  global.savedvarsa = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/savedvars.json').toString());
-  if (Object.prototype.toString.call(savedvarsa) != '[object Object]') throw new Error('invalid savedvarsa object');
-} catch (e) {
-  console.error('savedvars restore failed, savedvars empty');
-  console.error(e);
   global.savedvarsa = {};
-}
-try {
-  global.saveddat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/saveddat.json').toString());
-  if (Object.prototype.toString.call(saveddat) != '[object Object]') throw new Error('invalid saveddat object');
-} catch (e) {
-  console.error('saveddat restore failed, saveddat empty');
-  console.error(e);
   global.saveddat = {};
 }
 while (colog.length < datajs.feat.lim.cologmin) colog.unshift(['', '{}']);

@@ -112,20 +112,12 @@ ExpMatrix.prototype = {
     else {
       let ds = new ExpNumber(0);
       for (let i = 0; i < this.w; i++) {
-        ds = ExpAdd(ds,
-          ExpMultiply(
-            new ExpNumber((-1) ** i),
-            ExpMultiply(
-              this.get(0, i),
-              this.submat(0, 1).det()
-            )
-          )
-        );
+        ds = ExpAdd(ds, ExpMultiply(new ExpNumber((-1) ** i), ExpMultiply(this.get(0, i), this.submat(0, i).det())));
       }
       return ds;
     }
   },
-  adj: function () { //fix?
+  adj: function () {
     if (this.w != this.h) throw new Error('cannot calculate the adjuglate of a non-square matrix');
     if (this.w == 1) return Matrix([[new ExpNumber(1)]]);
     else if (this.w == 2) {
@@ -138,16 +130,13 @@ ExpMatrix.prototype = {
       let rm2 = new ExpMatrix(this.w, this.h);
       for (let j = 0; j < rm.h; j++) {
         for (let i = 0; i < rm.w; i++) {
-          rm2.set(j, i, ExpMultiply(
-            new ExpNumber((-1) ** (j + i)),
-            rm.submat(j, i).det()
-          ));
+          rm2.set(j, i, ExpMultiply(new ExpNumber((-1) ** (j + i)), rm.submat(j, i).det()));
         }
       }
       return rm2;
     }
   },
-  inv: function () { //fix
+  inv: function () {
     if (this.w != this.h) throw new Error('cannot calculate the inverse of a non-square matrix');
     return ExpMultiply(ExpDivide(new ExpNumber(1), this.det()), this.adj());
   }
