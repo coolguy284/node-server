@@ -1,6 +1,6 @@
 ExpSurreal.prototype = {
   __pos__: function() {
-    let rs = new ExpSurreal(this.valarr);
+    let rs = new ExpSurreal(this.valarr.map(x => x.map(y => ExpUnaryPlus(y))));
     for (let i in rs.valarr) {
       rs.valarr[i][0] = ExpUnaryPlus(rs.valarr[i][0]);
       rs.valarr[i][1] = ExpUnaryPlus(rs.valarr[i][1]);
@@ -8,7 +8,7 @@ ExpSurreal.prototype = {
     return rs;
   },
   __neg__: function() {
-    let rs = new ExpSurreal(this.valarr);
+    let rs = new ExpSurreal(this.valarr.map(x => x.map(y => ExpUnaryPlus(y))));
     for (let i in rs.valarr) {
       rs.valarr[i][0] = ExpUnaryMinus(rs.valarr[i][0]);
       rs.valarr[i][1] = ExpUnaryPlus(rs.valarr[i][1]);
@@ -29,6 +29,117 @@ ExpSurreal.prototype = {
       }
       rs.valarr = ExpSurrSimpArr(rs.valarr);
       return rs;
+    }
+  },
+  __radd__: function (that) {
+    let rs = ExpUnaryPlus(this);
+    ExpSurrAddTerm(rs.valarr, new ExpNumber(0), that);
+    rs.valarr = ExpSurrSimpArr(rs.valarr);
+    return rs;
+  },
+  __sub__: function (that) {
+    if (that.type != 'surreal') {
+      let rs = ExpUnaryPlus(this);
+      ExpSurrAddTerm(rs.valarr, new ExpNumber(0), ExpUnaryMinus(that));
+      rs.valarr = ExpSurrSimpArr(rs.valarr);
+      return rs;
+    } else {
+      let rs = ExpUnaryPlus(this);
+      for (let iv in that.valarr) {
+        let i = that.valarr[iv];
+        ExpSurrAddTerm(rs.valarr, i[1], ExpUnaryMinus(i[0]));
+      }
+      rs.valarr = ExpSurrSimpArr(rs.valarr);
+      return rs;
+    }
+  },
+  __rsub__: function (that) {
+    let rs = ExpUnaryMinus(this);
+    ExpSurrAddTerm(rs.valarr, new ExpNumber(0), that);
+    rs.valarr = ExpSurrSimpArr(rs.valarr);
+    return rs;
+  },
+  __mul__: function (that) {
+    if (that.type != 'surreal') {
+      let rs = new ExpSurreal([[new ExpNumber(0), new ExpNumber(0)]]);
+      for (let iv in this.valarr) {
+        let i = this.valarr[iv];
+        ExpSurrAddTerm(rs.valarr, i[1], ExpMultiply(i[0], that));
+      }
+      rs.valarr = ExpSurrSimpArr(rs.valarr);
+      return rs;
+    } else {
+      let rs = new ExpSurreal([[new ExpNumber(0), new ExpNumber(0)]]);
+      for (let iv in that.valarr) {
+        let i = that.valarr[iv];
+        for (let jv in this.valarr) {
+          let j = this.valarr[jv];
+          ExpSurrAddTerm(rs.valarr, ExpAdd(j[1], i[1]), ExpMultiply(j[0], i[0]));
+        }
+      }
+      rs.valarr = ExpSurrSimpArr(rs.valarr);
+      return rs;
+    }
+  },
+  __rmul__: function (that) {
+    let rs = new ExpSurreal([[new ExpNumber(0), new ExpNumber(0)]]);
+    for (let iv in this.valarr) {
+      let i = this.valarr[iv];
+      ExpSurrAddTerm(rs.valarr, i[1], ExpMultiply(that, i[0]));
+    }
+    rs.valarr = ExpSurrSimpArr(rs.valarr);
+    return rs;
+  },
+  __div__: function (that) {
+    return this.__mul__(ExpDivide(new ExpNumber(1), that));
+  },
+  __rdiv__: function (that) {
+    return this.recip().__mul__(that);
+  },
+  __pow__: function (that) {
+    if (self.valarr.length == 1) {
+      return new ExpSurreal([[ExpExponentiate(this.valarr[0][0], that), ExpMultiply(this.valarr[0][1], that)]]);
+    }
+  },
+  __gt__: function (that) {
+    return new ExpBool(ExpSurrCompare(this, that) > 0);
+  },
+  __lt__: function (that) {
+    return new ExpBool(ExpSurrCompare(this, that) < 0);
+  },
+  __ge__: function (that) {
+    return new ExpBool(ExpSurrCompare(this, that) >= 0);
+  },
+  __le__: function (that) {
+    return new ExpBool(ExpSurrCompare(this, that) <= 0);
+  },
+  __eq__: function (that) {
+    return new ExpBool(ExpSurrCompare(this, that) == 0);
+  },
+  __ne__: function (that) {
+    return new ExpBool(ExpSurrCompare(this, that) != 0);
+  },
+  recip: function () {
+    return new ExpSurreal([[ExpDivide(new ExpNumber(1), this.valarr[0][0]), ExpUnaryMinus(this.valarr[0][1])]]);
+  },
+  to_float: function() {
+    for (let iv in this.valarr) {
+      let i = this.valarr[iv];
+      if (ExpGreaterThan(i[1], new ExpNumber(0)).val) {
+        if (ExpGreaterThan(i[0], new ExpNumber(0)).val) {
+          return new ExpNumber(Infinity);
+        } else {
+          return new ExpNumber(-Infinity);
+        }
+      } else if (ExpEqual(i[1], new ExpNumber(0)).val) {
+        return ExpUnaryPlus(i[0]);
+      } else if (ExpLessThan(i[1], new ExpNumber(0)).val) {
+        if (ExpGreaterThanEqual(i[0], new ExpNumber(0)).val) {
+          return new ExpNumber(0);
+        } else {
+          return new ExpNumber(-0);
+        }
+      }
     }
   }
 };
@@ -81,18 +192,18 @@ function ExpSurrCompare(self, other) {
   } else {
     for (iv in self.valarr) {
       let i = self.valarr[iv].map(x => x.val);
-      if (i[1] > 0.0) {
-        if (i[0] > 0.0) return 1;
+      if (i[1] > 0) {
+        if (i[0] > 0) return 1;
         else return -1;
-      } else if (i[1] == 0.0) {
+      } else if (i[1] == 0) {
         if (i[0] > other.val) return 1;
         else if (i[0] == other.val) return 0;
         else if (i[0] < other.val) return -1;
-      } else if (i[1] < 0.0) {
-        if (other.val > 0.0) return -1;
-        else if (other.val < 0.0) return 1;
-        else if (i[0] > 0.0) return 1;
-        else if (i[0] < 0.0) return -1;
+      } else if (i[1] < 0) {
+        if (other.val > 0) return -1;
+        else if (other.val < 0) return 1;
+        else if (i[0] > 0) return 1;
+        else if (i[0] < 0) return -1;
         else return 0;
       }
     }
@@ -118,7 +229,7 @@ function ExpSurrToValArr(val) {
         valexp = '';
         valmode = 'numtexp';
       } else if ('+-'.indexOf(val[i]) > -1) {
-        valarr.push([new ExpNumber(valstr), new ExpNumber(0)])
+        valarr.push([new ExpNumber(valstr), new ExpNumber(0)]);
         if (val[i] == '-') valstr = '-';
         else valstr = '';
         valmode = 'num';
@@ -161,7 +272,7 @@ function ExpSurrToValArr(val) {
   } else {
     if (valstr.length > 0) {
       if (valexp.length > 0) valarr.push([new ExpNumber(valstr), new ExpNumber(valexp)]);
-      else valarr.push([new ExpNumber(valstr), 0.0]);
+      else valarr.push([new ExpNumber(valstr), new ExpNumber(0)]);
     }
   }
   return valarr;

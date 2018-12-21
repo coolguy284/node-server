@@ -142,22 +142,94 @@ function ExpSubtract(val1, val2) {
   }
 }
 function ExpGreaterThan(val1, val2) {
-  return new ExpBool(val1.val > val2.val);
+  if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
+    return new ExpBool(val1.val > val2.val);
+  } else {
+    if (val1.__gt__) {
+      let rv = val1.__gt__(val2);
+      if (rv !== undefined) return rv;
+    }
+    if (val2.__le__) {
+      let rv = val2.__le__(val1);
+      if (rv !== undefined) return rv;
+    }
+    throw new Error('unsupported operand type(s) for >: \'' + val1.type + '\' and \'' + val2.type + '\'');
+  }
 }
 function ExpLessThan(val1, val2) {
-  return new ExpBool(val1.val < val2.val);
+  if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
+    return new ExpBool(val1.val < val2.val);
+  } else {
+    if (val1.__lt__) {
+      let rv = val1.__lt__(val2);
+      if (rv !== undefined) return rv;
+    }
+    if (val2.__ge__) {
+      let rv = val2.__ge__(val1);
+      if (rv !== undefined) return rv;
+    }
+    throw new Error('unsupported operand type(s) for <: \'' + val1.type + '\' and \'' + val2.type + '\'');
+  }
 }
 function ExpGreaterThanEqual(val1, val2) {
-  return new ExpBool(val1.val >= val2.val);
+  if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
+    return new ExpBool(val1.val >= val2.val);
+  } else {
+    if (val1.__ge__) {
+      let rv = val1.__ge__(val2);
+      if (rv !== undefined) return rv;
+    }
+    if (val2.__lt__) {
+      let rv = val2.__lt__(val1);
+      if (rv !== undefined) return rv;
+    }
+    throw new Error('unsupported operand type(s) for >=: \'' + val1.type + '\' and \'' + val2.type + '\'');
+  }
 }
 function ExpLessThanEqual(val1, val2) {
-  return new ExpBool(val1.val <= val2.val);
+  if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
+    return new ExpBool(val1.val <= val2.val);
+  } else {
+    if (val1.__le__) {
+      let rv = val1.__le__(val2);
+      if (rv !== undefined) return rv;
+    }
+    if (val2.__gt__) {
+      let rv = val2.__gt__(val1);
+      if (rv !== undefined) return rv;
+    }
+    throw new Error('unsupported operand type(s) for <=: \'' + val1.type + '\' and \'' + val2.type + '\'');
+  }
 }
 function ExpEqual(val1, val2) {
-  return new ExpBool(val1.val == val2.val);
+  if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
+    return new ExpBool(val1.val == val2.val);
+  } else {
+    if (val1.__eq__) {
+      let rv = val1.__eq__(val2);
+      if (rv !== undefined) return rv;
+    }
+    if (val2.__ne__) {
+      let rv = val2.__ne__(val1);
+      if (rv !== undefined) return rv;
+    }
+    throw new Error('unsupported operand type(s) for ==: \'' + val1.type + '\' and \'' + val2.type + '\'');
+  }
 }
 function ExpNotEqual(val1, val2) {
-  return new ExpBool(val1.val != val2.val);
+  if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
+    return new ExpBool(val1.val != val2.val);
+  } else {
+    if (val1.__ne__) {
+      let rv = val1.__ne__(val2);
+      if (rv !== undefined) return rv;
+    }
+    if (val2.__eq__) {
+      let rv = val2.__eq__(val1);
+      if (rv !== undefined) return rv;
+    }
+    throw new Error('unsupported operand type(s) for !=: \'' + val1.type + '\' and \'' + val2.type + '\'');
+  }
 }
 function ExpBitwiseAnd(val1, val2) {
   if (val1.type == 'number' && val2.type == 'number') {

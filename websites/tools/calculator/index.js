@@ -52,7 +52,8 @@ function ObjToText(val, va) {
   } else if (val.type == 'bool') {
     return '' + val.val;
   } else if (val.type == 'number') {
-    return '' + val.val;
+    if (Object.is(val.val, -0)) return '-0';
+    else return '' + val.val;
   } else if (val.type == 'bigint') {
     return '' + val.val + 'n';
   } else if (val.type == 'string') {
