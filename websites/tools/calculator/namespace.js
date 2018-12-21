@@ -120,7 +120,8 @@ var varns = {
   false: new ExpBool(false),
   NaN: new ExpNumber(NaN),
   Infinity: new ExpNumber(Infinity),
-  w: new ExpSurreal([[1, 1]]),
+  i: new ExpComplex('0+1i'),
+  w: new ExpSurreal('w'),
   pi: new ExpNumber(Math.PI),
   e: new ExpNumber(Math.E),
   phi: new ExpNumber((1 + 5 ** 0.5) / 2),
@@ -151,6 +152,11 @@ var varns = {
   }),
   Object: new ExpFunc(function (args) {
     if (args.length == 0) return new ExpObject({});
+  }),
+  Complex: new ExpFunc(function (args) {
+    if (args[0].type == 'string') return new ExpComplex(args[0].val);
+    else if (args.length == 1) return new ExpComplex(args[0], new ExpNumber(0));
+    else return new ExpComplex(args[0], args[1]);
   }),
   Matrix: new ExpFunc(function (args) {
     if (args.length == 1) return new ExpMatrix(args[0]);
@@ -309,10 +315,10 @@ var varns = {
     return ExpMultiply(args[0], args[0]);
   }),
   sqrt: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.sqrt(x));
+    if (args[0].type == 'number') return new ExpNumber(Math.sqrt(args[0].val));
   }),
   cbrt: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.cbrt(x));
+    if (args[0].type == 'number') return new ExpNumber(Math.cbrt(args[0].val));
   }),
   hypot: new ExpFunc(function (args) {
     if (args.every(x => x.type == 'number')) return new ExpNumber(Math.hypot.apply(Math, args.map(x => x.val)));

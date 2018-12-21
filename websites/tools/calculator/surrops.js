@@ -1,9 +1,40 @@
-ExpSurreal.__prototype__ = {
-  
+ExpSurreal.prototype = {
+  __pos__: function() {
+    let rs = new ExpSurreal(this.valarr);
+    for (let i in rs.valarr) {
+      rs.valarr[i][0] = ExpUnaryPlus(rs.valarr[i][0]);
+      rs.valarr[i][1] = ExpUnaryPlus(rs.valarr[i][1]);
+    }
+    return rs;
+  },
+  __neg__: function() {
+    let rs = new ExpSurreal(this.valarr);
+    for (let i in rs.valarr) {
+      rs.valarr[i][0] = ExpUnaryMinus(rs.valarr[i][0]);
+      rs.valarr[i][1] = ExpUnaryPlus(rs.valarr[i][1]);
+    }
+    return rs;
+  },
+  __add__: function(that) {
+    if (that.type != 'surreal') {
+      let rs = ExpUnaryPlus(this);
+      ExpSurrAddTerm(rs.valarr, new ExpNumber(0), that);
+      rs.valarr = ExpSurrSimpArr(rs.valarr);
+      return rs;
+    } else {
+      let rs = ExpUnaryPlus(this);
+      for (let iv in that.valarr) {
+        let i = that.valarr[iv];
+        ExpSurrAddTerm(rs.valarr, i[1], i[0]);
+      }
+      rs.valarr = ExpSurrSimpArr(rs.valarr);
+      return rs;
+    }
+  }
 };
 function ExpSurrAddTerm(valarr, term, val) {
   let ind = ExpSurrHasTerm(valarr, term);
-  if (ind > -1) valarr[ind][0] += val;
+  if (ind > -1) valarr[ind][0] = ExpAdd(valarr[ind][0], val);
   else {
     valarr.push([val, term]);
     valarr = ExpSurrSortArr(valarr);
@@ -139,16 +170,14 @@ function ExpSurrToStr(valarr) {
   let valstr = '';
   for (i in valarr) {
     if (valarr[i][0].val >= 0 && i != 0) valstr += '+';
-    if (valarr[i][0].val == -1 && valarr[i][1] != 0) valstr += '-';
+    if (valarr[i][0].val == -1 && valarr[i][1].val != 0) valstr += '-';
     else if (valarr[i][0].val != 1 || valarr[i][1].val == 0) {
-      if ((Math.floor(valarr[i][0].val) == valarr[i][0].val) && Math.abs(valarr[i][0].val) < 1e9) valstr += String(valarr[i][0].val);
-      else valstr += String(valarr[i][0].val);
+      valstr += valarr[i][0].val;
     }
-    if (valarr[i][1].val != 0.0) {
-      if (valarr[i][1].val == 1.0) valstr += 'w';
+    if (valarr[i][1].val != 0) {
+      if (valarr[i][1].val == 1) valstr += 'w';
       else {
-        if ((Math.floor(valarr[i][1].val) == valarr[i][1].val) && Math.abs(valarr[i][1].val) < 1e9) valstr += 'w^' + String(valarr[i][1].val);
-        else valstr += 'w^' + String(valarr[i][1].val);
+        valstr += 'w^' + valarr[i][1].val;
       }
     }
   }
@@ -157,9 +186,9 @@ function ExpSurrToStr(valarr) {
 function ExpSurrSortArr(valarr) {
   let ra = new Array(valarr);
   return valarr.sort(function (a, b) {
-    if (a[1] > b[1]) return -1;
-    else if (a[1] < b[1]) return 1;
-    else if (a[1] == b[1]) return 0;
+    if (a[1].val > b[1].val) return -1;
+    else if (a[1].val < b[1].val) return 1;
+    else if (a[1].val == b[1].val) return 0;
   });
 }
 function ExpSurrSimpArr(valarr) {

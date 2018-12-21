@@ -1,5 +1,5 @@
 function ExpPropAcc(val1, val2) {
-  var rv = val1.val[val2.val];
+  var rv = Object.hasOwnProperty(val1.val, val2.val) ? val1.val[val2.val] : undefined;
   if (rv !== undefined) return rv;
   if (val2.val == 'val' || val2.val == 'type') return CL_UNDEFINED;
   else if (val2.val in val1) {
@@ -48,6 +48,10 @@ function ExpExponentiate(val1, val2) {
     if (val1.val.toString().length * Number(val2.val) > BIGLIMIT.digit) throw new Error('large exponentation attempted, to disable warning turn off in settings.');
     return new ExpBigInt(val1.val ** val2.val);
   } else {
+    if (val1.__pow__) {
+      let rv = val1.__pow__(val2);
+      if (rv !== undefined) return rv;
+    }
     throw new Error('unsupported operand type(s) for **: \'' + val1.type + '\' and \'' + val2.type + '\'');
   }
 }

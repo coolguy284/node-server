@@ -1,6 +1,6 @@
 // jshint -W061
 module.exports = {
-  'nlist' : ['help', 'say', 'spls', 'splb', 'edtt', 'webban', 'webunban', 'webpardon', 'lock', 'unlock', 'kick', 'ban', 'unban', 'pardon', 'ipban', 'ban-ip', 'ipunban', 'unban-ip', 'ippardon', 'pardon-ip', 'ripban', 'rban-ip', 'ripunban', 'runban-ip', 'rippardon', 'rpardon-ip', 'feat', 'rule', 'get', 'cc', 'cct'],
+  'nlist' : ['help', 'say', 'spls', 'splb', 'edtt', 'webban', 'webunban', 'webpardon', 'lock', 'unlock', 'kick', 'ban', 'unban', 'pardon', 'ipban', 'ban-ip', 'ipunban', 'unban-ip', 'ippardon', 'pardon-ip', 'ripban', 'rban-ip', 'ripunban', 'runban-ip', 'rippardon', 'rpardon-ip', 'feat', 'rule', 'get', 'cc', 'cct', 'crct'],
   'list' : {
     'help' : ['Lists all commands or usage of one.', '[command]'],
     'say' : ['Says something in chat, under the name of "[server]".', '<text>'],
@@ -23,7 +23,8 @@ module.exports = {
     'feat' : ['Edit a feature of this website.', '<name> [value]'],
     'get' : ['Get a statistic about the server', '[statistic]'],
     'cc' : ['Clear the console.', ''],
-    'cct' : ['Clear the chat.', '']
+    'cct' : ['Clear the chat.', ''],
+    'crct' : ['Clear the chat.', '']
   },
   'map' : function (val) {
     switch (val) {
@@ -78,6 +79,8 @@ module.exports = {
         return datajs.comm.list.cc;
       case 'cct':
         return datajs.comm.list.cct;
+      case 'crct':
+        return datajs.comm.list.crct;
     }
   },
   'run' : function (tex, console) {
@@ -189,6 +192,9 @@ module.exports = {
         break;
       case 'cct':
         chat.splice(0, Infinity);
+        break;
+      case 'crct':
+        rchat.splice(0, Infinity);
         break;
       case 'servtimo':
         if (args[0] !== undefined) {

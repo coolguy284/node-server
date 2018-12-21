@@ -514,7 +514,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
             runelse = true;
           }
         } else {
-          let rs = fs.createReadStream('/websites/user/signedout.html');
+          let rs = fs.createReadStream('websites/user/signedout.html');
           res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
           rs.pipe(res);
         }
@@ -527,8 +527,10 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       Object.keys(datajs.handlerp).forEach(function (val) {if (req.url.startsWith(val) && val.startsWith(hanp)) {hanp = val;}});
       if (hanp) {
         return datajs.handlerp[hanp](req, res);
-      } else if (datajs.handlerf.hasOwnProperty(req.url)) {
-        return datajs.handlerf[req.url](req, res);
+      } else if (datajs.handlerf.hasOwnProperty('null' + req.url)) {
+        return datajs.handlerf['null' + req.url](req, res);
+      } else if (nam !== null && datajs.handlerf.hasOwnProperty(nam + req.url)) {
+        return datajs.handlerf[nam + req.url](req, res);
       } else if (datajs.feat.tempp.hasOwnProperty(req.url)) {
         res.writeHead(200, datajs.feat.tempp[req.url][0]);
         res.write(datajs.feat.tempp[req.url][1]);

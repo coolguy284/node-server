@@ -1,4 +1,5 @@
 // jshint maxerr:1000 -W041 -W051 -W060 -W061
+hdcls.src = stcls.src = '../../images/close.png';
 var calcarr = [], cinphist = [], histind = 0, currtext = '';
 function HelpTogg() {
   if (helpdiv.style.cssText == 'display: none;') {
@@ -68,6 +69,8 @@ function ObjToText(val, va) {
     if (ka.length == 0) return '{}';
     for (let i in ka) ba.push(inspect(ka[i]) + ': ' + ObjToText(val.val[ka[i]], va));
     return '{ ' + ba.join(', ') + ' }';
+  } else if (val.type == 'complex') {
+    return '(' + ObjToText(val.a) + (ExpGreaterThanEqual(val.b, new ExpNumber(0)).val ? ('+' + ObjToText(val.b)) : ObjToText(val.b)) + 'i)';
   } else if (val.type == 'matrix') {
     if (va.indexOf(val) >= 0) return '[Circular]';
     va.push(val);

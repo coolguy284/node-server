@@ -13,7 +13,7 @@ module.exports = {
     if (Math.random() < 0.0001 && chatherelist.length == 5) {
       adm.addchat(null, '[server ghost]', datajs.splash[Math.floor(Math.random() * datajs.splash.length)]);
     }
-    if (global.ticks % datajs.feat.savefreq == 0) {
+    if (datajs.feat.datadir != '' && global.ticks % datajs.feat.savefreq == 0) {
       savev();
     }
     global.pcpuUsage = cpuUsage;
