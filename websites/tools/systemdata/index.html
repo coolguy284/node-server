@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>System Data</title>
+    <style>
+      #constext {
+        width: calc(100% - 20px);
+        height: 400px;
+        margin: 0 5px 0;
+        padding: 5px;
+        border: 2px solid black;
+        overflow: scroll;
+        white-space: pre;
+        font-family: monospace;
+      }
+      #conc {
+        width: calc(100% - 10px);
+        margin: 0 5px 0;
+        font-family: monospace;
+      }
+    </style>
+  </head>
+  <body style = 'font-family:monospace;'>
+    <details id = 'basic'>
+      <summary>Basic Information</summary>
+      <button onclick = 'basicfunc()'>Refresh</button><br>
+      Browser Codename: <span id = 'basiccode'></span><br>
+      Browser Name: <span id = 'basicname'></span><br>
+      Browser Version: <span id = 'basicvers'></span><br>
+      Browser Language: <span id = 'basiclang'></span><br>
+      Browser Platform: <span id = 'basicplat'></span><br>
+      Browser Product: <span id = 'basicprod'></span><br>
+      Browser User Agent: <span id = 'basicusera'></span><br>
+      Browser Online: <span id = 'basiconline'></span><br>
+      URL of Webpage: <span id = 'basicurl'></span><br>
+      Cookies Enabled: <span id = 'basiccookie'></span><br>
+      Java Enabled: <span id = 'basicjava'></span>
+    </details>
+    <details id = 'batt'>
+      <summary>Battery</summary>
+      Charging: <span id = 'battcharging'></span><br>
+      Time to 100%: <span id = 'batt100'></span><br>
+      Time to 0%: <span id = 'batt0'></span><br>
+      Level: <span id = 'battlevel'></span>
+    </details>
+    <details>
+      <summary>Illumination</summary>
+      Illumination: <span id = 'illlux'></span> lux
+    </details>
+    <details id = 'geo'>
+      <summary>Geo Location</summary>
+      <button onclick = 'geofunc()'>Refresh</button><br>
+      <span id = 'geostat'></span><br>
+      Lat, Lon: (<span id = 'geolat'></span>, <span id = 'geolon'></span>)<br>
+      Altitude: <span id = 'geoalt'></span>m<br>
+      Heading: <span id = 'geohead'></span><br>
+      Speed: <span id = 'geospeed'></span><br>
+      Accuracy (l/w, h): (<span id = 'geoacc'></span>, <span id = 'geoaacc'></span>)
+    </details>
+    <details>
+      <summary>Rotation & Acceleration</summary>
+      No Rounding: <input type = 'range' id = 'accround' value = 0 min = 0 max = 1 onchange = 'if (parseInt(accround.value)) {accgs.style = "";} else {accgs.style = "font-size:24px;"}'><br>
+      Rotation (&alpha;, &beta;, &gamma;): (<span id = 'accalp'></span>, <span id = 'accbet'></span>, <span id = 'accgam'></span>)<br>
+      Acceleration (l-r, d-u, b-f): (<span id = 'accx'></span>,&nbsp;<span id = 'accy'></span>,&nbsp;<span id = 'accz'></span>)<br>
+      Acceleration with Gravity (l-r, d-u, b-f): (<span id = 'accxg'></span>,&nbsp;<span id = 'accyg'></span>,&nbsp;<span id = 'acczg'></span>)<br>
+      <span id = 'accgs' style = 'font-size:24px;'>G-Force: <span id = 'accg'></span>g (<span id = 'accms'></span> m/s)</span>
+    </details>
+    <details>
+      <summary>Variable Explorer</summary>
+      <details id = 'varexp-d2luZG93'>
+        <summary>window</summary>
+      </details>
+    </details>
+    <details>
+      <summary>JS Console</summary>
+      <div id = 'constext'></div>
+      <input type = 'text' id = 'conc'>
+    </details>
+    <script src = '../../js/base64.js'></script>
+    <script src = '../../js/utilinspect.js'></script>
+    <script src = '../../js/utilformat.js'></script>
+    <script src = 'systemdata.js'></script>
+    <script src = 'consoleedit.js'></script>
+    <script src = 'conc.js'></script>
+  </body>
+</html>

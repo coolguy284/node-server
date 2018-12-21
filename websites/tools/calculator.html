@@ -6,21 +6,24 @@
   <body style = 'width:100%;'>
     <div id = 'calcres' style = 'width:100%;height:400px;overflow:auto;font-family:monospace;white-space:pre;'></div>
     <input type = 'text' id = 'cinp' style = 'width:calc(100% - 110px);height:40px;font-size:36px;font-family:monospace;'>
-    <button onclick = 'HelpTogg()' style = 'position:relative;top:10px;padding:0;margin:0;'><img src = '../images/help.png' style = 'width:40px;height:40px;'></button>
-    <button onclick = 'SettingsTogg()' style = 'position:relative;top:10px;padding:0;margin:0;'><img src = '../images/settings.png' style = 'width:40px;height:40px;'></button><br>
+    <button onclick = 'HelpTogg()' style = 'position:relative;top:10px;padding:0;margin:0;'><img src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARFSURBVGhD7ZpbSBRRGMd97h5dpB5yV6TrQxTRSw8FRb1UD5VYGV3oIcyIjCKC6MWKoIeImk0zkkzJLmTRxagslSjNNOghrLSLkXZXz7hruW6n79s9pjvzzeyZ2dnVh/3DD4fd73znf+ZcZ9akhBJKKH5K9agT3R413aWoh10e9QpcV7k87DkC15X4GX7nPsXWpJ1gE0SxoaGU4+1j3KfVHS6F1bkV9hcMcylCsTVYFnOIdPFXsAEe9SjcYRZm0AbQU53YU3FvkEvp2giVf6NMRQdrg7/rRTWx08xTX0fAECrWG3AWrAPrEtU6K3eBmgx3rJ6qOBbgnHN8QcCEMJReUxXGFEVtdKwx085+HxnPniComZTPhwk79gVdXEIkjy8KKxJ27Am6dgOZWIIFRV6+9baP767o5nuBrLs+vuSil6edpuMlsLeaTfF0jLWzxGaUefmDD37+iQVI6tr8fNeDbg6nALK8MazN1j4DhY/qk5lzsPo3byHMUxS+7LHcO3Bjjwh7csKWW92xM2/4SMNm7HvYTeYyAjx1WOoVPP9QicyoIIZTdYs/aDYHhlLZG/33DV96rQ8xhW0XNiMLWl5LJjFgXmGXzmTNZz+ffqY/Bg3fae7RxS0q8YblioiiPhU2zRU8ils5xQIrr+qHVe7j37o4nEPauHRYHLRx5rDA1Hw2Xtg1FgSn6wubgw3BoTWQLbD0auMOVOkbsuKyPi4ybLWwayxcGejC0VP+LnxoNbcH+KyCLjLWDPB4SNg1FgRe1hZ0gv2V3WGNQPIa/pCxkWGlwq6xYKJX04Xtswd2du3+givW7LPWe0NQKewaC1r7gihoG1x6tY1o/NnLF8NxhYqXQmENwq6xMIgsbIPV17y6Rrz60cuX25rgA5BpiJNDS3vmeguTe2lpFD3Rj8zQcmayzz+v3yR33rd2JDFGbrIfpgtbY911b1gjmn4Fwnb6qFDUXGHXWBBoeUOk2FYevtvfe99DxtkhVWGrhF1j4fZv9YhCMedcF18G86GPhcWOzA2ABSaf7Bwn7JoLCtToEwwRFPWJsBlZUCBbl8AGeI7Cw2MObIgz8ukY67AsYTOyxINVB51Ijs23fPxjZ/8cwaU4LY+OtUC7pQcrVLSHx9tN+mcP3CCpWGlkViutQr3CvpAJJSgnHqLwxQQVK4XCWtNO/Bgl7FkTPPJmkkklwDPWwEbUtvqjmicw1DOELXtyedgFKrEMm276uFL/Jzjh58JyTMVIUijs2FfysbbhkGgwl2NnXpmi8EUyTLRGopLY4uRL7D6F3sizZ2SFMQDrcrwRfcIfX2D1KKIqdphCx4aTmaCi9bDD4s9klAn7wBKb4lHXimriI7H748/QnaQpCwRPEbDZpeb/Gi3Sx1/YIDCTjYc5PJlqTRoDsaEyWYPaAEr4CIDPCnh3YZhcAh79/4cBuA59BnceYqSP4gkllJADSkr6Bwc6Q2MDge/WAAAAAElFTkSuQmCC' style = 'width:40px;height:40px;'></button>
+    <button onclick = 'SettingsTogg()' style = 'position:relative;top:10px;padding:0;margin:0;'><img src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMaSURBVGhD7do5qNRQGMXxURFBtLBwe4IgYiPa22hnZ2ullWBpoZULFqLYiiIWCmJjYy1urcsTURDUUhsLV1wKt8Ll/OUFQjxJvptkJkHmwA/ekvflzkzuvbk3bzTNNNNMNEvkljyscVM4drDZJr+Dtspgs1tco51dMtgcEddo55AMNufFNdo5J4MNndg12rkqE89eOSHr/37ns13eimu081xWSVnWyEnprC9tkV/CyX/Kddkh84Xw+wdSbGjEd7koKyXLJrkkP4Rjvsk6aZV5cl+KDcALuSy8OPf7FO/lgHC5ZW9a3hVplZThdNwazzuL5aW4on14JNnlnJRj4gr2aY8kZa18EVcsir7zVK7N4Wt3/ad4JUslHDqxKxTxUQ7KailmRpjROcb9bQRDcigbpek7d1vyQ2lZOOaOuBp1GI6XS204qGzIrULDFkk0HHtPXK0qr2WFhLJQTosr5HyQcPFc+GQ+iavp0Ncin/g/2SmfxRXNo080DX3G1czjctonTNCNs0EeizsBGJ3oxE3D31b1ySeyWTpJ1bvGidqGodnVBjerneWMuJPghrQNNVxtsMbpLBfEnQTjfiG8iZ2Fj9edBF1cWs/E1UZnS2I6Go11JwEddZydnYGGAadxGOoY8hj63Any2rxrkQ0LpgCmguQw6TD5uKIOk1rTCTEyT2VOCZN1KKyVuQ1wharcldRblFlxtapwP7dAasOGQORycngxVRsKWbgz5lhXow79aZmEwq2yKxLBLfphcQMAPzsqbW7jWWKEw+KFRYwrFMU7x7DKrgv4ump0imCxx6IvKSwrXbE+sfxODgt9FvyuYB/YCGFDpFHYgnFF+8DWVKuwOVYsyrXOZhqbau/mftbGG9kvZRt0rFhbrUUI25XZcMw2JtuZbGtmYVLjppLtz2ID6nyVs5Jfgxe3THlhbMt2Ej5WhmQmy7Iwf7AxXWxsGY6tWrZyruPCBvrEw6XhGu308lghGh7euEY7g37QE9lIyHS2zhhHeCjjGu0M+mFoyrwz6MfT/BMA62/3TwJ53HsN+h8Gppnm/8po9AckRYmDrypBaAAAAABJRU5ErkJggg==' style = 'width:40px;height:40px;'></button><br>
     <select id = 'ccul' style = 'display:none;float:right;'>
       <option value = 'cal'>Calculate</option>
       <option value = 'cat'>Catculate</option>
     </select>
     <div id = 'helpdiv' style = 'display:none;width:100%;word-break:break-word;'>
-      <button onclick = 'helpdiv.style = "display:none;";' style = 'position:absolute;right:20px;top:5px;margin:0;padding:0;'><img src = '../images/close.png' style = 'width:40px;height:40px;'></button>
-      This is a calculator that has support for advanced operations such as bitwise operations and expression and function evaluation. It is used like you would expect, just type in numbers and operations like you would on paper, then press enter.<br>
-      The supported operators are +, -, * (multiply), / (divide), % (remainder), ^ or ** (exponentiation), &gt;, &lt;, &gt;=, &lt;=, ==, != (equality and inequality operators)<br>
+      <button onclick = 'helpdiv.style = "display:none;";' style = 'position:absolute;right:20px;top:5px;margin:0;padding:0;'><img id = 'hdcls' style = 'width:40px;height:40px;'></button>
+      This is a calculator that has support for advanced operations such as bitwise operations,<br>
+      expression evaluation, and function evaluation. It is used like you would expect, just<br>
+      type in numbers and operations like you would on paper, then press enter.<br>
+      The supported operators are +, -, * (multiply), / (divide), % (remainder),<br>
+      ^ or ** (exponentiation), &gt;, &lt;, &gt;=, &lt;=, ==, != (equality and inequality operators)<br>
       There is support for all trigonometric functions, and conversion between degrees and radians.<br>
       To evaluate regular javascript, put a ":" before text.
     </div>
     <div id = 'settins' style = 'display:none;'>
-      <button onclick = 'settins.style = "display:none;";' style = 'position:absolute;right:20px;top:5px;margin:0;padding:0;'><img src = '../images/close.png' style = 'width:40px;height:40px;'></button>
+      <button onclick = 'settins.style = "display:none;";' style = 'position:absolute;right:20px;top:5px;margin:0;padding:0;'><img id = 'stcls' style = 'width:40px;height:40px;'></button>
       <table style = 'border:1px solid black;float:left;'>
         <tr style = 'border:1px solid black;'>
           <td style = 'border:1px solid black;width:150px;text-align:center;'>
@@ -60,234 +63,243 @@
       </details>
     </div>
     <script>
-      let defaultOptions = {
-        showHidden: false,
-        depth: 2,
-        colors: false,
-        customInspect: true,
-        maxArrayLength: 100,
-        breakLength: 60,
-        compact: true,
-        sorted: false,
-      };
-      let typedArrays = ['Int8Array', 'Uint8Array', 'Uint8ClampedArray', 'Int16Array', 'Uint16Array', 'Int32Array', 'Uint32Array', 'BigInt64Array', 'BigUint64Array', 'Float32Array', 'Float64Array'];
-      let boxedPrimitives = ['Boolean', 'Number', 'BigInt', 'Symbol', 'String'];
-      function className(val) {
-        return val.constructor.name;
-      }
-      function objectToString(val) {
-        let tv = Object.prototype.toString.call(val);
-        return tv.substring(8, tv.length - 1);
-      }
-      function stringProp(val) {
-        if (typeof val == 'symbol') return '[' + inspect(val) + ']';
-        if ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$_'.indexOf(val[0]) < 0) return inspect(val);
-        for (let i in val) if ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$_'.indexOf(val[i]) < 0) return inspect(val);
-        return val;
-      }
-      function inspect(val, opts) {
-        if (opts === undefined) opts = {};
-        if (opts.showHidden === undefined) opts.showHidden = defaultOptions.showHidden;
-        if (opts.depth === undefined) opts.depth = defaultOptions.depth;
-        if (opts.colors === undefined) opts.colors = defaultOptions.colors;
-        if (opts.customInspect === undefined) opts.customInspect = defaultOptions.customInspect;
-        if (opts.maxArrayLength === undefined) opts.maxArrayLength = defaultOptions.maxArrayLength;
-        if (opts.breakLength === undefined) opts.breakLength = defaultOptions.breakLength;
-        if (opts.compact === undefined) opts.compact = defaultOptions.compact;
-        if (opts.sorted === undefined) opts.sorted = defaultOptions.sorted;
-        opts.indentLvl = 0;
-        opts.objs = [];
-        return formatValue(val, opts);
-      }
-      function formatObject(val, opts, keys, ins) {
-        if (opts.depth < 0) return ins || '[Object]';
-        if (opts.objs.indexOf(val) > -1) return '[Circular]';
-        opts = Object.assign({}, opts);
-        opts.objs = [...opts.objs, val];
-        if (keys === undefined) {
-          if (opts.showHidden == true) keys = Reflect.ownKeys(val);
-          else keys = Object.keys(val);
+      try { util } catch (e) { util = {}; }
+      utila = (function () {
+        let defaultOptions = {
+          showHidden: false,
+          depth: 2,
+          colors: false,
+          customInspect: true,
+          maxArrayLength: 100,
+          breakLength: 60,
+          compact: true,
+          sorted: false,
+        };
+        let typedArrays = ['Int8Array', 'Uint8Array', 'Uint8ClampedArray', 'Int16Array', 'Uint16Array', 'Int32Array', 'Uint32Array', 'BigInt64Array', 'BigUint64Array', 'Float32Array', 'Float64Array'];
+        let boxedPrimitives = ['Boolean', 'Number', 'BigInt', 'Symbol', 'String'];
+        let className = function(val) {
+          try { return val.constructor.name; } catch (e) { return '[Object: null prototype]';}
         }
-        if (opts.sorted == true) keys.sort();
-        else if (opts.sorted != false) keys.sort(opts.sorted);
-        let ba = keys.map(function (i) {
-          return stringProp(i) + ': ' + formatPropDes(Object.getOwnPropertyDescriptor(val, i), Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2}));
-        });
-        let baj = ba.join(', ');
-        if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
-        if (baj == '') return ins || '{}';
-        else return '{ ' + (ins !== undefined ? ins + ' ' : '') + baj + ' }';
-      }
-      function formatArray(val, opts, bkeys) {
-        if (opts.depth < 0) return '[Array]';
-        if (opts.objs.indexOf(val) > -1) return '[Circular]';
-        opts = Object.assign({}, opts);
-        opts.objs = [...opts.objs, val];
-        let ba = [], ind = -1, vkeys;
-        if (bkeys === undefined) {
-          if (opts.showHidden == true) bkeys = Reflect.ownKeys(val);
-          else bkeys = Object.keys(val);
+        let objectToString = function(val) {
+          let tv = Object.prototype.toString.call(val);
+          return tv.substring(8, tv.length - 1);
         }
-        keys = bkeys.filter(x => !(!isNaN(x) && Number.isInteger(Number(x)) && Number(x) >= 0) && x != 'length');
-        vkeys = bkeys.filter(x => (!isNaN(x) && Number.isInteger(Number(x)) && Number(x) >= 0) && x != 'length');
-        if (opts.sorted == true) keys.sort();
-        else if (opts.sorted != false) keys.sort(opts.sorted);
-        for (let iv in vkeys) {
-          let i = vkeys[iv];
-          if (ba.length + 1 > opts.maxArrayLength) {
-            ba.push('... ' + (val.length - i) + ' more items');
-            break;
+        let stringProp = function(val) {
+          if (typeof val == 'symbol') return '[' + inspect(val) + ']';
+          if ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$_'.indexOf(val[0]) < 0) return inspect(val);
+          for (let i in val) if ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$_'.indexOf(val[i]) < 0) return inspect(val);
+          return val;
+        }
+        let inspect = function(val, opts) {
+          if (opts === undefined) opts = {};
+          if (opts.showHidden === undefined) opts.showHidden = defaultOptions.showHidden;
+          if (opts.depth === undefined) opts.depth = defaultOptions.depth;
+          if (opts.colors === undefined) opts.colors = defaultOptions.colors;
+          if (opts.customInspect === undefined) opts.customInspect = defaultOptions.customInspect;
+          if (opts.maxArrayLength === undefined) opts.maxArrayLength = defaultOptions.maxArrayLength;
+          if (opts.breakLength === undefined) opts.breakLength = defaultOptions.breakLength;
+          if (opts.compact === undefined) opts.compact = defaultOptions.compact;
+          if (opts.sorted === undefined) opts.sorted = defaultOptions.sorted;
+          opts.indentLvl = 0;
+          opts.objs = [];
+          return formatValue(val, opts);
+        }
+        let formatObject = function(val, opts, keys, ins) {
+          if (opts.depth < 0) return ins || '[Object]';
+          opts = Object.assign({}, opts);
+          opts.objs = [...opts.objs, val];
+          if (keys === undefined) {
+            if (opts.showHidden == true) keys = Reflect.ownKeys(val);
+            else keys = Object.keys(val);
           }
-          if (i != ind + 1) {
-            let ia = i - ind - 1;
-            if (ia > 1) ba.push('<' + ia + ' empty items>');
-            else ba.push('<1 empty item>');
+          if (opts.sorted == true) keys.sort();
+          else if (opts.sorted != false) keys.sort(opts.sorted);
+          let ba = keys.map(function (i) {
+            return stringProp(i) + ': ' + formatPropDes(Object.getOwnPropertyDescriptor(val, i), Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2}));
+          });
+          let baj = ba.join(', ');
+          if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
+          if (baj == '') return ins || '{}';
+          else return '{ ' + (ins !== undefined ? ins + ' ' : '') + baj + ' }';
+        }
+        let formatArray = function(val, opts, bkeys) {
+          if (opts.depth < 0) return '[Array]';
+          opts = Object.assign({}, opts);
+          opts.objs = [...opts.objs, val];
+          let ba = [], ind = -1, vkeys;
+          if (bkeys === undefined) {
+            if (opts.showHidden == true) bkeys = Reflect.ownKeys(val);
+            else bkeys = Object.keys(val);
           }
-          ba.push(formatValue(val[i], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
-          ind = parseInt(i);
+          keys = bkeys.filter(x => !(!isNaN(x) && Number.isInteger(Number(x)) && Number(x) >= 0) && x != 'length');
+          vkeys = bkeys.filter(x => (!isNaN(x) && Number.isInteger(Number(x)) && Number(x) >= 0) && x != 'length');
+          if (opts.sorted == true) keys.sort();
+          else if (opts.sorted != false) keys.sort(opts.sorted);
+          for (let iv in vkeys) {
+            let i = vkeys[iv];
+            if (ba.length + 1 > opts.maxArrayLength) {
+              ba.push('... ' + (val.length - i) + ' more items');
+              break;
+            }
+            if (i != ind + 1) {
+              let ia = i - ind - 1;
+              if (ia > 1) ba.push('<' + ia + ' empty items>');
+              else ba.push('<1 empty item>');
+            }
+            ba.push(formatValue(val[i], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
+            ind = parseInt(i);
+          }
+          keys.forEach(function (i) {
+            ba.push(stringProp(i) + ': ' + formatPropDes(Object.getOwnPropertyDescriptor(val, i), Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
+          });
+          let baj = ba.join(', ');
+          if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
+          if (baj == '') return '[]';
+          else return '[ ' + baj + ' ]';
         }
-        keys.forEach(function (i) {
-          ba.push(stringProp(i) + ': ' + formatPropDes(Object.getOwnPropertyDescriptor(val, i), Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
-        });
-        let baj = ba.join(', ');
-        if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
-        if (baj == '') return '[]';
-        else return '[ ' + baj + ' ]';
-      }
-      function formatMap(val, opts, keys) {
-        if (opts.depth < 0) return '[Map]';
-        if (opts.objs.indexOf(val) > -1) return '[Circular]';
-        opts = Object.assign({}, opts);
-        opts.objs = [...opts.objs, val];
-        let ba = Array.from(val);
-        if (opts.sorted == true) ba.sort((a, b) => (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0));
-        else if (opts.sorted != false) ba.sort((a, b) => opts.sorted(a[0], b[0]));
-        ba = ba.map(x => formatValue(x[0], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})) + ' => ' + formatValue(x[1], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
-        if (keys === undefined) {
-          if (opts.showHidden == true) keys = Reflect.ownKeys(val);
-          else keys = Object.keys(val);
+        let formatMap = function(val, opts, keys) {
+          if (opts.depth < 0) return '[Map]';
+          opts = Object.assign({}, opts);
+          opts.objs = [...opts.objs, val];
+          let ba = Array.from(val);
+          if (opts.sorted == true) ba.sort((a, b) => (a[0] > b[0]) ? 1 : ((b[0] > a[0]) ? -1 : 0));
+          else if (opts.sorted != false) ba.sort((a, b) => opts.sorted(a[0], b[0]));
+          ba = ba.map(x => formatValue(x[0], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})) + ' => ' + formatValue(x[1], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
+          if (keys === undefined) {
+            if (opts.showHidden == true) keys = Reflect.ownKeys(val);
+            else keys = Object.keys(val);
+          }
+          if (opts.sorted == true) keys.sort();
+          else if (opts.sorted != false) keys.sort(opts.sorted);
+          keys.forEach(function (i) {
+            ba.push(stringProp(i) + ': ' + formatPropDes(Object.getOwnPropertyDescriptor(val, i), Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
+          });
+          let baj = ba.join(', ');
+          if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
+          if (baj == '') return '{}';
+          else return '{ ' + baj + ' }';
         }
-        if (opts.sorted == true) keys.sort();
-        else if (opts.sorted != false) keys.sort(opts.sorted);
-        keys.forEach(function (i) {
-          ba.push(stringProp(i) + ': ' + formatPropDes(Object.getOwnPropertyDescriptor(val, i), Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
-        });
-        let baj = ba.join(', ');
-        if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
-        if (baj == '') return '{}';
-        else return '{ ' + baj + ' }';
-      }
-      function formatSet(val, opts, keys) {
-        if (opts.depth < 0) return '[Set]';
-        if (opts.objs.indexOf(val) > -1) return '[Circular]';
-        opts = Object.assign({}, opts);
-        opts.objs = [...opts.objs, val];
-        let ba = Array.from(val);
-        if (opts.sorted == true) ba.sort();
-        else if (opts.sorted != false) ba.sort(opts.sorted);
-        ba = ba.map(x => formatValue(x, Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
-        if (keys === undefined) {
-          if (opts.showHidden == true) keys = Reflect.ownKeys(val);
-          else keys = Object.keys(val);
+        let formatSet = function(val, opts, keys) {
+          if (opts.depth < 0) return '[Set]';
+          opts = Object.assign({}, opts);
+          opts.objs = [...opts.objs, val];
+          let ba = Array.from(val);
+          if (opts.sorted == true) ba.sort();
+          else if (opts.sorted != false) ba.sort(opts.sorted);
+          ba = ba.map(x => formatValue(x, Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
+          if (keys === undefined) {
+            if (opts.showHidden == true) keys = Reflect.ownKeys(val);
+            else keys = Object.keys(val);
+          }
+          if (opts.sorted == true) keys.sort();
+          else if (opts.sorted != false) keys.sort(opts.sorted);
+          keys.forEach(function (i) {
+            ba.push(stringProp(i) + ': ' + formatPropDes(Object.getOwnPropertyDescriptor(val, i), Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
+          });
+          let baj = ba.join(', ');
+          if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
+          if (baj == '') return '{}';
+          else return '{ ' + baj + ' }';
         }
-        if (opts.sorted == true) keys.sort();
-        else if (opts.sorted != false) keys.sort(opts.sorted);
-        keys.forEach(function (i) {
-          ba.push(stringProp(i) + ': ' + formatPropDes(Object.getOwnPropertyDescriptor(val, i), Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
-        });
-        let baj = ba.join(', ');
-        if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
-        if (baj == '') return '{}';
-        else return '{ ' + baj + ' }';
-      }
-      function formatPropDes(val, opts) {
-        if (val.get && val.set) return '[Getter/Setter]';
-        else if (val.get) return '[Getter]';
-        else if (val.set) return '[Setter]';
-        return formatValue(val.value, opts);
-      }
-      function formatValue(val, opts) {
-        if (val === undefined) {
-          return 'undefined';
-        } else if (val === null) {
-          return 'null';
-        } else if (typeof val == 'boolean') {
-          return val.toString();
-        } else if (typeof val == 'number') {
-          if (Object.is(val, -0)) {
-            return '-0';
-          } else {
+        let formatPropDes = function(val, opts) {
+          if (val.get && val.set) return '[Getter/Setter]';
+          else if (val.get) return '[Getter]';
+          else if (val.set) return '[Setter]';
+          return formatValue(val.value, opts);
+        }
+        let formatValue = function(val, opts) {
+          if (val === undefined) {
+            return 'undefined';
+          } else if (val === null) {
+            return 'null';
+          } else if (typeof val == 'boolean') {
             return val.toString();
-          }
-        } else if (typeof val == 'bigint') {
-          return val.toString() + 'n';
-        } else if (typeof val == 'symbol') {
-          return val.toString();
-        } else if (typeof val == 'string') {
-          let js = JSON.stringify(val);
-          return '\'' + js.substring(1, js.length - 1).replace(/'/g, '\\\'').replace(/\\"/g, '"') + '\'';
-        } else if (typeof val == 'function') {
-          let keys, fn, cn = className(val);
-          if (opts.showHidden) {
-            keys = Reflect.ownKeys(val).filter(x => x != 'prototype');
-          } else {
-            keys = Object.keys(val);
-          }
-          if (val.name == '') fn = '[' + cn + ']';
-          else fn = '[' + cn + ': ' + val.name + ']';
-          if (keys.length == 0) {
-            return fn;
-          } else {
-            let rs = formatObject(val, opts, keys, fn);
-            return rs;
-          }
-        } else {
-          if (opts.customInspect) {
-            if (val[inspect.custom]) return val[inspect.custom]();
-            if (val.inspect) return val.inspect();
-          }
-          let cn = className(val), objs = objectToString(val);
-          if (opts.depth < 0) {
-            if (cn == objs) return '[' + cn + ']';
-            else return cn + ' [' + objs + ']';
-          }
-          if (cn == 'Object') {
-            return formatObject(val, opts);
-          } else if (cn == 'Array') {
-            return formatArray(val, opts);
-          } else if (typedArrays.indexOf(cn) > -1) {
-            return cn + ' ' + formatArray(val, opts);
-          } else if (boxedPrimitives.indexOf(cn) > -1) {
-            let ov = '[' + cn + ': ' + inspect(val.valueOf()) + ']', keys;
+          } else if (typeof val == 'number') {
+            if (Object.is(val, -0)) {
+              return '-0';
+            } else {
+              return val.toString();
+            }
+          } else if (typeof val == 'bigint') {
+            return val.toString() + 'n';
+          } else if (typeof val == 'symbol') {
+            return val.toString();
+          } else if (typeof val == 'string') {
+            let js = JSON.stringify(val);
+            return '\'' + js.substring(1, js.length - 1).replace(/'/g, '\\\'').replace(/\\"/g, '"') + '\'';
+          } else if (typeof val == 'function') {
+            let keys, fn, cn = className(val);
             if (opts.showHidden) {
-              keys = Reflect.ownKeys(val);
+              keys = Reflect.ownKeys(val).filter(x => x != 'prototype');
             } else {
               keys = Object.keys(val);
             }
+            if (val.name == '') fn = '[' + cn + ']';
+            else fn = '[' + cn + ': ' + val.name + ']';
             if (keys.length == 0) {
-              return ov;
+              return fn;
             } else {
-              let rs = formatObject(val, opts, keys, ov);
+              let rs = formatObject(val, opts, keys, fn);
               return rs;
             }
-          } else if (val instanceof Error) {
-            return val.stack;
-          } else if (cn == 'WeakMap' || cn == 'WeakSet') {
-            return cn + '{ [items unknown] }';
-          } else if (cn == 'Map') {
-            return cn + ' ' + formatMap(val, opts);
-          } else if (cn == 'Set') {
-            return cn + ' ' + formatSet(val, opts);
-          } else if (cn == 'Date') {
-            return val.toISOString();
-          } else if (cn == objs || objs == 'Object') {
-            return cn + ' ' + formatObject(val, opts);
           } else {
-            return cn + ' [' + objs + '] ' + formatObject(val, opts);
+            if (opts.objs.indexOf(val) > -1) return '[Circular]';
+            if (opts.customInspect) {
+              try {
+                if (val[inspect.custom]) return val[inspect.custom]();
+                if (val.inspect) return val.inspect();
+              } catch (e) {}
+            }
+            let cn = className(val), objs = objectToString(val);
+            if (opts.depth < 0) {
+              if (cn == objs) return '[' + cn + ']';
+              else return cn + ' [' + objs + ']';
+            }
+            if (cn == 'Object') {
+              if (objs == 'Object') return formatObject(val, opts);
+              else return 'Object [' + objs + '] ' + formatObject(val, opts);
+            } else if (cn == 'Array') {
+              if (objs == 'Array') return formatArray(val, opts);
+              else return 'Array [' + objs + '] ' + formatArray(val, opts);
+            } else if (typedArrays.indexOf(cn) > -1) {
+              return cn + ' ' + formatArray(val, opts);
+            } else if (boxedPrimitives.indexOf(cn) > -1) {
+              let ov = '[' + cn + ': ' + inspect(val.valueOf()) + ']', keys;
+              if (opts.showHidden) {
+                keys = Reflect.ownKeys(val);
+              } else {
+                keys = Object.keys(val);
+              }
+              if (keys.length == 0) {
+                return ov;
+              } else {
+                let rs = formatObject(val, opts, keys, ov);
+                return rs;
+              }
+            } else if (val instanceof Error) {
+              return val.stack;
+            } else if (cn == 'WeakMap' || cn == 'WeakSet') {
+              return cn + '{ [items unknown] }';
+            } else if (cn == 'Map') {
+              if (objs == 'Map') return cn + ' ' + formatMap(val, opts);
+              else return 'Map [' + objs + '] ' + formatMap(val, opts);
+            } else if (cn == 'Set') {
+              if (objs == 'Set') return cn + ' ' + formatSet(val, opts);
+              else return 'Set [' + objs + '] ' + formatSet(val, opts);
+            } else if (cn == 'Date') {
+              return val.toISOString();
+            } else if (cn == objs || objs == 'Object') {
+              return cn + ' ' + formatObject(val, opts);
+            } else {
+              return cn + ' [' + objs + '] ' + formatObject(val, opts);
+            }
           }
         }
-      }
-      inspect.custom = Symbol('util.inspect.custom');
+        inspect.custom = Symbol('util.inspect.custom');
+        return {defaultOptions, typedArrays, boxedPrimitives, className, objectToString, stringProp, inspect, formatObject, formatArray, formatMap, formatSet, formatPropDes, formatValue};
+      })();
+      Object.assign(util, utila);
+      inspect = util.inspect;
       var PARR = {p: ')', a: ']', o: '}'};
       var OPS = '.!~+-*/%^|&#><=';
       var OPSA = {'!':'=', '~':'=',
@@ -339,6 +351,31 @@
       function ExpVariable(val) {
         this.type = 'variable';
         this.val = val;
+      }
+      function ExpComplex(a, b) {
+        this.type = 'complex';
+        if (typeof a == 'string') {
+          let ra = [], bs = '', em = false;
+          for (iv in a) {
+            let i = a[iv];
+            if (i == '-' && em == false) {
+              if (ra.length != 0 || bs != '') ra.push(bs);
+              bs = '-';
+            } else if (i == '+' && em == false) {
+              ra.push(bs);
+              bs = '';
+            } else if (i != 'i') {
+              if (em == true) em = false;
+              if (i == 'e') em = true;
+              bs += i;
+            }
+          }
+          ra.push(bs);
+          a = new ExpNumber(ra[0]);
+          b = new ExpNumber(ra[1]);
+        }
+        this.a = a;
+        this.b = b;
       }
       function ExpMatrix(val, val2) {
         this.type = 'matrix';
@@ -409,7 +446,7 @@
         this.val = val;
       }
       function ExpPropAcc(val1, val2) {
-        var rv = val1.val[val2.val];
+        var rv = Object.hasOwnProperty(val1.val, val2.val) ? val1.val[val2.val] : undefined;
         if (rv !== undefined) return rv;
         if (val2.val == 'val' || val2.val == 'type') return CL_UNDEFINED;
         else if (val2.val in val1) {
@@ -458,6 +495,10 @@
           if (val1.val.toString().length * Number(val2.val) > BIGLIMIT.digit) throw new Error('large exponentation attempted, to disable warning turn off in settings.');
           return new ExpBigInt(val1.val ** val2.val);
         } else {
+          if (val1.__pow__) {
+            let rv = val1.__pow__(val2);
+            if (rv !== undefined) return rv;
+          }
           throw new Error('unsupported operand type(s) for **: \'' + val1.type + '\' and \'' + val2.type + '\'');
         }
       }
@@ -598,6 +639,78 @@
       function ExpLogicalOr(val1, val2) {
         return new ExpBool(val1.val || val2.val);
       }
+      ExpComplex.prototype = {
+        real: function () {
+          return this.a;
+        },
+        imag: function () {
+          return this.b;
+        },
+        __pos__: function () {
+          return new ExpComplex(ExpUnaryPlus(this.a), ExpUnaryPlus(this.b));
+        },
+        __neg__: function () {
+          return new ExpComplex(ExpUnaryMinus(this.a), ExpUnaryMinus(this.b));
+        },
+        __add__: function (that) {
+          if (that.type == 'complex') {
+            return new ExpComplex(ExpAdd(this.a, that.a), ExpAdd(this.b, that.b));
+          } else {
+            return new ExpComplex(ExpAdd(this.a, that), ExpUnaryPlus(this.b));
+          }
+        },
+        __radd__: function (that) {
+          return new ExpComplex(ExpAdd(that, this.a), ExpUnaryPlus(this.b));
+        },
+        __sub__: function (that) {
+          if (that.type == 'complex') {
+            return new ExpComplex(ExpSubtract(this.a, that.a), ExpSubtract(this.b, that.b));
+          } else {
+            return new ExpComplex(ExpSubtract(this.a, that), ExpUnaryPlus(this.b));
+          }
+        },
+        __rsub__: function (that) {
+          return new ExpComplex(ExpSubtract(that, this.a), ExpUnaryMinus(this.b));
+        },
+        __mul__: function (that) {
+          if (that.type == 'complex') {
+            return new ExpComplex(
+              ExpSubtract(ExpMultiply(this.a, that.a), ExpMultiply(this.b, that.b)),
+              ExpAdd(ExpMultiply(this.a, that.b), ExpMultiply(this.b, that.a))
+            )
+          } else {
+            return new ExpComplex(ExpMultiply(this.a, that), ExpMultiply(this.b, that));
+          }
+        },
+        __rmul__: function (that) {
+          return new ExpComplex(ExpMultiply(that, this.a), ExpMultiply(that, this.b));
+        },
+        __div__: function (that) {
+          if (that.type == 'complex') {
+            return new ExpComplex(
+              ExpDivide(
+                ExpAdd(ExpMultiply(this.a, that.a), ExpMultiply(this.b, that.b)),
+                ExpAdd(ExpExponentiate(that.a, new ExpNumber(2)), ExpExponentiate(that.b, new ExpNumber(2)))
+              ),
+              ExpDivide(
+                ExpSubtract(ExpMultiply(this.a, that.a), ExpMultiply(this.b, that.b)),
+                ExpAdd(ExpExponentiate(that.a, new ExpNumber(2)), ExpExponentiate(that.b, new ExpNumber(2)))
+              )
+            );
+          } else {
+            return new ExpComplex(ExpDivide(this.a, that), ExpDivide(this.b, that));
+          }
+        },
+        __pow__: function (that) {
+          if (that.type == 'complex') return;
+          let dist = ((this.a.val ** 2 + this.b.val ** 2) ** 0.5) ** that.val;
+          let ang = (Math.atan2(this.b.val, this.a.val) * that.val) % (Math.PI * 2);
+          return new ExpComplex(new ExpNumber(Math.cos(ang) * dist), new ExpNumber(Math.sin(ang) * dist));
+        },
+        conjug: function (that) {
+          return new ExpComplex(ExpUnaryPlus(this.a), ExpUnaryMinus(this.b));
+        },
+      };
       ExpMatrix.prototype = {
         __pos__: function () {
           let rm = new ExpMatrix(this.h, this.w);
@@ -741,12 +854,43 @@
           return ExpMultiply(ExpDivide(new ExpNumber(1), this.det()), this.adj());
         }
       };
-      ExpSurreal.__prototype__ = {
-        
+      ExpSurreal.prototype = {
+        __pos__: function() {
+          let rs = new ExpSurreal(this.valarr);
+          for (let i in rs.valarr) {
+            rs.valarr[i][0] = ExpUnaryPlus(rs.valarr[i][0]);
+            rs.valarr[i][1] = ExpUnaryPlus(rs.valarr[i][1]);
+          }
+          return rs;
+        },
+        __neg__: function() {
+          let rs = new ExpSurreal(this.valarr);
+          for (let i in rs.valarr) {
+            rs.valarr[i][0] = ExpUnaryMinus(rs.valarr[i][0]);
+            rs.valarr[i][1] = ExpUnaryPlus(rs.valarr[i][1]);
+          }
+          return rs;
+        },
+        __add__: function(that) {
+          if (that.type != 'surreal') {
+            let rs = ExpUnaryPlus(this);
+            ExpSurrAddTerm(rs.valarr, new ExpNumber(0), that);
+            rs.valarr = ExpSurrSimpArr(rs.valarr);
+            return rs;
+          } else {
+            let rs = ExpUnaryPlus(this);
+            for (let iv in that.valarr) {
+              let i = that.valarr[iv];
+              ExpSurrAddTerm(rs.valarr, i[1], i[0]);
+            }
+            rs.valarr = ExpSurrSimpArr(rs.valarr);
+            return rs;
+          }
+        }
       };
       function ExpSurrAddTerm(valarr, term, val) {
         let ind = ExpSurrHasTerm(valarr, term);
-        if (ind > -1) valarr[ind][0] += val;
+        if (ind > -1) valarr[ind][0] = ExpAdd(valarr[ind][0], val);
         else {
           valarr.push([val, term]);
           valarr = ExpSurrSortArr(valarr);
@@ -882,16 +1026,14 @@
         let valstr = '';
         for (i in valarr) {
           if (valarr[i][0].val >= 0 && i != 0) valstr += '+';
-          if (valarr[i][0].val == -1 && valarr[i][1] != 0) valstr += '-';
+          if (valarr[i][0].val == -1 && valarr[i][1].val != 0) valstr += '-';
           else if (valarr[i][0].val != 1 || valarr[i][1].val == 0) {
-            if ((Math.floor(valarr[i][0].val) == valarr[i][0].val) && Math.abs(valarr[i][0].val) < 1e9) valstr += String(valarr[i][0].val);
-            else valstr += String(valarr[i][0].val);
+            valstr += valarr[i][0].val;
           }
-          if (valarr[i][1].val != 0.0) {
-            if (valarr[i][1].val == 1.0) valstr += 'w';
+          if (valarr[i][1].val != 0) {
+            if (valarr[i][1].val == 1) valstr += 'w';
             else {
-              if ((Math.floor(valarr[i][1].val) == valarr[i][1].val) && Math.abs(valarr[i][1].val) < 1e9) valstr += 'w^' + String(valarr[i][1].val);
-              else valstr += 'w^' + String(valarr[i][1].val);
+              valstr += 'w^' + valarr[i][1].val;
             }
           }
         }
@@ -900,9 +1042,9 @@
       function ExpSurrSortArr(valarr) {
         let ra = new Array(valarr);
         return valarr.sort(function (a, b) {
-          if (a[1] > b[1]) return -1;
-          else if (a[1] < b[1]) return 1;
-          else if (a[1] == b[1]) return 0;
+          if (a[1].val > b[1].val) return -1;
+          else if (a[1].val < b[1].val) return 1;
+          else if (a[1].val == b[1].val) return 0;
         });
       }
       function ExpSurrSimpArr(valarr) {
@@ -960,43 +1102,43 @@
         return val;
       }
       function sroot(v, x) {
-        let xv = 2;
-        let min = 1;
-        let max = 1e12;
-        let ct = 1000;
-        while (Math.abs(max-min)>1e-12) {
-          let val = tet(xv, x);
-          if (val > v) {
-            max=xv;
-            xv=(min+xv)/2;
-          } else if (val < v) {
-            min=xv;
-            xv=(xv+max)/2;
-          } else {
-            break;
-          }
-          if (!--ct) break;
-        }
-        return xv;
+      	let xv = 2;
+      	let min = 1;
+      	let max = 1e12;
+      	let ct = 1000;
+      	while (Math.abs(max-min)>1e-12) {
+      	  let val = tet(xv, x);
+      	  if (val > v) {
+      	    max=xv;
+      	    xv=(min+xv)/2;
+      	  } else if (val < v) {
+      	    min=xv;
+      	    xv=(xv+max)/2;
+      	  } else {
+      	    break;
+      	  }
+      	  if (!--ct) break;
+      	}
+      	return xv;
       }
       function slog(v, b) {
         let val;
-        if (v < 0) {
+      	if (v < 0) {
           try {
             return slog(pow(b, v), b) - 1;
           } catch (e) {
             return -Infinity;
           }
-        } else if (v <= 1) {
-          val = -1 + ((2 * log(b)) / (1 + log(b))) * v + ((1 - log(b)) / (1 + log(b))) * pow(v, 2);
-        } else if (v > 1) {
+      	} else if (v <= 1) {
+      		val = -1 + ((2 * log(b)) / (1 + log(b))) * v + ((1 - log(b)) / (1 + log(b))) * pow(v, 2);
+      	} else if (v > 1) {
           try {
             return slog(log(v, b), b) + 1;
           } catch (e) {
             return Infinity;
           }
-        }
-        return val;
+      	}
+      	return val;
       }
       function wtn(b, x) {
         return pow(b, pow(b, (x - 1)));
@@ -1043,7 +1185,8 @@
         false: new ExpBool(false),
         NaN: new ExpNumber(NaN),
         Infinity: new ExpNumber(Infinity),
-        w: new ExpSurreal([[1, 1]]),
+        i: new ExpComplex('0+1i'),
+        w: new ExpSurreal('w'),
         pi: new ExpNumber(Math.PI),
         e: new ExpNumber(Math.E),
         phi: new ExpNumber((1 + 5 ** 0.5) / 2),
@@ -1074,6 +1217,11 @@
         }),
         Object: new ExpFunc(function (args) {
           if (args.length == 0) return new ExpObject({});
+        }),
+        Complex: new ExpFunc(function (args) {
+          if (args[0].type == 'string') return new ExpComplex(args[0].val);
+          else if (args.length == 1) return new ExpComplex(args[0], new ExpNumber(0));
+          else return new ExpComplex(args[0], args[1]);
         }),
         Matrix: new ExpFunc(function (args) {
           if (args.length == 1) return new ExpMatrix(args[0]);
@@ -1232,10 +1380,10 @@
           return ExpMultiply(args[0], args[0]);
         }),
         sqrt: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.sqrt(x));
+          if (args[0].type == 'number') return new ExpNumber(Math.sqrt(args[0].val));
         }),
         cbrt: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.cbrt(x));
+          if (args[0].type == 'number') return new ExpNumber(Math.cbrt(args[0].val));
         }),
         hypot: new ExpFunc(function (args) {
           if (args.every(x => x.type == 'number')) return new ExpNumber(Math.hypot.apply(Math, args.map(x => x.val)));
@@ -1511,6 +1659,7 @@
         }
       }
       function ToExpArr(val) {
+        // 0123456789.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+-*/%^|&()[]
         let p = {ra: [], bs: '', objn: '', ba: [], bas: [], bt: '', pl: []};
         for (let i in val) {
           if (p.bt == '') {
@@ -1837,9 +1986,11 @@
       }
       function ParseExpArr(arr, globals, locals) {
         let exp = [], op = [], dov;
+        // parenthesis
         for (let i = 0; i < arr.length; i++) {
           if (Object.prototype.toString.call(arr[i]) == '[object Array]') arr[i] = ParseExpArr(arr[i], globals, locals)[0][0];
         }
+        // function call, variable, property access
         for (let i = 0; i < arr.length; i++) {
           if (arr[i].type == 'variable' && VARRESCLS(arr, i)) {
             if (arr[i].val in locals) arr[i] = locals[arr[i].val];
@@ -1869,6 +2020,7 @@
             }
           }
         }
+        // logical not, bitwise not, unary plus, unary negation, typeof, void, delete : right > left
         dov = true;
         while (dov) {
           let nb = false;
@@ -1917,10 +2069,12 @@
           }
           dov = nb;
         }
+        // split up into exp and op
         for (let i = 0; i < arr.length; i++) {
           if (i % 2 == 0) exp.push(arr[i]);
           else op.push(arr[i].val);
         }
+        // exponents : right > left
         dov = true;
         while (dov) {
           let nb = false;
@@ -1934,6 +2088,7 @@
           }
           dov = nb;
         }
+        // multiply, divide, remainder : left > right
         dov = true;
         while (dov) {
           let nb = false;
@@ -1957,6 +2112,7 @@
           }
           dov = nb;
         }
+        // addition, subtraction : left > right
         dov = true;
         while (dov) {
           let nb = false;
@@ -1975,6 +2131,7 @@
           }
           dov = nb;
         }
+        // greater than, less than, greater than equal, less than equal : left > right
         dov = true;
         while (dov) {
           let nb = false;
@@ -2003,6 +2160,7 @@
           }
           dov = nb;
         }
+        // equality, inequality : left > right
         dov = true;
         while (dov) {
           let nb = false;
@@ -2021,6 +2179,7 @@
           }
           dov = nb;
         }
+        // bitwise and : left > right
         dov = true;
         while (dov) {
           let nb = false;
@@ -2034,6 +2193,7 @@
           }
           dov = nb;
         }
+        // bitwise xor : left > right
         dov = true;
         while (dov) {
           let nb = false;
@@ -2047,6 +2207,7 @@
           }
           dov = nb;
         }
+        // bitwise or : left > right
         dov = true;
         while (dov) {
           let nb = false;
@@ -2060,6 +2221,7 @@
           }
           dov = nb;
         }
+        // logical and : left > right
         dov = true;
         while (dov) {
           let nb = false;
@@ -2073,6 +2235,7 @@
           }
           dov = nb;
         }
+        // logical or : left > right
         dov = true;
         while (dov) {
           let nb = false;
@@ -2086,6 +2249,7 @@
           }
           dov = nb;
         }
+        // assignment : right > left
         dov = true;
         while (dov) {
           let nb = false;
@@ -2177,6 +2341,8 @@
         for (let i in val) rv = ParseExpArr(val[i], globals, locals);
         return rv;
       }
+      // jshint maxerr:1000 -W041 -W051 -W060 -W061
+      hdcls.src = stcls.src = 'data:image/png;base64,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';
       var calcarr = [], cinphist = [], histind = 0, currtext = '';
       function HelpTogg() {
         if (helpdiv.style.cssText == 'display: none;') {
@@ -2246,6 +2412,8 @@
           if (ka.length == 0) return '{}';
           for (let i in ka) ba.push(inspect(ka[i]) + ': ' + ObjToText(val.val[ka[i]], va));
           return '{ ' + ba.join(', ') + ' }';
+        } else if (val.type == 'complex') {
+          return '(' + ObjToText(val.a) + (ExpGreaterThanEqual(val.b, new ExpNumber(0)).val ? ('+' + ObjToText(val.b)) : ObjToText(val.b)) + 'i)';
         } else if (val.type == 'matrix') {
           if (va.indexOf(val) >= 0) return '[Circular]';
           va.push(val);
@@ -2295,6 +2463,7 @@
             cinp.value = cinphist[histind];
           }
           setTimeout(function(){ cinp.selectionStart = cinp.selectionEnd = 10000; }, 0);
+          //SetEnd(cinp);
         } else if (e.keyCode === 40) {
           if (histind < cinphist.length - 1) {
             histind += 1;
@@ -2304,6 +2473,7 @@
             cinp.value = currtext;
           }
           setTimeout(function(){ cinp.selectionStart = cinp.selectionEnd = 10000; }, 0);
+          //SetEnd(cinp);
         } else if (e.keyCode === 8) {
           histind = cinphist.length;
           setTimeout(function() {currtext = cinp.value;}, 0);

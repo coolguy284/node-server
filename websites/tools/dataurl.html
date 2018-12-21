@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Data URL Converter</title>
+  </head>
+  <body>
+    <button onclick = 'turl()'>Text > Data URL</button>
+    <button onclick = 'tb64url()'>Base64 Text > Data URL</button>
+    <button onclick = 'urlf.click()'>File > Data URL</button>
+    <button onclick = 'b64urlf.click()'>Base64 File > Data URL</button>
+    <label for = 'mimet'>Mime Type:</label>
+    <input type = 'text' id = 'mimet'>
+    <input type = 'checkbox' id = 'b64enc'>
+    <label for = 'b64enc'>Base64 Encoded</label>
+    <input type = 'file' id = 'urlf' style = 'display:none;' onchange = 'tfurl(this.files[0])'>
+    <input type = 'file' id = 'b64urlf' style = 'display:none;' onchange = 'tfb64url(this.files[0])'>
+    <fieldset>
+      <legend>Text</legend>
+      <textarea id = 'texta' style = 'width:100%;height:200px;'></textarea>
+    </fieldset>
+    <fieldset>
+      <legend>Data URL</legend>
+      <textarea id = 'urlta' style = 'width:100%;height:200px;'></textarea>
+    </fieldset>
+    <script src = '../js/base64.js'></script>
+    <script>
+      function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+      }
+      function turl() {
+        Base64.s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+        if (b64enc.checked) {
+          urlta.value = 'data:' + mimet.value + ';base64,' + atob(texta.value);
+        } else {
+          urlta.value = 'data:' + mimet.value + ',' + encodeURIComponent(texta.value);
+        }
+      }
+      function tb64url() {
+        Base64.s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+        if (b64enc.checked) {
+          urlta.value = 'data:' + mimet.value + ';base64,' + texta.value;
+        } else {
+          urlta.value = 'data:' + mimet.value + ',' + encodeURIComponent(btoa(texta.value));
+        }
+      }
+      function tfurl(file) {
+        var fro = new FileReader();
+        fro.onload = function () {
+          Base64.s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+          if (b64enc.checked) {
+            urlta.value = 'data:' + mimet.value + ';base64,' + atob(fro.result);
+          } else {
+            urlta.value = 'data:' + mimet.value + ',' + encodeURIComponent(fro.result);
+          }
+        }
+        fro.readAsText(file);
+      }
+      function tfb64url(file) {
+        var fro = new FileReader();
+        fro.onload = function () {
+          Base64.s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+          if (b64enc.checked) {
+            urlta.value = 'data:' + mimet.value + ';base64,' + fro.result;
+          } else {
+            urlta.value = 'data:' + mimet.value + ',' + encodeURIComponent(Base64.decode(fro.result));
+          }
+        }
+        fro.readAsText(file);
+      }
+    </script>
+  </body>
+</html>

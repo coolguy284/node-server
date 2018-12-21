@@ -26,6 +26,31 @@ function ExpVariable(val) {
   this.type = 'variable';
   this.val = val;
 }
+function ExpComplex(a, b) {
+  this.type = 'complex';
+  if (typeof a == 'string') {
+    let ra = [], bs = '', em = false;
+    for (iv in a) {
+      let i = a[iv];
+      if (i == '-' && em == false) {
+        if (ra.length != 0 || bs != '') ra.push(bs);
+        bs = '-';
+      } else if (i == '+' && em == false) {
+        ra.push(bs);
+        bs = '';
+      } else if (i != 'i') {
+        if (em == true) em = false;
+        if (i == 'e') em = true;
+        bs += i;
+      }
+    }
+    ra.push(bs);
+    a = new ExpNumber(ra[0]);
+    b = new ExpNumber(ra[1]);
+  }
+  this.a = a;
+  this.b = b;
+}
 function ExpMatrix(val, val2) {
   this.type = 'matrix';
   if (typeof val == 'number' && typeof val2 == 'number') {
