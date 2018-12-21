@@ -414,9 +414,9 @@
         var db = (date2.getTime() - date1.getTime()) / 86400000;
         return (Math.floor(db) - (6 - date1.getDay()) - date2.getDay()) / 7;
       }
-      function DaysBefore() {
+      function DaysBefore(day) {
         var ds = 0;
-        for (var d = cd.getDay() + 1; d < 7; d++) {
+        for (var d = day + 1; d < 7; d++) {
           if (GetPeriodArr()[d]) ds += 1;
         }
         return ds;
@@ -583,14 +583,20 @@
             p.textSize(35);
             p.textAlign(3, 3);
             p.text('Time Left Until ' + countd.ta.edr[optd.value] + ':', 300, 130);
-            var td;
+            var td = 0, sw = false, db = 0, wt = 0, da = 0;
             if (countd.contd) {
               td = countd.toc - cd.getTime();
             } else {
               if (SameWeek(new Date(countd.ed), cd)) {
-                td = (GetPeriodArr()[cd.getDay()] ? Math.min(Math.max(countd.to - GetDateNum(cd), 0), countd.ddur) : 0) + DaysWeek(cd.getDay(), new Date(countd.ed).getDay()) * 86400000;
+                db = DaysWeek(cd.getDay(), new Date(countd.ed).getDay());
+                td = (GetPeriodArr()[cd.getDay()] ? Math.min(Math.max(countd.to - GetDateNum(cd), 0), countd.ddur) : 0) + db * 86400000;
+                sw = true;
               } else {
-                td = (GetPeriodArr()[cd.getDay()] ? Math.min(Math.max(countd.to - GetDateNum(cd), 0), countd.ddur) : 0) + (WeeksBetween(cd, new Date(countd.ed)) * countd.pdur + DaysBefore() + DaysAfter(new Date(countd.ed).getDay())) * 86400000;
+                wt = WeeksBetween(cd, new Date(countd.ed));
+                db = DaysBefore(cd.getDay());
+                da = DaysAfter(new Date(countd.ed).getDay());
+                td = (GetPeriodArr()[cd.getDay()] ? Math.min(Math.max(countd.to - GetDateNum(cd), 0), countd.ddur) : 0) + (wt * countd.pdur + db + da) * 86400000;
+                sw = false;
               }
             }
             if (countd.trmod) {
@@ -599,6 +605,10 @@
             } else {
               p.textSize(50);
               p.text(formts(td), 300, 200);
+            }
+            if (!countd.contd && !sw && (wt * 7 + db + da) > 7) {
+              p.textSize(30);
+              p.text((db == 1 ? '1 day, ' : db + ' days, ') + (wt == 1 ? '1 proper week, ' : wt + ' proper weeks, ') + (da == 1 ? '1 day' : da + ' days'), 300, 240);
             }
             p.textSize(35);
             p.text('Current Time:', 300, 280);

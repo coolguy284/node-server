@@ -167,6 +167,8 @@ var varns = {
       return new ExpSurreal(args[0].val.map(x => x.val));
     } else if (args[0].type == 'string') {
       return new ExpSurreal(args[0].val);
+    } else if (args[0].type == 'number') {
+      return new ExpSurreal([[args[0].val, new ExpNumber(0)]]);
     }
   }),
   globals: new ExpFunc(function (args, globals, locals) {

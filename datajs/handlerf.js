@@ -1,6 +1,6 @@
 module.exports = {
   'null/dat.html' : new Function('req', 'res', 'res.writeHead(200,{"Content-Type":"text/plain; charset=utf-8"});res.write(new Date().toString());res.end();'),
-  'coolguy284/user/tools/adv-calculator.html' : function (req, res) {
+  'coolguy284/user/adv-calculator.html' : function (req, res) {
     let str = fs.readFileSync('websites/tools/calculator/index.html').toString(),
       jsstr = '      ' + 
       fs.readFileSync('websites/js/utilinspect.js') + '\n' +
