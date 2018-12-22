@@ -1,71 +1,10 @@
 <!doctype html>
 <html>
   <head>
-    <title>Common Sites</title>
-    <style>
-      img {
-        width:20px;
-        height:20px;
-      }
-      div {
-        width:100%;
-        height:82%;
-      }
-      html, body { height:98%; }
-      iframe {
-        width:98%;
-        height:100%;
-      }
-      .tb {
-        padding:10px;
-      }
-    </style>
+    <title>EEEEE</title>
   </head>
-  <body style = 'width:100%;height:100%;'>
-    <button class = 'tb' onclick = 'Sw("sc")'>Server Chat</button>
-    <button class = 'tb' onclick = 'Sw("spc")'>Server Private Chat</button>
-    <button class = 'tb' onclick = 'Sw("sac")'>Server Admin Console</button>
-    <button class = 'tb' onclick = 'Sw("we")'>Webble Ell</button>
-    <button class = 'tb' onclick = 'Sw("wc")'>Webble Chat</button>
-    <button class = 'tb' onclick = 'Sw("wac")'>Webble Admin Console</button><br>
-    <div id = 'fr_sc'>
-      <button onclick = 'ifr_sc.src = "https://c284.herokuapp.com/chat.html"'><img src = '/images/refresh.png'></button>
-      <span>https://c284.herokuapp.com/chat.html</span><br>
-      <iframe id = 'ifr_sc' src = 'https://c284.herokuapp.com/chat.html'></iframe>
-    </div>
-    <div id = 'fr_spc' style = 'display:none;'>
-      <button onclick = 'ifr_spc.src = "https://c284.herokuapp.com/chathid.html"'><img src = '/images/refresh.png'></button>
-      <span>https://c284.herokuapp.com/chathid.html</span><br>
-      <iframe id = 'ifr_spc' src = 'https://c284.herokuapp.com/chathid.html'></iframe>
-    </div>
-    <div id = 'fr_sac' style = 'display:none;'>
-      <button onclick = 'ifr_sac.src = "https://c284.herokuapp.com/admin.html"'><img src = '/images/refresh.png'></button>
-      <span>https://c284.herokuapp.com/admin.html</span><br>
-      <iframe id = 'ifr_sac' src = 'https://c284.herokuapp.com/admin.html'></iframe>
-    </div>
-    <div id = 'fr_we' style = 'display:none;'>
-      <button onclick = 'ifr_we.src = "https://webble--smolbeandes.repl.co/secret/ell.txt"'><img src = '/images/refresh.png'></button>
-      <span>https://webble--smolbeandes.repl.co/secret/ell.txt</span><br>
-      <iframe id = 'ifr_we' src = 'https://webble--smolbeandes.repl.co/secret/ell.txt'></iframe>
-    </div>
-    <div id = 'fr_wc' style = 'display:none;'>
-      <button onclick = 'ifr_wc.src = "https://webble--smolbeandes.repl.co/chat.html"'><img src = '/images/refresh.png'></button>
-      <span>https://webble--smolbeandes.repl.co/chat.html</span><br>
-      <iframe id = 'ifr_wc' src = 'https://webble--smolbeandes.repl.co/chat.html'></iframe>
-    </div>
-    <div id = 'fr_wac' style = 'display:none;'>
-      <button onclick = 'ifr_wac.src = "https://webble--smolbeandes.repl.co/admin.html"'><img src = '/images/refresh.png'></button>
-      <span>https://webble--smolbeandes.repl.co/admin.html</span><br>
-      <iframe id = 'ifr_wac' src = 'https://webble--smolbeandes.repl.co/admin.html'></iframe>
-    </div>
-    <script>
-      frlist = ['sc', 'spc', 'sac', 'we', 'wc', 'wac'];
-      function Sw(tofr) {
-        for (var i in frlist) {
-          document.getElementById('fr_' + frlist[i]).style = 'display:none;';
-        }
-        document.getElementById('fr_' + tofr).style = '';
-      }
-    </script>
+  <body>
+    <p><a href = 'common.html'>Common</a></p>
+    <p><a href = 'adv-calculator.html'>Adv Calculator</a></p>
   </body>
 </html>
