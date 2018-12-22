@@ -28,11 +28,58 @@ module.exports = {
     res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
     res.write(str);
     res.end();
-    datajs.handlerf['coolguy284/user/tools/adv-calculator.html'] = function (req, res) {
-      res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
-      res.write(str);
-      res.end();
-      return -1;
+    if (datajs.feat.cache.adv) {
+      datajs.handlerf['coolguy284/user/adv-calculator.html'] = function (req, res) {
+        res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
+        res.write(str);
+        res.end();
+        return -1;
+      }
+    }
+    return -1;
+  },
+  'coolguy284/user/adv-systemdata.html' : function (req, res) {
+    let str = fs.readFileSync('websites/tools/systemdata/index.html').toString(),
+      jsstr = '      ' + 
+      fs.readFileSync('websites/js/base64.js') + '\n' +
+      fs.readFileSync('websites/js/utilinspect.js') + '\n' +
+      fs.readFileSync('websites/js/utilformat.js') + '\n' +
+      fs.readFileSync('websites/tools/systemdata/systemdata.js') + '\n' +
+      fs.readFileSync('websites/tools/systemdata/consoleedit.js') + '\n' +
+      fs.readFileSync('websites/tools/systemdata/conc.js');
+    jsstr = jsstr.replace(/\n/g, '\n      ');
+    str = str.replace(/<script[^]*\/script>/g, '<script>\n' + jsstr + '\n    </script>');
+    res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
+    res.write(str);
+    res.end();
+    if (datajs.feat.cache.adv) {
+      datajs.handlerf['coolguy284/user/adv-systemdata.html'] = function (req, res) {
+        res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
+        res.write(str);
+        res.end();
+        return -1;
+      }
+    }
+    return -1;
+  },
+  'coolguy284/user/adv-coderunner.html' : function (req, res) {
+    let str = fs.readFileSync('websites/tools/coderunner.html').toString(),
+      jsstr = '      ' + 
+      fs.readFileSync('websites/js/utilinspect.js') + '\n' +
+      fs.readFileSync('websites/js/utilformat.js');
+    jsstr = jsstr.replace(/\n/g, '\n      ');
+    str = str.replace(/\n[ ]*worker.postMessage(['import', .*]);/g, '');
+    str = str.replace(/<script id = 'workerscr' type = 'javascript\/worker'>/g, '<script id = \'workerscr\' type = \'javascript/worker\'>\n' + jsstr);
+    res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
+    res.write(str);
+    res.end();
+    if (datajs.feat.cache.adv) {
+      datajs.handlerf['coolguy284/user/adv-coderunner.html'] = function (req, res) {
+        res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
+        res.write(str);
+        res.end();
+        return -1;
+      }
     }
     return -1;
   },

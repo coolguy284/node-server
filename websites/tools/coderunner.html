@@ -1,0 +1,221 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset = 'utf-8'>
+    <meta name = 'viewport' content = 'width=device-width'>
+    <title>Multithreaded Code Runner</title>
+  </head>
+  <body>
+    <button onclick = 'SWorker()'>Start Worker</button>
+    <button onclick = 'TWorker()'>Terminate Worker</button>
+    <span id = 'statuss'>off</span>
+    <iframe src = '' style = 'float:left;width:98%;height:300px;' id = 'lifr'></iframe>
+    <input type = 'text' style = 'width:98%;float:bottom;font-family:monospace;' id = 'conc'>
+    <script id = 'workerscr' type = 'javascript/worker'>
+      var olog = console.log;
+      var oinfo = console.info;
+      var odebug = console.debug;
+      var owarn = console.warn;
+      var oerror = console.error;
+      var oclear = console.clear;
+      function cologadd(value, temp, colog) {
+        if (value.search('\n') > -1) {
+          let sl = value.split('\n');
+          for (let i in sl) {
+            cologadd(sl[i], temp, colog);
+          }
+          return;
+        }
+        postMessage([value, temp || '{}']);
+      }
+      console.log = function log(value) {
+        if (typeof value != 'string') {
+          value = inspect(value);
+        }
+        if (arguments.length > 1) {
+          console.log(format.apply(null, arguments));
+          return;
+        }
+        cologadd(value);
+      };
+      console.info = function info(value) {
+        if (typeof value != 'string') {
+          value = inspect(value);
+        }
+        if (arguments.length > 1) {
+          console.info(format.apply(null, arguments));
+          return;
+        }
+        cologadd(value);
+      };
+      console.debug = function debug(value) {
+        if (typeof value != 'string') {
+          value = inspect(value);
+        }
+        if (arguments.length > 1) {
+          console.debug(format.apply(null, arguments));
+          return;
+        }
+        cologadd(value, '<span style = "color:#7f7f7f;">{}</span>');
+      };
+      console.warn = function warn(value) {
+        if (typeof value != 'string') {
+          value = inspect(value);
+        }
+        if (arguments.length > 1) {
+          console.warn(format.apply(null, arguments));
+          return;
+        }
+        cologadd(value, '<span style = "color:#3f3f00;background:#ffffcf;min-width:100%;float:left;">{}</span>');
+      };
+      console.error = function error(value) {
+        if (typeof value != 'string') {
+          value = inspect(value);
+        }
+        if (arguments.length > 1) {
+          console.error(format.apply(null, arguments));
+          return;
+        }
+        cologadd(value, '<span style = "color:#3f0000;background:#ffcfcf;min-width:100%;float:left;">{}</span>');
+      };
+      console.clear = function clear() {
+        postMessage('clear');
+      };
+      onmessage = function (req) {
+        if (req.data[0] == 'eval') {
+          try {
+            console.log('>> ' + req.data[1]);
+            resp = eval(req.data[1]);
+            if (resp !== undefined) {
+              console.log('<- ' + inspect(resp));
+            }
+          } catch (e) {
+            console.error('<- ' + e.toString());
+            console.error(e);
+          }
+        } else if (req.data[0] == 'import') {
+          importScripts.apply(this, req.data[1]);
+        }
+      };
+    </script>
+    <script>
+      var escape = document.createElement('textarea');
+      function escapeHTML(html) {
+        escape.textContent = html;
+        return escape.innerHTML;
+      }
+      function unescapeHTML(html) {
+        escape.innerHTML = html;
+        return escape.textContent;
+      }
+      function absolute(base, relative) {
+        var stack = base.split('/'),
+            parts = relative.split('/');
+        stack.pop();
+        for (var i=0; i<parts.length; i++) {
+          if (parts[i] == '.') continue;
+          if (parts[i] == '..') stack.pop();
+          else stack.push(parts[i]);
+        }
+        return stack.join('/');
+      }
+      var conchist = [];
+      var histind = 0;
+      var currtext = '';
+      var colog = [];
+      var nullworker = {postMessage:function(){alert('worker off')}};
+      var worker = nullworker;
+      var workerCode, workerURL;
+      function forma(arra) {
+        arr = arra.slice(0, Infinity);
+        for (var i in arr) {
+          arr[i] = arr[i][1].replace('{}', escapeHTML(arr[i][0]));
+        }
+        return arr.join('<br>') + '<br><br>';
+      }
+      function SWorker() {
+        worker = new Worker(workerURL);
+        worker.onmessage = function (e) {cologadd(e.data);};
+        worker.postMessage(['import', [absolute(location.href, '../../utilinspect.js'), absolute(location.href, '../../utilformat.js')]]);
+        statuss.innerHTML = 'active';
+      }
+      function TWorker() {
+        worker.terminate();
+        colog = [];
+        while (colog.length < 100) {
+          colog.push(['', '{}']);
+        }
+        lifr.contentDocument.body.innerHTML = forma(colog);
+        worker = nullworker;
+        statuss.innerHTML = 'off';
+      }
+      function cologadd(value) {
+        if (value == 'clear') {
+          colog = [];
+          while (colog.length < 100) {
+            colog.push(['', '{}']);
+          }
+          lifr.contentDocument.body.innerHTML = forma(colog);
+        } else {
+          colog.push(value);
+          if (colog.length > 100) {
+            colog.splice(0, colog.length - 100);
+          }
+          lifr.contentDocument.body.innerHTML = forma(colog);
+        }
+      }
+      function Send() {
+        worker.postMessage(['eval', conc.value]);
+        if (conchist[conchist.length-1] != conc.value) {
+          conchist.push(conc.value);
+        }
+        if (conchist.length > 100) {
+          conchist.splice(0, conchist.length - 100);
+        }
+        conc.value = '';
+        histind = conchist.length;
+        currtext = '';
+      }
+      onload = function () {
+        workerCode = new Blob([workerscr.textContent], {type: 'text/javascript'});
+        workerURL = window.URL.createObjectURL(workerCode);
+        while (colog.length < 100) {
+          colog.push(['', '{}']);
+        }
+        lifr.contentDocument.body.style = 'font-family:monospace;white-space:pre;width:98%;';
+        lifr.contentDocument.body.innerHTML = forma(colog);
+      }
+      conc.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+          Send();
+        } else if (e.keyCode === 38) {
+          if (histind > 0) {
+            histind -= 1;
+            conc.value = conchist[histind];
+          }
+          setTimeout(function(){ conc.selectionStart = conc.selectionEnd = 10000; }, 0);
+          SetEnd(conc);
+        } else if (e.keyCode === 40) {
+          if (histind < conchist.length - 1) {
+            histind += 1;
+            conc.value = conchist[histind];
+          } else if (histind == conchist.length - 1) {
+            histind = conchist.length;
+            conc.value = currtext;
+          }
+          setTimeout(function(){ conc.selectionStart = conc.selectionEnd = 10000; }, 0);
+          SetEnd(conc);
+        } else if (e.keyCode === 8) {
+          histind = conchist.length;
+          setTimeout(function() {currtext = conc.value;}, 0);
+        }
+      });
+      conc.addEventListener('keypress', function (e) {
+        //if ([37, 38, 39, 40, 16, 17, 18, 20, 91, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 27].indexOf(e.keyCode) != -1) {return;}
+        if (!e.charCode) {return;}
+        histind = conchist.length;
+        setTimeout(function() {currtext = conc.value;}, 0);
+      });
+    </script>
+  </body>
+</html>

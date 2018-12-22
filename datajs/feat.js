@@ -34,6 +34,10 @@ module.exports = {
     'cologm' : 300,
     'debreq' : 100000,
   },
+  'cache' : {
+    'rp' : {},
+    'adv' : false,
+  },
   'el' : {
     'cons' : ['/livechat.dat', '/liverchat.json', '/liveviews.dat', '/comms.json', '/colog.dat', '/cologd.dat', '/livechathere.dat', '/livechattyp.dat', '/livechatkick.dat', '/lat.log'],
     'consv' : ['/s?her=', '/s?typ=', '/a?co=', '/a?cd=', '/a?ccp=', '/a?rc='],
