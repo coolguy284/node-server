@@ -4,7 +4,7 @@ function ParseExpArr(arr, globals, locals) {
   for (let i = 0; i < arr.length; i++) {
     if (Object.prototype.toString.call(arr[i]) == '[object Array]') arr[i] = ParseExpArr(arr[i], globals, locals)[0][0];
   }
-  // function call, variable, property access
+  // variable, property access, function call
   for (let i = 0; i < arr.length; i++) {
     if (arr[i].type == 'variable' && VARRESCLS(arr, i)) {
       if (arr[i].val in locals) arr[i] = locals[arr[i].val];
@@ -34,7 +34,7 @@ function ParseExpArr(arr, globals, locals) {
       }
     }
   }
-  // logical not, bitwise not, unary plus, unary negation, typeof, void, delete : right > left
+  // logical not, bitwise not, unary plus, unary minus, typeof, void, delete : right > left
   dov = true;
   while (dov) {
     let nb = false;
@@ -145,7 +145,26 @@ function ParseExpArr(arr, globals, locals) {
     }
     dov = nb;
   }
-  // greater than, less than, greater than equal, less than equal : left > right
+  // bitwise left shift, bitwise right shift : left > right
+  dov = true;
+  while (dov) {
+    let nb = false;
+    for (let i = 0; i < op.length; i++) {
+      if (op[i] == '<<') {
+        exp.splice(parseInt(i), 2, ExpBitwiseLeftShift(exp[i], exp[parseInt(i) + 1]));
+        op.splice(parseInt(i), 1);
+        nb = true;
+        break;
+      } else if (op[i] == '>>') {
+        exp.splice(parseInt(i), 2, ExpBitwiseRightShift(exp[i], exp[parseInt(i) + 1]));
+        op.splice(parseInt(i), 1);
+        nb = true;
+        break;
+      }
+    }
+    dov = nb;
+  }
+  // greater than, less than, greater than or equal, less than or equal : left > right
   dov = true;
   while (dov) {
     let nb = false;

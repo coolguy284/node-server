@@ -2,8 +2,23 @@
 <html>
   <head>
     <title>Calculator</title>
+    <style>
+      .mgn {
+        margin: 5px 0 5px;
+      }
+      .cc {
+        background: #ddd;
+        font-family: monospace;
+      }
+      table, td, th {
+        border: 1px solid #777;
+      }
+      td {
+        padding: 0 5px 0;
+      }
+    </style>
   </head>
-  <body style = 'width:100%;'>
+  <body style = 'width:100%;font-family:arial;'>
     <div id = 'calcres' style = 'width:100%;height:400px;overflow:auto;font-family:monospace;white-space:pre;'></div>
     <input type = 'text' id = 'cinp' style = 'width:calc(100% - 110px);height:40px;font-size:36px;font-family:monospace;'>
     <button onclick = 'HelpTogg()' style = 'position:relative;top:10px;padding:0;margin:0;'><img src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARFSURBVGhD7ZpbSBRRGMd97h5dpB5yV6TrQxTRSw8FRb1UD5VYGV3oIcyIjCKC6MWKoIeImk0zkkzJLmTRxagslSjNNOghrLSLkXZXz7hruW6n79s9pjvzzeyZ2dnVh/3DD4fd73znf+ZcZ9akhBJKKH5K9agT3R413aWoh10e9QpcV7k87DkC15X4GX7nPsXWpJ1gE0SxoaGU4+1j3KfVHS6F1bkV9hcMcylCsTVYFnOIdPFXsAEe9SjcYRZm0AbQU53YU3FvkEvp2giVf6NMRQdrg7/rRTWx08xTX0fAECrWG3AWrAPrEtU6K3eBmgx3rJ6qOBbgnHN8QcCEMJReUxXGFEVtdKwx085+HxnPniComZTPhwk79gVdXEIkjy8KKxJ27Am6dgOZWIIFRV6+9baP767o5nuBrLs+vuSil6edpuMlsLeaTfF0jLWzxGaUefmDD37+iQVI6tr8fNeDbg6nALK8MazN1j4DhY/qk5lzsPo3byHMUxS+7LHcO3Bjjwh7csKWW92xM2/4SMNm7HvYTeYyAjx1WOoVPP9QicyoIIZTdYs/aDYHhlLZG/33DV96rQ8xhW0XNiMLWl5LJjFgXmGXzmTNZz+ffqY/Bg3fae7RxS0q8YblioiiPhU2zRU8ils5xQIrr+qHVe7j37o4nEPauHRYHLRx5rDA1Hw2Xtg1FgSn6wubgw3BoTWQLbD0auMOVOkbsuKyPi4ybLWwayxcGejC0VP+LnxoNbcH+KyCLjLWDPB4SNg1FgRe1hZ0gv2V3WGNQPIa/pCxkWGlwq6xYKJX04Xtswd2du3+givW7LPWe0NQKewaC1r7gihoG1x6tY1o/NnLF8NxhYqXQmENwq6xMIgsbIPV17y6Rrz60cuX25rgA5BpiJNDS3vmeguTe2lpFD3Rj8zQcmayzz+v3yR33rd2JDFGbrIfpgtbY911b1gjmn4Fwnb6qFDUXGHXWBBoeUOk2FYevtvfe99DxtkhVWGrhF1j4fZv9YhCMedcF18G86GPhcWOzA2ABSaf7Bwn7JoLCtToEwwRFPWJsBlZUCBbl8AGeI7Cw2MObIgz8ukY67AsYTOyxINVB51Ijs23fPxjZ/8cwaU4LY+OtUC7pQcrVLSHx9tN+mcP3CCpWGlkViutQr3CvpAJJSgnHqLwxQQVK4XCWtNO/Bgl7FkTPPJmkkklwDPWwEbUtvqjmicw1DOELXtyedgFKrEMm276uFL/Jzjh58JyTMVIUijs2FfysbbhkGgwl2NnXpmi8EUyTLRGopLY4uRL7D6F3sizZ2SFMQDrcrwRfcIfX2D1KKIqdphCx4aTmaCi9bDD4s9klAn7wBKb4lHXimriI7H748/QnaQpCwRPEbDZpeb/Gi3Sx1/YIDCTjYc5PJlqTRoDsaEyWYPaAEr4CIDPCnh3YZhcAh79/4cBuA59BnceYqSP4gkllJADSkr6Bwc6Q2MDge/WAAAAAElFTkSuQmCC' style = 'width:40px;height:40px;'></button>
@@ -12,18 +27,55 @@
       <option value = 'cal'>Calculate</option>
       <option value = 'cat'>Catculate</option>
     </select>
-    <div id = 'helpdiv' style = 'display:none;width:100%;word-break:break-word;'>
-      <button onclick = 'helpdiv.style = "display:none;";' style = 'position:absolute;right:20px;top:5px;margin:0;padding:0;'><img id = 'hdcls' style = 'width:40px;height:40px;'></button>
-      This is a calculator that has support for advanced operations such as bitwise operations,<br>
-      expression evaluation, and function evaluation. It is used like you would expect, just<br>
-      type in numbers and operations like you would on paper, then press enter.<br>
-      The supported operators are +, -, * (multiply), / (divide), % (remainder),<br>
-      ^ or ** (exponentiation), &gt;, &lt;, &gt;=, &lt;=, ==, != (equality and inequality operators)<br>
-      There is support for all trigonometric functions, and conversion between degrees and radians.<br>
-      To evaluate regular javascript, put a ":" before text.
+    <div id = 'helpdiv' style = 'display:none;'>
+      <button onclick = 'helpdiv.style = "display:none;";' style = 'position:fixed;right:20px;top:5px;margin:0;padding:0;'><img id = 'hdcls' style = 'width:40px;height:40px;'></button>
+      <div style = 'position:relative;left:30%;width:calc(40% - 70px);'><br>
+        <h2 class = 'mgn'>Overview</h2>
+        This is a calculator that has support for advanced operations such as bitwise operations, expression evaluation, and function evaluation. It is used like you would expect, just type in numbers and operations like you would on paper, then press enter.<br>
+        <h2 class = 'mgn'>Operators</h2>
+        <p style = 'margin: 0 0 4px;'>The supported operators, in order of precedence, are:</p>
+        <table style = 'width:100%;'>
+          <tr><th>Precedence</th>     <th>Name</th>                  <th>Evaluation Order</th>          <th>Symbol</th></tr>
+          <tr><td>15</td>             <td>Parenthesis</td>           <td>n/a</td>                       <td class = 'cc'>( … )</td></tr>
+          <tr><td rowspan = 3>14</td> <td>Variable Resolution</td>   <td>n/a</td>                       <td class = 'cc'>…</td></tr>
+          <tr>                        <td>Property Access</td>       <td rowspan = 2>left to right</td> <td class = 'cc'>… . … or … [ … ]</td></tr>
+          <tr>                        <td>Function Call</td>                                            <td class = 'cc'>… ( … )</td></tr>
+          <tr><td rowspan = 7>13</td> <td>Logical Not</td>           <td rowspan = 7>right to left</td> <td class = 'cc'>! …</td></tr>
+          <tr>                        <td>Bitwise Not</td>                                              <td class = 'cc'>~ …</td></tr>
+          <tr>                        <td>Unary Plus</td>                                               <td class = 'cc'>+ …</td></tr>
+          <tr>                        <td>Unary Minus</td>                                              <td class = 'cc'>- …</td></tr>
+          <tr>                        <td>Typeof</td>                                                   <td class = 'cc'>typeof …</td></tr>
+          <tr>                        <td>Void</td>                                                     <td class = 'cc'>void …</td></tr>
+          <tr>                        <td>Delete</td>                                                   <td class = 'cc'>del … or delete …</td></tr>
+          <tr><td>12</td>             <td>Exponentiation</td>        <td>right to left</td>             <td class = 'cc'>… ** … or … ^ …</td></tr>
+          <tr><td rowspan = 3>11</td> <td>Multiplication</td>        <td rowspan = 3>left to right</td> <td class = 'cc'>… * …</td></tr>
+          <tr>                        <td>Division</td>                                                 <td class = 'cc'>… / …</td></tr>
+          <tr>                        <td>Modulus</td>                                                  <td class = 'cc'>… % …</td></tr>
+          <tr><td rowspan = 2>10</td> <td>Addition</td>              <td rowspan = 2>left to right</td> <td class = 'cc'>… + …</td></tr>
+          <tr>                        <td>Subtraction</td>                                              <td class = 'cc'>… - …</td></tr>
+          <tr><td rowspan = 2>9</td>  <td>Bitwise Left Shift</td>    <td rowspan = 2>left to right</td> <td class = 'cc'>… &lt;&lt; …</td></tr>
+          <tr>                        <td>Bitwise Right Shift</td>                                      <td class = 'cc'>… &gt;&gt; …</td></tr>
+          <tr><td rowspan = 4>8</td>  <td>Greater Than</td>          <td rowspan = 4>left to right</td> <td class = 'cc'>… &gt; …</td></tr>
+          <tr>                        <td>Less Than</td>                                                <td class = 'cc'>… &lt; …</td></tr>
+          <tr>                        <td>Greater Than or Equal</td>                                    <td class = 'cc'>… &gt;= …</td></tr>
+          <tr>                        <td>Less Than or Equal</td>                                       <td class = 'cc'>… &lt;= …</td></tr>
+          <tr><td rowspan = 2>7</td>  <td>Equality</td>              <td rowspan = 2>left to right</td> <td class = 'cc'>… == …</td></tr>
+          <tr>                        <td>Inequality</td>                                               <td class = 'cc'>… != …</td></tr>
+          <tr><td>6</td>              <td>Bitwise And</td>           <td>left to right</td>             <td class = 'cc'>… & …</td></tr>
+          <tr><td>5</td>              <td>Bitwise Xor</td>           <td>left to right</td>             <td class = 'cc'>… # …</td></tr>
+          <tr><td>4</td>              <td>Bitwise Or</td>            <td>left to right</td>             <td class = 'cc'>… | …</td></tr>
+          <tr><td>3</td>              <td>Logical And</td>           <td>left to right</td>             <td class = 'cc'>… && …</td></tr>
+          <tr><td>2</td>              <td>Logical Or</td>            <td>left to right</td>             <td class = 'cc'>… || …</td></tr>
+          <tr><td>1</td>              <td>Assignment</td>            <td>right to left</td>             <td class = 'cc'>… = …</td></tr>
+        </table>
+        <h2 class = 'mgn'>Builtin Functions</h2>
+        There is support for all trigonometric functions, and conversion between degrees and radians.<br>
+        <h2 class = 'mgn'>Regular JavaScript Evaluation</h2>
+        To evaluate regular javascript, put a ":" before text.<br><br><br><br><br>
+      </div>
     </div>
     <div id = 'settins' style = 'display:none;'>
-      <button onclick = 'settins.style = "display:none;";' style = 'position:absolute;right:20px;top:5px;margin:0;padding:0;'><img id = 'stcls' style = 'width:40px;height:40px;'></button>
+      <button onclick = 'settins.style = "display:none;";' style = 'position:fixed;right:20px;top:5px;margin:0;padding:0;'><img id = 'stcls' style = 'width:40px;height:40px;'></button>
       <table style = 'border:1px solid black;float:left;'>
         <tr style = 'border:1px solid black;'>
           <td style = 'border:1px solid black;width:150px;text-align:center;'>
@@ -586,6 +638,24 @@
             if (rv !== undefined) return rv;
           }
           throw new Error('unsupported operand type(s) for -: \'' + val1.type + '\' and \'' + val2.type + '\'');
+        }
+      }
+      function ExpBitwiseLeftShift(val1, val2) {
+        if (val1.type == 'number' && val2.type == 'number') {
+          return new ExpNumber(val1.val << val2.val);
+        } else if (val1.type == 'bigint' && val2.type == 'bigint') {
+          return new ExpBigInt(val1.val << val2.val);
+        } else {
+          throw new Error('unsupported operand type(s) for <<: \'' + val1.type + '\' and \'' + val2.type + '\'');
+        }
+      }
+      function ExpBitwiseRightShift(val1, val2) {
+        if (val1.type == 'number' && val2.type == 'number') {
+          return new ExpNumber(val1.val >> val2.val);
+        } else if (val1.type == 'bigint' && val2.type == 'bigint') {
+          return new ExpBigInt(val1.val >> val2.val);
+        } else {
+          throw new Error('unsupported operand type(s) for >>: \'' + val1.type + '\' and \'' + val2.type + '\'');
         }
       }
       function ExpGreaterThan(val1, val2) {
@@ -2175,7 +2245,7 @@
         for (let i = 0; i < arr.length; i++) {
           if (Object.prototype.toString.call(arr[i]) == '[object Array]') arr[i] = ParseExpArr(arr[i], globals, locals)[0][0];
         }
-        // function call, variable, property access
+        // variable, property access, function call
         for (let i = 0; i < arr.length; i++) {
           if (arr[i].type == 'variable' && VARRESCLS(arr, i)) {
             if (arr[i].val in locals) arr[i] = locals[arr[i].val];
@@ -2205,7 +2275,7 @@
             }
           }
         }
-        // logical not, bitwise not, unary plus, unary negation, typeof, void, delete : right > left
+        // logical not, bitwise not, unary plus, unary minus, typeof, void, delete : right > left
         dov = true;
         while (dov) {
           let nb = false;
@@ -2316,7 +2386,26 @@
           }
           dov = nb;
         }
-        // greater than, less than, greater than equal, less than equal : left > right
+        // bitwise left shift, bitwise right shift : left > right
+        dov = true;
+        while (dov) {
+          let nb = false;
+          for (let i = 0; i < op.length; i++) {
+            if (op[i] == '<<') {
+              exp.splice(parseInt(i), 2, ExpBitwiseLeftShift(exp[i], exp[parseInt(i) + 1]));
+              op.splice(parseInt(i), 1);
+              nb = true;
+              break;
+            } else if (op[i] == '>>') {
+              exp.splice(parseInt(i), 2, ExpBitwiseRightShift(exp[i], exp[parseInt(i) + 1]));
+              op.splice(parseInt(i), 1);
+              nb = true;
+              break;
+            }
+          }
+          dov = nb;
+        }
+        // greater than, less than, greater than or equal, less than or equal : left > right
         dov = true;
         while (dov) {
           let nb = false;
@@ -2531,7 +2620,7 @@
       var calcarr = [], cinphist = [], histind = 0, currtext = '';
       function HelpTogg() {
         if (helpdiv.style.cssText == 'display: none;') {
-          helpdiv.style = 'position:fixed;top:2px;width:100%;height:400px;background:white;';
+          helpdiv.style = 'position:fixed;top:2px;width:100%;height:400px;background:#ffffffff;overflow:scroll;word-break:break-word;';
         } else {
           helpdiv.style = 'display:none;';
         }

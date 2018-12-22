@@ -3,7 +3,7 @@ hdcls.src = stcls.src = '../../images/close.png';
 var calcarr = [], cinphist = [], histind = 0, currtext = '';
 function HelpTogg() {
   if (helpdiv.style.cssText == 'display: none;') {
-    helpdiv.style = 'position:fixed;top:2px;width:100%;height:400px;background:white;';
+    helpdiv.style = 'position:fixed;top:2px;width:100%;height:400px;background:#ffffffff;overflow:scroll;word-break:break-word;';
   } else {
     helpdiv.style = 'display:none;';
   }
