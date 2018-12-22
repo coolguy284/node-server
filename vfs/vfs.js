@@ -46,14 +46,8 @@ let rfs2 = new FileSystem(true);
 let fsv = new FileSystemContext(rfs);
 let fsv2 = new FileSystemContext(rfs2);
 module.exports = {
-  helperf,
-  FileSystem,
-  FileSystemContext,
-  SecureView,
-  rfs,
-  rfs2,
-  fs: fsv,
-  fs2: fsv2,
+  helperf, FileSystem, FileSystemContext, SecureView,
+  rfs, rfs2, fs: fsv, fs2: fsv2,
 };
 fsv.mkdirSync('/dir');
 fsv.writeFileSync('/dir/Some File.txt', 'This is a test file, inside a folder.');
