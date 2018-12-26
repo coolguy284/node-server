@@ -29,44 +29,46 @@
     </select>
     <div id = 'helpdiv' style = 'display:none;'>
       <button onclick = 'helpdiv.style = "display:none;";' style = 'position:fixed;right:20px;top:5px;margin:0;padding:0;'><img id = 'hdcls' style = 'width:40px;height:40px;'></button>
-      <div style = 'position:relative;left:30%;width:calc(40% - 70px);'><br>
+      <div style = 'position:relative;left:50%;width:600px;margin-left:-300px;'><br>
         <h2 class = 'mgn'>Overview</h2>
         This is a calculator that has support for advanced operations such as bitwise operations, expression evaluation, and function evaluation. It is used like you would expect, just type in numbers and operations like you would on paper, then press enter.<br>
         <h2 class = 'mgn'>Operators</h2>
         <p style = 'margin: 0 0 4px;'>The supported operators, in order of precedence, are:</p>
         <table style = 'width:100%;'>
-          <tr><th>Precedence</th>     <th>Name</th>                  <th>Evaluation Order</th>          <th>Symbol</th></tr>
-          <tr><td>15</td>             <td>Parenthesis</td>           <td>n/a</td>                       <td class = 'cc'>( … )</td></tr>
-          <tr><td rowspan = 3>14</td> <td>Variable Resolution</td>   <td>n/a</td>                       <td class = 'cc'>…</td></tr>
-          <tr>                        <td>Property Access</td>       <td rowspan = 2>left to right</td> <td class = 'cc'>… . … or … [ … ]</td></tr>
-          <tr>                        <td>Function Call</td>                                            <td class = 'cc'>… ( … )</td></tr>
-          <tr><td rowspan = 7>13</td> <td>Logical Not</td>           <td rowspan = 7>right to left</td> <td class = 'cc'>! …</td></tr>
-          <tr>                        <td>Bitwise Not</td>                                              <td class = 'cc'>~ …</td></tr>
-          <tr>                        <td>Unary Plus</td>                                               <td class = 'cc'>+ …</td></tr>
-          <tr>                        <td>Unary Minus</td>                                              <td class = 'cc'>- …</td></tr>
-          <tr>                        <td>Typeof</td>                                                   <td class = 'cc'>typeof …</td></tr>
-          <tr>                        <td>Void</td>                                                     <td class = 'cc'>void …</td></tr>
-          <tr>                        <td>Delete</td>                                                   <td class = 'cc'>del … or delete …</td></tr>
-          <tr><td>12</td>             <td>Exponentiation</td>        <td>right to left</td>             <td class = 'cc'>… ** … or … ^ …</td></tr>
-          <tr><td rowspan = 3>11</td> <td>Multiplication</td>        <td rowspan = 3>left to right</td> <td class = 'cc'>… * …</td></tr>
-          <tr>                        <td>Division</td>                                                 <td class = 'cc'>… / …</td></tr>
-          <tr>                        <td>Modulus</td>                                                  <td class = 'cc'>… % …</td></tr>
-          <tr><td rowspan = 2>10</td> <td>Addition</td>              <td rowspan = 2>left to right</td> <td class = 'cc'>… + …</td></tr>
-          <tr>                        <td>Subtraction</td>                                              <td class = 'cc'>… - …</td></tr>
-          <tr><td rowspan = 2>9</td>  <td>Bitwise Left Shift</td>    <td rowspan = 2>left to right</td> <td class = 'cc'>… &lt;&lt; …</td></tr>
-          <tr>                        <td>Bitwise Right Shift</td>                                      <td class = 'cc'>… &gt;&gt; …</td></tr>
-          <tr><td rowspan = 4>8</td>  <td>Greater Than</td>          <td rowspan = 4>left to right</td> <td class = 'cc'>… &gt; …</td></tr>
-          <tr>                        <td>Less Than</td>                                                <td class = 'cc'>… &lt; …</td></tr>
-          <tr>                        <td>Greater Than or Equal</td>                                    <td class = 'cc'>… &gt;= …</td></tr>
-          <tr>                        <td>Less Than or Equal</td>                                       <td class = 'cc'>… &lt;= …</td></tr>
-          <tr><td rowspan = 2>7</td>  <td>Equality</td>              <td rowspan = 2>left to right</td> <td class = 'cc'>… == …</td></tr>
-          <tr>                        <td>Inequality</td>                                               <td class = 'cc'>… != …</td></tr>
-          <tr><td>6</td>              <td>Bitwise And</td>           <td>left to right</td>             <td class = 'cc'>… & …</td></tr>
-          <tr><td>5</td>              <td>Bitwise Xor</td>           <td>left to right</td>             <td class = 'cc'>… # …</td></tr>
-          <tr><td>4</td>              <td>Bitwise Or</td>            <td>left to right</td>             <td class = 'cc'>… | …</td></tr>
-          <tr><td>3</td>              <td>Logical And</td>           <td>left to right</td>             <td class = 'cc'>… && …</td></tr>
-          <tr><td>2</td>              <td>Logical Or</td>            <td>left to right</td>             <td class = 'cc'>… || …</td></tr>
-          <tr><td>1</td>              <td>Assignment</td>            <td>right to left</td>             <td class = 'cc'>… = …</td></tr>
+          <tr><th>Precedence</th>     <th>Name</th>                     <th>Evaluation Order</th>          <th>Symbol</th></tr>
+          <tr><td>15</td>             <td>Parenthesis</td>              <td>n/a</td>                       <td class = 'cc'>( … )</td></tr>
+          <tr><td rowspan = 4>14</td> <td>Variable Resolution</td>      <td>n/a</td>                       <td class = 'cc'>…</td></tr>
+          <tr>                        <td>Property Access</td>          <td rowspan = 3>left to right</td> <td class = 'cc'>… . …</td></tr>
+          <tr>                        <td>Computed Property Access</td>                                    <td class = 'cc'>… [ … ]</td></tr>
+          <tr>                        <td>Function Call</td>                                               <td class = 'cc'>… ( … )</td></tr>
+          <tr><td rowspan = 7>13</td> <td>Logical Not</td>              <td rowspan = 7>right to left</td> <td class = 'cc'>! …</td></tr>
+          <tr>                        <td>Bitwise Not</td>                                                 <td class = 'cc'>~ …</td></tr>
+          <tr>                        <td>Unary Plus</td>                                                  <td class = 'cc'>+ …</td></tr>
+          <tr>                        <td>Unary Minus</td>                                                 <td class = 'cc'>- …</td></tr>
+          <tr>                        <td>Typeof</td>                                                      <td class = 'cc'>typeof …</td></tr>
+          <tr>                        <td>Void</td>                                                        <td class = 'cc'>void …</td></tr>
+          <tr>                        <td>Delete</td>                                                      <td class = 'cc'>del … or delete …</td></tr>
+          <tr><td>12</td>             <td>Exponentiation</td>           <td>right to left</td>             <td class = 'cc'>… ** … or … ^ …</td></tr>
+          <tr><td rowspan = 3>11</td> <td>Multiplication</td>           <td rowspan = 3>left to right</td> <td class = 'cc'>… * …</td></tr>
+          <tr>                        <td>Division</td>                                                    <td class = 'cc'>… / …</td></tr>
+          <tr>                        <td>Modulus</td>                                                     <td class = 'cc'>… % …</td></tr>
+          <tr><td rowspan = 2>10</td> <td>Addition</td>                 <td rowspan = 2>left to right</td> <td class = 'cc'>… + …</td></tr>
+          <tr>                        <td>Subtraction</td>                                                 <td class = 'cc'>… - …</td></tr>
+          <tr><td rowspan = 2>9</td>  <td>Bitwise Left Shift</td>       <td rowspan = 2>left to right</td> <td class = 'cc'>… &lt;&lt; …</td></tr>
+          <tr>                        <td>Bitwise Right Shift</td>                                         <td class = 'cc'>… &gt;&gt; …</td></tr>
+          <tr><td rowspan = 4>8</td>  <td>Greater Than</td>             <td rowspan = 4>left to right</td> <td class = 'cc'>… &gt; …</td></tr>
+          <tr>                        <td>Less Than</td>                                                   <td class = 'cc'>… &lt; …</td></tr>
+          <tr>                        <td>Greater Than or Equal</td>                                       <td class = 'cc'>… &gt;= …</td></tr>
+          <tr>                        <td>Less Than or Equal</td>                                          <td class = 'cc'>… &lt;= …</td></tr>
+          <tr><td rowspan = 3>7</td>  <td>Equality</td>                 <td rowspan = 3>left to right</td> <td class = 'cc'>… == …</td></tr>
+          <tr>                        <td>Inequality</td>                                                  <td class = 'cc'>… != …</td></tr>
+          <tr>                        <td>True Equality</td>                                               <td class = 'cc'>… is …</td></tr>
+          <tr><td>6</td>              <td>Bitwise And</td>              <td>left to right</td>             <td class = 'cc'>… & …</td></tr>
+          <tr><td>5</td>              <td>Bitwise Xor</td>              <td>left to right</td>             <td class = 'cc'>… # …</td></tr>
+          <tr><td>4</td>              <td>Bitwise Or</td>               <td>left to right</td>             <td class = 'cc'>… | …</td></tr>
+          <tr><td>3</td>              <td>Logical And</td>              <td>left to right</td>             <td class = 'cc'>… && …</td></tr>
+          <tr><td>2</td>              <td>Logical Or</td>               <td>left to right</td>             <td class = 'cc'>… || …</td></tr>
+          <tr><td>1</td>              <td>Assignment</td>               <td>right to left</td>             <td class = 'cc'>… = …</td></tr>
         </table>
         <h2 class = 'mgn'>Builtin Functions</h2>
         There is support for all trigonometric functions, and conversion between degrees and radians.<br>
@@ -361,17 +363,18 @@
               '|':'|=', '&':'&=', '#':'=',
               '>>': '=', '<<': '=',
               '>':'>=', '<':'<=', '=':'='};
-      var OPSKW = ['typeof', 'void', 'del', 'delete'];
+      var OPSKW = ['typeof', 'void', 'del', 'delete', 'is'];
       var OPSNVF = ['=', '+=', '-=', '*=', '/=', '%=', '**=', '^=', '>>=', '<<=', '|=', '&=', '#='];
       var OPSNVB = ['del', 'delete'];
       var NUM = '0123456789';
-      var NUMA = '0123456789.e';
+      var NUMA = '0123456789.';
+      var NUME = '0123456789+-';
       var STR = '\'"';
       var VAR = '0123456789!~+-*/%^|&#><=()[]{}\\/,@;:\'"` \n\r\t';
       var VARN = '0123456789n!~+-*/%^|&#><=()[]{}\\/,@;:\'"` \n\r\t';
       var BIGLIMIT = {digit: 1000, strlen: 100000};
       var VARRESCLS = function (arr, i) {
-        return !(arr[i - 1] && arr[i - 1].type == 'op' && arr[i - 1].val == '.') && ((arr[i + 1] && arr[i + 1].type == 'op' && arr[i + 1].val == '.') || (!(arr[i - 1] && arr[i - 1].type == 'op' && OPSNVB.indexOf(arr[i - 1].val) > -1) && !(arr[i + 1] && arr[i + 1].type == 'op' && OPSNVF.indexOf(arr[i + 1].val) > -1)));
+        return !(arr[i - 1] && arr[i - 1].type == 'op' && arr[i - 1].val == '.') && ((arr[i + 1] && arr[i + 1].type == 'op' && arr[i + 1].val == '.') || (arr[i + 1] && arr[i + 1].type == 'funccall') || (!(arr[i - 1] && arr[i - 1].type == 'op' && OPSNVB.indexOf(arr[i - 1].val) > -1) && !(arr[i + 1] && arr[i + 1].type == 'op' && OPSNVF.indexOf(arr[i + 1].val) > -1)));
       };
       var PROPACCCLS = function (arr, i) {
         return (arr[i + 1] && arr[i + 1].type == 'op' && arr[i + 1].val == '.') && (!((arr[i - 1] && arr[i - 1].type == 'op' && OPSNVB.indexOf(arr[i - 1].val) > -1) || (arr[i + 3] && arr[i + 3].type == 'op' && OPSNVF.indexOf(arr[i + 3].val) > -1)) || (arr[i + 3] && arr[i + 3].type == 'op' && arr[i + 3].val == '.'));
@@ -489,9 +492,11 @@
         this.type = 'funccall';
         this.val = val;
       }
-      function ExpFunc(val) {
+      function ExpFunc(val, ftype) {
+        if (ftype === undefined) ftype = 'js';
         this.type = 'func';
         this.val = val;
+        this.ftype = ftype;
       }
       function ExpJSObj(val) {
         this.type = 'jsobj';
@@ -747,6 +752,9 @@
           }
           throw new Error('unsupported operand type(s) for !=: \'' + val1.type + '\' and \'' + val2.type + '\'');
         }
+      }
+      function ExpIs(val1, val2) {
+        return Object.is(val1, val2);
       }
       function ExpBitwiseAnd(val1, val2) {
         if (val1.type == 'number' && val2.type == 'number') {
@@ -1314,7 +1322,8 @@
       }
       function FuncCallProp(func, val, globals, locals) {
         if (func.type != 'func') throw new Error('variable not a function');
-        return func.val(val, globals, locals);
+        if (func.ftype == 'js') return func.val(val, globals, locals);
+        else if (func.ftype == 'comp') return ParseStmtArr(func.val)[0][0];
       }
       function Mod1(x) {
         if (x >= 0) return x % 1;
@@ -1470,6 +1479,11 @@
         }),
         Object: new ExpFunc(function (args) {
           if (args.length == 0) return new ExpObject({});
+        }),
+        Function: new ExpFunc(function (args) {
+          if (args.length == 1) {
+            if (args[0].type == 'string') return new ExpFunc(ToStmtArr(args[0].val), 'comp');
+          }
         }),
         Complex: new ExpFunc(function (args) {
           if (args[0].type == 'string') return new ExpComplex(args[0].val);
@@ -1914,8 +1928,7 @@
         }
       }
       function ToExpArr(val) {
-        // 0123456789.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+-*/%^|&()[]
-        let p = {ra: [], bs: '', objn: '', ba: [], bas: [], bt: '', pl: []};
+        let p = {ra: [], bs: '', objn: '', emod: false, ba: [], bas: [], bt: '', pl: []};
         for (let i in val) {
           if (p.bt == '') {
             if (NUM.indexOf(val[i]) > -1) {
@@ -1961,31 +1974,51 @@
               p.bt = 'var';
             }
           } else if (p.bt == 'number') {
-            if (NUMA.indexOf(val[i]) > -1) {
-              p.bs += val[i];
-            } else if (VARN.indexOf(val[i]) < 0) {
-              p.ra.push(new ExpNumber(p.bs));
-              p.ra.push(new ExpOperator('*'));
-              p.bs = val[i];
-              p.bt = 'var';
-            } else if (val[i] == 'n') {
-              p.ra.push(new ExpBigInt(p.bs));
-              p.bt = 'bigint';
-            } else if (OPS.indexOf(val[i]) > -1) {
-              p.ra.push(new ExpNumber(p.bs));
-              p.ra.push(new ExpOperator(val[i]));
-              p.bs = '';
-              p.bt = '';
-            } else if (val[i] == '(') {
-              p.ra.push(new ExpNumber(p.bs));
-              p.ra.push(new ExpOperator('*'));
-              p.bs = '';
-              p.bt = 'paren';
-              p.pl.push('p');
-            } else if (val[i] == ' ') {
-              p.ra.push(new ExpNumber(p.bs));
-              p.bs = '';
-              p.bt = '';
+            if (p.emod) {
+              if (NUME.indexOf(val[i]) < 0) {
+                p.ra.push(new ExpNumber(p.bs.slice(0, -1)), new ExpOperator('*'), new ExpVariable('e'));
+                if (OPS.indexOf(val[i]) > -1) {
+                  p.ra.push(new ExpOperator(val[i]));
+                  p.bs = '';
+                  p.bt = '';
+                } else if (val[i] == '(') {
+                  p.ba.push(new ExpVariable('e'));
+                  p.pl.push('p');
+                  p.bs = '';
+                  p.bt = 'funccall';
+                }
+              } else {
+                p.bs += val[i];
+              }
+              p.emod = false;
+            } else {
+              if (val[i] == 'e') {p.bs += 'e'; p.emod = true; continue;}
+              if (NUMA.indexOf(val[i]) > -1) {
+                p.bs += val[i];
+              } else if (VARN.indexOf(val[i]) < 0) {
+                p.ra.push(new ExpNumber(p.bs));
+                p.ra.push(new ExpOperator('*'));
+                p.bs = val[i];
+                p.bt = 'var';
+              } else if (val[i] == 'n') {
+                p.ra.push(new ExpBigInt(p.bs));
+                p.bt = 'bigint';
+              } else if (OPS.indexOf(val[i]) > -1) {
+                p.ra.push(new ExpNumber(p.bs));
+                p.ra.push(new ExpOperator(val[i]));
+                p.bs = '';
+                p.bt = '';
+              } else if (val[i] == '(') {
+                p.ra.push(new ExpNumber(p.bs));
+                p.ra.push(new ExpOperator('*'));
+                p.bs = '';
+                p.bt = 'paren';
+                p.pl.push('p');
+              } else if (val[i] == ' ') {
+                p.ra.push(new ExpNumber(p.bs));
+                p.bs = '';
+                p.bt = '';
+              }
             }
           } else if (p.bt == 'bigint') {
             if (VAR.indexOf(val[i]) < 0) {
@@ -2038,9 +2071,10 @@
               p.bs = '';
               p.bt = '';
             } else if (val[i] == '(') {
-              p.bt = 'funccall';
+              p.ba.push(new ExpVariable(''));
               p.pl.push('p');
               p.bs = '';
+              p.bt = 'funccall';
             } else if (val[i] == '[') {
               p.bt = 'propacc';
               p.ra.push(new ExpOperator('.'));
@@ -2434,7 +2468,7 @@
           }
           dov = nb;
         }
-        // equality, inequality : left > right
+        // equality, inequality, true equality : left > right
         dov = true;
         while (dov) {
           let nb = false;
@@ -2446,6 +2480,11 @@
               break;
             } else if (op[i] == '!=') {
               exp.splice(i, 2, ExpNotEqual(exp[i], exp[i + 1]));
+              op.splice(i, 1);
+              nb = true;
+              break;
+            } else if (op[i] == 'is') {
+              exp.splice(i, 2, ExpIs(exp[i], exp[i + 1]));
               op.splice(i, 1);
               nb = true;
               break;
@@ -2615,7 +2654,6 @@
         for (let i in val) rv = ParseExpArr(val[i], globals, locals);
         return rv;
       }
-      // jshint maxerr:1000 -W041 -W051 -W060 -W061
       hdcls.src = stcls.src = 'data:image/png;base64,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';
       var calcarr = [], cinphist = [], histind = 0, currtext = '';
       function HelpTogg() {
@@ -2738,7 +2776,6 @@
             cinp.value = cinphist[histind];
           }
           setTimeout(function(){ cinp.selectionStart = cinp.selectionEnd = 10000; }, 0);
-          //SetEnd(cinp);
         } else if (e.keyCode === 40) {
           if (histind < cinphist.length - 1) {
             histind += 1;
@@ -2748,7 +2785,6 @@
             cinp.value = currtext;
           }
           setTimeout(function(){ cinp.selectionStart = cinp.selectionEnd = 10000; }, 0);
-          //SetEnd(cinp);
         } else if (e.keyCode === 8) {
           histind = cinphist.length;
           setTimeout(function() {currtext = cinp.value;}, 0);

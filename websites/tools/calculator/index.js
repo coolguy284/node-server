@@ -1,4 +1,3 @@
-// jshint maxerr:1000 -W041 -W051 -W060 -W061
 hdcls.src = stcls.src = '../../images/close.png';
 var calcarr = [], cinphist = [], histind = 0, currtext = '';
 function HelpTogg() {
@@ -121,7 +120,6 @@ cinp.addEventListener('keydown', function (e) {
       cinp.value = cinphist[histind];
     }
     setTimeout(function(){ cinp.selectionStart = cinp.selectionEnd = 10000; }, 0);
-    //SetEnd(cinp);
   } else if (e.keyCode === 40) {
     if (histind < cinphist.length - 1) {
       histind += 1;
@@ -131,7 +129,6 @@ cinp.addEventListener('keydown', function (e) {
       cinp.value = currtext;
     }
     setTimeout(function(){ cinp.selectionStart = cinp.selectionEnd = 10000; }, 0);
-    //SetEnd(cinp);
   } else if (e.keyCode === 8) {
     histind = cinphist.length;
     setTimeout(function() {currtext = cinp.value;}, 0);

@@ -79,8 +79,7 @@ function ExpArrString(val, p) {
   }
 }
 function ToExpArr(val) {
-  // 0123456789.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+-*/%^|&()[]
-  let p = {ra: [], bs: '', objn: '', ba: [], bas: [], bt: '', pl: []};
+  let p = {ra: [], bs: '', objn: '', emod: false, ba: [], bas: [], bt: '', pl: []};
   for (let i in val) {
     if (p.bt == '') {
       if (NUM.indexOf(val[i]) > -1) {
@@ -126,31 +125,51 @@ function ToExpArr(val) {
         p.bt = 'var';
       }
     } else if (p.bt == 'number') {
-      if (NUMA.indexOf(val[i]) > -1) {
-        p.bs += val[i];
-      } else if (VARN.indexOf(val[i]) < 0) {
-        p.ra.push(new ExpNumber(p.bs));
-        p.ra.push(new ExpOperator('*'));
-        p.bs = val[i];
-        p.bt = 'var';
-      } else if (val[i] == 'n') {
-        p.ra.push(new ExpBigInt(p.bs));
-        p.bt = 'bigint';
-      } else if (OPS.indexOf(val[i]) > -1) {
-        p.ra.push(new ExpNumber(p.bs));
-        p.ra.push(new ExpOperator(val[i]));
-        p.bs = '';
-        p.bt = '';
-      } else if (val[i] == '(') {
-        p.ra.push(new ExpNumber(p.bs));
-        p.ra.push(new ExpOperator('*'));
-        p.bs = '';
-        p.bt = 'paren';
-        p.pl.push('p');
-      } else if (val[i] == ' ') {
-        p.ra.push(new ExpNumber(p.bs));
-        p.bs = '';
-        p.bt = '';
+      if (p.emod) {
+        if (NUME.indexOf(val[i]) < 0) {
+          p.ra.push(new ExpNumber(p.bs.slice(0, -1)), new ExpOperator('*'), new ExpVariable('e'));
+          if (OPS.indexOf(val[i]) > -1) {
+            p.ra.push(new ExpOperator(val[i]));
+            p.bs = '';
+            p.bt = '';
+          } else if (val[i] == '(') {
+            p.ba.push(new ExpVariable('e'));
+            p.pl.push('p');
+            p.bs = '';
+            p.bt = 'funccall';
+          }
+        } else {
+          p.bs += val[i];
+        }
+        p.emod = false;
+      } else {
+        if (val[i] == 'e') {p.bs += 'e'; p.emod = true; continue;}
+        if (NUMA.indexOf(val[i]) > -1) {
+          p.bs += val[i];
+        } else if (VARN.indexOf(val[i]) < 0) {
+          p.ra.push(new ExpNumber(p.bs));
+          p.ra.push(new ExpOperator('*'));
+          p.bs = val[i];
+          p.bt = 'var';
+        } else if (val[i] == 'n') {
+          p.ra.push(new ExpBigInt(p.bs));
+          p.bt = 'bigint';
+        } else if (OPS.indexOf(val[i]) > -1) {
+          p.ra.push(new ExpNumber(p.bs));
+          p.ra.push(new ExpOperator(val[i]));
+          p.bs = '';
+          p.bt = '';
+        } else if (val[i] == '(') {
+          p.ra.push(new ExpNumber(p.bs));
+          p.ra.push(new ExpOperator('*'));
+          p.bs = '';
+          p.bt = 'paren';
+          p.pl.push('p');
+        } else if (val[i] == ' ') {
+          p.ra.push(new ExpNumber(p.bs));
+          p.bs = '';
+          p.bt = '';
+        }
       }
     } else if (p.bt == 'bigint') {
       if (VAR.indexOf(val[i]) < 0) {
@@ -203,9 +222,10 @@ function ToExpArr(val) {
         p.bs = '';
         p.bt = '';
       } else if (val[i] == '(') {
-        p.bt = 'funccall';
+        p.ba.push(new ExpVariable(''));
         p.pl.push('p');
         p.bs = '';
+        p.bt = 'funccall';
       } else if (val[i] == '[') {
         p.bt = 'propacc';
         p.ra.push(new ExpOperator('.'));

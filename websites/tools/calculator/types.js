@@ -111,9 +111,11 @@ function ExpFuncCall(val) {
   this.type = 'funccall';
   this.val = val;
 }
-function ExpFunc(val) {
+function ExpFunc(val, ftype) {
+  if (ftype === undefined) ftype = 'js';
   this.type = 'func';
   this.val = val;
+  this.ftype = ftype;
 }
 function ExpJSObj(val) {
   this.type = 'jsobj';

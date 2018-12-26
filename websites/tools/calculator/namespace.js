@@ -153,6 +153,11 @@ var varns = {
   Object: new ExpFunc(function (args) {
     if (args.length == 0) return new ExpObject({});
   }),
+  Function: new ExpFunc(function (args) {
+    if (args.length == 1) {
+      if (args[0].type == 'string') return new ExpFunc(ToStmtArr(args[0].val), 'comp');
+    }
+  }),
   Complex: new ExpFunc(function (args) {
     if (args[0].type == 'string') return new ExpComplex(args[0].val);
     else if (args.length == 1) return new ExpComplex(args[0], new ExpNumber(0));

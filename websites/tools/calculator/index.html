@@ -29,44 +29,46 @@
     </select>
     <div id = 'helpdiv' style = 'display:none;'>
       <button onclick = 'helpdiv.style = "display:none;";' style = 'position:fixed;right:20px;top:5px;margin:0;padding:0;'><img id = 'hdcls' style = 'width:40px;height:40px;'></button>
-      <div style = 'position:relative;left:30%;width:calc(40% - 70px);'><br>
+      <div style = 'position:relative;left:50%;width:600px;margin-left:-300px;'><br>
         <h2 class = 'mgn'>Overview</h2>
         This is a calculator that has support for advanced operations such as bitwise operations, expression evaluation, and function evaluation. It is used like you would expect, just type in numbers and operations like you would on paper, then press enter.<br>
         <h2 class = 'mgn'>Operators</h2>
         <p style = 'margin: 0 0 4px;'>The supported operators, in order of precedence, are:</p>
         <table style = 'width:100%;'>
-          <tr><th>Precedence</th>     <th>Name</th>                  <th>Evaluation Order</th>          <th>Symbol</th></tr>
-          <tr><td>15</td>             <td>Parenthesis</td>           <td>n/a</td>                       <td class = 'cc'>( … )</td></tr>
-          <tr><td rowspan = 3>14</td> <td>Variable Resolution</td>   <td>n/a</td>                       <td class = 'cc'>…</td></tr>
-          <tr>                        <td>Property Access</td>       <td rowspan = 2>left to right</td> <td class = 'cc'>… . … or … [ … ]</td></tr>
-          <tr>                        <td>Function Call</td>                                            <td class = 'cc'>… ( … )</td></tr>
-          <tr><td rowspan = 7>13</td> <td>Logical Not</td>           <td rowspan = 7>right to left</td> <td class = 'cc'>! …</td></tr>
-          <tr>                        <td>Bitwise Not</td>                                              <td class = 'cc'>~ …</td></tr>
-          <tr>                        <td>Unary Plus</td>                                               <td class = 'cc'>+ …</td></tr>
-          <tr>                        <td>Unary Minus</td>                                              <td class = 'cc'>- …</td></tr>
-          <tr>                        <td>Typeof</td>                                                   <td class = 'cc'>typeof …</td></tr>
-          <tr>                        <td>Void</td>                                                     <td class = 'cc'>void …</td></tr>
-          <tr>                        <td>Delete</td>                                                   <td class = 'cc'>del … or delete …</td></tr>
-          <tr><td>12</td>             <td>Exponentiation</td>        <td>right to left</td>             <td class = 'cc'>… ** … or … ^ …</td></tr>
-          <tr><td rowspan = 3>11</td> <td>Multiplication</td>        <td rowspan = 3>left to right</td> <td class = 'cc'>… * …</td></tr>
-          <tr>                        <td>Division</td>                                                 <td class = 'cc'>… / …</td></tr>
-          <tr>                        <td>Modulus</td>                                                  <td class = 'cc'>… % …</td></tr>
-          <tr><td rowspan = 2>10</td> <td>Addition</td>              <td rowspan = 2>left to right</td> <td class = 'cc'>… + …</td></tr>
-          <tr>                        <td>Subtraction</td>                                              <td class = 'cc'>… - …</td></tr>
-          <tr><td rowspan = 2>9</td>  <td>Bitwise Left Shift</td>    <td rowspan = 2>left to right</td> <td class = 'cc'>… &lt;&lt; …</td></tr>
-          <tr>                        <td>Bitwise Right Shift</td>                                      <td class = 'cc'>… &gt;&gt; …</td></tr>
-          <tr><td rowspan = 4>8</td>  <td>Greater Than</td>          <td rowspan = 4>left to right</td> <td class = 'cc'>… &gt; …</td></tr>
-          <tr>                        <td>Less Than</td>                                                <td class = 'cc'>… &lt; …</td></tr>
-          <tr>                        <td>Greater Than or Equal</td>                                    <td class = 'cc'>… &gt;= …</td></tr>
-          <tr>                        <td>Less Than or Equal</td>                                       <td class = 'cc'>… &lt;= …</td></tr>
-          <tr><td rowspan = 2>7</td>  <td>Equality</td>              <td rowspan = 2>left to right</td> <td class = 'cc'>… == …</td></tr>
-          <tr>                        <td>Inequality</td>                                               <td class = 'cc'>… != …</td></tr>
-          <tr><td>6</td>              <td>Bitwise And</td>           <td>left to right</td>             <td class = 'cc'>… & …</td></tr>
-          <tr><td>5</td>              <td>Bitwise Xor</td>           <td>left to right</td>             <td class = 'cc'>… # …</td></tr>
-          <tr><td>4</td>              <td>Bitwise Or</td>            <td>left to right</td>             <td class = 'cc'>… | …</td></tr>
-          <tr><td>3</td>              <td>Logical And</td>           <td>left to right</td>             <td class = 'cc'>… && …</td></tr>
-          <tr><td>2</td>              <td>Logical Or</td>            <td>left to right</td>             <td class = 'cc'>… || …</td></tr>
-          <tr><td>1</td>              <td>Assignment</td>            <td>right to left</td>             <td class = 'cc'>… = …</td></tr>
+          <tr><th>Precedence</th>     <th>Name</th>                     <th>Evaluation Order</th>          <th>Symbol</th></tr>
+          <tr><td>15</td>             <td>Parenthesis</td>              <td>n/a</td>                       <td class = 'cc'>( … )</td></tr>
+          <tr><td rowspan = 4>14</td> <td>Variable Resolution</td>      <td>n/a</td>                       <td class = 'cc'>…</td></tr>
+          <tr>                        <td>Property Access</td>          <td rowspan = 3>left to right</td> <td class = 'cc'>… . …</td></tr>
+          <tr>                        <td>Computed Property Access</td>                                    <td class = 'cc'>… [ … ]</td></tr>
+          <tr>                        <td>Function Call</td>                                               <td class = 'cc'>… ( … )</td></tr>
+          <tr><td rowspan = 7>13</td> <td>Logical Not</td>              <td rowspan = 7>right to left</td> <td class = 'cc'>! …</td></tr>
+          <tr>                        <td>Bitwise Not</td>                                                 <td class = 'cc'>~ …</td></tr>
+          <tr>                        <td>Unary Plus</td>                                                  <td class = 'cc'>+ …</td></tr>
+          <tr>                        <td>Unary Minus</td>                                                 <td class = 'cc'>- …</td></tr>
+          <tr>                        <td>Typeof</td>                                                      <td class = 'cc'>typeof …</td></tr>
+          <tr>                        <td>Void</td>                                                        <td class = 'cc'>void …</td></tr>
+          <tr>                        <td>Delete</td>                                                      <td class = 'cc'>del … or delete …</td></tr>
+          <tr><td>12</td>             <td>Exponentiation</td>           <td>right to left</td>             <td class = 'cc'>… ** … or … ^ …</td></tr>
+          <tr><td rowspan = 3>11</td> <td>Multiplication</td>           <td rowspan = 3>left to right</td> <td class = 'cc'>… * …</td></tr>
+          <tr>                        <td>Division</td>                                                    <td class = 'cc'>… / …</td></tr>
+          <tr>                        <td>Modulus</td>                                                     <td class = 'cc'>… % …</td></tr>
+          <tr><td rowspan = 2>10</td> <td>Addition</td>                 <td rowspan = 2>left to right</td> <td class = 'cc'>… + …</td></tr>
+          <tr>                        <td>Subtraction</td>                                                 <td class = 'cc'>… - …</td></tr>
+          <tr><td rowspan = 2>9</td>  <td>Bitwise Left Shift</td>       <td rowspan = 2>left to right</td> <td class = 'cc'>… &lt;&lt; …</td></tr>
+          <tr>                        <td>Bitwise Right Shift</td>                                         <td class = 'cc'>… &gt;&gt; …</td></tr>
+          <tr><td rowspan = 4>8</td>  <td>Greater Than</td>             <td rowspan = 4>left to right</td> <td class = 'cc'>… &gt; …</td></tr>
+          <tr>                        <td>Less Than</td>                                                   <td class = 'cc'>… &lt; …</td></tr>
+          <tr>                        <td>Greater Than or Equal</td>                                       <td class = 'cc'>… &gt;= …</td></tr>
+          <tr>                        <td>Less Than or Equal</td>                                          <td class = 'cc'>… &lt;= …</td></tr>
+          <tr><td rowspan = 3>7</td>  <td>Equality</td>                 <td rowspan = 3>left to right</td> <td class = 'cc'>… == …</td></tr>
+          <tr>                        <td>Inequality</td>                                                  <td class = 'cc'>… != …</td></tr>
+          <tr>                        <td>True Equality</td>                                               <td class = 'cc'>… is …</td></tr>
+          <tr><td>6</td>              <td>Bitwise And</td>              <td>left to right</td>             <td class = 'cc'>… & …</td></tr>
+          <tr><td>5</td>              <td>Bitwise Xor</td>              <td>left to right</td>             <td class = 'cc'>… # …</td></tr>
+          <tr><td>4</td>              <td>Bitwise Or</td>               <td>left to right</td>             <td class = 'cc'>… | …</td></tr>
+          <tr><td>3</td>              <td>Logical And</td>              <td>left to right</td>             <td class = 'cc'>… && …</td></tr>
+          <tr><td>2</td>              <td>Logical Or</td>               <td>left to right</td>             <td class = 'cc'>… || …</td></tr>
+          <tr><td>1</td>              <td>Assignment</td>               <td>right to left</td>             <td class = 'cc'>… = …</td></tr>
         </table>
         <h2 class = 'mgn'>Builtin Functions</h2>
         There is support for all trigonometric functions, and conversion between degrees and radians.<br>
