@@ -249,6 +249,9 @@ function ExpNotEqual(val1, val2) {
     throw new Error('unsupported operand type(s) for !=: \'' + val1.type + '\' and \'' + val2.type + '\'');
   }
 }
+function ExpIs(val1, val2) {
+  return Object.is(val1, val2);
+}
 function ExpBitwiseAnd(val1, val2) {
   if (val1.type == 'number' && val2.type == 'number') {
     return new ExpNumber(val1.val & val2.val);

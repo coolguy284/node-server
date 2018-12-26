@@ -193,7 +193,7 @@ function ParseExpArr(arr, globals, locals) {
     }
     dov = nb;
   }
-  // equality, inequality : left > right
+  // equality, inequality, true equality : left > right
   dov = true;
   while (dov) {
     let nb = false;
@@ -205,6 +205,11 @@ function ParseExpArr(arr, globals, locals) {
         break;
       } else if (op[i] == '!=') {
         exp.splice(i, 2, ExpNotEqual(exp[i], exp[i + 1]));
+        op.splice(i, 1);
+        nb = true;
+        break;
+      } else if (op[i] == 'is') {
+        exp.splice(i, 2, ExpIs(exp[i], exp[i + 1]));
         op.splice(i, 1);
         nb = true;
         break;
