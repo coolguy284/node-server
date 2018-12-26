@@ -1,5 +1,5 @@
 # node-server
-My website, with all sorts of random stuff. It has a chat and view counter, and tools such as a base64 encoder / decoder, AES encrypter / decrypter, and others (found at https://node-server-c284-node-server.7e14.starter-us-west-2.openshiftapps.com/tools/index.html).
+coolguy284.com: A collection of random stuff. It is a website with some utilities such as base64 encoding and aes encryption (inside the tools section), an advanced calculator with support for matrices, complex numbers, and surreals, and some miscellaneous stuff such as a chat and view counter (found at https://c284.herokuapp.com/index.html).
 ## URLs
 Short Url: https://coolguy284.com (redirects to long url)\
-Long Url: https://node-server-c284-node-server.7e14.starter-us-west-2.openshiftapps.com/index.html
+Long Url: https://c284.herokuapp.com/index.html
