@@ -1,4 +1,5 @@
 function ParseExpArr(arr, globals, locals) {
+  arr = arr.slice();
   let exp = [], op = [], dov;
   // parenthesis
   for (let i = 0; i < arr.length; i++) {
@@ -25,7 +26,7 @@ function ParseExpArr(arr, globals, locals) {
         clss = true;
       }
       if (arr[i + 1] && arr[i + 1].type == 'funccall') {
-        let ar = arr[i + 1].val;
+        let ar = arr[i + 1].val.slice();
         for (let j in ar) ar[j] = ParseExpArr(ar[j], globals, locals)[0][0];
         let fcres = FuncCallProp(arr[i], ar, globals, locals);
         if (fcres === undefined) throw new Error('function returned undefined');
@@ -59,23 +60,23 @@ function ParseExpArr(arr, globals, locals) {
           nb = true;
           break;
         } else if (arr[i].val == 'typeof') {
-          arr.splice(i, 2, new ExpString(arr[i + 1].type));
+          arr.splice(i, 2, ExpTypeof(arr[i + 1]));
         } else if (arr[i].val == 'void') {
-          arr.splice(i, 2, CL_UNDEFINED);
+          arr.splice(i, 2, GetUndefined());
         } else if (arr[i].val == 'del' || arr[i].val == 'delete') {
           if (arr[i + 2] && arr[i + 2].type == 'op' && arr[i + 2].val == '.') {
             let nam = arr[i + 3].val;
             delete arr[i + 1].val[nam];
-            arr.splice(i, 4, new ExpBool(true));
+            arr.splice(i, 4, GetBool(true));
           } else {
             let varn = arr[i + 1];
             if (varn.type != 'variable') throw new Error('delete: unexpected token');
             varn = varn.val;
             if (varn in locals) {
-              arr.splice(i, 2, new ExpBool(true));
+              arr.splice(i, 2, GetBool(true));
               delete locals[varn];
             } else {
-              arr.splice(i, 2, new ExpBool(false));
+              arr.splice(i, 2, GetBool(false));
             }
           }
         }
@@ -313,6 +314,6 @@ function ParseExpArr(arr, globals, locals) {
     }
     dov = nb;
   }
-  if (exp.length == 0) exp.push(CL_UNDEFINED);
+  if (exp.length == 0) exp.push(GetUndefined());
   return [exp, op];
 }

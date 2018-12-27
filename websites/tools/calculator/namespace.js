@@ -111,35 +111,33 @@ function gaussianBoxMuller() {
   let v = Math.random();
   return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
 }
-var CL_UNDEFINED = new ExpUndefined();
-var CL_NULL = new ExpNull();
 var varns = {
-  undefined: CL_UNDEFINED,
-  null: CL_NULL,
-  true: new ExpBool(true),
-  false: new ExpBool(false),
-  NaN: new ExpNumber(NaN),
-  Infinity: new ExpNumber(Infinity),
-  i: new ExpComplex('0+1i'),
-  w: new ExpSurreal('w'),
-  pi: new ExpNumber(Math.PI),
-  e: new ExpNumber(Math.E),
-  phi: new ExpNumber((1 + 5 ** 0.5) / 2),
-  sqrt2: new ExpNumber(Math.SQRT2),
-  sqrt1_2: new ExpNumber(Math.SQRT1_2),
-  ln2: new ExpNumber(Math.LN2),
-  ln10: new ExpNumber(Math.LN10),
+  undefined: GetUndefined(),
+  null: GetNull(),
+  true: GetBool(true),
+  false: GetBool(false),
+  NaN: GetNumber(NaN),
+  Infinity: GetNumber(Infinity),
+  i: GetComplex('0+1i'),
+  w: GetSurreal('w'),
+  pi: GetNumber(Math.PI),
+  e: GetNumber(Math.E),
+  phi: GetNumber((1 + 5 ** 0.5) / 2),
+  sqrt2: GetNumber(Math.SQRT2),
+  sqrt1_2: GetNumber(Math.SQRT1_2),
+  ln2: GetNumber(Math.LN2),
+  ln10: GetNumber(Math.LN10),
   Boolean: new ExpFunc(function (args) {
-    return new ExpBool(args[0].val);
+    return GetBool(args[0].val);
   }),
   Number: new ExpFunc(function (args) {
-    return new ExpNumber(args[0].val);
+    return GetNumber(args[0].val);
   }),
   BigInt: new ExpFunc(function (args) {
-    return new ExpBigInt(args[0].val);
+    return GetBigInt(args[0].val);
   }),
   String: new ExpFunc(function (args) {
-    return new ExpString(args[0].val);
+    return GetString(args[0].val);
   }),
   Array: new ExpFunc(function (args) {
     if (args.length == 0) {
@@ -155,25 +153,27 @@ var varns = {
   }),
   Function: new ExpFunc(function (args) {
     if (args.length == 1) {
-      if (args[0].type == 'string') return new ExpFunc(ToStmtArr(args[0].val), 'comp');
+      if (args[0].type == 'string') return new ExpFunc(ToStmtArr(args[0].val), 'comp', [], args[0].val);
+    } else if (args.length == 2) {
+      return new ExpFunc(ToStmtArr(args[1].val), 'comp', args[0].val.map(x => x.val), args[1].val);
     }
   }),
   Complex: new ExpFunc(function (args) {
-    if (args[0].type == 'string') return new ExpComplex(args[0].val);
-    else if (args.length == 1) return new ExpComplex(args[0], new ExpNumber(0));
-    else return new ExpComplex(args[0], args[1]);
+    if (args[0].type == 'string') return GetComplex(args[0].val);
+    else if (args.length == 1) return GetComplex(args[0], GetNumber(0));
+    else return GetComplex(args[0], args[1]);
   }),
   Matrix: new ExpFunc(function (args) {
-    if (args.length == 1) return new ExpMatrix(args[0]);
-    else return new ExpMatrix(args[0].val, args[1].val);
+    if (args.length == 1) return GetMatrix(args[0]);
+    else return GetMatrix(args[0].val, args[1].val);
   }),
   Surreal: new ExpFunc(function (args) {
     if (args[0].type == 'array') {
-      return new ExpSurreal(args[0].val.map(x => x.val));
+      return GetSurreal(args[0].val.map(x => x.val));
     } else if (args[0].type == 'string') {
-      return new ExpSurreal(args[0].val);
+      return GetSurreal(args[0].val);
     } else if (args[0].type == 'number') {
-      return new ExpSurreal([[args[0].val, new ExpNumber(0)]]);
+      return GetSurreal([[args[0].val, GetNumber(0)]]);
     }
   }),
   globals: new ExpFunc(function (args, globals, locals) {
@@ -211,13 +211,13 @@ var varns = {
     else return ParseStmtArr(ca, args[1].val, args[2].val)[0][0];
   }),
   repr: new ExpFunc(function (args) {
-    return new ExpString(ObjToText(args[0]));
+    return GetString(ObjToText(args[0]));
   }),
   print: new ExpFunc(function (args) {
     if (args[0].type == 'string') calcarr.push(args[0].val);
     else calcarr.push(ObjToText(args[0]));
     CalcArrRefresh();
-    return CL_UNDEFINED;
+    return GetUndefined();
   }),
   sign: new ExpFunc(function (args) {
     if (args[0].val > 0) return 1;
@@ -227,36 +227,36 @@ var varns = {
   }),
   abs: new ExpFunc(function (args) {
     if (args[0].val < 0) args[0].val = -args[0].val;
-    if (args[0].type == 'number') return new ExpNumber(args[0].val);
-    else if (args[0].type == 'bigint') return new ExpBigInt(args[0].val);
+    if (args[0].type == 'number') return GetNumber(args[0].val);
+    else if (args[0].type == 'bigint') return GetBigInt(args[0].val);
   }),
   max: new ExpFunc(function (args) {
     let mv = -Infinity;
     for (let i in args) if (args[i].val > mv) mv = args[i].val;
-    if (typeof mv == 'number') return new ExpNumber(mv);
-    else if (typeof mv == 'bigint') return new ExpBigInt(mv);
+    if (typeof mv == 'number') return GetNumber(mv);
+    else if (typeof mv == 'bigint') return GetBigInt(mv);
   }),
   min: new ExpFunc(function (args) {
     let mv = Infinity;
     for (let i in args) if (args[i].val < mv) mv = args[i].val;
-    if (typeof mv == 'number') return new ExpNumber(mv);
-    else if (typeof mv == 'bigint') return new ExpBigInt(mv);
+    if (typeof mv == 'number') return GetNumber(mv);
+    else if (typeof mv == 'bigint') return GetBigInt(mv);
   }),
   floor: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.floor(args[0].val));
-    else if (args[0].type == 'bigint') return new ExpBigInt(args[0].val);
+    if (args[0].type == 'number') return GetNumber(Math.floor(args[0].val));
+    else if (args[0].type == 'bigint') return GetBigInt(args[0].val);
   }),
   ceil: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.ceil(args[0].val));
-    else if (args[0].type == 'bigint') return new ExpBigInt(args[0].val);
+    if (args[0].type == 'number') return GetNumber(Math.ceil(args[0].val));
+    else if (args[0].type == 'bigint') return GetBigInt(args[0].val);
   }),
   round: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.round(args[0].val));
-    else if (args[0].type == 'bigint') return new ExpBigInt(args[0].val);
+    if (args[0].type == 'number') return GetNumber(Math.round(args[0].val));
+    else if (args[0].type == 'bigint') return GetBigInt(args[0].val);
   }),
   trunc: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.trunc(args[0].val));
-    else if (args[0].type == 'bigint') return new ExpBigInt(args[0].val);
+    if (args[0].type == 'number') return GetNumber(Math.trunc(args[0].val));
+    else if (args[0].type == 'bigint') return GetBigInt(args[0].val);
   }),
   lerp: new ExpFunc(function (args) {
     let dif = ExpSubtract(args[1].val, args[0].val);
@@ -278,60 +278,60 @@ var varns = {
     let hl = args.length / 2;
     let ap1 = args.slice(0, hl);
     let ap2 = args.slice(h1, Infinity);
-    return new ExpNumber(Math.hypot.apply(ap1.map((x, i) => ap2[i].val - x.val)));
+    return GetNumber(Math.hypot.apply(ap1.map((x, i) => ap2[i].val - x.val)));
   }),
   random: new ExpFunc(function (args) {
     if (args.length == 0) {
-      return new ExpNumber(Math.random());
+      return GetNumber(Math.random());
     } else if (args.length == 1) {
-      return new ExpNumber(Math.random() * args[0].val);
+      return GetNumber(Math.random() * args[0].val);
     } else if (args.length == 2) {
       let dif = args[1].val - args[0].val;
-      return new ExpNumber(Math.random() * dif + args[0].val);
+      return GetNumber(Math.random() * dif + args[0].val);
     }
   }),
   randint: new ExpFunc(function (args) {
     if (args.length == 0) {
-      return new ExpNumber(Math.round(Math.random()));
+      return GetNumber(Math.round(Math.random()));
     } else if (args.length == 1) {
-      return new ExpNumber(Math.floor(Math.random() * args[0].val));
+      return GetNumber(Math.floor(Math.random() * args[0].val));
     } else if (args.length == 2) {
       let dif = args[1].val - args[0].val;
-      return new ExpNumber(Math.floor(Math.random() * dif + args[0].val));
+      return GetNumber(Math.floor(Math.random() * dif + args[0].val));
     }
   }),
   randintn: new ExpFunc(function (args) {
     if (args.length == 0) {
-      return new ExpBigInt(Math.round(Math.random()));
+      return GetBigInt(Math.round(Math.random()));
     } else if (args.length == 1) {
       if (args[0].val < 0) return varns.randintn.val([new ExpBigNum(-args[0].val)]);
       if (args[0].val < BigInt(4294967296)) {
-        return ExpDivide(new ExpBigInt(randBigInt32()), ExpDivide(args[0], new ExpBigInt(4294967296)));
+        return ExpDivide(GetBigInt(randBigInt32()), ExpDivide(args[0], GetBigInt(4294967296)));
       }
     } else if (args.length == 2) {
       let dif = args[1].val - args[0].val;
-      return ExpAdd(BigInt(dif), varns.randintn.val([new ExpBigInt(dif)]));
+      return ExpAdd(BigInt(dif), varns.randintn.val([GetBigInt(dif)]));
     }
   }),
   randgauss: new ExpFunc(function (args) {
-    if (args.length == 0) return new ExpNumber(gaussianBoxMuller());
-    else if (args.length == 1) return new ExpNumber(gaussianBoxMuller() * args[0].val);
-    else if (args.length == 2) return new ExpNumber(gaussianBoxMuller() * args[0].val + args[1].val);
+    if (args.length == 0) return GetNumber(gaussianBoxMuller());
+    else if (args.length == 1) return GetNumber(gaussianBoxMuller() * args[0].val);
+    else if (args.length == 2) return GetNumber(gaussianBoxMuller() * args[0].val + args[1].val);
   }),
   sq: new ExpFunc(function (args) {
     return ExpMultiply(args[0], args[0]);
   }),
   sqrt: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.sqrt(args[0].val));
+    if (args[0].type == 'number') return GetNumber(Math.sqrt(args[0].val));
   }),
   cbrt: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.cbrt(args[0].val));
+    if (args[0].type == 'number') return GetNumber(Math.cbrt(args[0].val));
   }),
   hypot: new ExpFunc(function (args) {
-    if (args.every(x => x.type == 'number')) return new ExpNumber(Math.hypot.apply(Math, args.map(x => x.val)));
+    if (args.every(x => x.type == 'number')) return GetNumber(Math.hypot.apply(Math, args.map(x => x.val)));
   }),
   exp: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.exp(args[0].val));
+    if (args[0].type == 'number') return GetNumber(Math.exp(args[0].val));
   }),
   log: new ExpFunc(function (args) {
     let val;
@@ -352,18 +352,18 @@ var varns = {
   }),
   log10: new ExpFunc(function (args) {
     if (args[0].type == 'number') {
-      return new ExpNumber(Math.log10(args[0].val));
+      return GetNumber(Math.log10(args[0].val));
     } else if (args[0].type == 'bigint') {
       let es = args[0].val.toString();
       let tv = Math.log10(Number(es.substr(0, 12)));
-      return new ExpNumber((tv - Math.floor(tv)) - 1 + es.length);
+      return GetNumber((tv - Math.floor(tv)) - 1 + es.length);
     }
   }),
   log2: new ExpFunc(function (args) {
     if (args[0].type == 'number') {
-      return new ExpNumber(Math.log2(args[0].val));
+      return GetNumber(Math.log2(args[0].val));
     } else if (args[0].type == 'bigint') {
-      return new ExpNumber(varns.log10.val(args[0]).val * varns.ln10.val / varns.ln2.val);
+      return GetNumber(varns.log10.val(args[0]).val * varns.ln10.val / varns.ln2.val);
     }
   }),
   pow: new ExpFunc(function (args) {
@@ -371,19 +371,19 @@ var varns = {
   }),
   root: new ExpFunc(function (args) {
     if (args[0].type == 'number' && args[1].type == 'number') {
-      return new ExpNumber(args[0].val ** (1 / args[1].val));
+      return GetNumber(args[0].val ** (1 / args[1].val));
     } else if (args[0].type == 'bigint' && args[1].type == 'bigint') {
-      return new ExpBigInt(args[0].val ** (1 / args[1].val));
+      return GetBigInt(args[0].val ** (1 / args[1].val));
     }
   }),
   tet: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(tet(args[0].val, args[1].val));
+    if (args[0].type == 'number') return GetNumber(tet(args[0].val, args[1].val));
   }),
   sroot: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(sroot(args[0].val, args[1].val));
+    if (args[0].type == 'number') return GetNumber(sroot(args[0].val, args[1].val));
   }),
   slog: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(slog(args[0].val, args[1].val));
+    if (args[0].type == 'number') return GetNumber(slog(args[0].val, args[1].val));
   }),
   fact: new ExpFunc(function (args) {
     if (args[0].type == 'number') {
@@ -392,131 +392,131 @@ var varns = {
         if (fv >= 0) {
           let bv = 1;
           for (; fv > 0 && bv < Infinity; fv--) bv *= fv;
-          return new ExpNumber(bv);
+          return GetNumber(bv);
         } else if (fv < 0) {
-          return new ExpNumber(NaN);
+          return GetNumber(NaN);
         }
       } else {
-        return new ExpNumber(gamma(fv + 1));
+        return GetNumber(gamma(fv + 1));
       }
     } else if (args[0].type == 'bigint') {
       if (fv >= 0) {
         for (let bv = BigInt(1); fv > 0 && bv < Infinity; fv--) bv *= fv;
-        return new ExpBigInt(bv);
+        return GetBigInt(bv);
       } else if (fv < 0) {
-        return new ExpNumber(NaN);
+        return GetNumber(NaN);
       }
     }
   }),
   gamma: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(gamma(args[0].val));
+    if (args[0].type == 'number') return GetNumber(gamma(args[0].val));
   }),
   degrees: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(args[0].val / Math.PI * 180);
+    if (args[0].type == 'number') return GetNumber(args[0].val / Math.PI * 180);
   }),
   radians: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(args[0].val / 180 * Math.PI);
+    if (args[0].type == 'number') return GetNumber(args[0].val / 180 * Math.PI);
   }),
   sin: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.sin(args[0].val));
+    if (args[0].type == 'number') return GetNumber(Math.sin(args[0].val));
   }),
   cos: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.cos(args[0].val));
+    if (args[0].type == 'number') return GetNumber(Math.cos(args[0].val));
   }),
   tan: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.tan(args[0].val));
+    if (args[0].type == 'number') return GetNumber(Math.tan(args[0].val));
   }),
   asin: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.asin(args[0].val));
+    if (args[0].type == 'number') return GetNumber(Math.asin(args[0].val));
   }),
   acos: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.acos(args[0].val));
+    if (args[0].type == 'number') return GetNumber(Math.acos(args[0].val));
   }),
   atan: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.atan(args[0].val));
+    if (args[0].type == 'number') return GetNumber(Math.atan(args[0].val));
   }),
   atan2: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.atan2(args[0].val, args[1].val));
+    if (args[0].type == 'number') return GetNumber(Math.atan2(args[0].val, args[1].val));
   }),
   sinh: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.sinh(args[0].val));
+    if (args[0].type == 'number') return GetNumber(Math.sinh(args[0].val));
   }),
   cosh: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.cosh(args[0].val));
+    if (args[0].type == 'number') return GetNumber(Math.cosh(args[0].val));
   }),
   tanh: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.tanh(args[0].val));
+    if (args[0].type == 'number') return GetNumber(Math.tanh(args[0].val));
   }),
   asinh: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.asinh(args[0].val));
+    if (args[0].type == 'number') return GetNumber(Math.asinh(args[0].val));
   }),
   acosh: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.acosh(args[0].val));
+    if (args[0].type == 'number') return GetNumber(Math.acosh(args[0].val));
   }),
   atanh: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return new ExpNumber(Math.atanh(args[0].val));
+    if (args[0].type == 'number') return GetNumber(Math.atanh(args[0].val));
   }),
   tohexstr: new ExpFunc(function (args) {
-    return new ExpString(args[0].val.toString(16));
+    return GetString(args[0].val.toString(16));
   }),
   tooctstr: new ExpFunc(function (args) {
-    return new ExpString(args[0].val.toString(8));
+    return GetString(args[0].val.toString(8));
   }),
   tobinstr: new ExpFunc(function (args) {
-    return new ExpString(args[0].val.toString(2));
+    return GetString(args[0].val.toString(2));
   }),
   todecstr: new ExpFunc(function (args) {
-    return new ExpString(args[0].val.toString(10));
+    return GetString(args[0].val.toString(10));
   }),
   tobasestr: new ExpFunc(function (args) {
-    return new ExpString(args[0].val.toString(args[1].val));
+    return GetString(args[0].val.toString(args[1].val));
   }),
   fromhexstr: new ExpFunc(function (args) {
-    return new ExpNumber(parseInt(args[0].val, 16));
+    return GetNumber(parseInt(args[0].val, 16));
   }),
   fromhexstrn: new ExpFunc(function (args) {
     let bi = BigInt(0), str = args[0].val;
     for (let i = str.length - 1, em = BigInt(0); i >= 0; i--, em++) {
       bi += BigInt(parseInt(str[i], 16)) * (BigInt(16) ** em);
     }
-    return new ExpBigInt(bi);
+    return GetBigInt(bi);
   }),
   fromoctstr: new ExpFunc(function (args) {
-    return new ExpNumber(parseInt(args[0].val, 8));
+    return GetNumber(parseInt(args[0].val, 8));
   }),
   fromoctstrn: new ExpFunc(function (args) {
     let bi = BigInt(0), str = args[0].val;
     for (let i = str.length - 1, em = BigInt(0); i >= 0; i--, em++) {
       bi += BigInt(parseInt(str[i], 8)) * (BigInt(8) ** em);
     }
-    return new ExpBigInt(bi);
+    return GetBigInt(bi);
   }),
   frombinstr: new ExpFunc(function (args) {
-    return new ExpNumber(parseInt(args[0].val, 2));
+    return GetNumber(parseInt(args[0].val, 2));
   }),
   frombinstrn: new ExpFunc(function (args) {
     let bi = BigInt(0), str = args[0].val;
     for (let i = str.length - 1, em = BigInt(0); i >= 0; i--, em++) {
       bi += BigInt(parseInt(str[i], 2)) * (BigInt(2) ** em);
     }
-    return new ExpBigInt(bi);
+    return GetBigInt(bi);
   }),
   fromdecstr: new ExpFunc(function (args) {
-    return new ExpNumber(parseInt(args[0].val, 10));
+    return GetNumber(parseInt(args[0].val, 10));
   }),
   fromdecstrn: new ExpFunc(function (args) {
-    return new ExpBigInt(args[0].val);
+    return GetBigInt(args[0].val);
   }),
   frombasestr: new ExpFunc(function (args) {
-    return new ExpNumber(parseInt(args[0].val, args[1].val));
+    return GetNumber(parseInt(args[0].val, args[1].val));
   }),
   frombasestrn: new ExpFunc(function (args) {
     let bi = BigInt(0), str = args[0].val;
     for (let i = str.length - 1, em = BigInt(0); i >= 0; i--, em++) {
       bi += BigInt(parseInt(str[i], args[1].val)) * (BigInt(args[1].val) ** em);
     }
-    return new ExpBigInt(bi);
+    return GetBigInt(bi);
   }),
-  vn: new ExpObject({e: new ExpString('val')}),
+  vn: new ExpObject({e: GetString('val')}),
 };
 varns.vn.val.v = varns.vn;

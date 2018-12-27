@@ -67,7 +67,7 @@ function ExpArrString(val, p) {
     p.bas[3] = '';
   } else {
     if (val == p.bas[0]) {
-      p.ra.push(new ExpString(p.bs));
+      p.ra.push(GetString(p.bs));
       p.bs = '';
       p.bt = '';
       p.bas.splice(0, Infinity);
@@ -94,21 +94,25 @@ function ToExpArr(val) {
           if (OPSA[li.val] && OPSA[li.val].indexOf(val[i]) > -1) {
             li.val += val[i];
           } else {
-            p.ra.push(new ExpOperator(val[i]));
+            p.ra.push(GetOperator(val[i]));
           }
         } else {
-          p.ra.push(new ExpOperator(val[i]));
+          p.ra.push(GetOperator(val[i]));
         }
       } else if (val[i] == '(') {
-        if (Object.prototype.toString.call(p.ra[p.ra.length - 1]) == '[object Array]') {
-          p.ra.push(new ExpOperator('*'));
+        if (p.ra[p.ra.length - 1] && p.ra[p.ra.length - 1].type == 'funccall' || Object.prototype.toString.call(p.ra[p.ra.length - 1]) == '[object Array]') {
+          p.ba.push('');
+          p.pl.push('p');
+          p.bt = 'funccall';
+        } else {
+          if (p.ra[p.ra.length - 1]) p.ra.push(GetOperator('*'));
+          p.bt = 'paren';
+          p.pl.push('p');
         }
-        p.bt = 'paren';
-        p.pl.push('p');
       } else if (val[i] == '[') {
         if (p.ra.length > 0 && p.ra[p.ra.length - 1].type == 'funccall') {
           p.bt = 'propacc';
-          p.ra.push(new ExpOperator('.'));
+          p.ra.push(GetOperator('.'));
           p.pl.push('a');
           p.bs = '';
         } else {
@@ -127,13 +131,13 @@ function ToExpArr(val) {
     } else if (p.bt == 'number') {
       if (p.emod) {
         if (NUME.indexOf(val[i]) < 0) {
-          p.ra.push(new ExpNumber(p.bs.slice(0, -1)), new ExpOperator('*'), new ExpVariable('e'));
+          p.ra.push(GetNumber(p.bs.slice(0, -1)), GetOperator('*'), new ExpVariable('e'));
           if (OPS.indexOf(val[i]) > -1) {
-            p.ra.push(new ExpOperator(val[i]));
+            p.ra.push(GetOperator(val[i]));
             p.bs = '';
             p.bt = '';
           } else if (val[i] == '(') {
-            p.ba.push(new ExpVariable('e'));
+            p.ba.push('e');
             p.pl.push('p');
             p.bs = '';
             p.bt = 'funccall';
@@ -147,41 +151,41 @@ function ToExpArr(val) {
         if (NUMA.indexOf(val[i]) > -1) {
           p.bs += val[i];
         } else if (VARN.indexOf(val[i]) < 0) {
-          p.ra.push(new ExpNumber(p.bs));
-          p.ra.push(new ExpOperator('*'));
+          p.ra.push(GetNumber(p.bs));
+          p.ra.push(GetOperator('*'));
           p.bs = val[i];
           p.bt = 'var';
         } else if (val[i] == 'n') {
-          p.ra.push(new ExpBigInt(p.bs));
+          p.ra.push(GetBigInt(p.bs));
           p.bt = 'bigint';
         } else if (OPS.indexOf(val[i]) > -1) {
-          p.ra.push(new ExpNumber(p.bs));
-          p.ra.push(new ExpOperator(val[i]));
+          p.ra.push(GetNumber(p.bs));
+          p.ra.push(GetOperator(val[i]));
           p.bs = '';
           p.bt = '';
         } else if (val[i] == '(') {
-          p.ra.push(new ExpNumber(p.bs));
-          p.ra.push(new ExpOperator('*'));
+          p.ra.push(GetNumber(p.bs));
+          p.ra.push(GetOperator('*'));
           p.bs = '';
           p.bt = 'paren';
           p.pl.push('p');
         } else if (val[i] == ' ') {
-          p.ra.push(new ExpNumber(p.bs));
+          p.ra.push(GetNumber(p.bs));
           p.bs = '';
           p.bt = '';
         }
       }
     } else if (p.bt == 'bigint') {
       if (VAR.indexOf(val[i]) < 0) {
-        p.ra.push(new ExpOperator('*'));
+        p.ra.push(GetOperator('*'));
         p.bs = val[i];
         p.bt = 'var';
       } else if (OPS.indexOf(val[i]) > -1) {
-        p.ra.push(new ExpOperator(val[i]));
+        p.ra.push(GetOperator(val[i]));
         p.bs = '';
         p.bt = '';
       } else if (val[i] == '(') {
-        p.ra.push(new ExpOperator('*'));
+        p.ra.push(GetOperator('*'));
         p.bs = '';
         p.bt = 'paren';
         p.pl.push('p');
@@ -191,7 +195,7 @@ function ToExpArr(val) {
     } else if (p.bt == 'var') {
       if (OPS.indexOf(val[i]) > -1) {
         p.ra.push(new ExpVariable(p.bs));
-        p.ra.push(new ExpOperator(val[i]));
+        p.ra.push(GetOperator(val[i]));
         p.bs = '';
         p.bt = '';
       } else if (val[i] == ' ') {
@@ -207,7 +211,7 @@ function ToExpArr(val) {
       } else if (val[i] == '[') {
         p.bt = 'propacc';
         p.ra.push(new ExpVariable(p.bs));
-        p.ra.push(new ExpOperator('.'));
+        p.ra.push(GetOperator('.'));
         p.pl.push('a');
         p.bs = '';
       } else {
@@ -215,20 +219,20 @@ function ToExpArr(val) {
       }
     } else if (p.bt == 'vars') {
       if (OPS.indexOf(val[i]) > -1) {
-        p.ra.push(new ExpOperator(val[i]));
+        p.ra.push(GetOperator(val[i]));
         p.bs = '';
         p.bt = '';
       } else if (val[i] == ' ') {
         p.bs = '';
         p.bt = '';
       } else if (val[i] == '(') {
-        p.ba.push(new ExpVariable(''));
+        p.ba.push('');
         p.pl.push('p');
         p.bs = '';
         p.bt = 'funccall';
       } else if (val[i] == '[') {
         p.bt = 'propacc';
-        p.ra.push(new ExpOperator('.'));
+        p.ra.push(GetOperator('.'));
         p.pl.push('a');
         p.bs = '';
       } else {
@@ -411,7 +415,7 @@ function ToExpArr(val) {
     }
   }
   if (p.bt == 'number') {
-    p.ra.push(new ExpNumber(p.bs));
+    p.ra.push(GetNumber(p.bs));
     p.bs = '';
     p.bt = '';
   } else if (p.bt == 'var') {
@@ -421,6 +425,6 @@ function ToExpArr(val) {
   } else if (p.bt == 'paren' || p.bt == 'funccall' || p.bt == 'array' || p.bt == 'object' || p.bt == 'string') {
     throw new SyntaxError('parenthesis, bracket, or object mismatch');
   }
-  for (var i in p.ra) if (p.ra[i].type == 'variable' && OPSKW.indexOf(p.ra[i].val) > -1) p.ra[i] = new ExpOperator(p.ra[i].val);
+  for (var i in p.ra) if (p.ra[i].type == 'variable' && OPSKW.indexOf(p.ra[i].val) > -1) p.ra[i] = GetOperator(p.ra[i].val);
   return p.ra;
 }

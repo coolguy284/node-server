@@ -18,11 +18,11 @@
       }
     </style>
   </head>
-  <body style = 'width:100%;font-family:arial;'>
+  <body style = 'width:calc(100% - 10px);font-family:arial;'>
     <div id = 'calcres' style = 'width:100%;height:400px;overflow:auto;font-family:monospace;white-space:pre;'></div>
     <input type = 'text' id = 'cinp' style = 'width:calc(100% - 110px);height:40px;font-size:36px;font-family:monospace;'>
-    <button onclick = 'HelpTogg()' style = 'position:relative;top:10px;padding:0;margin:0;'><img src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARFSURBVGhD7ZpbSBRRGMd97h5dpB5yV6TrQxTRSw8FRb1UD5VYGV3oIcyIjCKC6MWKoIeImk0zkkzJLmTRxagslSjNNOghrLSLkXZXz7hruW6n79s9pjvzzeyZ2dnVh/3DD4fd73znf+ZcZ9akhBJKKH5K9agT3R413aWoh10e9QpcV7k87DkC15X4GX7nPsXWpJ1gE0SxoaGU4+1j3KfVHS6F1bkV9hcMcylCsTVYFnOIdPFXsAEe9SjcYRZm0AbQU53YU3FvkEvp2giVf6NMRQdrg7/rRTWx08xTX0fAECrWG3AWrAPrEtU6K3eBmgx3rJ6qOBbgnHN8QcCEMJReUxXGFEVtdKwx085+HxnPniComZTPhwk79gVdXEIkjy8KKxJ27Am6dgOZWIIFRV6+9baP767o5nuBrLs+vuSil6edpuMlsLeaTfF0jLWzxGaUefmDD37+iQVI6tr8fNeDbg6nALK8MazN1j4DhY/qk5lzsPo3byHMUxS+7LHcO3Bjjwh7csKWW92xM2/4SMNm7HvYTeYyAjx1WOoVPP9QicyoIIZTdYs/aDYHhlLZG/33DV96rQ8xhW0XNiMLWl5LJjFgXmGXzmTNZz+ffqY/Bg3fae7RxS0q8YblioiiPhU2zRU8ils5xQIrr+qHVe7j37o4nEPauHRYHLRx5rDA1Hw2Xtg1FgSn6wubgw3BoTWQLbD0auMOVOkbsuKyPi4ybLWwayxcGejC0VP+LnxoNbcH+KyCLjLWDPB4SNg1FgRe1hZ0gv2V3WGNQPIa/pCxkWGlwq6xYKJX04Xtswd2du3+givW7LPWe0NQKewaC1r7gihoG1x6tY1o/NnLF8NxhYqXQmENwq6xMIgsbIPV17y6Rrz60cuX25rgA5BpiJNDS3vmeguTe2lpFD3Rj8zQcmayzz+v3yR33rd2JDFGbrIfpgtbY911b1gjmn4Fwnb6qFDUXGHXWBBoeUOk2FYevtvfe99DxtkhVWGrhF1j4fZv9YhCMedcF18G86GPhcWOzA2ABSaf7Bwn7JoLCtToEwwRFPWJsBlZUCBbl8AGeI7Cw2MObIgz8ukY67AsYTOyxINVB51Ijs23fPxjZ/8cwaU4LY+OtUC7pQcrVLSHx9tN+mcP3CCpWGlkViutQr3CvpAJJSgnHqLwxQQVK4XCWtNO/Bgl7FkTPPJmkkklwDPWwEbUtvqjmicw1DOELXtyedgFKrEMm276uFL/Jzjh58JyTMVIUijs2FfysbbhkGgwl2NnXpmi8EUyTLRGopLY4uRL7D6F3sizZ2SFMQDrcrwRfcIfX2D1KKIqdphCx4aTmaCi9bDD4s9klAn7wBKb4lHXimriI7H748/QnaQpCwRPEbDZpeb/Gi3Sx1/YIDCTjYc5PJlqTRoDsaEyWYPaAEr4CIDPCnh3YZhcAh79/4cBuA59BnceYqSP4gkllJADSkr6Bwc6Q2MDge/WAAAAAElFTkSuQmCC' style = 'width:40px;height:40px;'></button>
-    <button onclick = 'SettingsTogg()' style = 'position:relative;top:10px;padding:0;margin:0;'><img src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMaSURBVGhD7do5qNRQGMXxURFBtLBwe4IgYiPa22hnZ2ullWBpoZULFqLYiiIWCmJjYy1urcsTURDUUhsLV1wKt8Ll/OUFQjxJvptkJkHmwA/ekvflzkzuvbk3bzTNNNNMNEvkljyscVM4drDZJr+Dtspgs1tco51dMtgcEddo55AMNufFNdo5J4MNndg12rkqE89eOSHr/37ns13eimu081xWSVnWyEnprC9tkV/CyX/Kddkh84Xw+wdSbGjEd7koKyXLJrkkP4Rjvsk6aZV5cl+KDcALuSy8OPf7FO/lgHC5ZW9a3hVplZThdNwazzuL5aW4on14JNnlnJRj4gr2aY8kZa18EVcsir7zVK7N4Wt3/ad4JUslHDqxKxTxUQ7KailmRpjROcb9bQRDcigbpek7d1vyQ2lZOOaOuBp1GI6XS204qGzIrULDFkk0HHtPXK0qr2WFhLJQTosr5HyQcPFc+GQ+iavp0Ncin/g/2SmfxRXNo080DX3G1czjctonTNCNs0EeizsBGJ3oxE3D31b1ySeyWTpJ1bvGidqGodnVBjerneWMuJPghrQNNVxtsMbpLBfEnQTjfiG8iZ2Fj9edBF1cWs/E1UZnS2I6Go11JwEddZydnYGGAadxGOoY8hj63Any2rxrkQ0LpgCmguQw6TD5uKIOk1rTCTEyT2VOCZN1KKyVuQ1wharcldRblFlxtapwP7dAasOGQORycngxVRsKWbgz5lhXow79aZmEwq2yKxLBLfphcQMAPzsqbW7jWWKEw+KFRYwrFMU7x7DKrgv4ump0imCxx6IvKSwrXbE+sfxODgt9FvyuYB/YCGFDpFHYgnFF+8DWVKuwOVYsyrXOZhqbau/mftbGG9kvZRt0rFhbrUUI25XZcMw2JtuZbGtmYVLjppLtz2ID6nyVs5Jfgxe3THlhbMt2Ej5WhmQmy7Iwf7AxXWxsGY6tWrZyruPCBvrEw6XhGu308lghGh7euEY7g37QE9lIyHS2zhhHeCjjGu0M+mFoyrwz6MfT/BMA62/3TwJ53HsN+h8Gppnm/8po9AckRYmDrypBaAAAAABJRU5ErkJggg==' style = 'width:40px;height:40px;'></button><br>
+    <button onclick = 'HelpTogg()' style = 'position:relative;top:10px;padding:0;margin:0;'><img id = 'hdtog' style = 'width:40px;height:40px;'></button>
+    <button onclick = 'SettingsTogg()' style = 'position:relative;top:10px;padding:0;margin:0;'><img id = 'sdtog' style = 'width:40px;height:40px;'></button><br>
     <select id = 'ccul' style = 'display:none;float:right;'>
       <option value = 'cal'>Calculate</option>
       <option value = 'cat'>Catculate</option>
@@ -106,7 +106,13 @@
             </td>
           </tr>
           <tr style = 'border:1px solid black;'>
-            <td style = 'border:1px solid black;width:150px;text-align:center;' colspan = 2>
+            <td style = 'border:1px solid black;width:150px;text-align:center;'>
+              <span>Realistic Mode:</span><br>
+              <span>Off</span>
+              <input id = 'realmode' type = 'range' min = 0 max = 1 value = 0 style = 'width:30px;'>
+              <span>On</span>
+            </td>
+            <td style = 'border:1px solid black;width:150px;text-align:center;'>
               <span>Enable Settings Menu:</span><br>
               <span>Off</span>
               <input id = 'ensett' type = 'range' min = 0 max = 1 value = 1 onchange = 'ShowSett(ensett.value);' style = 'width:30px;'>
@@ -363,6 +369,7 @@
               '|':'|=', '&':'&=', '#':'=',
               '>>': '=', '<<': '=',
               '>':'>=', '<':'<=', '=':'='};
+      var OPSL = ['.', '!', '~', 'typeof', 'void', 'del', 'delete', '**', '^', '*', '/', '%', '+', '-', '<<', '>>', '>', '<', '>=', '<=', '==', '!=', 'is', '&', '#', '|', '&&', '||', '='];
       var OPSKW = ['typeof', 'void', 'del', 'delete', 'is'];
       var OPSNVF = ['=', '+=', '-=', '*=', '/=', '%=', '**=', '^=', '>>=', '<<=', '|=', '&=', '#='];
       var OPSNVB = ['del', 'delete'];
@@ -426,8 +433,8 @@
             }
           }
           ra.push(bs);
-          a = new ExpNumber(ra[0]);
-          b = new ExpNumber(ra[1]);
+          a = GetNumber(ra[0]);
+          b = GetNumber(ra[1]);
         }
         this.a = a;
         this.b = b;
@@ -492,40 +499,117 @@
         this.type = 'funccall';
         this.val = val;
       }
-      function ExpFunc(val, ftype) {
+      function ExpFunc(val, ftype, args, source) {
         if (ftype === undefined) ftype = 'js';
         this.type = 'func';
         this.val = val;
         this.ftype = ftype;
+        this.args = args;
+        this.source = source;
       }
       function ExpJSObj(val) {
         this.type = 'jsobj';
         this.val = val;
       }
+      ExpString.prototype = {
+        get length() {
+          return GetNumber(this.val.length);
+        }
+      };
+      ExpArray.prototype = {
+        get length() {
+          return GetNumber(this.val.length);
+        }
+      };
+      ExpFunc.prototype = {
+        toString: function () {
+          if (this.ftype == 'js') return GetString(this.val.toString());
+          else return GetString(this.source);
+        },
+        get length() {
+          return this.args !== undefined ? GetNumber(this.args.length) : GetNumber(0);
+        }
+      };
+      var CL_UNDEFINED = new ExpUndefined();
+      var CL_NULL = new ExpNull();
+      var CL_TRUE = new ExpBool(true);
+      var CL_FALSE = new ExpBool(false);
+      var CL_INFINITY = new ExpNumber(Infinity);
+      var CL_NINFINITY = new ExpNumber(-Infinity);
+      var CL_NAN = new ExpNumber(NaN);
+      var CL_NZERO = new ExpNumber(-0);
+      var CL_NUMS = [];
+      for (var i = -5; i < 257; i++) CL_NUMS.push(new ExpNumber(i));
+      var CL_BIGINTS = [];
+      try { for (var i = -5; i < 257; i++) CL_BIGINTS.push(new ExpBigInt(i)); } catch(e) {}
+      var CL_OPS = {};
+      for (var i in OPSL) CL_OPS[OPSL[i]] = new ExpOperator(OPSL[i]);
+      function GetUndefined() {
+        return CL_UNDEFINED;
+      }
+      function GetNull() {
+        return CL_NULL;
+      }
+      function GetBool(val) {
+        if (val) return CL_TRUE;
+        else return CL_FALSE;
+      }
+      function GetNumber(val) {
+        var v = Number(val);
+        if (v == Infinity) return CL_INFINITY;
+        if (v == -Infinity) return CL_NINFINITY;
+        if (Object.is(v, NaN)) return CL_NAN;
+        if (Object.is(v, -0)) return CL_NZERO;
+        if (Number.isInteger(v) && v > -6 && v < 257) return CL_NUMS[v + 5];
+        return new ExpNumber(v);
+      }
+      function GetBigInt(val) {
+        if (CL_BIGINTS.length == 0) throw new Error('bigints unsupported by browser');
+        var v = BigInt(val);
+        if (v > -6 && v < 257) return CL_NUMS[v + 5];
+        return new ExpBigInt(v);
+      }
+      function GetString(val) {
+        var v = String(val);
+        return new ExpString(v);
+      }
+      function GetComplex(a, b) {
+        return new ExpComplex(a, b);
+      }
+      function GetMatrix(val, val2) {
+        return new ExpMatrix(val, val2);
+      }
+      function GetSurreal(val) {
+        return new ExpSurreal(val);
+      }
+      function GetOperator(val) {
+        if (val in CL_OPS) return CL_OPS[val];
+        return new ExpOperator(val);
+      }
       function ExpPropAcc(val1, val2) {
         var rv = val1.val.hasOwnProperty(val2.val) ? val1.val[val2.val] : undefined;
         if (rv !== undefined) return rv;
-        if (val2.val == 'val' || val2.val == 'type') return CL_UNDEFINED;
+        if (val2.val == 'val' || val2.val == 'type') return GetUndefined();
         else if (val2.val in val1) {
           if (typeof val1[val2.val] == 'function') return new ExpFunc(args => val1[val2.val].apply(val1, args));
-          else return CL_UNDEFINED;
+          else return GetUndefined();
         }
-        return CL_UNDEFINED;
+        return GetUndefined();
       }
       function ExpTypeof(val) {
-        return new ExpString(val.type);
+        return GetString(val.type);
       }
       function ExpLogicalNot(val) {
-        return new ExpBool(!val.val);
+        return GetBool(!val.val);
       }
       function ExpBitwiseNot(val) {
-        if (val.type == 'number') return new ExpNumber(~val.val);
-        else if (val.type == 'bigint') return new ExpBigInt(~val.val);
+        if (val.type == 'number') return GetNumber(~val.val);
+        else if (val.type == 'bigint') return GetBigInt(~val.val);
         else throw new Error('bad operand type(s) for unary ~: \'' + val.type + '\'');
       }
       function ExpUnaryPlus(val) {
-        if (val.type == 'number' || val.type == 'string') return new ExpNumber(+val.val);
-        else if (val.type == 'bigint') return new ExpBigInt(+val.val);
+        if (val.type == 'number' || val.type == 'string') return GetNumber(+val.val);
+        else if (val.type == 'bigint') return GetBigInt(+val.val);
         else {
           if (val.__pos__) {
             let rv = val.__pos__();
@@ -535,8 +619,8 @@
         }
       }
       function ExpUnaryMinus(val) {
-        if (val.type == 'number' || val.type == 'string') return new ExpNumber(-val.val);
-        else if (val.type == 'bigint') return new ExpBigInt(-val.val);
+        if (val.type == 'number' || val.type == 'string') return GetNumber(-val.val);
+        else if (val.type == 'bigint') return GetBigInt(-val.val);
         else {
           if (val.__neg__) {
             let rv = val.__neg__();
@@ -547,10 +631,10 @@
       }
       function ExpExponentiate(val1, val2) {
         if (val1.type == 'number' && val2.type == 'number') {
-          return new ExpNumber(val1.val ** val2.val);
+          return GetNumber(val1.val ** val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
           if (val1.val.toString().length * Number(val2.val) > BIGLIMIT.digit) throw new Error('large exponentation attempted, to disable warning turn off in settings.');
-          return new ExpBigInt(val1.val ** val2.val);
+          return GetBigInt(val1.val ** val2.val);
         } else {
           if (val1.__pow__) {
             let rv = val1.__pow__(val2);
@@ -561,16 +645,16 @@
       }
       function ExpMultiply(val1, val2) {
         if (val1.type == 'number' && val2.type == 'number') {
-          return new ExpNumber(val1.val * val2.val);
+          return GetNumber(val1.val * val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
           if (val1.val.toString().length + val2.val.toString().length > BIGLIMIT.digit) throw new Error('large multiplication attempted, to disable warning turn off in settings.');
-          return new ExpBigInt(val1.val * val2.val);
+          return GetBigInt(val1.val * val2.val);
         } else if (val1.type == 'string' && val2.type == 'number') {
           if (val1.val.length * val2.val > BIGLIMIT.strlen) throw new Error('large string repeat attempted, to disable warning turn off in settings.');
-          return new ExpString(val1.val.repeat(val2.val));
+          return GetString(val1.val.repeat(val2.val));
         } else if (val1.type == 'number' && val2.type == 'string') {
           if (val2.val.length * val1.val > BIGLIMIT.strlen) throw new Error('large string repeat attempted, to disable warning turn off in settings.');
-          return new ExpString(val2.val.repeat(val1.val));
+          return GetString(val2.val.repeat(val1.val));
         } else {
           if (val1.__mul__) {
             let rv = val1.__mul__(val2);
@@ -585,9 +669,9 @@
       }
       function ExpDivide(val1, val2) {
         if (val1.type == 'number' && val2.type == 'number') {
-          return new ExpNumber(val1.val / val2.val);
+          return GetNumber(val1.val / val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
-          return new ExpBigInt(val1.val / val2.val);
+          return GetBigInt(val1.val / val2.val);
         } else {
           if (val1.__div__) {
             let rv = val1.__div__(val2);
@@ -602,20 +686,20 @@
       }
       function ExpRemainder(val1, val2) {
         if (val1.type == 'number' && val2.type == 'number') {
-          return new ExpNumber(val1.val % val2.val);
+          return GetNumber(val1.val % val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
-          return new ExpBigInt(val1.val % val2.val);
+          return GetBigInt(val1.val % val2.val);
         } else {
           throw new Error('unsupported operand type(s) for %: \'' + val1.type + '\' and \'' + val2.type + '\'');
         }
       }
       function ExpAdd(val1, val2) {
         if (val1.type == 'number' && val2.type == 'number') {
-          return new ExpNumber(val1.val + val2.val);
+          return GetNumber(val1.val + val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
-          return new ExpBigInt(val1.val + val2.val);
+          return GetBigInt(val1.val + val2.val);
         } else if (val1.type == 'string' && val2.type == 'string') {
-          return new ExpString(val1.val + val2.val);
+          return GetString(val1.val + val2.val);
         } else {
           if (val1.__add__) {
             let rv = val1.__add__(val2);
@@ -630,9 +714,9 @@
       }
       function ExpSubtract(val1, val2) {
         if (val1.type == 'number' && val2.type == 'number') {
-          return new ExpNumber(val1.val - val2.val);
+          return GetNumber(val1.val - val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
-          return new ExpBigInt(val1.val - val2.val);
+          return GetBigInt(val1.val - val2.val);
         } else {
           if (val1.__sub__) {
             let rv = val1.__sub__(val2);
@@ -647,25 +731,25 @@
       }
       function ExpBitwiseLeftShift(val1, val2) {
         if (val1.type == 'number' && val2.type == 'number') {
-          return new ExpNumber(val1.val << val2.val);
+          return GetNumber(val1.val << val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
-          return new ExpBigInt(val1.val << val2.val);
+          return GetBigInt(val1.val << val2.val);
         } else {
           throw new Error('unsupported operand type(s) for <<: \'' + val1.type + '\' and \'' + val2.type + '\'');
         }
       }
       function ExpBitwiseRightShift(val1, val2) {
         if (val1.type == 'number' && val2.type == 'number') {
-          return new ExpNumber(val1.val >> val2.val);
+          return GetNumber(val1.val >> val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
-          return new ExpBigInt(val1.val >> val2.val);
+          return GetBigInt(val1.val >> val2.val);
         } else {
           throw new Error('unsupported operand type(s) for >>: \'' + val1.type + '\' and \'' + val2.type + '\'');
         }
       }
       function ExpGreaterThan(val1, val2) {
         if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
-          return new ExpBool(val1.val > val2.val);
+          return GetBool(val1.val > val2.val);
         } else {
           if (val1.__gt__) {
             let rv = val1.__gt__(val2);
@@ -680,7 +764,7 @@
       }
       function ExpLessThan(val1, val2) {
         if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
-          return new ExpBool(val1.val < val2.val);
+          return GetBool(val1.val < val2.val);
         } else {
           if (val1.__lt__) {
             let rv = val1.__lt__(val2);
@@ -695,7 +779,7 @@
       }
       function ExpGreaterThanEqual(val1, val2) {
         if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
-          return new ExpBool(val1.val >= val2.val);
+          return GetBool(val1.val >= val2.val);
         } else {
           if (val1.__ge__) {
             let rv = val1.__ge__(val2);
@@ -710,7 +794,7 @@
       }
       function ExpLessThanEqual(val1, val2) {
         if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
-          return new ExpBool(val1.val <= val2.val);
+          return GetBool(val1.val <= val2.val);
         } else {
           if (val1.__le__) {
             let rv = val1.__le__(val2);
@@ -725,7 +809,7 @@
       }
       function ExpEqual(val1, val2) {
         if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
-          return new ExpBool(val1.val == val2.val);
+          return GetBool(val1.val === val2.val);
         } else {
           if (val1.__eq__) {
             let rv = val1.__eq__(val2);
@@ -735,12 +819,12 @@
             let rv = val2.__ne__(val1);
             if (rv !== undefined) return rv;
           }
-          throw new Error('unsupported operand type(s) for ==: \'' + val1.type + '\' and \'' + val2.type + '\'');
+          return GetBool(false);
         }
       }
       function ExpNotEqual(val1, val2) {
         if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
-          return new ExpBool(val1.val != val2.val);
+          return GetBool(val1.val !== val2.val);
         } else {
           if (val1.__ne__) {
             let rv = val1.__ne__(val2);
@@ -750,44 +834,44 @@
             let rv = val2.__eq__(val1);
             if (rv !== undefined) return rv;
           }
-          throw new Error('unsupported operand type(s) for !=: \'' + val1.type + '\' and \'' + val2.type + '\'');
+          return GetBool(true);
         }
       }
       function ExpIs(val1, val2) {
-        return Object.is(val1, val2);
+        return GetBool(Object.is(val1, val2));
       }
       function ExpBitwiseAnd(val1, val2) {
         if (val1.type == 'number' && val2.type == 'number') {
-          return new ExpNumber(val1.val & val2.val);
+          return GetNumber(val1.val & val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
-          return new ExpBigInt(val1.val & val2.val);
+          return GetBigInt(val1.val & val2.val);
         } else {
           throw new Error('unsupported operand type(s) for &: \'' + val1.type + '\' and \'' + val2.type + '\'');
         }
       }
       function ExpBitwiseXor(val1, val2) {
         if (val1.type == 'number' && val2.type == 'number') {
-          return new ExpNumber(val1.val ^ val2.val);
+          return GetNumber(val1.val ^ val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
-          return new ExpBigInt(val1.val ^ val2.val);
+          return GetBigInt(val1.val ^ val2.val);
         } else {
-          throw new Error('unsupported operand type(s) for ^: \'' + val1.type + '\' and \'' + val2.type + '\'');
+          throw new Error('unsupported operand type(s) for #: \'' + val1.type + '\' and \'' + val2.type + '\'');
         }
       }
       function ExpBitwiseOr(val1, val2) {
         if (val1.type == 'number' && val2.type == 'number') {
-          return new ExpNumber(val1.val | val2.val);
+          return GetNumber(val1.val | val2.val);
         } else if (val1.type == 'bigint' && val2.type == 'bigint') {
-          return new ExpBigInt(val1.val | val2.val);
+          return GetBigInt(val1.val | val2.val);
         } else {
           throw new Error('unsupported operand type(s) for |: \'' + val1.type + '\' and \'' + val2.type + '\'');
         }
       }
       function ExpLogicalAnd(val1, val2) {
-        return new ExpBool(val1.val && val2.val);
+        return GetBool(val1.val && val2.val);
       }
       function ExpLogicalOr(val1, val2) {
-        return new ExpBool(val1.val || val2.val);
+        return GetBool(val1.val || val2.val);
       }
       ExpComplex.prototype = {
         real: function () {
@@ -797,73 +881,73 @@
           return this.b;
         },
         __pos__: function () {
-          return new ExpComplex(ExpUnaryPlus(this.a), ExpUnaryPlus(this.b));
+          return GetComplex(ExpUnaryPlus(this.a), ExpUnaryPlus(this.b));
         },
         __neg__: function () {
-          return new ExpComplex(ExpUnaryMinus(this.a), ExpUnaryMinus(this.b));
+          return GetComplex(ExpUnaryMinus(this.a), ExpUnaryMinus(this.b));
         },
         __add__: function (that) {
           if (that.type == 'complex') {
-            return new ExpComplex(ExpAdd(this.a, that.a), ExpAdd(this.b, that.b));
+            return GetComplex(ExpAdd(this.a, that.a), ExpAdd(this.b, that.b));
           } else {
-            return new ExpComplex(ExpAdd(this.a, that), ExpUnaryPlus(this.b));
+            return GetComplex(ExpAdd(this.a, that), ExpUnaryPlus(this.b));
           }
         },
         __radd__: function (that) {
-          return new ExpComplex(ExpAdd(that, this.a), ExpUnaryPlus(this.b));
+          return GetComplex(ExpAdd(that, this.a), ExpUnaryPlus(this.b));
         },
         __sub__: function (that) {
           if (that.type == 'complex') {
-            return new ExpComplex(ExpSubtract(this.a, that.a), ExpSubtract(this.b, that.b));
+            return GetComplex(ExpSubtract(this.a, that.a), ExpSubtract(this.b, that.b));
           } else {
-            return new ExpComplex(ExpSubtract(this.a, that), ExpUnaryPlus(this.b));
+            return GetComplex(ExpSubtract(this.a, that), ExpUnaryPlus(this.b));
           }
         },
         __rsub__: function (that) {
-          return new ExpComplex(ExpSubtract(that, this.a), ExpUnaryMinus(this.b));
+          return GetComplex(ExpSubtract(that, this.a), ExpUnaryMinus(this.b));
         },
         __mul__: function (that) {
           if (that.type == 'complex') {
-            return new ExpComplex(
+            return GetComplex(
               ExpSubtract(ExpMultiply(this.a, that.a), ExpMultiply(this.b, that.b)),
               ExpAdd(ExpMultiply(this.a, that.b), ExpMultiply(this.b, that.a))
             )
           } else {
-            return new ExpComplex(ExpMultiply(this.a, that), ExpMultiply(this.b, that));
+            return GetComplex(ExpMultiply(this.a, that), ExpMultiply(this.b, that));
           }
         },
         __rmul__: function (that) {
-          return new ExpComplex(ExpMultiply(that, this.a), ExpMultiply(that, this.b));
+          return GetComplex(ExpMultiply(that, this.a), ExpMultiply(that, this.b));
         },
         __div__: function (that) {
           if (that.type == 'complex') {
-            return new ExpComplex(
+            return GetComplex(
               ExpDivide(
                 ExpAdd(ExpMultiply(this.a, that.a), ExpMultiply(this.b, that.b)),
-                ExpAdd(ExpExponentiate(that.a, new ExpNumber(2)), ExpExponentiate(that.b, new ExpNumber(2)))
+                ExpAdd(ExpExponentiate(that.a, GetNumber(2)), ExpExponentiate(that.b, GetNumber(2)))
               ),
               ExpDivide(
                 ExpSubtract(ExpMultiply(this.a, that.a), ExpMultiply(this.b, that.b)),
-                ExpAdd(ExpExponentiate(that.a, new ExpNumber(2)), ExpExponentiate(that.b, new ExpNumber(2)))
+                ExpAdd(ExpExponentiate(that.a, GetNumber(2)), ExpExponentiate(that.b, GetNumber(2)))
               )
             );
           } else {
-            return new ExpComplex(ExpDivide(this.a, that), ExpDivide(this.b, that));
+            return GetComplex(ExpDivide(this.a, that), ExpDivide(this.b, that));
           }
         },
         __pow__: function (that) {
           if (that.type == 'complex') return;
           let dist = ((this.a.val ** 2 + this.b.val ** 2) ** 0.5) ** that.val;
           let ang = (Math.atan2(this.b.val, this.a.val) * that.val) % (Math.PI * 2);
-          return new ExpComplex(new ExpNumber(Math.cos(ang) * dist), new ExpNumber(Math.sin(ang) * dist));
+          return GetComplex(GetNumber(Math.cos(ang) * dist), GetNumber(Math.sin(ang) * dist));
         },
         conjug: function (that) {
-          return new ExpComplex(ExpUnaryPlus(this.a), ExpUnaryMinus(this.b));
+          return GetComplex(ExpUnaryPlus(this.a), ExpUnaryMinus(this.b));
         },
       };
       ExpMatrix.prototype = {
         __pos__: function () {
-          let rm = new ExpMatrix(this.h, this.w);
+          let rm = GetMatrix(this.h, this.w);
           for (let y = 0; y < this.h; y++) {
             for (let x = 0; x < this.h; x++) {
               rm.val[y][x] = ExpUnaryPlus(this.val[y][x]);
@@ -872,7 +956,7 @@
           return rm;
         },
         __neg__: function () {
-          let rm = new ExpMatrix(this.h, this.w);
+          let rm = GetMatrix(this.h, this.w);
           for (let y = 0; y < this.h; y++) {
             for (let x = 0; x < this.h; x++) {
               rm.val[y][x] = ExpUnaryMinus(this.val[y][x]);
@@ -883,7 +967,7 @@
         __add__: function (that) {
           if (that.type != 'matrix') return;
           if (this.w != that.w || this.h != that.h) throw new Error('mismatching matrix sizes');
-          let rm = new ExpMatrix(this.h, this.w);
+          let rm = GetMatrix(this.h, this.w);
           for (let y = 0; y < this.h; y++) {
             for (let x = 0; x < this.h; x++) {
               rm.val[y][x] = ExpAdd(this.val[y][x], that.val[y][x]);
@@ -894,7 +978,7 @@
         __sub__: function (that) {
           if (that.type != 'matrix') return;
           if (this.w != that.w || this.h != that.h) throw new Error('mismatching matrix sizes');
-          let rm = new ExpMatrix(this.h, this.w);
+          let rm = GetMatrix(this.h, this.w);
           for (let y = 0; y < this.h; y++) {
             for (let x = 0; x < this.h; x++) {
               rm.val[y][x] = ExpSubtract(this.val[y][x], that.val[y][x]);
@@ -904,16 +988,16 @@
         },
         __mul__: function (that) {
           if (that.type == 'number') {
-            let rm = new ExpMatrix(this.h, this.w);
+            let rm = GetMatrix(this.h, this.w);
             for (let y = 0; y < this.h; y++)
               for (let x = 0; x < this.h; x++)
                 rm.val[y][x] = ExpMultiply(this.val[y][x], that);
             return rm;
           } else if (that.type == 'matrix') {
-            let rm = new ExpMatrix(that.w, this.h);
+            let rm = GetMatrix(that.w, this.h);
             for (let y = 0; y < rm.h; y++) {
               for (let x = 0; x < rm.w; x++) {
-                let s = new ExpNumber(0);
+                let s = GetNumber(0);
                 for (let i = 0; i < this.w; i++) s = ExpAdd(s, ExpMultiply(this.get(y, i), that.get(i, x)));
                 rm.set(y, x, s);
               }
@@ -923,7 +1007,7 @@
         },
         __rmul__: function (that) {
           if (that.type == 'number') {
-            let rm = new ExpMatrix(this.h, this.w);
+            let rm = GetMatrix(this.h, this.w);
             for (let y = 0; y < this.h; y++)
               for (let x = 0; x < this.h; x++)
                 rm.val[y][x] = ExpMultiply(that, this.val[y][x]);
@@ -945,7 +1029,7 @@
           for (var y = 0; y < this.h; y++) ar.push(this.get(y, x));
         },
         submat: function(y, x) {
-          let rm = new ExpMatrix(this.h - 1, this.w - 1);
+          let rm = GetMatrix(this.h - 1, this.w - 1);
           let jval = 0;
           for (let j = 0; j < this.h; j++) {
             if (j != y) {
@@ -962,7 +1046,7 @@
           return rm;
         },
         transp: function () {
-          let rm = new ExpMatrix(this.w, this.h);
+          let rm = GetMatrix(this.w, this.h);
           for (let j = 0; j < this.h; j++)
             for (let i = 0; i < this.w; i++)
               rm.set(i, j, this.get(j, i));
@@ -973,27 +1057,27 @@
           if (this.w == 1) return this.val[0][0];
           else if (this.w == 2) return ExpSubtract(ExpMultiply(this.val[0][0], this.val[1][1]), ExpMultiply(this.val[0][1], this.val[1][0]));
           else {
-            let ds = new ExpNumber(0);
+            let ds = GetNumber(0);
             for (let i = 0; i < this.w; i++) {
-              ds = ExpAdd(ds, ExpMultiply(new ExpNumber((-1) ** i), ExpMultiply(this.get(0, i), this.submat(0, i).det())));
+              ds = ExpAdd(ds, ExpMultiply(GetNumber((-1) ** i), ExpMultiply(this.get(0, i), this.submat(0, i).det())));
             }
             return ds;
           }
         },
         adj: function () {
           if (this.w != this.h) throw new Error('cannot calculate the adjuglate of a non-square matrix');
-          if (this.w == 1) return Matrix([[new ExpNumber(1)]]);
+          if (this.w == 1) return Matrix([[GetNumber(1)]]);
           else if (this.w == 2) {
-            return new ExpMatrix([
+            return GetMatrix([
               [this.get(1, 1), ExpUnaryMinus(this.get(0, 1))],
               [ExpUnaryMinus(this.get(1, 0)), this.get(0, 0)]
             ]);
           } else if (this.w == 3) {
             let rm = this.transp();
-            let rm2 = new ExpMatrix(this.w, this.h);
+            let rm2 = GetMatrix(this.w, this.h);
             for (let j = 0; j < rm.h; j++) {
               for (let i = 0; i < rm.w; i++) {
-                rm2.set(j, i, ExpMultiply(new ExpNumber((-1) ** (j + i)), rm.submat(j, i).det()));
+                rm2.set(j, i, ExpMultiply(GetNumber((-1) ** (j + i)), rm.submat(j, i).det()));
               }
             }
             return rm2;
@@ -1001,12 +1085,12 @@
         },
         inv: function () {
           if (this.w != this.h) throw new Error('cannot calculate the inverse of a non-square matrix');
-          return ExpMultiply(ExpDivide(new ExpNumber(1), this.det()), this.adj());
+          return ExpMultiply(ExpDivide(GetNumber(1), this.det()), this.adj());
         }
       };
       ExpSurreal.prototype = {
         __pos__: function() {
-          let rs = new ExpSurreal(this.valarr.map(x => x.map(y => ExpUnaryPlus(y))));
+          let rs = GetSurreal(this.valarr.map(x => x.map(y => ExpUnaryPlus(y))));
           for (let i in rs.valarr) {
             rs.valarr[i][0] = ExpUnaryPlus(rs.valarr[i][0]);
             rs.valarr[i][1] = ExpUnaryPlus(rs.valarr[i][1]);
@@ -1014,7 +1098,7 @@
           return rs;
         },
         __neg__: function() {
-          let rs = new ExpSurreal(this.valarr.map(x => x.map(y => ExpUnaryPlus(y))));
+          let rs = GetSurreal(this.valarr.map(x => x.map(y => ExpUnaryPlus(y))));
           for (let i in rs.valarr) {
             rs.valarr[i][0] = ExpUnaryMinus(rs.valarr[i][0]);
             rs.valarr[i][1] = ExpUnaryPlus(rs.valarr[i][1]);
@@ -1024,7 +1108,7 @@
         __add__: function(that) {
           if (that.type != 'surreal') {
             let rs = ExpUnaryPlus(this);
-            ExpSurrAddTerm(rs.valarr, new ExpNumber(0), that);
+            ExpSurrAddTerm(rs.valarr, GetNumber(0), that);
             rs.valarr = ExpSurrSimpArr(rs.valarr);
             return rs;
           } else {
@@ -1039,14 +1123,14 @@
         },
         __radd__: function (that) {
           let rs = ExpUnaryPlus(this);
-          ExpSurrAddTerm(rs.valarr, new ExpNumber(0), that);
+          ExpSurrAddTerm(rs.valarr, GetNumber(0), that);
           rs.valarr = ExpSurrSimpArr(rs.valarr);
           return rs;
         },
         __sub__: function (that) {
           if (that.type != 'surreal') {
             let rs = ExpUnaryPlus(this);
-            ExpSurrAddTerm(rs.valarr, new ExpNumber(0), ExpUnaryMinus(that));
+            ExpSurrAddTerm(rs.valarr, GetNumber(0), ExpUnaryMinus(that));
             rs.valarr = ExpSurrSimpArr(rs.valarr);
             return rs;
           } else {
@@ -1061,13 +1145,13 @@
         },
         __rsub__: function (that) {
           let rs = ExpUnaryMinus(this);
-          ExpSurrAddTerm(rs.valarr, new ExpNumber(0), that);
+          ExpSurrAddTerm(rs.valarr, GetNumber(0), that);
           rs.valarr = ExpSurrSimpArr(rs.valarr);
           return rs;
         },
         __mul__: function (that) {
           if (that.type != 'surreal') {
-            let rs = new ExpSurreal([[new ExpNumber(0), new ExpNumber(0)]]);
+            let rs = GetSurreal([[GetNumber(0), GetNumber(0)]]);
             for (let iv in this.valarr) {
               let i = this.valarr[iv];
               ExpSurrAddTerm(rs.valarr, i[1], ExpMultiply(i[0], that));
@@ -1075,7 +1159,7 @@
             rs.valarr = ExpSurrSimpArr(rs.valarr);
             return rs;
           } else {
-            let rs = new ExpSurreal([[new ExpNumber(0), new ExpNumber(0)]]);
+            let rs = GetSurreal([[GetNumber(0), GetNumber(0)]]);
             for (let iv in that.valarr) {
               let i = that.valarr[iv];
               for (let jv in this.valarr) {
@@ -1088,7 +1172,7 @@
           }
         },
         __rmul__: function (that) {
-          let rs = new ExpSurreal([[new ExpNumber(0), new ExpNumber(0)]]);
+          let rs = GetSurreal([[GetNumber(0), GetNumber(0)]]);
           for (let iv in this.valarr) {
             let i = this.valarr[iv];
             ExpSurrAddTerm(rs.valarr, i[1], ExpMultiply(that, i[0]));
@@ -1097,53 +1181,53 @@
           return rs;
         },
         __div__: function (that) {
-          return this.__mul__(ExpDivide(new ExpNumber(1), that));
+          return this.__mul__(ExpDivide(GetNumber(1), that));
         },
         __rdiv__: function (that) {
           return this.recip().__mul__(that);
         },
         __pow__: function (that) {
           if (self.valarr.length == 1) {
-            return new ExpSurreal([[ExpExponentiate(this.valarr[0][0], that), ExpMultiply(this.valarr[0][1], that)]]);
+            return GetSurreal([[ExpExponentiate(this.valarr[0][0], that), ExpMultiply(this.valarr[0][1], that)]]);
           }
         },
         __gt__: function (that) {
-          return new ExpBool(ExpSurrCompare(this, that) > 0);
+          return GetBool(ExpSurrCompare(this, that) > 0);
         },
         __lt__: function (that) {
-          return new ExpBool(ExpSurrCompare(this, that) < 0);
+          return GetBool(ExpSurrCompare(this, that) < 0);
         },
         __ge__: function (that) {
-          return new ExpBool(ExpSurrCompare(this, that) >= 0);
+          return GetBool(ExpSurrCompare(this, that) >= 0);
         },
         __le__: function (that) {
-          return new ExpBool(ExpSurrCompare(this, that) <= 0);
+          return GetBool(ExpSurrCompare(this, that) <= 0);
         },
         __eq__: function (that) {
-          return new ExpBool(ExpSurrCompare(this, that) == 0);
+          return GetBool(ExpSurrCompare(this, that) == 0);
         },
         __ne__: function (that) {
-          return new ExpBool(ExpSurrCompare(this, that) != 0);
+          return GetBool(ExpSurrCompare(this, that) != 0);
         },
         recip: function () {
-          return new ExpSurreal([[ExpDivide(new ExpNumber(1), this.valarr[0][0]), ExpUnaryMinus(this.valarr[0][1])]]);
+          return GetSurreal([[ExpDivide(GetNumber(1), this.valarr[0][0]), ExpUnaryMinus(this.valarr[0][1])]]);
         },
         to_float: function() {
           for (let iv in this.valarr) {
             let i = this.valarr[iv];
-            if (ExpGreaterThan(i[1], new ExpNumber(0)).val) {
-              if (ExpGreaterThan(i[0], new ExpNumber(0)).val) {
-                return new ExpNumber(Infinity);
+            if (ExpGreaterThan(i[1], GetNumber(0)).val) {
+              if (ExpGreaterThan(i[0], GetNumber(0)).val) {
+                return GetNumber(Infinity);
               } else {
-                return new ExpNumber(-Infinity);
+                return GetNumber(-Infinity);
               }
-            } else if (ExpEqual(i[1], new ExpNumber(0)).val) {
+            } else if (ExpEqual(i[1], GetNumber(0)).val) {
               return ExpUnaryPlus(i[0]);
-            } else if (ExpLessThan(i[1], new ExpNumber(0)).val) {
-              if (ExpGreaterThanEqual(i[0], new ExpNumber(0)).val) {
-                return new ExpNumber(0);
+            } else if (ExpLessThan(i[1], GetNumber(0)).val) {
+              if (ExpGreaterThanEqual(i[0], GetNumber(0)).val) {
+                return GetNumber(0);
               } else {
-                return new ExpNumber(-0);
+                return GetNumber(-0);
               }
             }
           }
@@ -1235,7 +1319,7 @@
               valexp = '';
               valmode = 'numtexp';
             } else if ('+-'.indexOf(val[i]) > -1) {
-              valarr.push([new ExpNumber(valstr), new ExpNumber(0)]);
+              valarr.push([GetNumber(valstr), GetNumber(0)]);
               if (val[i] == '-') valstr = '-';
               else valstr = '';
               valmode = 'num';
@@ -1247,14 +1331,14 @@
               valmode = 'exp';
               valbegin = true;
             } else if ('+-'.indexOf(val[i]) > -1) {
-              valarr.push([new ExpNumber(valstr), new ExpNumber(1.0)])
+              valarr.push([GetNumber(valstr), GetNumber(1)])
               if (val[i] == '-') valstr = '-';
               else valstr = '';
               valexp = '';
               valmode = 'num';
               valbegin = true;
             } else {
-              valarr.push([new ExpNumber(valstr), new ExpNumber(valexp)]);
+              valarr.push([GetNumber(valstr), GetNumber(valexp)]);
               valexp = '';
               valmode = 'num';
               valbegin = true;
@@ -1263,7 +1347,7 @@
             if (val[i] == '-' && valbegin) valexp = '-';
             else if ('0123456789.e'.indexOf(val[i]) > -1) valexp += val[i];
             else if ('+-'.indexOf(val[i]) > -1) {
-              valarr.push([new ExpNumber(valstr), new ExpNumber(valexp)]);
+              valarr.push([GetNumber(valstr), GetNumber(valexp)]);
               if (val[i] == '-') valstr = '-';
               else valstr = '';
               valexp = '';
@@ -1274,11 +1358,11 @@
           }
         }
         if (valmode == 'numtexp') {
-          valarr.push([new ExpNumber(valstr), new ExpNumber(1.0)]);
+          valarr.push([GetNumber(valstr), GetNumber(1.0)]);
         } else {
           if (valstr.length > 0) {
-            if (valexp.length > 0) valarr.push([new ExpNumber(valstr), new ExpNumber(valexp)]);
-            else valarr.push([new ExpNumber(valstr), new ExpNumber(0)]);
+            if (valexp.length > 0) valarr.push([GetNumber(valstr), GetNumber(valexp)]);
+            else valarr.push([GetNumber(valstr), GetNumber(0)]);
           }
         }
         return valarr;
@@ -1312,18 +1396,26 @@
         valarr = ExpSurrSortArr(valarr);
         let ra = [];
         for (let i in valarr) if (valarr[i][0].val != 0.0) ExpSurrAddTerm(ra, valarr[i][1], valarr[i][0]);
-        if (ra.length == 0) return [[new ExpNumber(0), new ExpNumber(0)]];
+        if (ra.length == 0) return [[GetNumber(0), GetNumber(0)]];
         return ra;
       }
       function FuncCall(nam, val) {
-        nam = nam[0].val;
-        if (nam == 'mat') return new ExpMatrix(val);
-        else return new ExpFuncCall(val);
+        /*nam = nam[0].val;
+        if (nam == 'mat') return GetMatrix(val);
+        else*/
+        return new ExpFuncCall(val);
       }
       function FuncCallProp(func, val, globals, locals) {
         if (func.type != 'func') throw new Error('variable not a function');
         if (func.ftype == 'js') return func.val(val, globals, locals);
-        else if (func.ftype == 'comp') return ParseStmtArr(func.val)[0][0];
+        else if (func.ftype == 'comp') {
+          var ld = {args: val};
+          for (let i in func.args) {
+            if (i < val.length) ld[func.args[i]] = val[i];
+            else ld[func.args[i]] == GetUndefined();
+          }
+          return ParseStmtArr(func.val, globals, ld)[0][0];
+        }
       }
       function Mod1(x) {
         if (x >= 0) return x % 1;
@@ -1438,35 +1530,33 @@
         let v = Math.random();
         return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
       }
-      var CL_UNDEFINED = new ExpUndefined();
-      var CL_NULL = new ExpNull();
       var varns = {
-        undefined: CL_UNDEFINED,
-        null: CL_NULL,
-        true: new ExpBool(true),
-        false: new ExpBool(false),
-        NaN: new ExpNumber(NaN),
-        Infinity: new ExpNumber(Infinity),
-        i: new ExpComplex('0+1i'),
-        w: new ExpSurreal('w'),
-        pi: new ExpNumber(Math.PI),
-        e: new ExpNumber(Math.E),
-        phi: new ExpNumber((1 + 5 ** 0.5) / 2),
-        sqrt2: new ExpNumber(Math.SQRT2),
-        sqrt1_2: new ExpNumber(Math.SQRT1_2),
-        ln2: new ExpNumber(Math.LN2),
-        ln10: new ExpNumber(Math.LN10),
+        undefined: GetUndefined(),
+        null: GetNull(),
+        true: GetBool(true),
+        false: GetBool(false),
+        NaN: GetNumber(NaN),
+        Infinity: GetNumber(Infinity),
+        i: GetComplex('0+1i'),
+        w: GetSurreal('w'),
+        pi: GetNumber(Math.PI),
+        e: GetNumber(Math.E),
+        phi: GetNumber((1 + 5 ** 0.5) / 2),
+        sqrt2: GetNumber(Math.SQRT2),
+        sqrt1_2: GetNumber(Math.SQRT1_2),
+        ln2: GetNumber(Math.LN2),
+        ln10: GetNumber(Math.LN10),
         Boolean: new ExpFunc(function (args) {
-          return new ExpBool(args[0].val);
+          return GetBool(args[0].val);
         }),
         Number: new ExpFunc(function (args) {
-          return new ExpNumber(args[0].val);
+          return GetNumber(args[0].val);
         }),
         BigInt: new ExpFunc(function (args) {
-          return new ExpBigInt(args[0].val);
+          return GetBigInt(args[0].val);
         }),
         String: new ExpFunc(function (args) {
-          return new ExpString(args[0].val);
+          return GetString(args[0].val);
         }),
         Array: new ExpFunc(function (args) {
           if (args.length == 0) {
@@ -1482,25 +1572,27 @@
         }),
         Function: new ExpFunc(function (args) {
           if (args.length == 1) {
-            if (args[0].type == 'string') return new ExpFunc(ToStmtArr(args[0].val), 'comp');
+            if (args[0].type == 'string') return new ExpFunc(ToStmtArr(args[0].val), 'comp', [], args[0].val);
+          } else if (args.length == 2) {
+            return new ExpFunc(ToStmtArr(args[1].val), 'comp', args[0].val.map(x => x.val), args[1].val);
           }
         }),
         Complex: new ExpFunc(function (args) {
-          if (args[0].type == 'string') return new ExpComplex(args[0].val);
-          else if (args.length == 1) return new ExpComplex(args[0], new ExpNumber(0));
-          else return new ExpComplex(args[0], args[1]);
+          if (args[0].type == 'string') return GetComplex(args[0].val);
+          else if (args.length == 1) return GetComplex(args[0], GetNumber(0));
+          else return GetComplex(args[0], args[1]);
         }),
         Matrix: new ExpFunc(function (args) {
-          if (args.length == 1) return new ExpMatrix(args[0]);
-          else return new ExpMatrix(args[0].val, args[1].val);
+          if (args.length == 1) return GetMatrix(args[0]);
+          else return GetMatrix(args[0].val, args[1].val);
         }),
         Surreal: new ExpFunc(function (args) {
           if (args[0].type == 'array') {
-            return new ExpSurreal(args[0].val.map(x => x.val));
+            return GetSurreal(args[0].val.map(x => x.val));
           } else if (args[0].type == 'string') {
-            return new ExpSurreal(args[0].val);
+            return GetSurreal(args[0].val);
           } else if (args[0].type == 'number') {
-            return new ExpSurreal([[args[0].val, new ExpNumber(0)]]);
+            return GetSurreal([[args[0].val, GetNumber(0)]]);
           }
         }),
         globals: new ExpFunc(function (args, globals, locals) {
@@ -1538,13 +1630,13 @@
           else return ParseStmtArr(ca, args[1].val, args[2].val)[0][0];
         }),
         repr: new ExpFunc(function (args) {
-          return new ExpString(ObjToText(args[0]));
+          return GetString(ObjToText(args[0]));
         }),
         print: new ExpFunc(function (args) {
           if (args[0].type == 'string') calcarr.push(args[0].val);
           else calcarr.push(ObjToText(args[0]));
           CalcArrRefresh();
-          return CL_UNDEFINED;
+          return GetUndefined();
         }),
         sign: new ExpFunc(function (args) {
           if (args[0].val > 0) return 1;
@@ -1554,36 +1646,36 @@
         }),
         abs: new ExpFunc(function (args) {
           if (args[0].val < 0) args[0].val = -args[0].val;
-          if (args[0].type == 'number') return new ExpNumber(args[0].val);
-          else if (args[0].type == 'bigint') return new ExpBigInt(args[0].val);
+          if (args[0].type == 'number') return GetNumber(args[0].val);
+          else if (args[0].type == 'bigint') return GetBigInt(args[0].val);
         }),
         max: new ExpFunc(function (args) {
           let mv = -Infinity;
           for (let i in args) if (args[i].val > mv) mv = args[i].val;
-          if (typeof mv == 'number') return new ExpNumber(mv);
-          else if (typeof mv == 'bigint') return new ExpBigInt(mv);
+          if (typeof mv == 'number') return GetNumber(mv);
+          else if (typeof mv == 'bigint') return GetBigInt(mv);
         }),
         min: new ExpFunc(function (args) {
           let mv = Infinity;
           for (let i in args) if (args[i].val < mv) mv = args[i].val;
-          if (typeof mv == 'number') return new ExpNumber(mv);
-          else if (typeof mv == 'bigint') return new ExpBigInt(mv);
+          if (typeof mv == 'number') return GetNumber(mv);
+          else if (typeof mv == 'bigint') return GetBigInt(mv);
         }),
         floor: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.floor(args[0].val));
-          else if (args[0].type == 'bigint') return new ExpBigInt(args[0].val);
+          if (args[0].type == 'number') return GetNumber(Math.floor(args[0].val));
+          else if (args[0].type == 'bigint') return GetBigInt(args[0].val);
         }),
         ceil: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.ceil(args[0].val));
-          else if (args[0].type == 'bigint') return new ExpBigInt(args[0].val);
+          if (args[0].type == 'number') return GetNumber(Math.ceil(args[0].val));
+          else if (args[0].type == 'bigint') return GetBigInt(args[0].val);
         }),
         round: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.round(args[0].val));
-          else if (args[0].type == 'bigint') return new ExpBigInt(args[0].val);
+          if (args[0].type == 'number') return GetNumber(Math.round(args[0].val));
+          else if (args[0].type == 'bigint') return GetBigInt(args[0].val);
         }),
         trunc: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.trunc(args[0].val));
-          else if (args[0].type == 'bigint') return new ExpBigInt(args[0].val);
+          if (args[0].type == 'number') return GetNumber(Math.trunc(args[0].val));
+          else if (args[0].type == 'bigint') return GetBigInt(args[0].val);
         }),
         lerp: new ExpFunc(function (args) {
           let dif = ExpSubtract(args[1].val, args[0].val);
@@ -1605,60 +1697,60 @@
           let hl = args.length / 2;
           let ap1 = args.slice(0, hl);
           let ap2 = args.slice(h1, Infinity);
-          return new ExpNumber(Math.hypot.apply(ap1.map((x, i) => ap2[i].val - x.val)));
+          return GetNumber(Math.hypot.apply(ap1.map((x, i) => ap2[i].val - x.val)));
         }),
         random: new ExpFunc(function (args) {
           if (args.length == 0) {
-            return new ExpNumber(Math.random());
+            return GetNumber(Math.random());
           } else if (args.length == 1) {
-            return new ExpNumber(Math.random() * args[0].val);
+            return GetNumber(Math.random() * args[0].val);
           } else if (args.length == 2) {
             let dif = args[1].val - args[0].val;
-            return new ExpNumber(Math.random() * dif + args[0].val);
+            return GetNumber(Math.random() * dif + args[0].val);
           }
         }),
         randint: new ExpFunc(function (args) {
           if (args.length == 0) {
-            return new ExpNumber(Math.round(Math.random()));
+            return GetNumber(Math.round(Math.random()));
           } else if (args.length == 1) {
-            return new ExpNumber(Math.floor(Math.random() * args[0].val));
+            return GetNumber(Math.floor(Math.random() * args[0].val));
           } else if (args.length == 2) {
             let dif = args[1].val - args[0].val;
-            return new ExpNumber(Math.floor(Math.random() * dif + args[0].val));
+            return GetNumber(Math.floor(Math.random() * dif + args[0].val));
           }
         }),
         randintn: new ExpFunc(function (args) {
           if (args.length == 0) {
-            return new ExpBigInt(Math.round(Math.random()));
+            return GetBigInt(Math.round(Math.random()));
           } else if (args.length == 1) {
             if (args[0].val < 0) return varns.randintn.val([new ExpBigNum(-args[0].val)]);
             if (args[0].val < BigInt(4294967296)) {
-              return ExpDivide(new ExpBigInt(randBigInt32()), ExpDivide(args[0], new ExpBigInt(4294967296)));
+              return ExpDivide(GetBigInt(randBigInt32()), ExpDivide(args[0], GetBigInt(4294967296)));
             }
           } else if (args.length == 2) {
             let dif = args[1].val - args[0].val;
-            return ExpAdd(BigInt(dif), varns.randintn.val([new ExpBigInt(dif)]));
+            return ExpAdd(BigInt(dif), varns.randintn.val([GetBigInt(dif)]));
           }
         }),
         randgauss: new ExpFunc(function (args) {
-          if (args.length == 0) return new ExpNumber(gaussianBoxMuller());
-          else if (args.length == 1) return new ExpNumber(gaussianBoxMuller() * args[0].val);
-          else if (args.length == 2) return new ExpNumber(gaussianBoxMuller() * args[0].val + args[1].val);
+          if (args.length == 0) return GetNumber(gaussianBoxMuller());
+          else if (args.length == 1) return GetNumber(gaussianBoxMuller() * args[0].val);
+          else if (args.length == 2) return GetNumber(gaussianBoxMuller() * args[0].val + args[1].val);
         }),
         sq: new ExpFunc(function (args) {
           return ExpMultiply(args[0], args[0]);
         }),
         sqrt: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.sqrt(args[0].val));
+          if (args[0].type == 'number') return GetNumber(Math.sqrt(args[0].val));
         }),
         cbrt: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.cbrt(args[0].val));
+          if (args[0].type == 'number') return GetNumber(Math.cbrt(args[0].val));
         }),
         hypot: new ExpFunc(function (args) {
-          if (args.every(x => x.type == 'number')) return new ExpNumber(Math.hypot.apply(Math, args.map(x => x.val)));
+          if (args.every(x => x.type == 'number')) return GetNumber(Math.hypot.apply(Math, args.map(x => x.val)));
         }),
         exp: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.exp(args[0].val));
+          if (args[0].type == 'number') return GetNumber(Math.exp(args[0].val));
         }),
         log: new ExpFunc(function (args) {
           let val;
@@ -1679,18 +1771,18 @@
         }),
         log10: new ExpFunc(function (args) {
           if (args[0].type == 'number') {
-            return new ExpNumber(Math.log10(args[0].val));
+            return GetNumber(Math.log10(args[0].val));
           } else if (args[0].type == 'bigint') {
             let es = args[0].val.toString();
             let tv = Math.log10(Number(es.substr(0, 12)));
-            return new ExpNumber((tv - Math.floor(tv)) - 1 + es.length);
+            return GetNumber((tv - Math.floor(tv)) - 1 + es.length);
           }
         }),
         log2: new ExpFunc(function (args) {
           if (args[0].type == 'number') {
-            return new ExpNumber(Math.log2(args[0].val));
+            return GetNumber(Math.log2(args[0].val));
           } else if (args[0].type == 'bigint') {
-            return new ExpNumber(varns.log10.val(args[0]).val * varns.ln10.val / varns.ln2.val);
+            return GetNumber(varns.log10.val(args[0]).val * varns.ln10.val / varns.ln2.val);
           }
         }),
         pow: new ExpFunc(function (args) {
@@ -1698,19 +1790,19 @@
         }),
         root: new ExpFunc(function (args) {
           if (args[0].type == 'number' && args[1].type == 'number') {
-            return new ExpNumber(args[0].val ** (1 / args[1].val));
+            return GetNumber(args[0].val ** (1 / args[1].val));
           } else if (args[0].type == 'bigint' && args[1].type == 'bigint') {
-            return new ExpBigInt(args[0].val ** (1 / args[1].val));
+            return GetBigInt(args[0].val ** (1 / args[1].val));
           }
         }),
         tet: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(tet(args[0].val, args[1].val));
+          if (args[0].type == 'number') return GetNumber(tet(args[0].val, args[1].val));
         }),
         sroot: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(sroot(args[0].val, args[1].val));
+          if (args[0].type == 'number') return GetNumber(sroot(args[0].val, args[1].val));
         }),
         slog: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(slog(args[0].val, args[1].val));
+          if (args[0].type == 'number') return GetNumber(slog(args[0].val, args[1].val));
         }),
         fact: new ExpFunc(function (args) {
           if (args[0].type == 'number') {
@@ -1719,132 +1811,132 @@
               if (fv >= 0) {
                 let bv = 1;
                 for (; fv > 0 && bv < Infinity; fv--) bv *= fv;
-                return new ExpNumber(bv);
+                return GetNumber(bv);
               } else if (fv < 0) {
-                return new ExpNumber(NaN);
+                return GetNumber(NaN);
               }
             } else {
-              return new ExpNumber(gamma(fv + 1));
+              return GetNumber(gamma(fv + 1));
             }
           } else if (args[0].type == 'bigint') {
             if (fv >= 0) {
               for (let bv = BigInt(1); fv > 0 && bv < Infinity; fv--) bv *= fv;
-              return new ExpBigInt(bv);
+              return GetBigInt(bv);
             } else if (fv < 0) {
-              return new ExpNumber(NaN);
+              return GetNumber(NaN);
             }
           }
         }),
         gamma: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(gamma(args[0].val));
+          if (args[0].type == 'number') return GetNumber(gamma(args[0].val));
         }),
         degrees: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(args[0].val / Math.PI * 180);
+          if (args[0].type == 'number') return GetNumber(args[0].val / Math.PI * 180);
         }),
         radians: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(args[0].val / 180 * Math.PI);
+          if (args[0].type == 'number') return GetNumber(args[0].val / 180 * Math.PI);
         }),
         sin: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.sin(args[0].val));
+          if (args[0].type == 'number') return GetNumber(Math.sin(args[0].val));
         }),
         cos: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.cos(args[0].val));
+          if (args[0].type == 'number') return GetNumber(Math.cos(args[0].val));
         }),
         tan: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.tan(args[0].val));
+          if (args[0].type == 'number') return GetNumber(Math.tan(args[0].val));
         }),
         asin: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.asin(args[0].val));
+          if (args[0].type == 'number') return GetNumber(Math.asin(args[0].val));
         }),
         acos: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.acos(args[0].val));
+          if (args[0].type == 'number') return GetNumber(Math.acos(args[0].val));
         }),
         atan: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.atan(args[0].val));
+          if (args[0].type == 'number') return GetNumber(Math.atan(args[0].val));
         }),
         atan2: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.atan2(args[0].val, args[1].val));
+          if (args[0].type == 'number') return GetNumber(Math.atan2(args[0].val, args[1].val));
         }),
         sinh: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.sinh(args[0].val));
+          if (args[0].type == 'number') return GetNumber(Math.sinh(args[0].val));
         }),
         cosh: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.cosh(args[0].val));
+          if (args[0].type == 'number') return GetNumber(Math.cosh(args[0].val));
         }),
         tanh: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.tanh(args[0].val));
+          if (args[0].type == 'number') return GetNumber(Math.tanh(args[0].val));
         }),
         asinh: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.asinh(args[0].val));
+          if (args[0].type == 'number') return GetNumber(Math.asinh(args[0].val));
         }),
         acosh: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.acosh(args[0].val));
+          if (args[0].type == 'number') return GetNumber(Math.acosh(args[0].val));
         }),
         atanh: new ExpFunc(function (args) {
-          if (args[0].type == 'number') return new ExpNumber(Math.atanh(args[0].val));
+          if (args[0].type == 'number') return GetNumber(Math.atanh(args[0].val));
         }),
         tohexstr: new ExpFunc(function (args) {
-          return new ExpString(args[0].val.toString(16));
+          return GetString(args[0].val.toString(16));
         }),
         tooctstr: new ExpFunc(function (args) {
-          return new ExpString(args[0].val.toString(8));
+          return GetString(args[0].val.toString(8));
         }),
         tobinstr: new ExpFunc(function (args) {
-          return new ExpString(args[0].val.toString(2));
+          return GetString(args[0].val.toString(2));
         }),
         todecstr: new ExpFunc(function (args) {
-          return new ExpString(args[0].val.toString(10));
+          return GetString(args[0].val.toString(10));
         }),
         tobasestr: new ExpFunc(function (args) {
-          return new ExpString(args[0].val.toString(args[1].val));
+          return GetString(args[0].val.toString(args[1].val));
         }),
         fromhexstr: new ExpFunc(function (args) {
-          return new ExpNumber(parseInt(args[0].val, 16));
+          return GetNumber(parseInt(args[0].val, 16));
         }),
         fromhexstrn: new ExpFunc(function (args) {
           let bi = BigInt(0), str = args[0].val;
           for (let i = str.length - 1, em = BigInt(0); i >= 0; i--, em++) {
             bi += BigInt(parseInt(str[i], 16)) * (BigInt(16) ** em);
           }
-          return new ExpBigInt(bi);
+          return GetBigInt(bi);
         }),
         fromoctstr: new ExpFunc(function (args) {
-          return new ExpNumber(parseInt(args[0].val, 8));
+          return GetNumber(parseInt(args[0].val, 8));
         }),
         fromoctstrn: new ExpFunc(function (args) {
           let bi = BigInt(0), str = args[0].val;
           for (let i = str.length - 1, em = BigInt(0); i >= 0; i--, em++) {
             bi += BigInt(parseInt(str[i], 8)) * (BigInt(8) ** em);
           }
-          return new ExpBigInt(bi);
+          return GetBigInt(bi);
         }),
         frombinstr: new ExpFunc(function (args) {
-          return new ExpNumber(parseInt(args[0].val, 2));
+          return GetNumber(parseInt(args[0].val, 2));
         }),
         frombinstrn: new ExpFunc(function (args) {
           let bi = BigInt(0), str = args[0].val;
           for (let i = str.length - 1, em = BigInt(0); i >= 0; i--, em++) {
             bi += BigInt(parseInt(str[i], 2)) * (BigInt(2) ** em);
           }
-          return new ExpBigInt(bi);
+          return GetBigInt(bi);
         }),
         fromdecstr: new ExpFunc(function (args) {
-          return new ExpNumber(parseInt(args[0].val, 10));
+          return GetNumber(parseInt(args[0].val, 10));
         }),
         fromdecstrn: new ExpFunc(function (args) {
-          return new ExpBigInt(args[0].val);
+          return GetBigInt(args[0].val);
         }),
         frombasestr: new ExpFunc(function (args) {
-          return new ExpNumber(parseInt(args[0].val, args[1].val));
+          return GetNumber(parseInt(args[0].val, args[1].val));
         }),
         frombasestrn: new ExpFunc(function (args) {
           let bi = BigInt(0), str = args[0].val;
           for (let i = str.length - 1, em = BigInt(0); i >= 0; i--, em++) {
             bi += BigInt(parseInt(str[i], args[1].val)) * (BigInt(args[1].val) ** em);
           }
-          return new ExpBigInt(bi);
+          return GetBigInt(bi);
         }),
-        vn: new ExpObject({e: new ExpString('val')}),
+        vn: new ExpObject({e: GetString('val')}),
       };
       varns.vn.val.v = varns.vn;
       function ExpArrString(val, p) {
@@ -1916,7 +2008,7 @@
           p.bas[3] = '';
         } else {
           if (val == p.bas[0]) {
-            p.ra.push(new ExpString(p.bs));
+            p.ra.push(GetString(p.bs));
             p.bs = '';
             p.bt = '';
             p.bas.splice(0, Infinity);
@@ -1943,21 +2035,25 @@
                 if (OPSA[li.val] && OPSA[li.val].indexOf(val[i]) > -1) {
                   li.val += val[i];
                 } else {
-                  p.ra.push(new ExpOperator(val[i]));
+                  p.ra.push(GetOperator(val[i]));
                 }
               } else {
-                p.ra.push(new ExpOperator(val[i]));
+                p.ra.push(GetOperator(val[i]));
               }
             } else if (val[i] == '(') {
-              if (Object.prototype.toString.call(p.ra[p.ra.length - 1]) == '[object Array]') {
-                p.ra.push(new ExpOperator('*'));
+              if (p.ra[p.ra.length - 1] && p.ra[p.ra.length - 1].type == 'funccall' || Object.prototype.toString.call(p.ra[p.ra.length - 1]) == '[object Array]') {
+                p.ba.push('');
+                p.pl.push('p');
+                p.bt = 'funccall';
+              } else {
+                if (p.ra[p.ra.length - 1]) p.ra.push(GetOperator('*'));
+                p.bt = 'paren';
+                p.pl.push('p');
               }
-              p.bt = 'paren';
-              p.pl.push('p');
             } else if (val[i] == '[') {
               if (p.ra.length > 0 && p.ra[p.ra.length - 1].type == 'funccall') {
                 p.bt = 'propacc';
-                p.ra.push(new ExpOperator('.'));
+                p.ra.push(GetOperator('.'));
                 p.pl.push('a');
                 p.bs = '';
               } else {
@@ -1976,13 +2072,13 @@
           } else if (p.bt == 'number') {
             if (p.emod) {
               if (NUME.indexOf(val[i]) < 0) {
-                p.ra.push(new ExpNumber(p.bs.slice(0, -1)), new ExpOperator('*'), new ExpVariable('e'));
+                p.ra.push(GetNumber(p.bs.slice(0, -1)), GetOperator('*'), new ExpVariable('e'));
                 if (OPS.indexOf(val[i]) > -1) {
-                  p.ra.push(new ExpOperator(val[i]));
+                  p.ra.push(GetOperator(val[i]));
                   p.bs = '';
                   p.bt = '';
                 } else if (val[i] == '(') {
-                  p.ba.push(new ExpVariable('e'));
+                  p.ba.push('e');
                   p.pl.push('p');
                   p.bs = '';
                   p.bt = 'funccall';
@@ -1996,41 +2092,41 @@
               if (NUMA.indexOf(val[i]) > -1) {
                 p.bs += val[i];
               } else if (VARN.indexOf(val[i]) < 0) {
-                p.ra.push(new ExpNumber(p.bs));
-                p.ra.push(new ExpOperator('*'));
+                p.ra.push(GetNumber(p.bs));
+                p.ra.push(GetOperator('*'));
                 p.bs = val[i];
                 p.bt = 'var';
               } else if (val[i] == 'n') {
-                p.ra.push(new ExpBigInt(p.bs));
+                p.ra.push(GetBigInt(p.bs));
                 p.bt = 'bigint';
               } else if (OPS.indexOf(val[i]) > -1) {
-                p.ra.push(new ExpNumber(p.bs));
-                p.ra.push(new ExpOperator(val[i]));
+                p.ra.push(GetNumber(p.bs));
+                p.ra.push(GetOperator(val[i]));
                 p.bs = '';
                 p.bt = '';
               } else if (val[i] == '(') {
-                p.ra.push(new ExpNumber(p.bs));
-                p.ra.push(new ExpOperator('*'));
+                p.ra.push(GetNumber(p.bs));
+                p.ra.push(GetOperator('*'));
                 p.bs = '';
                 p.bt = 'paren';
                 p.pl.push('p');
               } else if (val[i] == ' ') {
-                p.ra.push(new ExpNumber(p.bs));
+                p.ra.push(GetNumber(p.bs));
                 p.bs = '';
                 p.bt = '';
               }
             }
           } else if (p.bt == 'bigint') {
             if (VAR.indexOf(val[i]) < 0) {
-              p.ra.push(new ExpOperator('*'));
+              p.ra.push(GetOperator('*'));
               p.bs = val[i];
               p.bt = 'var';
             } else if (OPS.indexOf(val[i]) > -1) {
-              p.ra.push(new ExpOperator(val[i]));
+              p.ra.push(GetOperator(val[i]));
               p.bs = '';
               p.bt = '';
             } else if (val[i] == '(') {
-              p.ra.push(new ExpOperator('*'));
+              p.ra.push(GetOperator('*'));
               p.bs = '';
               p.bt = 'paren';
               p.pl.push('p');
@@ -2040,7 +2136,7 @@
           } else if (p.bt == 'var') {
             if (OPS.indexOf(val[i]) > -1) {
               p.ra.push(new ExpVariable(p.bs));
-              p.ra.push(new ExpOperator(val[i]));
+              p.ra.push(GetOperator(val[i]));
               p.bs = '';
               p.bt = '';
             } else if (val[i] == ' ') {
@@ -2056,7 +2152,7 @@
             } else if (val[i] == '[') {
               p.bt = 'propacc';
               p.ra.push(new ExpVariable(p.bs));
-              p.ra.push(new ExpOperator('.'));
+              p.ra.push(GetOperator('.'));
               p.pl.push('a');
               p.bs = '';
             } else {
@@ -2064,20 +2160,20 @@
             }
           } else if (p.bt == 'vars') {
             if (OPS.indexOf(val[i]) > -1) {
-              p.ra.push(new ExpOperator(val[i]));
+              p.ra.push(GetOperator(val[i]));
               p.bs = '';
               p.bt = '';
             } else if (val[i] == ' ') {
               p.bs = '';
               p.bt = '';
             } else if (val[i] == '(') {
-              p.ba.push(new ExpVariable(''));
+              p.ba.push('');
               p.pl.push('p');
               p.bs = '';
               p.bt = 'funccall';
             } else if (val[i] == '[') {
               p.bt = 'propacc';
-              p.ra.push(new ExpOperator('.'));
+              p.ra.push(GetOperator('.'));
               p.pl.push('a');
               p.bs = '';
             } else {
@@ -2260,7 +2356,7 @@
           }
         }
         if (p.bt == 'number') {
-          p.ra.push(new ExpNumber(p.bs));
+          p.ra.push(GetNumber(p.bs));
           p.bs = '';
           p.bt = '';
         } else if (p.bt == 'var') {
@@ -2270,10 +2366,11 @@
         } else if (p.bt == 'paren' || p.bt == 'funccall' || p.bt == 'array' || p.bt == 'object' || p.bt == 'string') {
           throw new SyntaxError('parenthesis, bracket, or object mismatch');
         }
-        for (var i in p.ra) if (p.ra[i].type == 'variable' && OPSKW.indexOf(p.ra[i].val) > -1) p.ra[i] = new ExpOperator(p.ra[i].val);
+        for (var i in p.ra) if (p.ra[i].type == 'variable' && OPSKW.indexOf(p.ra[i].val) > -1) p.ra[i] = GetOperator(p.ra[i].val);
         return p.ra;
       }
       function ParseExpArr(arr, globals, locals) {
+        arr = arr.slice();
         let exp = [], op = [], dov;
         // parenthesis
         for (let i = 0; i < arr.length; i++) {
@@ -2300,7 +2397,7 @@
               clss = true;
             }
             if (arr[i + 1] && arr[i + 1].type == 'funccall') {
-              let ar = arr[i + 1].val;
+              let ar = arr[i + 1].val.slice();
               for (let j in ar) ar[j] = ParseExpArr(ar[j], globals, locals)[0][0];
               let fcres = FuncCallProp(arr[i], ar, globals, locals);
               if (fcres === undefined) throw new Error('function returned undefined');
@@ -2334,23 +2431,23 @@
                 nb = true;
                 break;
               } else if (arr[i].val == 'typeof') {
-                arr.splice(i, 2, new ExpString(arr[i + 1].type));
+                arr.splice(i, 2, ExpTypeof(arr[i + 1]));
               } else if (arr[i].val == 'void') {
-                arr.splice(i, 2, CL_UNDEFINED);
+                arr.splice(i, 2, GetUndefined());
               } else if (arr[i].val == 'del' || arr[i].val == 'delete') {
                 if (arr[i + 2] && arr[i + 2].type == 'op' && arr[i + 2].val == '.') {
                   let nam = arr[i + 3].val;
                   delete arr[i + 1].val[nam];
-                  arr.splice(i, 4, new ExpBool(true));
+                  arr.splice(i, 4, GetBool(true));
                 } else {
                   let varn = arr[i + 1];
                   if (varn.type != 'variable') throw new Error('delete: unexpected token');
                   varn = varn.val;
                   if (varn in locals) {
-                    arr.splice(i, 2, new ExpBool(true));
+                    arr.splice(i, 2, GetBool(true));
                     delete locals[varn];
                   } else {
-                    arr.splice(i, 2, new ExpBool(false));
+                    arr.splice(i, 2, GetBool(false));
                   }
                 }
               }
@@ -2588,7 +2685,7 @@
           }
           dov = nb;
         }
-        if (exp.length == 0) exp.push(CL_UNDEFINED);
+        if (exp.length == 0) exp.push(GetUndefined());
         return [exp, op];
       }
       function ToStmtArr(val) {
@@ -2654,18 +2751,23 @@
         for (let i in val) rv = ParseExpArr(val[i], globals, locals);
         return rv;
       }
+      var pds;
+      if (location.href.split('/').slice(-1)[0] == 'calculator.html') pds = '..';
+      else pds = '../..';
+      hdtog.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARFSURBVGhD7ZpbSBRRGMd97h5dpB5yV6TrQxTRSw8FRb1UD5VYGV3oIcyIjCKC6MWKoIeImk0zkkzJLmTRxagslSjNNOghrLSLkXZXz7hruW6n79s9pjvzzeyZ2dnVh/3DD4fd73znf+ZcZ9akhBJKKH5K9agT3R413aWoh10e9QpcV7k87DkC15X4GX7nPsXWpJ1gE0SxoaGU4+1j3KfVHS6F1bkV9hcMcylCsTVYFnOIdPFXsAEe9SjcYRZm0AbQU53YU3FvkEvp2giVf6NMRQdrg7/rRTWx08xTX0fAECrWG3AWrAPrEtU6K3eBmgx3rJ6qOBbgnHN8QcCEMJReUxXGFEVtdKwx085+HxnPniComZTPhwk79gVdXEIkjy8KKxJ27Am6dgOZWIIFRV6+9baP767o5nuBrLs+vuSil6edpuMlsLeaTfF0jLWzxGaUefmDD37+iQVI6tr8fNeDbg6nALK8MazN1j4DhY/qk5lzsPo3byHMUxS+7LHcO3Bjjwh7csKWW92xM2/4SMNm7HvYTeYyAjx1WOoVPP9QicyoIIZTdYs/aDYHhlLZG/33DV96rQ8xhW0XNiMLWl5LJjFgXmGXzmTNZz+ffqY/Bg3fae7RxS0q8YblioiiPhU2zRU8ils5xQIrr+qHVe7j37o4nEPauHRYHLRx5rDA1Hw2Xtg1FgSn6wubgw3BoTWQLbD0auMOVOkbsuKyPi4ybLWwayxcGejC0VP+LnxoNbcH+KyCLjLWDPB4SNg1FgRe1hZ0gv2V3WGNQPIa/pCxkWGlwq6xYKJX04Xtswd2du3+givW7LPWe0NQKewaC1r7gihoG1x6tY1o/NnLF8NxhYqXQmENwq6xMIgsbIPV17y6Rrz60cuX25rgA5BpiJNDS3vmeguTe2lpFD3Rj8zQcmayzz+v3yR33rd2JDFGbrIfpgtbY911b1gjmn4Fwnb6qFDUXGHXWBBoeUOk2FYevtvfe99DxtkhVWGrhF1j4fZv9YhCMedcF18G86GPhcWOzA2ABSaf7Bwn7JoLCtToEwwRFPWJsBlZUCBbl8AGeI7Cw2MObIgz8ukY67AsYTOyxINVB51Ijs23fPxjZ/8cwaU4LY+OtUC7pQcrVLSHx9tN+mcP3CCpWGlkViutQr3CvpAJJSgnHqLwxQQVK4XCWtNO/Bgl7FkTPPJmkkklwDPWwEbUtvqjmicw1DOELXtyedgFKrEMm276uFL/Jzjh58JyTMVIUijs2FfysbbhkGgwl2NnXpmi8EUyTLRGopLY4uRL7D6F3sizZ2SFMQDrcrwRfcIfX2D1KKIqdphCx4aTmaCi9bDD4s9klAn7wBKb4lHXimriI7H748/QnaQpCwRPEbDZpeb/Gi3Sx1/YIDCTjYc5PJlqTRoDsaEyWYPaAEr4CIDPCnh3YZhcAh79/4cBuA59BnceYqSP4gkllJADSkr6Bwc6Q2MDge/WAAAAAElFTkSuQmCC';
+      sdtog.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMaSURBVGhD7do5qNRQGMXxURFBtLBwe4IgYiPa22hnZ2ullWBpoZULFqLYiiIWCmJjYy1urcsTURDUUhsLV1wKt8Ll/OUFQjxJvptkJkHmwA/ekvflzkzuvbk3bzTNNNNMNEvkljyscVM4drDZJr+Dtspgs1tco51dMtgcEddo55AMNufFNdo5J4MNndg12rkqE89eOSHr/37ns13eimu081xWSVnWyEnprC9tkV/CyX/Kddkh84Xw+wdSbGjEd7koKyXLJrkkP4Rjvsk6aZV5cl+KDcALuSy8OPf7FO/lgHC5ZW9a3hVplZThdNwazzuL5aW4on14JNnlnJRj4gr2aY8kZa18EVcsir7zVK7N4Wt3/ad4JUslHDqxKxTxUQ7KailmRpjROcb9bQRDcigbpek7d1vyQ2lZOOaOuBp1GI6XS204qGzIrULDFkk0HHtPXK0qr2WFhLJQTosr5HyQcPFc+GQ+iavp0Ncin/g/2SmfxRXNo080DX3G1czjctonTNCNs0EeizsBGJ3oxE3D31b1ySeyWTpJ1bvGidqGodnVBjerneWMuJPghrQNNVxtsMbpLBfEnQTjfiG8iZ2Fj9edBF1cWs/E1UZnS2I6Go11JwEddZydnYGGAadxGOoY8hj63Any2rxrkQ0LpgCmguQw6TD5uKIOk1rTCTEyT2VOCZN1KKyVuQ1wharcldRblFlxtapwP7dAasOGQORycngxVRsKWbgz5lhXow79aZmEwq2yKxLBLfphcQMAPzsqbW7jWWKEw+KFRYwrFMU7x7DKrgv4ump0imCxx6IvKSwrXbE+sfxODgt9FvyuYB/YCGFDpFHYgnFF+8DWVKuwOVYsyrXOZhqbau/mftbGG9kvZRt0rFhbrUUI25XZcMw2JtuZbGtmYVLjppLtz2ID6nyVs5Jfgxe3THlhbMt2Ej5WhmQmy7Iwf7AxXWxsGY6tWrZyruPCBvrEw6XhGu308lghGh7euEY7g37QE9lIyHS2zhhHeCjjGu0M+mFoyrwz6MfT/BMA62/3TwJ53HsN+h8Gppnm/8po9AckRYmDrypBaAAAAABJRU5ErkJggg==';
       hdcls.src = stcls.src = 'data:image/png;base64,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';
       var calcarr = [], cinphist = [], histind = 0, currtext = '';
       function HelpTogg() {
         if (helpdiv.style.cssText == 'display: none;') {
-          helpdiv.style = 'position:fixed;top:2px;width:100%;height:400px;background:#ffffffff;overflow:scroll;word-break:break-word;';
+          helpdiv.style = 'position:fixed;top:2px;width:calc(100% - 10px);height:400px;background:#ffffffff;overflow:scroll;word-break:break-word;';
         } else {
           helpdiv.style = 'display:none;';
         }
       };
       var SettingsTogg = function SettingsTogg() {
         if (settins.style.cssText == 'display: none;') {
-          settins.style = 'position:fixed;top:2px;width:100%;height:400px;background:white;';
+          settins.style = 'position:fixed;top:2px;width:calc(100% - 10px);height:400px;background:white;';
         } else {
           settins.style = 'display:none;';
         }
@@ -2725,8 +2827,11 @@
           if (ka.length == 0) return '{}';
           for (let i in ka) ba.push(inspect(ka[i]) + ': ' + ObjToText(val.val[ka[i]], va));
           return '{ ' + ba.join(', ') + ' }';
+        } else if (val.type == 'func') {
+          if (val.ftype == 'js') return '[Native Function]';
+          else return '[Function: ' + inspect(val.source) + ']';
         } else if (val.type == 'complex') {
-          return '(' + ObjToText(val.a) + (ExpGreaterThanEqual(val.b, new ExpNumber(0)).val ? ('+' + ObjToText(val.b)) : ObjToText(val.b)) + 'i)';
+          return '(' + ObjToText(val.a) + (ExpGreaterThanEqual(val.b, GetNumber(0)).val ? ('+' + ObjToText(val.b)) : ObjToText(val.b)) + 'i)';
         } else if (val.type == 'matrix') {
           if (va.indexOf(val) >= 0) return '[Circular]';
           va.push(val);
@@ -2745,7 +2850,45 @@
           if (val[0] == ':') rval = inspect(eval(val.substr(1, Infinity)));
           else rval = ObjToText(ParseExpArr(ToExpArr(val), varns, varns)[0][0]);
         } catch (e) {
-          rval = e.toString() + '\n' + e.stack;
+          rval = e.toString() + '\n' + e.stack.replace(/\n$/, '');
+        }
+        if (realmode.value == 1) {
+          let rv = Math.random(), rm;
+          if (rval == 'true') {
+            if (rv < 0.77) rm = 0;
+            else if (rv < 0.97) rm = 1;
+            else rm = 2;
+          } else if (rval == 'false') {
+            if (rv > 0.77) rm = 0;
+            else if (rv > 0.57) rm = 1;
+            else rm = 2;
+          } else if (rval == 'NaN') {
+            rm = 6;
+          } else if (rval == '0') {
+            rm = 7;
+          } else if (rval == '-0') {
+            rm = 8;
+          } else if (rval == 'Infinity') {
+            rm = 9;
+          } else if (rval == '-Infinity') {
+            rm = 10;
+          } else {
+            if (rv < 0.75) rm = 3;
+            else if (rv < 0.95) rm = 4;
+            else rm = 5;
+          }
+          if (rm == 0) rval = '7';
+          else if (rm == 1) rval = '21';
+          else if (rm == 2) {
+            rval = '<a href = "' + pds + '/r?e=aHR0cHM6Ly91cGxvYWQud2lraW1lZGlhLm9yZy93aWtpcGVkaWEvY29tbW9ucy90aHVtYi8yLzI3L0hpbGxhcnlfQ2xpbnRvbl9vZmZpY2lhbF9TZWNyZXRhcnlfb2ZfU3RhdGVfcG9ydHJhaXRfY3JvcC5qcGcvODAwcHgtSGlsbGFyeV9DbGludG9uX29mZmljaWFsX1NlY3JldGFyeV9vZl9TdGF0ZV9wb3J0cmFpdF9jcm9wLmpwZw==">The Answer</a>';
+          } else if (rm == 3) rval = 'yes';
+          else if (rm == 4) rval = 'no';
+          else if (rm == 5) rval = '<a href = "https://en.wikipedia.org/wiki/Dentistry">The Answer</a>';
+          else if (rm == 6) rval = 'NaCl';
+          else if (rm == 7) rval = 'zero\'s the hero';
+          else if (rm == 8) rval = 'negative zero?';
+          else if (rm == 9) rval = 'Did you mean: <a href = "https://en.wikipedia.org/wiki/Ordinal_number"><i>א‎<sub>0</sub></i></a>';
+          else if (rm == 10) rval = 'Did you mean: <a href = "https://en.wikipedia.org/wiki/Infinity"><i>Infinity</i></a>';
         }
         if (ccul.value == 'cat') rval += ' cats';
         if (rval !== undefined) rval = rval.replace(/\n/g, '<br>');
@@ -2759,6 +2902,14 @@
         calcres.innerHTML = calcarr.join('<br>');
         calcres.scrollTop = calcres.scrollHeight;
       }
+      onload = function () {
+        let cd = new Date();
+        if (cd.getMonth() == 4 && cd.getDate() == 1) {
+          realmode.value = 1;
+          calcarr.push('realmode is turned on (not possible connected to the date), go to settings to turn off');
+          CalcArrRefresh();
+        }
+      };
       cinp.addEventListener('keydown', function (e) {
         if (e.keyCode == 13) {
           calcarr.push('>> ' + cinp.value);
