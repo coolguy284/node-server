@@ -519,4 +519,11 @@ var varns = {
   }),
   vn: new ExpObject({e: GetString('val')}),
 };
+varns.Matrix.val.ident = new ExpFunc(function (args) {
+  if (args[0].type == 'number') {
+    let mat = GetMatrix(args[0].val, args[0].val);
+    for (let i = 0; i < args[0].val; i++) mat.set(i, i, GetNumber(1));
+    return mat;
+  }
+});
 varns.vn.val.v = varns.vn;
