@@ -45,8 +45,8 @@ function ExpComplex(a, b) {
       }
     }
     ra.push(bs);
-    a = new ExpNumber(ra[0]);
-    b = new ExpNumber(ra[1]);
+    a = GetNumber(ra[0]);
+    b = GetNumber(ra[1]);
   }
   this.a = a;
   this.b = b;
@@ -111,13 +111,34 @@ function ExpFuncCall(val) {
   this.type = 'funccall';
   this.val = val;
 }
-function ExpFunc(val, ftype) {
+function ExpFunc(val, ftype, args, source) {
   if (ftype === undefined) ftype = 'js';
   this.type = 'func';
   this.val = val;
   this.ftype = ftype;
+  this.args = args;
+  this.source = source;
 }
 function ExpJSObj(val) {
   this.type = 'jsobj';
   this.val = val;
 }
+ExpString.prototype = {
+  get length() {
+    return GetNumber(this.val.length);
+  }
+};
+ExpArray.prototype = {
+  get length() {
+    return GetNumber(this.val.length);
+  }
+};
+ExpFunc.prototype = {
+  toString: function () {
+    if (this.ftype == 'js') return GetString(this.val.toString());
+    else return GetString(this.source);
+  },
+  get length() {
+    return this.args !== undefined ? GetNumber(this.args.length) : GetNumber(0);
+  }
+};

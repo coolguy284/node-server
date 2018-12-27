@@ -6,6 +6,7 @@ module.exports = {
       fs.readFileSync('websites/js/utilinspect.js') + '\n' +
       fs.readFileSync('websites/tools/calculator/constants.js') + '\n' +
       fs.readFileSync('websites/tools/calculator/types.js') + '\n' +
+      fs.readFileSync('websites/tools/calculator/typessupp.js') + '\n' +
       fs.readFileSync('websites/tools/calculator/operators.js') + '\n' +
       fs.readFileSync('websites/tools/calculator/compops.js') + '\n' +
       fs.readFileSync('websites/tools/calculator/matrixops.js') + '\n' +
@@ -21,9 +22,9 @@ module.exports = {
       settstr = 'data:image/png;base64,' + fs.readFileSync('websites/images/settings.png').toString('base64'),
       closstr = 'data:image/png;base64,' + fs.readFileSync('websites/images/close.png').toString('base64');
     jsstr = jsstr.replace(/\n/g, '\n      ');
-    jsstr = jsstr.replace('../../images/close.png', closstr);
-    str = str.replace('../../images/help.png', helpstr);
-    str = str.replace('../../images/settings.png', settstr);
+    jsstr = jsstr.replace('pds + \'/images/help.png\'', '\'' + helpstr + '\'');
+    jsstr = jsstr.replace('pds + \'/images/settings.png\'', '\'' + settstr + '\'');
+    jsstr = jsstr.replace('pds + \'/images/close.png\'', '\'' + closstr + '\'');
     str = str.replace(/<script[^]*\/script>/g, '<script>\n' + jsstr + '\n    </script>');
     res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
     res.write(str);

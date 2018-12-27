@@ -1,15 +1,20 @@
-hdcls.src = stcls.src = '../../images/close.png';
+var pds;
+if (location.href.split('/').slice(-1)[0] == 'calculator.html') pds = '..';
+else pds = '../..';
+hdtog.src = pds + '/images/help.png';
+sdtog.src = pds + '/images/settings.png';
+hdcls.src = stcls.src = pds + '/images/close.png';
 var calcarr = [], cinphist = [], histind = 0, currtext = '';
 function HelpTogg() {
   if (helpdiv.style.cssText == 'display: none;') {
-    helpdiv.style = 'position:fixed;top:2px;width:100%;height:400px;background:#ffffffff;overflow:scroll;word-break:break-word;';
+    helpdiv.style = 'position:fixed;top:2px;width:calc(100% - 10px);height:400px;background:#ffffffff;overflow:scroll;word-break:break-word;';
   } else {
     helpdiv.style = 'display:none;';
   }
 };
 var SettingsTogg = function SettingsTogg() {
   if (settins.style.cssText == 'display: none;') {
-    settins.style = 'position:fixed;top:2px;width:100%;height:400px;background:white;';
+    settins.style = 'position:fixed;top:2px;width:calc(100% - 10px);height:400px;background:white;';
   } else {
     settins.style = 'display:none;';
   }
@@ -69,8 +74,11 @@ function ObjToText(val, va) {
     if (ka.length == 0) return '{}';
     for (let i in ka) ba.push(inspect(ka[i]) + ': ' + ObjToText(val.val[ka[i]], va));
     return '{ ' + ba.join(', ') + ' }';
+  } else if (val.type == 'func') {
+    if (val.ftype == 'js') return '[Native Function]';
+    else return '[Function: ' + inspect(val.source) + ']';
   } else if (val.type == 'complex') {
-    return '(' + ObjToText(val.a) + (ExpGreaterThanEqual(val.b, new ExpNumber(0)).val ? ('+' + ObjToText(val.b)) : ObjToText(val.b)) + 'i)';
+    return '(' + ObjToText(val.a) + (ExpGreaterThanEqual(val.b, GetNumber(0)).val ? ('+' + ObjToText(val.b)) : ObjToText(val.b)) + 'i)';
   } else if (val.type == 'matrix') {
     if (va.indexOf(val) >= 0) return '[Circular]';
     va.push(val);
@@ -89,7 +97,45 @@ function ParseText(val) {
     if (val[0] == ':') rval = inspect(eval(val.substr(1, Infinity)));
     else rval = ObjToText(ParseExpArr(ToExpArr(val), varns, varns)[0][0]);
   } catch (e) {
-    rval = e.toString() + '\n' + e.stack;
+    rval = e.toString() + '\n' + e.stack.replace(/\n$/, '');
+  }
+  if (realmode.value == 1) {
+    let rv = Math.random(), rm;
+    if (rval == 'true') {
+      if (rv < 0.77) rm = 0;
+      else if (rv < 0.97) rm = 1;
+      else rm = 2;
+    } else if (rval == 'false') {
+      if (rv > 0.77) rm = 0;
+      else if (rv > 0.57) rm = 1;
+      else rm = 2;
+    } else if (rval == 'NaN') {
+      rm = 6;
+    } else if (rval == '0') {
+      rm = 7;
+    } else if (rval == '-0') {
+      rm = 8;
+    } else if (rval == 'Infinity') {
+      rm = 9;
+    } else if (rval == '-Infinity') {
+      rm = 10;
+    } else {
+      if (rv < 0.75) rm = 3;
+      else if (rv < 0.95) rm = 4;
+      else rm = 5;
+    }
+    if (rm == 0) rval = '7';
+    else if (rm == 1) rval = '21';
+    else if (rm == 2) {
+      rval = '<a href = "' + pds + '/r?e=aHR0cHM6Ly91cGxvYWQud2lraW1lZGlhLm9yZy93aWtpcGVkaWEvY29tbW9ucy90aHVtYi8yLzI3L0hpbGxhcnlfQ2xpbnRvbl9vZmZpY2lhbF9TZWNyZXRhcnlfb2ZfU3RhdGVfcG9ydHJhaXRfY3JvcC5qcGcvODAwcHgtSGlsbGFyeV9DbGludG9uX29mZmljaWFsX1NlY3JldGFyeV9vZl9TdGF0ZV9wb3J0cmFpdF9jcm9wLmpwZw==">The Answer</a>';
+    } else if (rm == 3) rval = 'yes';
+    else if (rm == 4) rval = 'no';
+    else if (rm == 5) rval = '<a href = "https://en.wikipedia.org/wiki/Dentistry">The Answer</a>';
+    else if (rm == 6) rval = 'NaCl';
+    else if (rm == 7) rval = 'zero\'s the hero';
+    else if (rm == 8) rval = 'negative zero?';
+    else if (rm == 9) rval = 'Did you mean: <a href = "https://en.wikipedia.org/wiki/Ordinal_number"><i>א‎<sub>0</sub></i></a>';
+    else if (rm == 10) rval = 'Did you mean: <a href = "https://en.wikipedia.org/wiki/Infinity"><i>Infinity</i></a>';
   }
   if (ccul.value == 'cat') rval += ' cats';
   if (rval !== undefined) rval = rval.replace(/\n/g, '<br>');
@@ -103,6 +149,14 @@ function CalcArrRefresh() {
   calcres.innerHTML = calcarr.join('<br>');
   calcres.scrollTop = calcres.scrollHeight;
 }
+onload = function () {
+  let cd = new Date();
+  if (cd.getMonth() == 4 && cd.getDate() == 1) {
+    realmode.value = 1;
+    calcarr.push('realmode is turned on (not possible connected to the date), go to settings to turn off');
+    CalcArrRefresh();
+  }
+};
 cinp.addEventListener('keydown', function (e) {
   if (e.keyCode == 13) {
     calcarr.push('>> ' + cinp.value);

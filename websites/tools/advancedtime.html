@@ -124,8 +124,8 @@
             <h4 class = 'inl'>Time Span</h4>
             <p class = 'mono'>Time Format:</p>
             <p class = 'monos'>YYYY-MM-DDTHH:MM:SS.LLLZ</p>
-            <input class = 'mono' type = 'text' id = 'startvalc' style = 'width: 14em;'><br>
-            <input class = 'mono' type = 'text' id = 'endvalc' style = 'width: 14em;'><br>
+            <input class = 'mono' type = 'text' id = 'startvalc' style = 'width: 14.5em;'><br>
+            <input class = 'mono' type = 'text' id = 'endvalc' style = 'width: 14.5em;'><br>
             <select id = 'optc' onchange = 'SetModc();Setfc(1)'>
               <option value = 'minute'>Minute</option>
               <option value = 'hour'>Hour</option>
@@ -141,10 +141,12 @@
       </table>
     </details>
     <p class = 'mono' align = 'center'>
-        <canvas id = 'mycanvas'>
-          Your browser does not support canvases.  Please switch to the simple tab. :(
-        </canvas>
+      <canvas id = 'mycanvas'></canvas>
+      <p id = 'lapc' class = 'mono' style = 'display:none;'>
+        Laps:<br>
+        <span id = 'laps'></span>
       </p>
+    </p>
     <script src = 'https://cdn.jsdelivr.net/processing.js/1.4.8/processing.min.js'></script>
     <script>
       function StriTogg(v) {
@@ -158,12 +160,13 @@
           conts.style = 'display:none;';
         }
       }
-      var widthe = 600, heighte = 400, tab = 'stopwatch', cd = new Date(), pdate = 0;
+      var widthe = 600, heighte = 400, tab = 'clock', cd = new Date(), pdate = -1, arial, monospace;
       var mouseon = false, mousebutton = [0, 0, 0];
       var stopw = {
         state: 0,
         runt: 0,
         pt: new Date().getTime(),
+        laps: [],
       };
       var countd = {
         contd: false,
@@ -192,32 +195,7 @@
               to: '14:25:00.000'
             }
           },
-          tdc: {
-            minute: {
-              fro: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate()) + 'T' + zf2(cd.getHours()) + ':' + zf2(cd.getMinutes()) + ':00.000Z',
-              to: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate()) + 'T' + zf2(cd.getHours()) + ':' + zf2(cd.getMinutes() + 1) + ':00.000Z',
-            },
-            hour: {
-              fro: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate()) + 'T' + zf2(cd.getHours()) + ':00:00.000Z',
-              to: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate()) + 'T' + zf2(cd.getHours() + 1) + ':00:00.000Z',
-            },
-            day: {
-              fro: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate()) + 'T00:00:00.000Z',
-              to: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate() + 1) + 'T00:00:00.000Z',
-            },
-            week: {
-              fro: FromDateTimeNum(getMonday(cd)),
-              to: FromDateTimeNum(getNextMonday(cd)),
-            },
-            month: {
-              fro: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-01T00:00:00.000Z',
-              to: cd.getFullYear() + '-' + zf2(cd.getMonth() + 2) + '-01T00:00:00.000Z',
-            },
-            year: {
-              fro: cd.getFullYear() + '-01-01T00:00:00.000Z',
-              to: (cd.getFullYear() + 1) + '-01-01T00:00:00.000Z',
-            },
-          },
+          tdc: undefined,
           edr: {
             today: 'Today',
             valentine: 'Valentine\'s Day',
@@ -264,6 +242,32 @@
           thanksgiving: FromDateNum(GetDateByDay(cd.getFullYear(), 10, 4, 4)),
           christmas: cd.getFullYear() + '-12-25',
           newyear: cd.getFullYear() + 1 + '-01-01',
+        };
+        countd.ta.tdc = {
+          minute: {
+            fro: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate()) + 'T' + zf2(cd.getHours()) + ':' + zf2(cd.getMinutes()) + ':00.000Z',
+            to: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate()) + 'T' + zf2(cd.getHours()) + ':' + zf2(cd.getMinutes() + 1) + ':00.000Z',
+          },
+          hour: {
+            fro: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate()) + 'T' + zf2(cd.getHours()) + ':00:00.000Z',
+            to: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate()) + 'T' + zf2(cd.getHours() + 1) + ':00:00.000Z',
+          },
+          day: {
+            fro: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate()) + 'T00:00:00.000Z',
+            to: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate() + 1) + 'T00:00:00.000Z',
+          },
+          week: {
+            fro: FromDateTimeNum(getMonday(cd)),
+            to: FromDateTimeNum(getNextMonday(cd)),
+          },
+          month: {
+            fro: cd.getFullYear() + '-' + zf2(cd.getMonth() + 1) + '-01T00:00:00.000Z',
+            to: cd.getFullYear() + '-' + zf2(cd.getMonth() + 2) + '-01T00:00:00.000Z',
+          },
+          year: {
+            fro: cd.getFullYear() + '-01-01T00:00:00.000Z',
+            to: (cd.getFullYear() + 1) + '-01-01T00:00:00.000Z',
+          },
         };
       }
       function arrayEqual(a, b) {
@@ -338,7 +342,7 @@
         countd.toc = ToDateTimeNum(endvalc.value);
         countd.dur = countd.toc - countd.froc;
         console.log('Set Alternate Start To: ' + FromDateTimeNum(countd.froc) + ', Alternate End To: ' + FromDateTimeNum(countd.toc));
-        if (!nm) GetMod();
+        if (!nm) GetModc();
       }
       function SetMod() {
         if (optd.value != 'custom') {
@@ -401,11 +405,13 @@
         if (cus) optc.value = 'custom';
       }
       function getMonday(d) {
+        d = new Date(d);
         var day = d.getDay(),
             diff = d.getDate() - day + (day == 0 ? -6:1);
         return new Date(d.setDate(diff));
       }
       function getNextMonday(d) {
+        d = new Date(d);
         var day = d.getDay(),
             diff = d.getDate() - day + (day == 0 ? -6:1) + 7;
         return new Date(d.setDate(diff));
@@ -423,7 +429,7 @@
       }
       function DaysAfter(day) {
         var ds = 0;
-        for (var d = 0; d < day + 1; d++) {
+        for (var d = 0; d < day; d++) {
           if (GetPeriodArr()[d]) ds += 1;
         }
         return ds;
@@ -449,13 +455,30 @@
         p.fill(0);
         p.rect(0, 0, 50, 50);
         p.rect(50, 0, 50, 50);
-        p.rect(100, 0, 500, 50);
+        p.rect(100, 0, 50, 50);
+        p.rect(150, 0, 500, 50);
         p.strokeWeight(5);
-        p.ellipse(25, 30, 30, 30);
-        p.ellipse(75, 25, 40, 40);
-        p.line(75, 25, 75, 12);
-        p.line(75, 25, 88, 25);
+        p.ellipse(25, 25, 40, 40);
+        p.line(25, 25, 25, 12);
+        p.line(25, 25, 38, 25);
+        p.ellipse(75, 30, 30, 30);
+        p.line(64, 18, 62, 15);
+        //p.line(62, 9, 56, 15);
+        p.line(75, 12, 75, 8);
+        p.line(71, 6, 79, 6);
+        p.line(86, 18, 88, 15);
+        //p.line(88, 9, 94, 15);
+        p.fill(255);
+        p.textSize(9);
+        p.textAlign(3, 3);
+        p.text('Countdown', 125, 20);
+        p.text('hh:mm:ss', 125, 30);
         p.strokeWeight(1);
+      }
+      function drawline(x, y, ang, srad, erad, col, wid) {
+        p.stroke(col);
+        p.strokeWeight(wid);
+        p.line(srad == 0 ? x : Math.cos(ang) * srad + x, srad == 0 ? y : Math.sin(ang) * srad + y, Math.cos(ang) * erad + x, Math.sin(ang) * erad + y);
       }
       function mousein(x1, y1, x2, y2) {
         return (p.mouseX >= x1) && (p.mouseY >= y1) && (p.mouseX < x2) && (p.mouseY < y2);
@@ -467,30 +490,31 @@
         return ('' + s).padStart(3, '0');
       }
       function formt(t) {
-        if (t < 0) {
-          return '-' + formt(-t);
-        }
+        if (t < 0) return '-' + formt(-t);
         return zf3(Math.floor(t/86400000)) + ':' + zf2(Math.floor(t/3600000%24)) + ':' + zf2(Math.floor(t/60000%60)) + ':' + zf2(Math.floor(t/1000%60)) + '.' + zf3(Math.floor(t%1000));
       }
       function formts(t) {
-        if (t < 0) {
-          return '-' + formts(-t);
-        }
+        if (t < 0) return '-' + formts(-t);
         return zf3(Math.floor(t/86400000)) + 'd ' + zf2(Math.floor(t/3600000%24)) + 'h ' + zf2(Math.floor(t/60000%60)) + 'm ' + zf2(Math.floor(t/1000%60)) + 's';
       }
       var sketchProc = function(p) {
         p.size(widthe, heighte, 1);
         p.keyPressed = function() {
           if (tab == 'stopwatch') {
-            if (p.keyCode == 32) {
-              stopw.state = 1 - stopw.state;
-            }
-            if (p.keyCode == 16) {
+            if (p.keyCode == 32) stopw.state = !stopw.state;
+            else if (p.keyCode == 8) {
               stopw.state = 0;
               stopw.runt = 0;
+              lapc.style = 'display:none;';
+              laps.innerHTML = '';
+              stopw.laps.splice(0, Infinity);
+            } else if (p.keyCode == 10) {
+              stopw.laps.unshift(String(stopw.laps.length + 1).padStart(2, '0') + ' ' + formt(stopw.runt));
+              lapc.style = 'position:relative;left:50%;width:250px;height:400px;margin-left:-125px;overflow:scroll;font-size:18px;text-align:center;';
+              laps.innerHTML = stopw.laps.join('<br>') + '<br>';
             }
+            console.log(p.keyCode);
           }
-          console.log(p.keyCode);
         };
         p.mouseOver = function() {
           mouseon = true;
@@ -506,10 +530,24 @@
           } else if (p.mouseButton == 39) {
             mousebutton[2] = 1;
           }
-          if (mousein(212, 263, 287, 338) && mousebutton[0]) stopw.state = !stopw.state;
-          if (mousein(313, 263, 388, 338) && mousebutton[0]) stopw.runt = 0;
-          if (mousein(0, 0, 50, 50) && mousebutton[0]) tab = 'stopwatch';
-          else if (mousein(50, 0, 100, 50) && mousebutton[0]) tab = 'countdown';
+          if (tab == 'stopwatch') {
+            if (mousein(167, 263, 242, 338) && mousebutton[0]) stopw.state = !stopw.state;
+            if (mousein(262, 263, 338, 338) && mousebutton[0]) {
+              stopw.state = 0;
+              stopw.runt = 0;
+              lapc.style = 'display:none;';
+              laps.innerHTML = '';
+              stopw.laps.splice(0, Infinity);
+            }
+            if (mousein(358, 263, 433, 338) && mousebutton[0]) {
+              stopw.laps.unshift(String(stopw.laps.length + 1).padStart(2, '0') + ' ' + formt(stopw.runt));
+              lapc.style = 'position:relative;left:50%;width:250px;height:400px;margin-left:-125px;overflow:scroll;font-size:18px;text-align:center;';
+              laps.innerHTML = stopw.laps.join('<br>') + '<br>';
+            }
+          }
+          if (mousein(0, 0, 50, 50) && mousebutton[0]) tab = 'clock';
+          if (mousein(50, 0, 100, 50) && mousebutton[0]) tab = 'stopwatch';
+          else if (mousein(100, 0, 150, 50) && mousebutton[0]) tab = 'countdown';
         };
         p.mouseReleased = function() {
           if (p.mouseButton == 37) {
@@ -520,6 +558,8 @@
             mousebutton[2] = 0;
           }
         };
+        arial = p.createFont('arial');
+        monospace = p.createFont('monospace');
         p.draw = function() {
           cd = new Date();
           if (pdate != cd.getMinutes()) {
@@ -533,17 +573,56 @@
           if (mousein(0, 0, 50, 50) && mouseon) {
             p.fill(0);
             p.stroke(255);
+            p.rect(p.mouseX, p.mouseY-18, 36, 16);
+            p.fill(255);
+            p.text('Clock', p.mouseX+3, p.mouseY-3);
+          } else if (mousein(50, 0, 100, 50) && mouseon) {
+            p.fill(0);
+            p.stroke(255);
             p.rect(p.mouseX, p.mouseY-18, 62, 16);
             p.fill(255);
             p.text('Stopwatch', p.mouseX+3, p.mouseY-3);
-          } else if (mousein(50, 0, 100, 50) && mouseon) {
+          } else if (mousein(100, 0, 150, 50) && mouseon) {
             p.fill(0);
             p.stroke(255);
             p.rect(p.mouseX, p.mouseY-18, 85, 16);
             p.fill(255);
             p.text('Countdown/up', p.mouseX+3, p.mouseY-3);
           }
-          if (tab == 'stopwatch') {
+          if (tab == 'clock') {
+            p.fill(0);
+            p.stroke(255);
+            p.strokeWeight(10);
+            p.ellipse(300, 210, 300, 300);
+            p.fill(255);
+            p.textSize(25);
+            p.textAlign(3, 3);
+            p.strokeWeight(2);
+            for (var i = 0; i < 12; i += 0.2) {
+              if (i % 1 != 0) drawline(300, 210, (i - 3) * Math.PI / 6, 140, 145, p.color(255), 2);
+            }
+            p.strokeWeight(10);
+            for (var i = 0; i < 12; i += 1) {
+              var ang = (i - 3) * Math.PI / 6;
+              drawline(300, 210, ang, 140, 145, p.color(255), 10);
+              p.text(i == 0 ? 12 : i, Math.cos(ang) * 120 + 300, Math.sin(ang) * 120 + 210);
+            }
+            drawline(300, 210, ((cd.getHours() + cd.getMinutes() / 60 + cd.getSeconds() / 3600) - 3) * Math.PI / 6, 0, 70, p.color(255), 3);
+            drawline(300, 210, ((cd.getMinutes() + cd.getSeconds() / 60) - 15) * Math.PI / 30, 0, 120, p.color(255), 3);
+            drawline(300, 210, (cd.getSeconds() - 15) * Math.PI / 30, 0, 120, p.color(255, 0, 0), 2);
+            p.fill(255);
+            p.noStroke();
+            p.ellipse(300, 210, 10, 10);
+            p.fill(255);
+            var hr, apm;
+            if (cd.getHours() > 12) {hr = cd.getHours() - 12; apm = 'P.M.';}
+            else if (cd.getHours() == 0) {hr = 12; apm = 'A.M.';}
+            else {hr = cd.getHours(); apm = 'A.M.';}
+            p.textFont(monospace);
+            p.textSize(30);
+            p.text(String(cd.getFullYear()).padStart(4, '0') + '-' + zf2(cd.getMonth()) + '-' + zf2(cd.getDate()) + ' ' + zf2(hr) + ':' + zf2(cd.getMinutes()) + ':' + zf2(cd.getSeconds()) + '.' + zf3(cd.getMilliseconds()) + ' ' + apm, 300, 380);
+            p.textFont(arial);
+          } else if (tab == 'stopwatch') {
             t2 = new Date().getTime();
             diff = t2 - stopw.pt;
             stopw.pt = new Date().getTime();
@@ -557,27 +636,38 @@
             p.textSize(50);
             p.text(formt(stopw.runt), 300, 200);
             p.fill(0);
-            p.rect(212, 263, 75, 75);
-            p.rect(313, 263, 75, 75);
+            p.rect(167, 263, 75, 75);
+            p.rect(262.5, 263, 75, 75);
+            p.rect(358, 263, 75, 75);
             p.fill(255);
             p.noStroke();
             if (stopw.state) {
-              p.rect(222, 273, 20, 55);
-              p.rect(257, 273, 20, 55);
+              p.rect(177, 273, 20, 55);
+              p.rect(212, 273, 20, 55);
             } else {
-              p.triangle(222, 273, 277, 300.5, 222, 328);
+              p.triangle(177, 273, 232, 300.5, 177, 328);
             }
             p.noFill();
             p.stroke(255);
             p.strokeWeight(5);
-            p.arc(350.5, 300.5, 50, 50, 0.7, 5.6);
-            p.line(361, 287, 371, 287);
-            p.line(371, 276, 371, 286);
+            p.arc(301, 300.5, 50, 50, 0.7, 5.6);
+            p.line(312, 287, 322, 287);
+            p.line(322, 276, 322, 286);
+            p.textSize(30);
+            p.text('Lap', 395.5, 300.5);
           } else if (tab == 'countdown') {
             p.fill(255);
             p.textSize(35);
             p.textAlign(3, 3);
-            p.text('Time Left Until ' + countd.ta.edr[optd.value] + ':', 300, 130);
+            if (countd.contd) {
+              var tn = countd.ta.edrc[optc.value];
+              if (tn.length > 15) p.textSize(30);
+              p.text('Time Left Until ' + tn + ':', 300, 130);
+            } else {
+              var tn = countd.ta.edr[optd.value];
+              if (tn.length > 15) p.textSize(30);
+              p.text('Time Left Until ' + tn + ':', 300, 130);
+            }
             var td = 0, sw = false, db = 0, wt = 0, da = 0;
             if (countd.contd) {
               td = countd.toc - cd.getTime();
