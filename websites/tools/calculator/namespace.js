@@ -113,11 +113,17 @@ function gaussianBoxMuller() {
 }
 var varns = {
   undefined: GetUndefined(),
+  None: GetUndefined(),
   null: GetNull(),
   true: GetBool(true),
+  True: GetBool(true),
   false: GetBool(false),
+  False: GetBool(false),
   NaN: GetNumber(NaN),
+  nan: GetNumber(NaN),
   Infinity: GetNumber(Infinity),
+  infinity: GetNumber(Infinity),
+  inf: GetNumber(Infinity),
   i: GetComplex('0+1i'),
   w: GetSurreal('w'),
   pi: GetNumber(Math.PI),
@@ -519,6 +525,10 @@ var varns = {
   }),
   vn: new ExpObject({e: GetString('val')}),
 };
+varns.Number.val.MAX_SAFE_INT = varns.Number.val.MAX_SAFE_INTEGER = GetNumber(Number.MAX_SAFE_INTEGER);
+varns.Number.val.MIN_SAFE_INT = varns.Number.val.MIN_SAFE_INTEGER = GetNumber(Number.MIN_SAFE_INTEGER);
+varns.Number.val.MAX_VALUE = GetNumber(Number.MAX_VALUE);
+varns.Number.val.MIN_VALUE = GetNumber(Number.MIN_VALUE);
 varns.Matrix.val.ident = new ExpFunc(function (args) {
   if (args[0].type == 'number') {
     let mat = GetMatrix(args[0].val, args[0].val);

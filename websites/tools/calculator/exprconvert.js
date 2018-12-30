@@ -12,56 +12,55 @@ function ExpArrString(val, p) {
     } else if (val == 'x') {
       p.bas[2] = 1;
     } else if (val == 'u') {
-      p.bas[2] = 4;
+      p.bas[2] = 3;
     } else if (val == 'U') {
-      p.bas[2] = 9;
+      p.bas[2] = 8;
     } else {
       p.bs += val;
       p.bas[1] = false;
     }
+  } else if (p.bas[1] && p.bas[2] == 1) {
+    p.bas[3] += val;
+    p.bas[2] = 2;
   } else if (p.bas[1] && p.bas[2] == 2) {
     p.bas[3] += val;
-    p.bas[2] = 3;
-  } else if (p.bas[1] && p.bas[2] == 3) {
-    p.bas[3] += val;
     p.bs += String.fromCharCode(parseInt(p.bas[3], 16));
     p.bas[1] = false;
     p.bas[2] = 0;
     p.bas[3] = '';
-  } else if (p.bas[1] && p.bas[2] == 4) {
+  } else if (p.bas[1] && p.bas[2] == 3) {
     if (val != '{') {
       p.bas[3] += val;
-      p.bas[2] = 5;
+      p.bas[2] = 4;
     } else {
-      p.bas[2] = 8;
+      p.bas[2] = 7;
     }
-  } else if (p.bas[1] && p.bas[2] <= 6) {
+  } else if (p.bas[1] && p.bas[2] <= 5) {
     p.bas[3] += val;
     p.bas[2]++;
-  } else if (p.bas[1] && p.bas[2] == 7) {
+  } else if (p.bas[1] && p.bas[2] == 6) {
     p.bas[3] += val;
     p.bs += String.fromCharCode(parseInt(p.bas[3], 16));
     p.bas[1] = false;
     p.bas[2] = 0;
     p.bas[3] = '';
-  } else if (p.bas[1] && p.bas[2] == 8) {
+  } else if (p.bas[1] && p.bas[2] == 7) {
     if (val != '}') {
       p.bas[3] += val;
     } else {
-      p.bs += String.fromCharCode(parseInt(p.bas[3], 16));
+      let nm = parseInt(p.bas[3], 16)
+      p.bs += nm > 65535 ? String.fromCodePoint(nm) : String.fromCharCode(nm);
       p.bas[1] = false;
       p.bas[2] = 0;
       p.bas[3] = '';
     }
-  } else if (p.bas[1] && p.bas[2] == 9) {
-    p.bas[3] = val;
-    p.bas[2] = 10;
-  } else if (p.bas[1] && p.bas[2] <= 15) {
+  } else if (p.bas[1] && p.bas[2] <= 14) {
     p.bas[3] += val;
     p.bas[2]++;
-  } else if (p.bas[1] && p.bas[2] == 16) {
+  } else if (p.bas[1] && p.bas[2] == 15) {
     p.bas[3] += val;
-    p.bs += String.fromCharCode(parseInt(p.bas[3], 16));
+    let nm = parseInt(p.bas[3], 16)
+    p.bs += nm > 65535 ? String.fromCodePoint(nm) : String.fromCharCode(nm);
     p.bas[1] = false;
     p.bas[2] = 0;
     p.bas[3] = '';
