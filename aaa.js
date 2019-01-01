@@ -1,5 +1,5 @@
 // jshint maxerr:1000 -W041
-global.sst = new Date().getTime();
+global.sst = process.hrtime();
 global.olog = console.log;
 global.oinfo = console.info;
 global.odebug = console.debug;
@@ -260,7 +260,7 @@ process.on('message', function (val) {
       break;
   }
 });
-process.stdin.pipe(new datajs.s.ConsoleStream(function (tx) {
+global.stdincons = new datajs.s.ConsoleStream(function (tx) {
   if (datajs.feat.stdincons) {
     try {
       console.log('>> ' + tx);
@@ -273,7 +273,8 @@ process.stdin.pipe(new datajs.s.ConsoleStream(function (tx) {
       }
     } catch (e) {console.error(e);}
   }
-}));
+});
+process.stdin.pipe(stdincons);
 global.serverf = function serverf(req, resa, nolog) {
   let res, ipaddr, proto, url, cookies, nam = null, sn = false;
   try {
@@ -285,15 +286,27 @@ global.serverf = function serverf(req, resa, nolog) {
   	res.writeHead = resa.writeHead.bind(resa);
   	res.pipe(resa);
   }
-  if (req.headers['x-forwarded-for']) {
-    let shead = req.headers['x-forwarded-for'].split(', ');
-    if (shead.length > 2) {
-      ipaddr = shead[shead.length - 3];
-    } else {
-      ipaddr = shead[0];
-    }
-  } else {
-    ipaddr = req.connection.remoteAddress;
+  switch (datajs.feat.ipdm) {
+    case 0:
+      if (req.headers['x-forwarded-for']) {
+        let shead = req.headers['x-forwarded-for'].split(', ');
+        if (shead.length > 2) {
+          ipaddr = shead[shead.length - 3];
+        } else {
+          ipaddr = shead[0];
+        }
+      } else {
+        ipaddr = req.connection.remoteAddress;
+      }
+      break;
+    case 1:
+      if (req.headers['x-forwarded-for']) {
+        let shead = req.headers['x-forwarded-for'].split(', ');
+        ipaddr = shead[shead.length - 1];
+      } else {
+        ipaddr = req.connection.remoteAddress;
+      }
+      break;
   }
   switch (datajs.feat.httpsdm) {
     case 0:
@@ -408,10 +421,10 @@ global.serverf = function serverf(req, resa, nolog) {
   }
 };
 global.serv = http.createServer(serverf).listen(port, undefined, function (err) {
-  global.slt = new Date().getTime();
+  global.slt = process.hrtime();
   if (err) {
     console.log('[' + new Date().toISOString() + '] Error: ' + err);
   } else {
-    console.log('[' + new Date().toISOString() + '] Server Listening on Port ' + port + ' (starting time: ' + (slt - sst) + 'ms)');
+    console.log('[' + new Date().toISOString() + '] Server Listening on Port ' + port + ' (starting time: ' + (((slt[0] + slt[1] / 1e9) - (sst[0] + sst[1] / 1e9)) * 1000).toFixed(3) + 'ms)');
   }
 });

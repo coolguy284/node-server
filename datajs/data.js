@@ -11,6 +11,7 @@ module.exports = {
   'i32a' : new Int32Array(new SharedArrayBuffer(4)),
   'handlerp' : require('./handlerp.js'),
   'handlerf' : require('./handlerf.js'),
+  'help' : require('./help.js'),
   'notstartswith' : function notstartswith(val) {return !this.startsWith(val);},
   'ipform' : function ipform(ipstr) {
     return ipstr.split('.').map(x => x.padStart(3, '-')).join('.');
@@ -81,9 +82,10 @@ module.exports = {
   'comm' : require('./comm.js'),
   'consm' : require('./consm.js'),
   'Console' : cons.Console,
-  '_consolecounts' : cons.counts,
-  '_consoletimes' : cons.times,
-  '_consolegrouplvl' : cons.grouplvl,
+  '_conscounts' : cons.counts,
+  '_constimes' : cons.times,
+  '_consgrouplvl' : cons.grouplvl,
+  '_cons' : cons,
   'term' : require('./terminal.js'),
   's' : require('./s.js'),
   'Throttle' : require('./throttle.js'),

@@ -1,21 +1,13 @@
 module.exports = {
   'filt' : function (arr, opts) {
-    if (opts === undefined) {
-      opts = {};
-    }
-    if (opts.regexp) {
-      if (Object.prototype.toString.call(opts.regexp) == '[object RegExp]') {
-        opts.regexp = [opts.regexp, 'url'];
-      }
+    if (!opts) opts = {};
+    if (opts.regexp && opts.regexp.constructor.name == 'RegExp') {
+      opts.regexp = [opts.regexp, 'url'];
     }
     let ra = [];
     for (let i in arr) {
       let tv = true;
-      if (opts.func) {
-        if (opts.func(arr[i])) {
-          tv = tv || arr[i];
-        }
-      }
+      if (opts.func && opts.func(arr[i])) tv = tv || arr[i];
       if (opts.regexp) {
         if (opts.regexp[1].substr(0, 6) == 'socket') {
           tv = tv && opts.regexp[0].test(arr[i].socket[opts.regexp[1].substr(7, Infinity)]);
@@ -51,22 +43,14 @@ module.exports = {
           tv = tv && false;
         }
       }
-      if (tv) {
-        ra.push(arr[i]);
-      }
+      if (tv) ra.push(arr[i]);
     }
     return ra;
   },
   'prnt' : function (arr, opts, cons) {
-    if (cons === undefined) {
-      cons = console.log;
-    }
-    if (opts === undefined || opts === null) {
-      opts = {};
-    }
-    if (opts.modts === undefined) {
-      opts.modts = true;
-    }
+    if (cons === undefined) cons = console.log;
+    if (!opts) opts = {};
+    if (opts.modts === undefined) opts.modts = true;
     for (let i in arr) {
       if (opts.modts) {
         cons('[' + new Date(arr[i].timestamp).toISOString() + '] ' + arr[i].url);
