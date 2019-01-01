@@ -13,6 +13,7 @@ module.exports = {
   'stdincons' : false,
   'enc' : 'aes',
   'datadir' : 'data',
+  'ipdm' : 1,
   'httpsf' : true,
   'httpsdm' : 2,
   'tickint' : 1000,
