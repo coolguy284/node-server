@@ -127,6 +127,7 @@ var varns = {
   i: GetComplex('0+1i'),
   w: GetSurreal('w'),
   pi: GetNumber(Math.PI),
+  deg: GetNumber(180 / Math.PI),
   e: GetNumber(Math.E),
   phi: GetNumber((1 + 5 ** 0.5) / 2),
   sqrt2: GetNumber(Math.SQRT2),
@@ -232,21 +233,25 @@ var varns = {
     else return NaN;
   }),
   abs: new ExpFunc(function (args) {
-    if (args[0].val < 0) args[0].val = -args[0].val;
-    if (args[0].type == 'number') return GetNumber(args[0].val);
-    else if (args[0].type == 'bigint') return GetBigInt(args[0].val);
+    if (args[0].type == 'number') {
+      if (args[0].val < 0 || Object.is(args[0].val, -0)) return GetNumber(-args[0].val);
+      else return GetNumber(args[0].val);
+    } else if (args[0].type == 'bigint') {
+      if (args[0].val < 0) return GetBigInt(-args[0].val);
+      else return GetBigInt(args[0].val);
+    } else if (args[0].type == 'complex') {
+      return ExpExponentiate(ExpAdd(ExpExponentiate(args[0].a, GetNumber(2)), ExpExponentiate(args[0].b, GetNumber(2))), GetNumber(0.5));
+    }
   }),
   max: new ExpFunc(function (args) {
-    let mv = -Infinity;
-    for (let i in args) if (args[i].val > mv) mv = args[i].val;
-    if (typeof mv == 'number') return GetNumber(mv);
-    else if (typeof mv == 'bigint') return GetBigInt(mv);
+    let mv = GetNumber(-Infinity);
+    for (let i in args) if (ExpGreaterThan(args[i], mv)) mv = args[i];
+    return mv;
   }),
   min: new ExpFunc(function (args) {
     let mv = Infinity;
-    for (let i in args) if (args[i].val < mv) mv = args[i].val;
-    if (typeof mv == 'number') return GetNumber(mv);
-    else if (typeof mv == 'bigint') return GetBigInt(mv);
+    for (let i in args) if (ExpLessThan(args[i], mv)) mv = args[i];
+    return mv;
   }),
   floor: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.floor(args[0].val));
@@ -264,6 +269,33 @@ var varns = {
     if (args[0].type == 'number') return GetNumber(Math.trunc(args[0].val));
     else if (args[0].type == 'bigint') return GetBigInt(args[0].val);
   }),
+  gcd: new ExpFunc(function (args) {
+    if (args.length == 1) return args[0];
+    else if (args.length == 2) {
+      for (var i = 0; i < 1e6; i++) {
+        if (ExpEqual(args[0], GetNumber(0))) break;
+        let b = ExpRemainder(args[0], args[1]);
+        args[0] = args[1];
+        args[b] = b;
+      }
+      return args[0];
+    } else {
+      while (args.length > 1) args.splice(0, 2, varns.gcd.val(args[0], args[1]));
+      return args[0];
+    }
+  }),
+  lcm: new ExpFunc(function (args) {
+    if (args.length == 1) return args[0];
+    else if (args.length == 2) {
+      return ExpDivide(ExpMultiply(args[0], args[1]), varns.gcd.val(args));
+    } else {
+      while (args.length > 1) args.splice(0, 2, varns.lcm.val(args[0], args[1]));
+      return args[0];
+    }
+  }),
+  constrain: new ExpFunc(function (args) {
+    return varns.min.val([varns.max.val([args[0], args[1]]), args[2]]);
+  }),
   lerp: new ExpFunc(function (args) {
     let dif = ExpSubtract(args[1].val, args[0].val);
     return ExpAdd(ExpMultiply(dif, args[2]), args[0]);
@@ -276,9 +308,6 @@ var varns = {
   norm: new ExpFunc(function (args) {
     let dif1 = ExpSubtract(args[2], args[1]);
     return ExpDivide(ExpSubtract(args[0], args[1]), dif1);
-  }),
-  constrain: new ExpFunc(function (args) {
-    return varns.min.val([varns.max.val([args[0], args[1]]), args[2]])
   }),
   dist: new ExpFunc(function (args) {
     let hl = args.length / 2;
@@ -321,11 +350,14 @@ var varns = {
   }),
   randgauss: new ExpFunc(function (args) {
     if (args.length == 0) return GetNumber(gaussianBoxMuller());
-    else if (args.length == 1) return GetNumber(gaussianBoxMuller() * args[0].val);
-    else if (args.length == 2) return GetNumber(gaussianBoxMuller() * args[0].val + args[1].val);
+    else if (args.length == 1) return GetNumber(gaussianBoxMuller() + args[0].val);
+    else if (args.length == 2) return GetNumber(gaussianBoxMuller() * args[1].val + args[0].val);
   }),
   sq: new ExpFunc(function (args) {
     return ExpMultiply(args[0], args[0]);
+  }),
+  cb: new ExpFunc(function (args) {
+    return ExpExponentiate(args[0], GetNumber(3));
   }),
   sqrt: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.sqrt(args[0].val));
