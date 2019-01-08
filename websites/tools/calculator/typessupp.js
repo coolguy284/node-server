@@ -34,7 +34,7 @@ function GetNumber(val) {
 function GetBigInt(val) {
   if (CL_BIGINTS.length == 0) throw new Error('bigints unsupported by browser');
   var v = BigInt(val);
-  if (v > -6 && v < 257) return CL_NUMS[v + 5];
+  if (v > -6 && v < 257) return CL_NUMS[Number(v) + 5];
   return new ExpBigInt(v);
 }
 function GetString(val) {

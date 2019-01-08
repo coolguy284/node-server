@@ -6,6 +6,10 @@
       .mgn {
         margin: 5px 0 5px;
       }
+      .hsp {
+        font-size: 24px;
+        font-weight: bold;
+      }
       .cc {
         background: #ddd;
         font-family: monospace;
@@ -15,6 +19,10 @@
       }
       td {
         padding: 0 5px 0;
+      }
+      code {
+        background: #ddd;
+        font-family: monospace;
       }
     </style>
   </head>
@@ -29,51 +37,137 @@
     </select>
     <div id = 'helpdiv' style = 'display:none;'>
       <button onclick = 'helpdiv.style = "display:none;";' style = 'position:fixed;right:20px;top:5px;margin:0;padding:0;'><img id = 'hdcls' style = 'width:40px;height:40px;'></button>
-      <div style = 'position:relative;left:50%;width:600px;margin-left:-300px;'><br>
+      <div style = 'position:relative;left:50%;width:800px;margin-left:-400px;'><br>
         <h2 class = 'mgn'>Overview</h2>
         This is a calculator that has support for advanced operations such as bitwise operations, expression evaluation, and function evaluation. It is used like you would expect, just type in numbers and operations like you would on paper, then press enter.<br>
-        <h2 class = 'mgn'>Operators</h2>
-        <p style = 'margin: 0 0 4px;'>The supported operators, in order of precedence, are:</p>
-        <table style = 'width:100%;'>
-          <tr><th>Precedence</th>     <th>Name</th>                     <th>Evaluation Order</th>          <th>Symbol</th></tr>
-          <tr><td>15</td>             <td>Parenthesis</td>              <td>n/a</td>                       <td class = 'cc'>( … )</td></tr>
-          <tr><td rowspan = 4>14</td> <td>Variable Resolution</td>      <td>n/a</td>                       <td class = 'cc'>…</td></tr>
-          <tr>                        <td>Property Access</td>          <td rowspan = 3>left to right</td> <td class = 'cc'>… . …</td></tr>
-          <tr>                        <td>Computed Property Access</td>                                    <td class = 'cc'>… [ … ]</td></tr>
-          <tr>                        <td>Function Call</td>                                               <td class = 'cc'>… ( … )</td></tr>
-          <tr><td rowspan = 7>13</td> <td>Logical Not</td>              <td rowspan = 7>right to left</td> <td class = 'cc'>! …</td></tr>
-          <tr>                        <td>Bitwise Not</td>                                                 <td class = 'cc'>~ …</td></tr>
-          <tr>                        <td>Unary Plus</td>                                                  <td class = 'cc'>+ …</td></tr>
-          <tr>                        <td>Unary Minus</td>                                                 <td class = 'cc'>- …</td></tr>
-          <tr>                        <td>Typeof</td>                                                      <td class = 'cc'>typeof …</td></tr>
-          <tr>                        <td>Void</td>                                                        <td class = 'cc'>void …</td></tr>
-          <tr>                        <td>Delete</td>                                                      <td class = 'cc'>del … or delete …</td></tr>
-          <tr><td>12</td>             <td>Exponentiation</td>           <td>right to left</td>             <td class = 'cc'>… ** … or … ^ …</td></tr>
-          <tr><td rowspan = 3>11</td> <td>Multiplication</td>           <td rowspan = 3>left to right</td> <td class = 'cc'>… * …</td></tr>
-          <tr>                        <td>Division</td>                                                    <td class = 'cc'>… / …</td></tr>
-          <tr>                        <td>Modulus</td>                                                     <td class = 'cc'>… % …</td></tr>
-          <tr><td rowspan = 2>10</td> <td>Addition</td>                 <td rowspan = 2>left to right</td> <td class = 'cc'>… + …</td></tr>
-          <tr>                        <td>Subtraction</td>                                                 <td class = 'cc'>… - …</td></tr>
-          <tr><td rowspan = 2>9</td>  <td>Bitwise Left Shift</td>       <td rowspan = 2>left to right</td> <td class = 'cc'>… &lt;&lt; …</td></tr>
-          <tr>                        <td>Bitwise Right Shift</td>                                         <td class = 'cc'>… &gt;&gt; …</td></tr>
-          <tr><td rowspan = 4>8</td>  <td>Greater Than</td>             <td rowspan = 4>left to right</td> <td class = 'cc'>… &gt; …</td></tr>
-          <tr>                        <td>Less Than</td>                                                   <td class = 'cc'>… &lt; …</td></tr>
-          <tr>                        <td>Greater Than or Equal</td>                                       <td class = 'cc'>… &gt;= …</td></tr>
-          <tr>                        <td>Less Than or Equal</td>                                          <td class = 'cc'>… &lt;= …</td></tr>
-          <tr><td rowspan = 3>7</td>  <td>Equality</td>                 <td rowspan = 3>left to right</td> <td class = 'cc'>… == …</td></tr>
-          <tr>                        <td>Inequality</td>                                                  <td class = 'cc'>… != …</td></tr>
-          <tr>                        <td>True Equality</td>                                               <td class = 'cc'>… is …</td></tr>
-          <tr><td>6</td>              <td>Bitwise And</td>              <td>left to right</td>             <td class = 'cc'>… & …</td></tr>
-          <tr><td>5</td>              <td>Bitwise Xor</td>              <td>left to right</td>             <td class = 'cc'>… # …</td></tr>
-          <tr><td>4</td>              <td>Bitwise Or</td>               <td>left to right</td>             <td class = 'cc'>… | …</td></tr>
-          <tr><td>3</td>              <td>Logical And</td>              <td>left to right</td>             <td class = 'cc'>… && …</td></tr>
-          <tr><td>2</td>              <td>Logical Or</td>               <td>left to right</td>             <td class = 'cc'>… || …</td></tr>
-          <tr><td>1</td>              <td>Assignment</td>               <td>right to left</td>             <td class = 'cc'>… = …</td></tr>
-        </table>
-        <h2 class = 'mgn'>Builtin Functions</h2>
-        There is support for all trigonometric functions, and conversion between degrees and radians.<br>
-        <h2 class = 'mgn'>Regular JavaScript Evaluation</h2>
-        To evaluate regular javascript, put a ":" before text.<br><br><br><br><br>
+        <details>
+          <summary class = 'hsp'>Operators</summary>
+          <p style = 'margin: 0 0 4px;'>The supported operators, in order of precedence, are:</p>
+          <table style = 'width:100%;'>
+            <tr><th>Precedence</th>     <th>Name</th>                     <th>Evaluation Order</th>          <th>Symbol</th></tr>
+            <tr><td>15</td>             <td>Parenthesis</td>              <td>n/a</td>                       <td class = 'cc'>( … )</td></tr>
+            <tr><td rowspan = 4>14</td> <td>Variable Resolution</td>      <td>n/a</td>                       <td class = 'cc'>…</td></tr>
+            <tr>                        <td>Property Access</td>          <td rowspan = 3>left to right</td> <td class = 'cc'>… . …</td></tr>
+            <tr>                        <td>Computed Property Access</td>                                    <td class = 'cc'>… [ … ]</td></tr>
+            <tr>                        <td>Function Call</td>                                               <td class = 'cc'>… ( … )</td></tr>
+            <tr><td rowspan = 7>13</td> <td>Logical Not</td>              <td rowspan = 7>right to left</td> <td class = 'cc'>! …</td></tr>
+            <tr>                        <td>Bitwise Not</td>                                                 <td class = 'cc'>~ …</td></tr>
+            <tr>                        <td>Unary Plus</td>                                                  <td class = 'cc'>+ …</td></tr>
+            <tr>                        <td>Unary Minus</td>                                                 <td class = 'cc'>- …</td></tr>
+            <tr>                        <td>Typeof</td>                                                      <td class = 'cc'>typeof …</td></tr>
+            <tr>                        <td>Void</td>                                                        <td class = 'cc'>void …</td></tr>
+            <tr>                        <td>Delete</td>                                                      <td class = 'cc'>del … or delete …</td></tr>
+            <tr><td>12</td>             <td>Exponentiation</td>           <td>right to left</td>             <td class = 'cc'>… ** … or … ^ …</td></tr>
+            <tr><td rowspan = 3>11</td> <td>Multiplication</td>           <td rowspan = 3>left to right</td> <td class = 'cc'>… * …</td></tr>
+            <tr>                        <td>Division</td>                                                    <td class = 'cc'>… / …</td></tr>
+            <tr>                        <td>Modulus</td>                                                     <td class = 'cc'>… % …</td></tr>
+            <tr><td rowspan = 2>10</td> <td>Addition</td>                 <td rowspan = 2>left to right</td> <td class = 'cc'>… + …</td></tr>
+            <tr>                        <td>Subtraction</td>                                                 <td class = 'cc'>… - …</td></tr>
+            <tr><td rowspan = 2>9</td>  <td>Bitwise Left Shift</td>       <td rowspan = 2>left to right</td> <td class = 'cc'>… &lt;&lt; …</td></tr>
+            <tr>                        <td>Bitwise Right Shift</td>                                         <td class = 'cc'>… &gt;&gt; …</td></tr>
+            <tr><td rowspan = 4>8</td>  <td>Greater Than</td>             <td rowspan = 4>left to right</td> <td class = 'cc'>… &gt; …</td></tr>
+            <tr>                        <td>Less Than</td>                                                   <td class = 'cc'>… &lt; …</td></tr>
+            <tr>                        <td>Greater Than or Equal</td>                                       <td class = 'cc'>… &gt;= …</td></tr>
+            <tr>                        <td>Less Than or Equal</td>                                          <td class = 'cc'>… &lt;= …</td></tr>
+            <tr><td rowspan = 3>7</td>  <td>Equality</td>                 <td rowspan = 3>left to right</td> <td class = 'cc'>… == …</td></tr>
+            <tr>                        <td>Inequality</td>                                                  <td class = 'cc'>… != …</td></tr>
+            <tr>                        <td>True Equality</td>                                               <td class = 'cc'>… is …</td></tr>
+            <tr><td>6</td>              <td>Bitwise And</td>              <td>left to right</td>             <td class = 'cc'>… & …</td></tr>
+            <tr><td>5</td>              <td>Bitwise Xor</td>              <td>left to right</td>             <td class = 'cc'>… # …</td></tr>
+            <tr><td>4</td>              <td>Bitwise Or</td>               <td>left to right</td>             <td class = 'cc'>… | …</td></tr>
+            <tr><td>3</td>              <td>Logical And</td>              <td>left to right</td>             <td class = 'cc'>… && …</td></tr>
+            <tr><td>2</td>              <td>Logical Or</td>               <td>left to right</td>             <td class = 'cc'>… || …</td></tr>
+            <tr><td>1</td>              <td>Assignment</td>               <td>right to left</td>             <td class = 'cc'>… = …</td></tr>
+          </table>
+        </details>
+        <details>
+          <summary class = 'hsp'>Builtin Objects and Functions</summary>
+          <h3 class = 'mgn'>Primitives and Numerical Constants</h3>
+          <table style = 'width:100%;'>
+            <tr><th>Variable</th>                <th>Value</th>              <th>Description</th></tr>
+            <tr><td>undefined, None</td>         <td></td>                   <td>Variable for undefined, can also use void operator</td></tr>
+            <tr><td>null</td>                    <td></td>                   <td>Variable for null</td></tr>
+            <tr><td>true, True</td>              <td></td>                   <td>Boolean true value</td></tr>
+            <tr><td>false, False</td>            <td></td>                   <td>Boolean false value</td></tr>
+            <tr><td>nan, NaN</td>                <td></td>                   <td>Numerical NaN value</td></tr>
+            <tr><td>inf, infinity, Infinity</td> <td></td>                   <td>Numerical Infinity value</td></tr>
+            <tr><td>i</td>                       <td></td>                   <td>Complex constant</td></tr>
+            <tr><td>w</td>                       <td></td>                   <td>Transfinite constant</td></tr>
+            <tr><td>pi</td>                      <td>3.141592653589793</td>  <td>Ratio of a circle's circumference to its diameter.</td></tr>
+            <tr><td>e</td>                       <td>2.718281828459045</td>  <td>Common mathematical constant.</td></tr>
+            <tr><td>deg</td>                     <td>57.29577951308232</td>  <td>Constant used to convert degree value to radians.</td></tr>
+            <tr><td>phi</td>                     <td>1.618033988749895</td>  <td>The Golden Ratio.</td></tr>
+            <tr><td>sqrt2</td>                   <td>1.4142135623730951</td> <td>The square root of 2.</td></tr>
+            <tr><td>sqrt1_2</td>                 <td>0.7071067811865476</td> <td>The square root of 0.5, or half of sqrt2.</td></tr>
+            <tr><td>ln2</td>                     <td>0.6931471805599453</td> <td>The natural logarythm of 2.</td></tr>
+            <tr><td>ln10</td>                    <td>2.302585092994046</td>  <td>The natural logarythm of 10.</td></tr>
+          </table>
+          <h3 class = 'mgn'>Functions</h3>
+          <h4 class = 'mgn'>Constructors</h4>
+          The functions <code>Boolean</code>, <code>Number</code>, <code>BigInt</code>, <code>String</code>, <code>Array</code>, <code>Object</code>, <code>Function</code>, <code>Complex</code>, <code>Matrix</code>, and <code>Surreal</code> create objects of their type.
+          <h4 class = 'mgn'>Namespace</h4>
+          <code>globals()</code> - returns global namespace object<br>
+          <code>locals()</code> - returns local namespace object
+          <h4 class = 'mgn'>Evaluation</h4>
+          <code>compileExpr(string)</code> - compile string as expression, and return runnable code object<br>
+          <code>evalExpr(obj)</code> - evaluate string or code object as expression, and return value<br>
+          <code>compile(string)</code> - compile string as many expressions, and return runnable code object<br>
+          <code>eval(obj)</code> - evaluate string or code object as many expressions, and return value
+          <h4 class = 'mgn'>Text</h4>
+          <code>repr(text)</code> - get text form of object<br>
+          <code>print(text)</code> - print text to string
+          <h4 class = 'mgn'>Simple Math</h4>
+          <code>sign(number)</code> - return sign of number<br>
+          <code>abs(number)</code> - return absolute value of number<br>
+          <code>max(*values)</code> - get maximum value from list of values<br>
+          <code>min(*values)</code> - get minimum value from list of values<br>
+          <code>constrain(number, max, min)</code> - constrains number between two values<br>
+          <code>floor(number)</code> - rounds number down<br>
+          <code>ceil(number)</code> - rounds number up<br>
+          <code>round(number)</code> - rounds number to closest integer<br>
+          <code>trunc(number)</code> - truncates decimal digits from number<br>
+          <code>gcd(*values)</code> - calculates gcd of values<br>
+          <code>lcm(*values)</code> - calculates lcm of values<br>
+          <code>lerp(from, to, num)</code> - returns a number that is num of the way from "from" to "to"<br>
+          <code>map(number, from, to, resfrom, resto)</code> - maps a number from a range of from - to to resfrom - resto<br>
+          <code>norm(number, from, to)</code> - functions as map(number, from, to, 0, 1)
+          <code>dist(x1, y1, x2, y2)</code> - gets the distance between two coordinates
+          <h4 class = 'mgn'>Random</h4>
+          <code>random([[start], end])</code> - generates a random number, with optional start and end parameters<br>
+          <code>randint(start, end)</code> - generates a random integer between start and end<br>
+          <code>randintn(start, end)</code> - generates a random bigint between start and end<br>
+          <code>randgauss(mu, sigma)</code> - generates a random gaussian with mu and sigma parameters
+          <h4 class = 'mgn'>More Math</h4>
+          <code>sq(number)</code> - squares a number<br>
+          <code>cb(number)</code> - cubes a number<br>
+          <code>sqrt(number)</code> - gets the square root of a number<br>
+          <code>cbrt(number)</code> - gets the cube root of a number<br>
+          <code>exp(number)</code> - calculates e raised to the power of a number<br>
+          <code>log(number[, base])</code> - calculates the logarythm of a number, with an optional base<br>
+          <code>log10(number)</code> - calculates the base 10 logarythm of a number<br>
+          <code>log2(number)</code> - calculates the base 2 logarythm of a number<br>
+          <code>pow(base, exponent)</code> - calculates base raised to the power of exponent<br>
+          <code>root(number, root)</code> - calculates nth root of a number<br>
+          <code>tet(number, number)</code> - calculates the teteration of two numbers<br>
+          <code>sroot(number, number)</code> - calculates the super-root of two numbers<br>
+          <code>slog(number, number)</code> - calculates the super-logarythm of two numbers<br>
+          <code>fact(number)</code> - calculates the factorial of a number, decimals allowed<br>
+          <code>gamma(number)</code> - the gamma function<br>
+          <code>degrees(number)</code> - converts number from radians to degrees<br>
+          <code>radians(number)</code> - converts number from degrees to radians<br>
+          <code>[sin, cos, tan](number)</code> - trigonometric functions<br>
+          <code>[asin, acos, atan, atan2](number)</code> - inverses of trigonometric functions<br>
+          <code>[sinh, cosh, tanh](number)</code> - hyperbolic functions<br>
+          <code>[asinh, acosh, atanh](number)</code> - inverses of hyperbolic functions
+          <h4 class = 'mgn'>Number to Base</h4>
+          <code>[[tohexstr, tooctstr, tobinstr, todecstr](number), tobasestr(number, base)]</code> - converts a number to a string in bases [16, 8, 2, 10, any]<br>
+          <code>[[fromhexstr, fromhexstrn, fromoctstr, fromoctstrn, frombinstr, frombinstrn, fromdecstr, fromdecstrn](number), [frombasestr, frombasestrn](number, base)]</code> - converts a number to a string in bases [16, 8, 2, 10, any], with an n suffix for bigints instead
+        </details>
+        <details>
+          <summary class = 'hsp'>Regular JavaScript Evaluation</summary>
+          To evaluate regular javascript, put a ":" before text.
+        </details>
+        <br><br><br><br><br>
       </div>
     </div>
     <div id = 'settins' style = 'display:none;'>
