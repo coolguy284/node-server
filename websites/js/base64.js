@@ -7,9 +7,7 @@ var Base64 = {
   s : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
   // public method for encoding
   encode : function (input, ss) {
-    if (ss === undefined) {
-      ss = Base64.s;
-    }
+    if (ss === undefined) ss = Base64.s;
     var output = '';
     var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
     var i = 0;
@@ -32,9 +30,7 @@ var Base64 = {
   },
   // public method for decoding
   decode : function (input, ss) {
-    if (ss === undefined) {
-      ss = Base64.s;
-    }
+    if (ss === undefined) ss = Base64.s;
     var output = '';
     var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
     var i = 0;

@@ -275,7 +275,12 @@ global.stdincons = new datajs.s.ConsoleStream(function (tx) {
   }
 });
 process.stdin.pipe(stdincons);
+global.rst = undefined;
+global.rlt = undefined;
 global.serverf = function serverf(req, resa, nolog) {
+  if (datajs.feat.reqtimelog) {
+    rst = process.hrtime();
+  }
   let res, ipaddr, proto, url, cookies, nam = null, sn = false;
   try {
   savedvars.timeout = 0;
@@ -418,6 +423,10 @@ global.serverf = function serverf(req, resa, nolog) {
     } catch (e) {
       console.error(e);
     }
+  }
+  if (datajs.feat.reqtimelog) {
+    rlt = process.hrtime();
+    console.log('Request Time: ' + (((rlt[0] + rlt[1] / 1e9) - (rst[0] + rst[1] / 1e9)) * 1000).toFixed(3) + 'ms');
   }
 };
 global.serv = http.createServer(serverf).listen(port, undefined, function (err) {

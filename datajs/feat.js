@@ -11,6 +11,7 @@ module.exports = {
   'debreq' : true,
   'cons' : true,
   'stdincons' : false,
+  'reqtimelog' : false,
   'enc' : 'aes',
   'datadir' : 'data',
   'ipdm' : 1,
@@ -46,7 +47,7 @@ module.exports = {
     'vh' : ['/ftx.txt', '/chathid.html', '/chatprivate.html', '/lat.log'],
     'vhv' : ['/s', '/r', '/a', '/pagg?=', '/oi?vr=', '/livechatd.log?id=', '/user', '/login?v=', '/logout?v='],
     'ajaxl' : ['/livechat.dat', '/liverchat.json', '/liveviews.dat', '/comms.json', '/colog.dat', '/cologd.dat', '/livechathere.dat', '/livechattyp.dat', '/livechatkick.dat', '/lat.log'],
-    'vl' : ['/s', '/r', '/a'],
+    'vl' : ['/s?', '/r?', '/a?'],
   },
   'idstr' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
   'tempp' : {

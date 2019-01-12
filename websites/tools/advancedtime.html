@@ -513,7 +513,7 @@
               lapc.style = 'position:relative;left:50%;width:250px;height:400px;margin-left:-125px;overflow:scroll;font-size:18px;text-align:center;';
               laps.innerHTML = stopw.laps.join('<br>') + '<br>';
             }
-            console.log(p.keyCode);
+            //console.log(p.keyCode);
           }
         };
         p.mouseOver = function() {
@@ -620,7 +620,7 @@
             else {hr = cd.getHours(); apm = 'A.M.';}
             p.textFont(monospace);
             p.textSize(30);
-            p.text(String(cd.getFullYear()).padStart(4, '0') + '-' + zf2(cd.getMonth()) + '-' + zf2(cd.getDate()) + ' ' + zf2(hr) + ':' + zf2(cd.getMinutes()) + ':' + zf2(cd.getSeconds()) + '.' + zf3(cd.getMilliseconds()) + ' ' + apm, 300, 380);
+            p.text(String(cd.getFullYear()).padStart(4, '0') + '-' + zf2(cd.getMonth() + 1) + '-' + zf2(cd.getDate()) + ' ' + zf2(hr) + ':' + zf2(cd.getMinutes()) + ':' + zf2(cd.getSeconds()) + '.' + zf3(cd.getMilliseconds()) + ' ' + apm, 300, 380);
             p.textFont(arial);
           } else if (tab == 'stopwatch') {
             t2 = new Date().getTime();

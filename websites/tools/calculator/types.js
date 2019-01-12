@@ -57,6 +57,8 @@ function ExpMatrix(val, val2) {
     this.w = val2;
     this.h = val;
     this.val = [];
+    this.val.w = this.w;
+    this.val.h = this.h;
     for (let y = 0; y < this.h; y++) {
       let ta = [];
       for (let x = 0; x < this.w; x++) ta.push(0);
@@ -66,6 +68,8 @@ function ExpMatrix(val, val2) {
     this.w = val.val[0].val.length;
     this.h = val.val.length;
     this.val = [];
+    this.val.w = this.w;
+    this.val.h = this.h;
     for (let y = 0; y < this.h; y++) {
       let ta = [];
       for (let x = 0; x < this.w; x++) ta.push(val.val[y].val[x]);
@@ -75,6 +79,8 @@ function ExpMatrix(val, val2) {
     this.w = val[0].length;
     this.h = val.length;
     this.val = val;
+    this.val.w = this.w;
+    this.val.h = this.h;
   }
 }
 function ExpSurreal(val) {
