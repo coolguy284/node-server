@@ -1,9 +1,3 @@
-var pds;
-if (location.href.split('/').slice(-1)[0] == 'calculator.html') pds = '..';
-else pds = '../..';
-hdtog.src = pds + '/images/help.png';
-sdtog.src = pds + '/images/settings.png';
-hdcls.src = stcls.src = pds + '/images/close.png';
 var calcarr = [], cinphist = [], histind = 0, currtext = '';
 function HelpTogg() {
   if (helpdiv.style.cssText == 'display: none;') {
@@ -82,7 +76,7 @@ function ObjToText(val, va) {
   } else if (val.type == 'matrix') {
     if (va.indexOf(val) >= 0) return '[Circular]';
     va.push(val);
-    return 'Matrix([' + val.val.map(x => '[' + x.map(y => ObjToText(y, va)) + ']').join(',\n           ') + '])';
+    return 'Matrix([' + val.val.map(x => '[' + x.map(y => ObjToText(y, va)).join(', ') + ']').join(',\n           ') + '])';
   } else if (val.type == 'surreal') {
     return ExpSurrToStr(val.valarr);
   } else if (val.type == 'jsobj') {

@@ -47,7 +47,7 @@ ExpMatrix.prototype = {
           rm.val[y][x] = ExpMultiply(this.val[y][x], that);
       return rm;
     } else if (that.type == 'matrix') {
-      let rm = GetMatrix(that.w, this.h);
+      let rm = GetMatrix(this.h, that.w);
       for (let y = 0; y < rm.h; y++) {
         for (let x = 0; x < rm.w; x++) {
           let s = GetNumber(0);

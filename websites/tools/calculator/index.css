@@ -1,0 +1,38 @@
+body {
+  width: calc(100% - 10px);
+  font-family: arial;
+}
+.mgn {
+  margin: 5px 0 5px;
+}
+.hsp {
+  font-size: 24px;
+  font-weight: bold;
+}
+.cc {
+  background: #ddd;
+  font-family: monospace;
+}
+table, td, th {
+  border: 1px solid #777;
+}
+td {
+  padding: 0 5px 0;
+}
+code {
+  background: #ddd;
+  font-family: monospace;
+}
+#hinfo {
+  position: relative;
+  left: 50%;
+  width: 800px;
+  margin-left: -400px;
+}
+@media only screen and (max-width: 800px) {
+  #hinfo {
+    position: static;
+    width: 100%;
+    margin: 5px;
+  }
+}
