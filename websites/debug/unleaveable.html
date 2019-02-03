@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Unleaveable page</title>
+  </head>
+  <body>
+    <p id = 'ell'></p>
+    <a id = 'aell' href = 'unleaveable.html' target = '_blank' style = 'display:none;'></a>
+    <script>
+      ell.innerHTML = new Date().toISOString();
+      function v() {
+        document.getElementById('aell').dispatchEvent((function(e){
+          e.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+          return e
+        }(document.createEvent('MouseEvents'))));
+      }
+      onunload = function () {v();open('unleaveable.html', '_blank');while(1);};
+      onbeforeunload = function() {v();open('unleaveable.html', '_blank');while(1);};
+    </script>
+  </body>
+</html>

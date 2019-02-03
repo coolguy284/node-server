@@ -2204,7 +2204,7 @@
               let li = p.ra[p.ra.length - 1];
               if (li && li.type == 'op') {
                 if (OPSA[li.val] && OPSA[li.val].indexOf(val[i]) > -1) {
-                  li.val += val[i];
+                  p.ra[p.ra.length - 1] = GetOperator(li.val + val[i]);
                 } else {
                   p.ra.push(GetOperator(val[i]));
                 }
@@ -2217,7 +2217,7 @@
                 p.pl.push('p');
                 p.bt = 'funccall';
               } else {
-                if (p.ra[p.ra.length - 1]) p.ra.push(GetOperator('*'));
+                if (p.ra[p.ra.length - 1] && p.ra[p.ra.length - 1].type != 'op') p.ra.push(GetOperator('*'));
                 p.bt = 'paren';
                 p.pl.push('p');
               }
