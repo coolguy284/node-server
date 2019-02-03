@@ -20,6 +20,11 @@
         margin: 0 5px 0;
         font-family: monospace;
       }
+      #jstext {
+        width: calc(100% - 20px);
+        height: 400px;
+        margin: 0 5px 0;
+      }
     </style>
   </head>
   <body style = 'font-family:monospace;'>
@@ -77,6 +82,10 @@
       <summary>JS Console</summary>
       <div id = 'constext'></div>
       <input type = 'text' id = 'conc'>
+    </details>
+    <details>
+      <summary>JS Textbox</summary>
+      <textarea id = 'jstext'></textarea>
     </details>
     <script src = '../../js/base64.js'></script>
     <script src = '../../js/utilinspect.js'></script>
