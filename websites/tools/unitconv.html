@@ -30,6 +30,7 @@
         <option value = 'v'>Volume</option>
         <option value = 'd'>Density</option>
         <option value = 't'>Temperature</option>
+        <option value = 'p'>Pressure</option>
       </select>
       <div class = 'bdiv'>
         <input type = 'text' id = 'val1' oninput = 'UC1()'><br>
@@ -93,14 +94,17 @@
         'me': {
           'g': 0.001, 'kg': 1, 'mg': 1e-6, 'mt': 1000,
           'alb': 0.45359237, 'aoz': 0.028349523125,
+          'ast': 6.35029318,
           'tlb': 0.3732417216, 'toz': 3.11034768e-2,
           'dwt': 1.55517384e-3, 'gr': 6.479891e-5,
           'mt': 3.2399455e-6, 'dr': 1.3499772916666666e-7, 'pr': 6.749886458333333e-9, 'bk': 2.8124526909722217e-10,
           'mm': 7.342e22, 'em': 5.97237e24, 'jm': 1.8982e27, 'sm': 1.9885e30,
           'j': ef,
           'cal': ef * 4.184, 'kcal': ef * 4184,
-          'kwh': ef * 3.6e6,
+          'wh': ef * 3.6e3, 'kwh': ef * 3.6e6,
           'btu': ef * 1054.3503, 'th': ef * 1.0543503e8,
+          'eg': ef * 1e-7,
+          'fp': ef * 1.3558179483314004,
           'ev': ef * 1.6021766208e-19, 'ha': ef * 4.359744650e-18, 'ry': ef * 2.1798723248801804e-18,
           'gtnt': ef * 4.184e3, 'kgtnt': ef * 4.184e6, 'ttnt': ef * 4.184e9,
         },
@@ -108,8 +112,9 @@
           'm': 1, 'km': 1000, 'cm': 0.01, 'mm': 0.001,
           'in': 0.0254, 'ft': 0.3048, 'yd': 0.9144, 'mi': 1609.344,
           'nm': 1852,
+          'a': 1e-10,
           'cn': 20.1168, 'rd': 5.0292, 'lk': 0.201168,
-          'au': 149597870700, 'ly': 9460730472580800, 'pc': 30856775814913670,
+          'au': 149597870700, 'ly': 9460730472580800, 'pc': 30856775814913670, 'hl': 1.403983299578572e+26,
           'mr': 1737100, 'er': 6378000, 'jr': 71492000, 'sr': 695700000,
           'fl': 201.168, 'fm': 1.8288, 'lg': 4828.032,
           'sec': c, 'min': c * 60, 'hr': c * 3600,
@@ -129,10 +134,11 @@
           'in3': 0.000016387064, 'ft3': 0.028316846592, 'yd3': 0.764554857984, 'mi3': 4.16818182544058e9,
           'l': 0.001, 'ml': 1e-6,
           'lgal': 0.003785411784, 'lqt': 0.000946352946, 'lpt': 0.000473176473, 'lcp': 0.0002365882365,
+          'lfloz': 0.0000295735295625, 'ltbsp': 0.00001478676478125, 'ltsp': 0.00000492892159375,
           'dgal': 0.00440488377086, 'dqt': 0.001101220942715, 'dpt': 0.0005506104713575, 'dcp': 0.00027530523567875,
+          'dfloz': 0.00003441315445984375, 'dtbsp': 0.000017206577229921875, 'dtsp': 0.000005735525743307292,
           'igal': 0.00454609, 'iqt': 0.0011365225, 'ipt': 0.00056826125, 'icp': 0.000284130625,
-          'floz': 0.0000295735295625,
-          'tbsp': 0.00001478676478125, 'tsp': 0.00000492892159375,
+          'ifloz': 0.000035516328125, 'itbsp': 0.0000177581640625, 'itsp': 0.000005919388020833334,
           'lgcp': 0.000240,
           'mcp': 0.000250,
           'plvl': 4.221907220517977e-105,
@@ -146,12 +152,19 @@
           'c': [1, 273.15], 'f': [5/9, 255.3722222222222],
           'k': [1, 0], 'r': [5/9, 0],
         },
+        'p': {
+          'pa': 1, 'kpa': 1000, 'mpa': 1e6,
+          'psi': 6895,
+          'bar': 101325,
+          'tor': 133.32236842105263,
+        },
       };
       var unitn = {
         'me': {
           'common mass units': {
             'g': 'gram', 'kg': 'kilogram', 'mg': 'milligram', 'mt': 'metric ton',
             'alb': 'pound', 'aoz': 'ounce',
+            'ast': 'stone',
           },
           'troy units': {
             'tlb': 'troy pound', 'toz': 'troy ounce',
@@ -164,8 +177,10 @@
           'energy units': {
             'j': 'joule',
             'cal': 'calorie', 'kcal': 'food calorie',
-            'kwh': 'kilowatt-hour',
+            'wh': 'watt-hour', 'kwh': 'kilowatt-hour',
             'btu': 'british thermal unit', 'th': 'therm',
+            'eg': 'erg',
+            'fp': 'foot-pound',
             'ev': 'electronvolt', 'ha': 'hartree', 'ry': 'rydberg unit',
             'gtnt': 'gram of tnt', 'kgtnt': 'kilogram of tnt', 'ttnt': 'ton of tnt',
           },
@@ -175,12 +190,13 @@
             'm': 'meter', 'km': 'kilometer', 'cm': 'centimeter', 'mm': 'milimeter',
             'in': 'inch', 'ft': 'foot', 'yd': 'yard', 'mi': 'mile',
             'nm': 'nautical mile',
+            'a': 'angstrom',
           },
           'surveyor\'s units': {
             'cn': 'chain', 'rd': 'rod', 'lk': 'link',
           },
           'astronomical': {
-            'au': 'astronomical unit', 'ly': 'light year', 'pc': 'parsec',
+            'au': 'astronomical unit', 'ly': 'light year', 'pc': 'parsec', 'hl': 'hubble length',
             'er': 'earth radius', 'jr': 'jupiter radius', 'sr': 'solar radius',
           },
           'old units': {
@@ -204,11 +220,18 @@
           'm3': 'cubic meter', 'cm3': 'cubic centimeter', 'mm3': 'cubic millimeter', 'km3': 'cubic kilometer',
           'in3': 'cubic inch', 'ft3': 'cubic foot', 'yd3': 'cubic yard', 'mi3': 'cubic mile',
           'l': 'liter', 'ml': 'milliliter',
-          'us liquid': { 'lgal': 'gallon', 'lqt': 'quart', 'lpt': 'pint', 'lcp': 'cup' },
-          'us dry': { 'dgal': 'gallon', 'dqt': 'quart', 'dpt': 'pint', 'dcp': 'cup' },
-          'imperial': { 'igal': 'gallon', 'iqt': 'quart', 'ipt': 'pint', 'icp': 'cup' },
-          'floz': 'fluid ounce',
-          'tbsp': 'tablespoon', 'tsp': 'teaspoon',
+          'us liquid': {
+            'lgal': 'gallon', 'lqt': 'quart', 'lpt': 'pint', 'lcp': 'cup',
+            'lfloz': 'fluid ounce', 'ltbsp': 'tablespoon', 'ltsp': 'teaspoon',
+          },
+          'us dry': {
+            'dgal': 'gallon', 'dqt': 'quart', 'dpt': 'pint', 'dcp': 'cup',
+            'dfloz': 'fluid ounce', 'dtbsp': 'tablespoon', 'dtsp': 'teaspoon',
+          },
+          'imperial': {
+            'igal': 'gallon', 'iqt': 'quart', 'ipt': 'pint', 'icp': 'cup',
+            'ifloz': 'fluid ounce', 'itbsp': 'tablespoon', 'itsp': 'teaspoon',
+          },
           'lgcp': 'legal cup',
           'mcp': 'metric cup',
           'plvl': 'planck volume',
@@ -221,7 +244,13 @@
         't': {
           'c': 'celsius', 'f': 'fahrenheit',
           'k': 'kelvin', 'r': 'rankine',
-        }
+        },
+        'p': {
+          'pa': 'pascal', 'kpa': 'kilopascal', 'mpa': 'megapascal',
+          'psi': 'pounds per square inch',
+          'bar': 'bar',
+          'tor': 'torr',
+        },
       };
       function UpdSels() {
         var o = unitn[cat.value], st = '';
