@@ -31,6 +31,7 @@
         <option value = 'd'>Density</option>
         <option value = 't'>Temperature</option>
         <option value = 'p'>Pressure</option>
+        <option value = 'ang'>Plane Angle</option>
       </select>
       <div class = 'bdiv'>
         <input type = 'text' id = 'val1' oninput = 'UC1()'><br>
@@ -97,7 +98,7 @@
           'ast': 6.35029318,
           'tlb': 0.3732417216, 'toz': 3.11034768e-2,
           'dwt': 1.55517384e-3, 'gr': 6.479891e-5,
-          'mt': 3.2399455e-6, 'dr': 1.3499772916666666e-7, 'pr': 6.749886458333333e-9, 'bk': 2.8124526909722217e-10,
+          'mte': 3.2399455e-6, 'dr': 1.3499772916666666e-7, 'pr': 6.749886458333333e-9, 'bk': 2.8124526909722217e-10,
           'mm': 7.342e22, 'em': 5.97237e24, 'jm': 1.8982e27, 'sm': 1.9885e30,
           'j': ef,
           'cal': ef * 4.184, 'kcal': ef * 4184,
@@ -114,6 +115,7 @@
           'nm': 1852,
           'a': 1e-10,
           'cn': 20.1168, 'rd': 5.0292, 'lk': 0.201168,
+          'gm': 1855.3248,
           'au': 149597870700, 'ly': 9460730472580800, 'pc': 30856775814913670, 'hl': 1.403983299578572e+26,
           'mr': 1737100, 'er': 6378000, 'jr': 71492000, 'sr': 695700000,
           'fl': 201.168, 'fm': 1.8288, 'lg': 4828.032,
@@ -158,6 +160,13 @@
           'bar': 101325,
           'tor': 133.32236842105263,
         },
+        'ang': {
+          'rad': 1,
+          'deg': Math.PI / 180,
+          'grad': Math.PI / 200,
+          'am': Math.PI / 180 / 60,
+          'as': Math.PI / 180 / 3600,
+        },
       };
       var unitn = {
         'me': {
@@ -169,7 +178,7 @@
           'troy units': {
             'tlb': 'troy pound', 'toz': 'troy ounce',
             'dwt': 'pennyweight', 'gr': 'grain',
-            'mt': 'mite', 'dr': 'droit', 'pr': 'perit', 'bk': 'blank',
+            'mte': 'mite', 'dr': 'droit', 'pr': 'perit', 'bk': 'blank',
           },
           'astronomical bodies': {
             'mm': 'moon mass', 'em': 'earth mass', 'jm': 'jupiter mass', 'sm': 'solar mass',
@@ -194,6 +203,7 @@
           },
           'surveyor\'s units': {
             'cn': 'chain', 'rd': 'rod', 'lk': 'link',
+            'gm': 'geographical mile',
           },
           'astronomical': {
             'au': 'astronomical unit', 'ly': 'light year', 'pc': 'parsec', 'hl': 'hubble length',
@@ -250,6 +260,13 @@
           'psi': 'pounds per square inch',
           'bar': 'bar',
           'tor': 'torr',
+        },
+        'ang': {
+          'deg': 'degrees',
+          'rad': 'radians',
+          'grad': 'gradians',
+          'am': 'arcminute',
+          'as': 'arcsecond',
         },
       };
       function UpdSels() {
