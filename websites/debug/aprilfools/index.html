@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Super Hacker 2000</title>
+    <style>
+      #hb {
+        position: relative;
+        left: 50%;
+        top: 195px;
+        width: 300px;
+        height: 60px;
+        margin-left: -150px;
+        margin-top: -30px;
+      }
+      #cdiv {
+        position: relative;
+        left: 50%;
+        width: 800px;
+        height: 400px;
+        margin-left: -410px;
+        padding: 5px;
+        border: 3px solid black;
+      }
+      @media only screen and (max-width: 840px) {
+        #cdiv {
+          position: static;
+          width: calc(100% - 25px);
+          margin: 5px;
+          padding: 5px;
+          border: 3px solid black;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id = 'cdiv'>
+      <div id = 'init'>
+        <button id = 'hb' onclick = 'Hack()' style = 'font-size:40px;'>Initiate Hacking</button>
+      </div>
+      <div id = 'hac' style = 'display:none;'>
+        Please enter what you want to hack: <input type = 'text' id = 'hackinp'><button onclick = 'Hack2()'>Start</button>
+        <span id = 'hacktxt' style = 'font-family:monospace;'></span>
+      </div>
+    </div>
+    <script src = 'index.js'></script>
+  </body>
+</html>
