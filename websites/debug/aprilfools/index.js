@@ -16,7 +16,6 @@ var hacks = [
   ['cleaning up traces',            7, 150, 0.2, 93, 100, 0.03],
   ['complete',                      0,   0, 1,   100, 100, 0],
 ];
-percs = [[16, 1000], [33, 2000], [38, 2500], [42, 2750], [47, 2900], [50, 3000], [75, 4000], [80, 4250], [83, 4500], [95, 5000], [100, 6000]];
 var hacking = 0, v;
 function Hack() {
   v = 0;
@@ -44,6 +43,14 @@ async function Dot3() {
     await sleep(500);
   }
 }
+async function Col() {
+  await sleep(50);
+  document.body.style.background = '#000';
+  await sleep(50);
+  document.body.style.background = '#777';
+  await sleep(50);
+  document.body.style.background = '#fff';
+}
 async function Hack2() {
   if (hacking) {
     alert('You are already hacking!');
@@ -59,6 +66,7 @@ async function Hack2() {
   await sleep(500);
   hacktxt.innerHTML += '<br><span style = "color:red;">Warning! Hacking has begun</span><progress value = 0 max = 100 id = "prog" style = "width:100%;height:20px;"></progress><br><span id = "ptext">starting</span> (<span id = "pval">0.0</span>%)';
   await sleep(500);
+  var cold = false;
   for (var i in hacks) {
     var o = hacks[i];
     var d = o[5] - o[4];
@@ -70,6 +78,10 @@ async function Hack2() {
       if (Math.random() < o[3]) {
         prog.value = v;
         pval.innerHTML = str(v);
+      }
+      if (v > 49.8 && !cold) {
+        Col();
+        cold = true;
       }
       if (Math.random() < o[6]) {
         await sleep(1000);
