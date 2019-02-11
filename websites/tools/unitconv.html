@@ -28,6 +28,7 @@
         <option value = 'dt'>Distance / Time</option>
         <option value = 'a'>Area</option>
         <option value = 'v'>Volume</option>
+        <option value = 's'>Speed</option>
         <option value = 'd'>Density</option>
         <option value = 't'>Temperature</option>
         <option value = 'p'>Pressure</option>
@@ -145,11 +146,14 @@
           'mcp': 0.000250,
           'plvl': 4.221907220517977e-105,
         },
-        'd': {
-          'kgm3': 1,
-          'gcm3': 0.001,
-          'kgl': 0.001,
+        's': {
+          'mps': 1, 'fps': 0.3048,
+          'mph': 0.44704, 'kmph': 0.2777777777777778,
+          'mips': 1609.344, 'kmps': 1000,
+          'knt': 0.5144444444444445,
+          'mach': 340, 'c': c,
         },
+        'd': { 'kgm3': 1, 'gcm3': 0.001, 'kgl': 0.001 },
         't': {
           'c': [1, 273.15], 'f': [5/9, 255.3722222222222],
           'k': [1, 0], 'r': [5/9, 0],
@@ -159,13 +163,11 @@
           'psi': 6895,
           'bar': 101325,
           'tor': 133.32236842105263,
+          'mmhg': 133.322387415,
         },
         'ang': {
-          'rad': 1,
-          'deg': Math.PI / 180,
-          'grad': Math.PI / 200,
-          'am': Math.PI / 180 / 60,
-          'as': Math.PI / 180 / 3600,
+          'rad': 1, 'deg': Math.PI / 180, 'grad': Math.PI / 200,
+          'am': Math.PI / 180 / 60, 'as': Math.PI / 180 / 3600,
         },
       };
       var unitn = {
@@ -246,11 +248,14 @@
           'mcp': 'metric cup',
           'plvl': 'planck volume',
         },
-        'd': {
-          'kgm3': 'kilogram per m3',
-          'gcm3': 'grams per cm3',
-          'kgl': 'kilogram per liter',
+        's': {
+          'mps': 'meters per second', 'fps': 'feet per second',
+          'mph': 'miles per hour', 'kmph': 'kilometers per hour',
+          'mips': 'miles per second', 'kmps': 'kilometers per second',
+          'knt': 'knots',
+          'mach': 'mach', 'c': 'speed of light',
         },
+        'd': { 'kgm3': 'kilograms per m3', 'gcm3': 'grams per cm3', 'kgl': 'kilograms per liter' },
         't': {
           'c': 'celsius', 'f': 'fahrenheit',
           'k': 'kelvin', 'r': 'rankine',
@@ -260,13 +265,11 @@
           'psi': 'pounds per square inch',
           'bar': 'bar',
           'tor': 'torr',
+          'mmhg': 'millimeter of mercury',
         },
         'ang': {
-          'deg': 'degrees',
-          'rad': 'radians',
-          'grad': 'gradians',
-          'am': 'arcminute',
-          'as': 'arcsecond',
+          'deg': 'degrees', 'rad': 'radians', 'grad': 'gradians',
+          'am': 'arcminute', 'as': 'arcsecond',
         },
       };
       function UpdSels() {
