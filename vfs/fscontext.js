@@ -229,6 +229,52 @@ class FileSystemContext {
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1], false)).write) throw new Error('ERRNO 13 no permission');
     return fsc[0].fs.rmdir(fsc[1]);
   }
+  unlink(path, cb) {
+    try {
+      this.unlinkSync(path);
+      setImmediate(cb, undefined);
+    } catch (e) {
+      setImmediate(cb, e);
+    }
+  }
+  readdir(path, cb) {
+    try {
+      setImmediate(cb, undefined, this.readdirSync(path));
+    } catch (e) {
+      setImmediate(cb, e);
+    }
+  }
+  mkdir(path, cb) {
+    try {
+      this.mkdirSync(path);
+      setImmediate(cb, undefined);
+    } catch (e) {
+      setImmediate(cb, e);
+    }
+  }
+  stat(path, cb) {
+    try {
+      setImmediate(cb, undefined, this.statSync(path));
+    } catch (e) {
+      setImmediate(cb, e);
+    }
+  }
+  rmdir(path, cb) {
+    try {
+      this.rmdirSync(path);
+      setImmediate(cb, undefined);
+    } catch (e) {
+      setImmediate(cb, e);
+    }
+  }
+  rename(pathf, patht, cb) {
+    try {
+      his.renameSync(pathf, patht);
+      setImmediate(cb, undefined);
+    } catch (e) {
+      setImmediate(cb, e);
+    }
+  }
   mount(pathf, typ, fs, patht) {
     if (patht === undefined) patht = '/';
     pathf = normalize(pathf, this.cwd);

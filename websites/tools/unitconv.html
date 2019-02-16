@@ -290,7 +290,7 @@
         var u1 = unitf[cat.value][val1u.value], u2 = unitf[cat.value][val2u.value],
             v = Number(val1.value), p1 = Number(val1p.value), p2 = Number(val2p.value);
         if (typeof u1 == 'number' && typeof u2 == 'number') {
-          val2.value = v * u1 * p1 / p2 / u2;
+          val2.value = v * (u1 * p1 / p2 / u2);
         } else {
           val2.value = (v * u1[0] * p1 + u1[1] - u2[1]) / p2 / u2[0];
         }
@@ -299,7 +299,7 @@
         var u1 = unitf[cat.value][val1u.value], u2 = unitf[cat.value][val2u.value],
             v = Number(val2.value), p1 = Number(val1p.value), p2 = Number(val2p.value);
         if (typeof u1 == 'number' && typeof u2 == 'number') {
-          val1.value = v * u2 * p2 / p1 / u1;
+          val1.value = v * (u2 * p2 / p1 / u1);
         } else {
           val1.value = (v * u2[0] * p2 + u2[1] - u1[1]) / p1 / u1[0];
         }
