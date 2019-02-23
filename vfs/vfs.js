@@ -7,12 +7,8 @@ let FileSystemContext = fscontext.FileSystemContext;
 fscontext.init(helperf);
 function SecureView(view) {
   return {
-    get cwd() {
-      return view.cwd;
-    },
-    set cwd(val) {
-      return view.chdir(val);
-    },
+    get cwd() { return view.cwd; },
+    set cwd(val) { return view.chdir(val); },
     chdir: view.chdir.bind(view),
     existsSync: view.existsSync.bind(view),
     statSync: view.statSync.bind(view),
@@ -38,7 +34,45 @@ function SecureView(view) {
     readdirSync: view.readdirSync.bind(view),
     mkdirSync: view.mkdirSync.bind(view),
     renameSync: view.renameSync.bind(view),
-    rmdirSync: view.rmdirSync.bind(view)
+    rmdirSync: view.rmdirSync.bind(view),
+    stat: view.stat.bind(view),
+    lstat: view.lstat.bind(view),
+    chmod: view.chmod.bind(view),
+    lchmod: view.lchmod.bind(view),
+    chown: view.chown.bind(view),
+    lchown: view.lchown.bind(view),
+    utimes: view.utimes.bind(view),
+    readFile: view.readFile.bind(view),
+    writeFile: view.writeFile.bind(view),
+    appendFile: view.appendFile.bind(view),
+    truncate: view.truncate.bind(view),
+    link: view.link.bind(view),
+    unlink: view.unlink.bind(view),
+    copyFile: view.copyFile.bind(view),
+    readlink: view.readlink.bind(view),
+    symlink: view.symlink.bind(view),
+    readdir: view.readdir.bind(view),
+    mkdir: view.mkdir.bind(view),
+    rename: view.rename.bind(view),
+    rmdir: view.rmdir.bind(view),
+    openSync: view.openSync.bind(view),
+    closeSync: view.closeSync.bind(view),
+    open: view.open.bind(view),
+    close: view.close.bind(view),
+    fstatSync: view.fstatSync.bind(view),
+    fchmodSync: view.fchmodSync.bind(view),
+    fchownSync: view.fchownSync.bind(view),
+    futimesSync: view.futimesSync.bind(view),
+    ftruncateSync: view.ftruncateSync.bind(view),
+    fstat: view.fstat.bind(view),
+    fchmod: view.fchmod.bind(view),
+    fchown: view.fchown.bind(view),
+    futimes: view.futimes.bind(view),
+    ftruncate: view.ftruncate.bind(view),
+    fdatasyncSync: view.fdatasyncSync.bind(view),
+    fsyncSync: view.fsyncSync.bind(view),
+    fdatasync: view.fdatasync.bind(view),
+    fsync: view.fsync.bind(view),
   };
 }
 let rfs = new FileSystem(true);
@@ -56,6 +90,8 @@ fsv.symlinkSync('Some File.txt', '/dir/File Symlink.txt');
 fsv.mkdirSync('/dir/Some Folder');
 fsv.writeFileSync('/dir/Some Folder/File in Folder.txt', 'A file in a folder, to demonstrate symlinks.');
 fsv.symlinkSync('Some Folder', '/dir/Folder Symlink');
+fsv.mkdirSync('/dir/Folder Mount Point');
+fsv.mount('/dir/Folder Mount Point', 0, fsv, '/dir/Some Folder');
 fsv.mkdirSync('/dir/Folder Symlink Loop');
 fsv.symlinkSync('.', '/dir/Folder Symlink Loop/Loop');
 fsv.writeFileSync('/dir/Folder Symlink Loop/file.txt', 'A text file to demonstrate the nested directory structure.');

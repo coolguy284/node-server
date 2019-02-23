@@ -6,13 +6,6 @@ function init(a) {
   pathEnd = a.pathEnd;
   normalize = a.normalize;
 }
-/*
-i immutable
-a appendonly
-s secure delete
-S system
-A noatime
-*/
 class FileSystem {
   constructor(writable, opts) {
     if (writable === undefined) writable = false;
@@ -21,7 +14,24 @@ class FileSystem {
     if (opts.inodarr === undefined) {
       let ctime = getcTime();
       //opts.inodarr = [['d', 0, 1, ctime, ctime, ctime, 0o777, 'root', 'root']];
-      opts.inodarr = [Buffer.from([0x04, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])];
+      /* fs flags:
+      i immutable
+      a appendonly
+      s secure delete
+      S system
+      A noatime
+      */
+      opts.inodarr = [Buffer.from([
+        0x04, // file type: 4 - directory, 10 - file, 12 - symlink
+        0x00, // fs flags: iasSa---
+        0x00, 0x01, // refrence count
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // create time
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // modify time
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // access time
+        0x01, 0xff, // permissions
+        0x00, 0x00, 0x00, 0x00, // uid
+        0x00, 0x00, 0x00, 0x00 // gid
+      ])];
       opts.inodarr[0].writeUIntBE(ctime, 4, 6);
       opts.inodarr[0].writeUIntBE(ctime, 10, 6);
       opts.inodarr[0].writeUIntBE(ctime, 16, 6);
@@ -172,11 +182,11 @@ class FileSystem {
   }
   stat(path) {
     let ino = this.geteInode(path);
-    return new fs.Stat(null, this.getInod(ino, 0) * 0o10000 + this.getInod(ino, 6), this.getInod(ino, 2), this.getInod(ino, 7), this.getInod(ino, 8), null, 1, ino, this.inoarr[ino].length, this.inoarr[ino].length, this.getInod(ino, 5), this.getInod(ino, 4), this.getInod(ino, 3), this.getInod(ino, 3));
+    return new fs.Stats(null, this.getInod(ino, 0) * 0o10000 + this.getInod(ino, 6), this.getInod(ino, 2), this.getInod(ino, 7), this.getInod(ino, 8), null, 1, ino, this.inoarr[ino].length, this.inoarr[ino].length, this.getInod(ino, 5), this.getInod(ino, 4), this.getInod(ino, 3), this.getInod(ino, 3));
   }
   lstat(path) {
     let ino = this.geteInode(path, false);
-    return new fs.Stat(null, this.getInod(ino, 0) * 0o10000 + this.getInod(ino, 6), this.getInod(ino, 2), this.getInod(ino, 7), this.getInod(ino, 8), null, 1, ino, this.inoarr[ino].length, this.inoarr[ino].length, this.getInod(ino, 5), this.getInod(ino, 4), this.getInod(ino, 3), this.getInod(ino, 3));
+    return new fs.Stats(null, this.getInod(ino, 0) * 0o10000 + this.getInod(ino, 6), this.getInod(ino, 2), this.getInod(ino, 7), this.getInod(ino, 8), null, 1, ino, this.inoarr[ino].length, this.inoarr[ino].length, this.getInod(ino, 5), this.getInod(ino, 4), this.getInod(ino, 3), this.getInod(ino, 3));
   }
   chmod(path, mode) {
     if (!this.writable) throw new Error('read-only filesystem');
@@ -226,13 +236,13 @@ class FileSystem {
   }
   chattr(path, attrb) {
     if (!this.writable) throw new Error('read-only filesystem');
-    if (attrb < 0 && attrb > 255) throw new Error('invalid file attribute mode');
+    if (attrb < 0 && attrb > 255) throw new Error('invalid file attributes');
     let ino = this.geteInode(path);
     this.setInod(ino, 1, attrb);
   }
   lchattr(path, attrb) {
     if (!this.writable) throw new Error('read-only filesystem');
-    if (attrb < 0 && attrb > 255) throw new Error('invalid file attribute mode');
+    if (attrb < 0 && attrb > 255) throw new Error('invalid file attributes');
     let ino = this.geteInode(path, false);
     this.setInod(ino, 1, attrb);
   }
@@ -249,7 +259,7 @@ class FileSystem {
   }
   writeFile(path, buf) {
     if (!this.writable) throw new Error('read-only filesystem');
-    let ino = this.getcInode(path, 10);
+    let ino = this.getcInode(path, 8);
     if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
     this.inoarr[ino] = Buffer.from(buf);
     let ctime = getcTime();
@@ -259,7 +269,7 @@ class FileSystem {
   appendFile(path, buf) {
     if (!this.writable) throw new Error('read-only filesystem');
     if (typeof buf == 'string') buf = Buffer.from(buf);
-    let ino = this.getcInode(path, 10);
+    let ino = this.getcInode(path, 8);
     if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
     this.inoarr[ino] = Buffer.concat([this.inoarr[ino], buf]);
     let ctime = getcTime();
@@ -284,13 +294,14 @@ class FileSystem {
     this.setInod(ino, 5, ctime);
   }
   createReadStream(path) {
-    let s = new datajs.s.BufReadStream(this.inoarr[this.geteInode(path)]);
+    let ino = this.geteInode(path);
+    let s = new datajs.s.BufReadStream(this.inoarr[ino]);
     if (this.writable) this.setInod(ino, 5, getcTime());
     return s;
   }
   createWriteStream(path) {
     if (!this.writable) throw new Error('read-only filesystem');
-    let ino = this.getcInode(path, 10);
+    let ino = this.getcInode(path, 8);
     if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
     let s = new datajs.s.BufWriteStream(undefined, true);
     let ctime = getcTime();
@@ -332,7 +343,7 @@ class FileSystem {
     if (!this.writable) throw new Error('read-only filesystem');
     let inof = this.geteInode(pathf);
     if (this.exists(patht)) this.unlink(patht);
-    let inot = this.getcInode(patht, 10);
+    let inot = this.getcInode(patht, 8);
     this.inoarr[inot] = Buffer.from(this.inoarr[inof]);
     this.setInod(inof, 5, this.getInod(inot, 3));
   }
@@ -346,7 +357,7 @@ class FileSystem {
   }
   symlink(target, path) {
     if (this.exists(path)) throw new Error('path already exists');
-    let ino = this.getcInode(path, 12);
+    let ino = this.getcInode(path, 10);
     if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
     this.inoarr[ino] = Buffer.from(target);
   }
