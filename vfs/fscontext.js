@@ -6,18 +6,24 @@ function init(a) {
   normalize = a.normalize;
 }
 class FileSystemContext {
-  constructor(fs, cwd, user, mounts) {
-    if (cwd === undefined) cwd = '/';
-    if (user === undefined) user = 'root';
-    if (mounts === undefined) mounts = [[], [], [], []];
+  constructor(fs, opts) {
+    if (opts === undefined) opts = {};
+    if (opts.cwd === undefined) opts.cwd = '/';
+    if (opts.user === undefined) opts.user = 'root';
+    if (opts.mounts === undefined) opts.mounts = [[], [], [], []];
+    if (opts.fd === undefined) opts.fd = [];
     this.fs = fs;
-    this.cwd = cwd;
-    this.user = user;
-    this.mounts = mounts;
+    this.cwd = opts.cwd;
+    this.user = opts.user;
+    this.mounts = opts.mounts;
+    this.fd = opts.fd;
   }
   mountNormalize(path, symlink, cwd) {
     if (symlink === undefined) symlink = true;
     if (cwd === undefined) cwd = this.cwd;
+    path = path.replace(/\\/g, '/');
+    if (path[0] == '/') path = path[0] + path.slice(1, Infinity).replace(/\/*$/, '');
+    else path = path.replace(/\/*$/, '');
     path = normalize(path, cwd);
     let patharr = path.split('/');
     for (let i in patharr) {
@@ -42,6 +48,16 @@ class FileSystemContext {
     }
     path = normalize(path, this.cwd);
     return [this, path];
+  }
+  addfd(item) {
+    for (var i in this.fd) {
+      if (this.fd[i] === undefined) {
+        this.fd[i] = item;
+        return parseInt(i);
+      }
+    }
+    this.fd.push(item);
+    return this.fd.length - 1;
   }
   getPerms(ino) {
     let uid = this.fs.uids.indexOf(this.user);
@@ -98,15 +114,15 @@ class FileSystemContext {
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1], false)).write) throw new Error('ERRNO 13 no permission');
     return fsc[0].fs.lchmod(fsc[1], mode);
   }
-  chownSync(path, user, group) {
+  chownSync(path, uid, gid) {
     let fsc = this.mountNormalize(path);
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new Error('ERRNO 13 no permission');
-    return fsc[0].fs.chown(fsc[1], user, group);
+    return fsc[0].fs.chown(fsc[1], uid, gid);
   }
-  lchownSync(path, user, group) {
+  lchownSync(path, uid, gid) {
     let fsc = this.mountNormalize(path, false);
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1], false)).write) throw new Error('ERRNO 13 no permission');
-    return fsc[0].fs.lchown(fsc[1], user, group);
+    return fsc[0].fs.lchown(fsc[1], uid, gid);
   }
   chattrSync(path, attrb) {
     let fsc = this.mountNormalize(path);
@@ -126,23 +142,41 @@ class FileSystemContext {
     return fsc[0].fs.utimes(fsc[1], atime, mtime);
   }
   readFileSync(path) {
-    let fsc = this.mountNormalize(path);
-    if (!this.getPerms(fsc[0].fs.geteInode(fsc[1])).read) throw new Error('ERRNO 13 no permission');
-    return fsc[0].fs.readFile(fsc[1]);
+    if (typeof path == 'number') {
+      if (this.fd[path] === undefined) throw new Error('bad file descriptor');
+      if (this.fd[path].indexOf('r') < 0) throw new Error('file not opened in read mode');
+      return this.fd[path][1].readFileSync(this.fd[path][2]);
+    } else {
+      let fsc = this.mountNormalize(path);
+      if (!this.getPerms(fsc[0].fs.geteInode(fsc[1])).read) throw new Error('ERRNO 13 no permission');
+      return fsc[0].fs.readFile(fsc[1]);
+    }
   }
   writeFileSync(path, buf) {
-    let fsc = this.mountNormalize(path);
-    if (!fsc[0].getPerms(fsc[0].fs.geteInode(parentPath(fsc[1]))).write) throw new Error('ERRNO 13 no permission');
-    if (fsc[0].fs.exists(fsc[1]))
-    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new Error('ERRNO 13 no permission');
-    return fsc[0].fs.writeFile(fsc[1], buf);
+    if (typeof path == 'number') {
+      if (this.fd[path] === undefined) throw new Error('bad file descriptor');
+      if (this.fd[path].indexOf('w') < 0) throw new Error('file not opened in write mode');
+      return this.fd[path][1].writeFileSync(this.fd[path][2], buf);
+    } else {
+      let fsc = this.mountNormalize(path);
+      if (!fsc[0].getPerms(fsc[0].fs.geteInode(parentPath(fsc[1]))).write) throw new Error('ERRNO 13 no permission');
+      if (fsc[0].fs.exists(fsc[1]))
+      if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new Error('ERRNO 13 no permission');
+      return fsc[0].fs.writeFile(fsc[1], buf);
+    }
   }
   appendFileSync(path, buf) {
-    let fsc = this.mountNormalize(path);
-    if (!fsc[0].getPerms(this.fs.geteInode(parentPath(fsc[1]))).write) throw new Error('ERRNO 13 no permission');
-    if (fsc[0].fs.exists(fsc[1]))
-    if (!fsc[0].getPerms(this.fs.geteInode(fsc[1])).write) throw new Error('ERRNO 13 no permission');
-    return fsc[0].fs.appendFile(fsc[1], buf);
+    if (typeof path == 'number') {
+      if (this.fd[path] === undefined) throw new Error('bad file descriptor');
+      if (this.fd[path].indexOf('a') < 0) throw new Error('file not opened in append mode');
+      return this.fd[path][1].appendFileSync(this.fd[path][2], buf);
+    } else {
+      let fsc = this.mountNormalize(path);
+      if (!fsc[0].getPerms(this.fs.geteInode(parentPath(fsc[1]))).write) throw new Error('ERRNO 13 no permission');
+      if (fsc[0].fs.exists(fsc[1]))
+      if (!fsc[0].getPerms(this.fs.geteInode(fsc[1])).write) throw new Error('ERRNO 13 no permission');
+      return fsc[0].fs.appendFile(fsc[1], buf);
+    }
   }
   truncateSync(path, len) {
     let fsc = this.mountNormalize(path);
@@ -202,10 +236,10 @@ class FileSystemContext {
     if (!fsct[0].getPerms(fsct[0].fs.geteInode(fsct[1])).write) throw new Error('ERRNO 13 no permission');
     return fsct[0].fs.symlink(pathf, fsct[1]);
   }
-  readdirSync(path) {
+  readdirSync(path, options) {
     let fsc = this.mountNormalize(path);
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).read) throw new Error('ERRNO 13 no permission');
-    return fsc[0].fs.readdir(fsc[1]);
+    return fsc[0].fs.readdir(fsc[1], options);
   }
   mkdirSync(path) {
     let fsc = this.mountNormalize(path);
@@ -229,52 +263,338 @@ class FileSystemContext {
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1], false)).write) throw new Error('ERRNO 13 no permission');
     return fsc[0].fs.rmdir(fsc[1]);
   }
-  unlink(path, cb) {
-    try {
-      this.unlinkSync(path);
-      setImmediate(cb, undefined);
-    } catch (e) {
-      setImmediate(cb, e);
-    }
+  stat(path, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.statSync(path));
+      } catch (e) {
+        return cb(e);
+      }
+    });
   }
-  readdir(path, cb) {
-    try {
-      setImmediate(cb, undefined, this.readdirSync(path));
-    } catch (e) {
-      setImmediate(cb, e);
-    }
+  lstat(path, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.lstatSync(path));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  chmod(path, mode, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.chmodSync(path, mode));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  lchmod(path, mode, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.lchmodSync(path, mode));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  chown(path, uid, gid, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.chownSync(path, uid, gid));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  lchown(path, uid, gid, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.lchownSync(path, uid, gid));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  utimes(path, atime, mtime, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.utimesSync(path, atime, mtime));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  readFile(path, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.readFileSync(path));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  writeFile(path, buf, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.writeFileSync(path, buf));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  appendFile(path, buf, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.appendFileSync(path, buf));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  truncate(path, len, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.truncateSync(path, len));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  link(pathf, patht, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.linkSync(pathf, patht));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  unlink(path, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.unlinkSync(path));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  copyFile(pathf, patht, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.copyFileSync(pathf, patht));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  readlink(path, options, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.readlinkSync(path, options));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  symlink(pathf, patht, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.symlinkSync(pathf, patht));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  readdir(path, options, cb) {
+    if (cb === undefined) cb = options;
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.readdirSync(path, options));
+      } catch (e) {
+        return cb(e);
+      }
+    });
   }
   mkdir(path, cb) {
-    try {
-      this.mkdirSync(path);
-      setImmediate(cb, undefined);
-    } catch (e) {
-      setImmediate(cb, e);
-    }
-  }
-  stat(path, cb) {
-    try {
-      setImmediate(cb, undefined, this.statSync(path));
-    } catch (e) {
-      setImmediate(cb, e);
-    }
-  }
-  rmdir(path, cb) {
-    try {
-      this.rmdirSync(path);
-      setImmediate(cb, undefined);
-    } catch (e) {
-      setImmediate(cb, e);
-    }
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.mkdirSync(path));
+      } catch (e) {
+        return cb(e);
+      }
+    });
   }
   rename(pathf, patht, cb) {
-    try {
-      his.renameSync(pathf, patht);
-      setImmediate(cb, undefined);
-    } catch (e) {
-      setImmediate(cb, e);
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.renameSync(pathf, patht));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  rmdir(path, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.rmdirSync(path));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  openSync(path, flags, mode) {
+    if (flags === undefined) flags = 'r';
+    switch (flags) {
+      case 'a':
+      case 'as':
+        if (!this.existsSync(path)) this.writeFile(path, '');
+        return this.addfd(['a', ...this.mountNormalize(path)]);
+        break;
+      case 'ax':
+        if (this.existsSync(path)) throw new Error('file already exists');
+        this.writeFile(path, '');
+        return this.addfd(['a', ...this.mountNormalize(path)]);
+        break;
+      case 'a+':
+      case 'as+':
+        if (!this.existsSync(path)) this.writeFile(path, '');
+        return this.addfd(['ra', ...this.mountNormalize(path)]);
+        break;
+      case 'ax+':
+        if (this.existsSync(path)) throw new Error('file already exists');
+        this.writeFile(path, '');
+        return this.addfd(['ra', ...this.mountNormalize(path)]);
+        break;
+      case 'r':
+        if (!this.existsSync(path)) throw new Error('file nonexistent');
+        return this.addfd(['r', ...this.mountNormalize(path)]);
+        break;
+      case 'r+':
+      case 'rs+':
+        if (!this.existsSync(path)) throw new Error('file nonexistent');
+        return this.addfd(['rw', ...this.mountNormalize(path)]);
+        break;
+      case 'w':
+        this.writeFile(path, '');
+        return this.addfd(['w', ...this.mountNormalize(path)]);
+        break;
+      case 'wx':
+        if (this.existsSync(path)) throw new Error('file already exists');
+        return this.addfd(['w', ...this.mountNormalize(path)]);
+        break;
+      case 'w+':
+        this.writeFile(path, '');
+        return this.addfd(['rw', ...this.mountNormalize(path)]);
+        break;
+      case 'wx+':
+        if (this.existsSync(path)) throw new Error('file already exists');
+        return this.addfd(['rw', ...this.mountNormalize(path)]);
+        break;
     }
   }
+  closeSync(fd) {
+    if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
+    delete this.fd[fd];
+    while (this.fd[this.fd.length - 1] === undefined && this.fd.length > 0) this.fd.splice(this.fd.length - 1, 1);
+  }
+  open(path, flags, mode, cb) {
+    if (cb === undefined) {
+      if (mode === undefined) cb = flags;
+      else cb = mode;
+    }
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.openSync(path, flags, mode));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  close(fd, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.closeSync(fd));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  fstatSync(fd) {
+    if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
+    if (this.fd[fd].indexOf('r') < 0) throw new Error('file not opened in read mode');
+    return this.fd[fd][1].statSync(this.fd[fd][2]);
+  }
+  fchmodSync(fd, mode) {
+    if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
+    if (this.fd[fd].indexOf('w') < 0) throw new Error('file not opened in write mode');
+    return this.fd[fd][1].lchmodSync(this.fd[fd][2], mode);
+  }
+  fchownSync(fd, uid, gid) {
+    if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
+    if (this.fd[fd].indexOf('w') < 0) throw new Error('file not opened in write mode');
+    return this.fd[fd][1].lchownSync(this.fd[fd][2], uid, gid);
+  }
+  futimesSync(fd, atime, mtime) {
+    if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
+    if (this.fd[fd].indexOf('w') < 0) throw new Error('file not opened in write mode');
+    return this.fd[fd][1].utimesSync(this.fd[fd][2], atime, mtime);
+  }
+  ftruncateSync(fd, len) {
+    if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
+    if (this.fd[fd].indexOf('w') < 0) throw new Error('file not opened in write mode');
+    return this.fd[fd][1].truncateSync(this.fd[fd][2], len);
+  }
+  fstat(fd, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.fstatSync(fd));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  fchmod(fd, mode) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.fchmodSync(fd, mode));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  fchown(fd, uid, gid) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.fchownSync(fd, uid, gid));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  futimes(fd, atime, mtime) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.futimesSync(fd, atime, mtime));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  ftruncate(fd, len) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.ftruncateSync(fd, len));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  fdatasyncSync() {}
+  fsyncSync() {}
+  fdatasync() {}
+  fsync() {}
   mount(pathf, typ, fs, patht) {
     if (patht === undefined) patht = '/';
     pathf = normalize(pathf, this.cwd);
