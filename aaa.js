@@ -129,6 +129,7 @@ global.vm = require('vm');
 global.vfs = require('./vfs/vfs.js');
 global.reqg = require('./request_get.js');
 global.reqh = require('./request_head.js');
+global.hreq = require('./host_request.js');
 try {
   global.mime = require('mime');
 } catch (e) {
@@ -364,15 +365,23 @@ global.serverf = function serverf(req, resa, nolog) {
     if (datajs.feat.el.cons.indexOf(req.url) < 0 && datajs.feat.el.consv.every(datajs.notstartswith, req.url)) {
       let tsd = stime.toISOString();
       if (baniplist.indexOf(ipaddr.replace('::ffff:', '')) > -1 || (req.connection.remoteAddress != '::ffff:127.0.0.1' && datajs.feat.intmode)) {
-        console.log(datajs.tn('[' + tsd + '] ' + datajs.ipform(ipaddr) + ' ' + proto.padEnd(5) + ' ' + req.method + ' ' + url + ' ' + req.url, datajs.feat.lim.cologm) + ' banned');
-        cologdadd('[' + tsd + '] ' + datajs.ipform(req.connection.remoteAddress) + ' ' + proto.padEnd(5) + ' ' + req.method + ' ' + req.url + ' ' + req.headers['x-forwarded-for'] + ' banned');
+        if (datajs.feat.hosts.main.indexOf(url) > -1) {
+          console.log(datajs.tn('[' + tsd + '] ' + datajs.ipform(ipaddr) + ' ' + proto.padEnd(5) + ' ' + req.method + ' ' + url + ' ' + req.url, datajs.feat.lim.cologm) + ' banned');
+        } else {
+          console.log(datajs.tn('[' + tsd + '] ' + datajs.ipform(ipaddr) + ' ' + proto.padEnd(5) + ' ' + url + ' ' + req.method + ' ' + url + ' ' + req.url, datajs.feat.lim.cologm) + ' banned');
+        }
+        cologdadd('[' + tsd + '] ' + datajs.ipform(req.connection.remoteAddress) + ' ' + proto.padEnd(5) + ' ' + url + ' ' + req.method + ' ' + req.url + ' ' + req.headers['x-forwarded-for'] + ' banned');
         res.writeHead(403, {'Content-Type':'text/plain; charset=utf-8'});
         res.write('You are banned.');
         res.end();
         return;
       } else {
-        console.log(datajs.tn('[' + tsd + '] ' + datajs.ipform(ipaddr) + ' ' + proto.padEnd(5) + ' ' + req.method + ' ' + req.url, datajs.feat.lim.cologm));
-        cologdadd('[' + tsd + '] ' + datajs.ipform(req.connection.remoteAddress) + ' ' + proto.padEnd(5) + ' ' + req.method + ' ' + url + ' ' + req.url + ' ' + req.headers['x-forwarded-for']);
+        if (datajs.feat.hosts.main.indexOf(url) > -1) {
+          console.log(datajs.tn('[' + tsd + '] ' + datajs.ipform(ipaddr) + ' ' + proto.padEnd(5) + ' ' + req.method + ' ' + req.url, datajs.feat.lim.cologm));
+        } else {
+          console.log(datajs.tn('[' + tsd + '] ' + datajs.ipform(ipaddr) + ' ' + proto.padEnd(5) + ' ' + url + ' ' + req.method + ' ' + req.url, datajs.feat.lim.cologm));
+        }
+        cologdadd('[' + tsd + '] ' + datajs.ipform(req.connection.remoteAddress) + ' ' + proto.padEnd(5) + ' ' + url + ' ' + req.method + ' ' + url + ' ' + req.url + ' ' + req.headers['x-forwarded-for']);
       }
     }
   }
@@ -382,29 +391,34 @@ global.serverf = function serverf(req, resa, nolog) {
     return;
   }
   if (locked && datajs.feat.el.lockl.indexOf(req.url) < 0 && req.url.substr(0, 2) != '/a') return;
-  if (req.method == 'GET') {
-    if (req.url.substr(0, 2) == '/s' && datajs.feat.tost) {
-      adm.ipban(ipaddr); 
-    }
-    let rp = reqg(req, res, ipaddr, proto, url, cookies, nam);
-    if (!nolog && rp != -1) {
-      if (datajs.feat.el.vh.indexOf(req.url) < 0 && datajs.feat.el.vhv.every(datajs.notstartswith, req.url) && Object.keys(datajs.handlerp).every(datajs.notstartswith, req.url)) {
-        if (rp != 'p404') {
-          if (datajs.feat.el.ajaxl.indexOf(req.url) < 0) rp = 'reg';
-          else rp = 'ajax';
-        }
-        if (viewshist[rp][req.url] === undefined) {
-          viewshist[rp][req.url] = 1;
-        } else {
-          viewshist[rp][req.url]++;
+  if (datajs.feat.hosts.main.indexOf(url) > -1) {
+    if (req.method == 'GET') {
+      if (req.url.substr(0, 2) == '/s' && datajs.feat.tost) {
+        adm.ipban(ipaddr); 
+      }
+      let rp = reqg(req, res, ipaddr, proto, url, cookies, nam);
+      if (!nolog && rp != -1) {
+        if (datajs.feat.el.vh.indexOf(req.url) < 0 && datajs.feat.el.vhv.every(datajs.notstartswith, req.url) && Object.keys(datajs.handlerp).every(datajs.notstartswith, req.url)) {
+          if (rp != 'p404') {
+            if (datajs.feat.el.ajaxl.indexOf(req.url) < 0) rp = 'reg';
+            else rp = 'ajax';
+          }
+          if (viewshist[rp][req.url] === undefined) {
+            viewshist[rp][req.url] = 1;
+          } else {
+            viewshist[rp][req.url]++;
+          }
         }
       }
+    } else if (req.method == 'HEAD') {
+      reqh(req, res, ipaddr, proto, url, cookies, nam);
+    } else {
+      res.writeHead(501);
+      res.end();
     }
-  } else if (req.method == 'HEAD') {
-    reqh(req, res, ipaddr, proto, url, cookies, nam);
   } else {
-    res.writeHead(501);
-    res.end();
+    let althost = datajs.feat.hosts.map[url];
+    hreq(req, res, ipaddr, proto, url, althost, cookies, nam);
   }
   req10s = true;
   global.etime = new Date();

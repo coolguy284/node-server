@@ -505,9 +505,9 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
           if (fs.existsSync('user_websites/' + nam + rurl)) {
             let rs = fs.createReadStream('user_websites/' + nam + rurl);
             res.writeHead(200, {
-              'Content-Type':(datajs.mime.get(req.url) + '; charset=utf-8'),
-              'Content-Length':fs.statSync('user_websites/' + nam + rurl).size,
-              'Accept-Ranges':'bytes'
+              'Content-Type': datajs.mime.get(req.url) + '; charset=utf-8',
+              'Content-Length': fs.statSync('user_websites/' + nam + rurl).size,
+              'Accept-Ranges': 'bytes',
             });
             rs.pipe(res);
           } else {
