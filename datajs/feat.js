@@ -40,12 +40,18 @@ module.exports = {
     'rp' : {},
     'adv' : false,
   },
-  'mainhosts' : [
-    'server--coolguy284.repl.co',
-    'server.coolguy284.repl.co',
-    'coolguy284.repl.co',
-    'c284.herokuapp.com',
-  ],
+  'hosts' : {
+    'main' : [
+      'server--coolguy284.repl.co',
+      'server.coolguy284.repl.co',
+      'coolguy284.repl.co',
+      'c284.herokuapp.com',
+    ],
+    'map': {
+    },
+    'test' : [
+    ],
+  },
   'el' : {
     'cons' : ['/livechat.dat', '/liverchat.json', '/liveviews.dat', '/comms.json', '/colog.dat', '/cologd.dat', '/livechathere.dat', '/livechattyp.dat', '/livechatkick.dat', '/lat.log'],
     'consv' : ['/s?her=', '/s?typ=', '/a?co=', '/a?cd=', '/a?ccp=', '/a?rc='],
