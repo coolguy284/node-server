@@ -75,8 +75,8 @@ function SecureView(view) {
     fsync: view.fsync.bind(view),
   };
 }
-let rfs = new FileSystem(true);
-let rfs2 = new FileSystem(true);
+let rfs = new FileSystem({writable:true});
+let rfs2 = new FileSystem({writable:true});
 let fsv = new FileSystemContext(rfs);
 let fsv2 = new FileSystemContext(rfs2);
 module.exports = {

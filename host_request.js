@@ -2,7 +2,7 @@ module.exports = function hreq(req, res, ipaddr, proto, url, althost, cookies, n
   if (althost == 'test') {
     if (req.method == 'GET') {
       if (req.url == '/') {
-        let rs = fs.createReadStream('host_websites/test/index.html');
+        let rs = fs.createReadStream('host_websites/test/indexredirect.html');
         res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
         rs.pipe(res);
       } else {
