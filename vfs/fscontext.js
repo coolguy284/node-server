@@ -212,17 +212,28 @@ class FileSystemContext {
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new Error('ERRNO 13 no permission');
     return fsc[0].fs.truncate(fsc[1], len);
   }
-  createReadStream(path) {
+  createReadStream(path, options) {
+    if (options === undefined) options = {};
+    if (options.encoding === undefined) options.encoding = null;
+    if (options.fd === undefined) options.fd = null;
+    if (options.autoClose === undefined) options.autoClose = true;
+    if (options.end === undefined) options.end = Infinity;
+    if (options.highWaterMark === undefined) options.highWaterMark = 65536;
     let fsc = this.mountNormalize(path);
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).read) throw new Error('ERRNO 13 no permission');
-    return fsc[0].fs.createReadStream(fsc[1]);
+    return VFSReadStream(this, path, options);
   }
-  createWriteStream(path) {
+  createWriteStream(path, options) {
+    if (options === undefined) options = {};
+    if (options.encoding === undefined) options.encoding = 'utf8';
+    if (options.fd === undefined) options.fd = null;
+    if (options.mode === undefined) options.mode = 0o666;
+    if (options.autoClose === undefined) options.autoClose = true;
     let fsc = this.mountNormalize(path);
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(parentPath(fsc[1]))).write) throw new Error('ERRNO 13 no permission');
     if (fsc[0].fs.exists(fsc[1]))
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new Error('ERRNO 13 no permission');
-    return fsc[0].fs.createWriteStream(fsc[1]);
+    return VFSWriteStream(this, path, options);
   }
   linkSync(pathf, patht) {
     let fscf = this.mountNormalize(pathf, false);
@@ -631,7 +642,7 @@ class FileSystemContext {
   read(fd, buffer, offset, length, position, cb) {
     setImmediate(() => {
       try {
-        return cb(undefined, ...this.readSync(fd, buffer, offset, length, position));
+        return cb(undefined, this.readSync(fd, buffer, offset, length, position), buffer);
       } catch (e) {
         return cb(e);
       }
@@ -641,7 +652,7 @@ class FileSystemContext {
     if (cb === undefined) {cb = position; position = undefined;}
     setImmediate(() => {
       try {
-        return cb(undefined, ...this.writeSync(fd, buffer, offset, length, position));
+        return cb(undefined, this.writeSync(fd, buffer, offset, length, position), buffer);
       } catch (e) {
         return cb(e);
       }
