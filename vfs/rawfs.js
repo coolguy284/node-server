@@ -395,28 +395,6 @@ class FileSystem {
     this.setInod(ino, 4, ctime);
     this.setInod(ino, 5, ctime);
   }
-  createReadStream(path) {
-    let ino = this.geteInode(path);
-    let s = new datajs.s.BufReadStream(this.inoarr[ino]);
-    if (this.writable) this.setInod(ino, 5, getcTime());
-    return s;
-  }
-  createWriteStream(path) {
-    if (!this.writable) throw new Error('read-only filesystem');
-    let ino = this.getcInode(path, 8);
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
-    let s = new datajs.s.BufWriteStream(undefined, true);
-    let ctime = getcTime();
-    this.setInod(ino, 4, ctime);
-    this.setInod(ino, 5, ctime);
-    s.on('finish', function () {
-      this.inoarr[ino] = s.ibuf;
-      let ctime = getcTime();
-      this.setInod(ino, 4, ctime);
-      this.setInod(ino, 5, ctime);
-    });
-    return s;
-  }
   link(pathf, patht, nincref) {
     if (!this.writable) throw new Error('read-only filesystem');
     let ino = this.geteInode(pathf, false);
@@ -516,7 +494,7 @@ class FileSystem {
       this.inoarr[ino].copy(buffer, offset, position, position + length);
     }
     if (this.writable) this.setInod(ino, 5, getcTime());
-    return [length, buffer];
+    return length;
   }
   write(ino, sp, buffer, offset, length, position) {
     if (!this.writable) throw new Error('read-only filesystem');
@@ -533,7 +511,7 @@ class FileSystem {
     let ctime = getcTime();
     this.setInod(ino, 4, ctime);
     this.setInod(ino, 5, ctime);
-    return [length, buffer];
+    return length;
   }
   writeStr(ino, sp, string, position, encoding) {
     if (!this.writable) throw new Error('read-only filesystem');
@@ -550,7 +528,7 @@ class FileSystem {
     let ctime = getcTime();
     this.setInod(ino, 4, ctime);
     this.setInod(ino, 5, ctime);
-    return [buf.length, string];
+    return buf.length;
   }
   reverseLookup(ino, symlink, inos, path, inods, lkp) {
     if (symlink === undefined) symlink = false;
