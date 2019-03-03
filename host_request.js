@@ -6,7 +6,7 @@ module.exports = function hreq(req, res, ipaddr, proto, url, althost, cookies, n
         res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
         rs.pipe(res);
       } else {
-        let rpath = 'host_websites/test' + req.url;
+        let rpath = 'host_websites/test' + req.url, runelse = false;
         if (fs.existsSync(rpath) && datajs.subdir('host_websites/test', rpath)) {
           if (fs.statSync(rpath).isFile()) {
             let rs = fs.createReadStream(rpath);
@@ -16,11 +16,12 @@ module.exports = function hreq(req, res, ipaddr, proto, url, althost, cookies, n
               'Accept-Ranges': 'none',
             });
             rs.pipe(res);
-          } else {
-            let rs = fs.createReadStream('host_websites/test/p404.html');
-            res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
-            rs.pipe(res);
-          }
+          } else runelse = true;
+        } else runelse = true;
+        if (runelse) {
+          let rs = fs.createReadStream('host_websites/test/p404.html');
+          res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
+          rs.pipe(res);
         }
       }
     }

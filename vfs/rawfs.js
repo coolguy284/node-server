@@ -449,7 +449,15 @@ class FileSystem {
     let pf = this.parseFolder(this.inoarr[ino], options.encoding);
     if (this.writable) this.setInod(ino, 5, getcTime());
     if (options.withFileTypes) {
-      return pf.map(x => fs.Dirent(x[0], this.getInod(x[1], 0)));
+      return pf.map(x => {
+        let rtyp = this.getInod(x[1], 0), typ;
+        switch (rtyp) {
+          case 4: typ = 1; break;
+          case 8: typ = 2; break;
+          case 10: typ = 3; break;
+        }
+        return fs.Dirent(x[0], typ);
+      });
     } else {
       return pf.map(x => x[0]);
     }
@@ -487,11 +495,15 @@ class FileSystem {
     if (offset + length > buffer.length) throw new Error('buffer too short');
     if (typeof position == 'number' && position < 0) throw new Error('invalid position');
     if (position == null) {
-      if (sp + length > this.inoarr[ino].length) throw new Error('cannot read beyond end of file');
-      this.inoarr[ino].copy(buffer, offset, sp, sp + length);
+      if (sp + length > this.inoarr[ino].length) {
+        this.inoarr[ino].copy(buffer, offset, sp);
+        length = this.inoarr[ino].length - sp;
+      } else this.inoarr[ino].copy(buffer, offset, sp, sp + length);
     } else {
-      if (position + length > this.inoarr[ino].length) throw new Error('cannot read beyond end of file');
-      this.inoarr[ino].copy(buffer, offset, position, position + length);
+      if (position + length > this.inoarr[ino].length) {
+        this.inoarr[ino].copy(buffer, offset, position);
+        length = this.inoarr[ino].length - position;
+      } else this.inoarr[ino].copy(buffer, offset, position, position + length);
     }
     if (this.writable) this.setInod(ino, 5, getcTime());
     return length;
@@ -502,11 +514,13 @@ class FileSystem {
     if (offset + length > buffer.length) throw new Error('buffer too short');
     if (typeof position == 'number' && position < 0) throw new Error('invalid position');
     if (position == null) {
-      if (sp + length > this.inoarr[ino].length) throw new Error('cannot write beyond end of file');
-      buffer.copy(this.inoarr[ino], sp, offset, offset + length);
+      if (sp + length > this.inoarr[ino].length) {
+        this.inoarr[ino] = Buffer.concat([this.inoarr[ino].slice(0, sp), buffer.slice(offset, offset + length)]);
+      } else buffer.copy(this.inoarr[ino], sp, offset, offset + length);
     } else {
-      if (position + length > this.inoarr[ino].length) throw new Error('cannot write beyond end of file');
-      buffer.copy(this.inoarr[ino], position, offset, offset + length);
+      if (position + length > this.inoarr[ino].length) {
+        this.inoarr[ino] = Buffer.concat([this.inoarr[ino].slice(0, position), buffer.slice(offset, offset + length)]);
+      } else buffer.copy(this.inoarr[ino], position, offset, offset + length);
     }
     let ctime = getcTime();
     this.setInod(ino, 4, ctime);
@@ -519,11 +533,13 @@ class FileSystem {
     if (typeof position == 'number' && position < 0) throw new Error('invalid position');
     let buf = Buffer.from(string, encoding);
     if (position == null) {
-      if (sp + buf.length > this.inoarr[ino].length) throw new Error('cannot write beyond end of file');
-      buffer.copy(this.inoarr[ino], sp);
+      if (sp + buf.length > this.inoarr[ino].length) {
+        this.inoarr[ino] = Buffer.concat([this.inoarr[ino].slice(0, sp), buffer]);
+      } else buffer.copy(this.inoarr[ino], sp);
     } else {
-      if (position + buf.length > this.inoarr[ino].length) throw new Error('cannot write beyond end of file');
-      buffer.copy(this.inoarr[ino], position);
+      if (position + buf.length > this.inoarr[ino].length) {
+        this.inoarr[ino] = Buffer.concat([this.inoarr[ino].slice(0, position), buffer]);
+      } else buffer.copy(this.inoarr[ino], position);
     }
     let ctime = getcTime();
     this.setInod(ino, 4, ctime);
@@ -574,10 +590,17 @@ class FileSystem {
     }
     return arr;
   }
+  wipefi() {
+    if (!this.writable) throw new Error('read only filesystem');
+    for (var i in this.fi) {
+      delete this.inoarr[this.fi[i]];
+      delete this.inodarr[this.fi[i]];
+    }
+  }
   exportSystemRaw() {
     let arr = [this.writable, [], [], []];
-    for (var i = 0; i < this.inoarr.length; i++) arr[1].push(this.inoarr[i].toString('binary'));
-    for (var i = 0; i < this.inodarr.length; i++) arr[2].push(this.inodarr[i].toString('binary'));
+    for (var i = 0; i < this.inoarr.length; i++) arr[1].push(this.inoarr[i] !== undefined ? this.inoarr[i].toString('binary') : undefined);
+    for (var i = 0; i < this.inodarr.length; i++) arr[2].push(this.inodarr[i] !== undefined ? this.inodarr[i].toString('binary') : undefined);
     for (var i = 0; i < this.fi.length; i++) arr[3].push(this.fi[i]);
     return arr;
   }
@@ -585,16 +608,18 @@ class FileSystem {
     return JSON.stringify(this.exportSystemRaw());
   }
   importSystemRaw(arr) {
+    if (!this.writable) throw new Error('read only filesystem');
     this.writable = arr[0];
     this.inoarr.splice(0, Infinity);
     this.inodarr.splice(0, Infinity);
     this.fi.splice(0, Infinity);
-    for (var i = 0; i < arr[1].length; i++) this.inoarr.push(Buffer.from(arr[1][i], 'binary'));
-    for (var i = 0; i < arr[2].length; i++) this.inodarr.push(Buffer.from(arr[2][i], 'binary'));
+    for (var i = 0; i < arr[1].length; i++) this.inoarr.push(arr[1][i] != undefined ? Buffer.from(arr[1][i], 'binary') : undefined);
+    for (var i = 0; i < arr[2].length; i++) this.inodarr.push(arr[2][i] != undefined ? Buffer.from(arr[2][i], 'binary') : undefined);
     for (var i = 0; i < arr[3].length; i++) this.fi.push(arr[3][i]);
   }
   importSystem(str) {
+    if (!this.writable) throw new Error('read only filesystem');
     this.importSystemRaw(JSON.parse(str));
   }
 }
-module.exports = {FileSystem, init};
+module.exports = { FileSystem, init };
