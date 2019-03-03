@@ -48,8 +48,10 @@ module.exports = {
       'c284.herokuapp.com',
     ],
     'map': {
+      'test.coolguy284.com': 'test',
     },
     'test' : [
+      'test.coolguy284.com',
     ],
   },
   'el' : {

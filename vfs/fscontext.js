@@ -1,9 +1,11 @@
-let getcTime, parentPath, pathEnd, normalize;
-function init(a) {
+let getcTime, parentPath, pathEnd, normalize, VFSReadStream, VFSWriteStream;
+function init(a, b) {
   getcTime = a.getcTime;
   parentPath = a.parentPath;
   pathEnd = a.pathEnd;
   normalize = a.normalize;
+  VFSReadStream = b.VFSReadStream;
+  VFSWriteStream = b.VFSWriteStream;
 }
 class FileSystemContext {
   constructor(fs, opts) {
@@ -25,6 +27,7 @@ class FileSystemContext {
     this.fd = opts.fd;
   }
   mountNormalize(path, symlink, mount, cwd) {
+    if (path == null) return [this, path];
     if (symlink === undefined) symlink = true;
     if (mount === undefined) mount = true;
     if (cwd === undefined) cwd = this.cwd;
@@ -220,8 +223,8 @@ class FileSystemContext {
     if (options.end === undefined) options.end = Infinity;
     if (options.highWaterMark === undefined) options.highWaterMark = 65536;
     let fsc = this.mountNormalize(path);
-    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).read) throw new Error('ERRNO 13 no permission');
-    return VFSReadStream(this, path, options);
+    if (path != null && !fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).read) throw new Error('ERRNO 13 no permission');
+    return new VFSReadStream(this, path, options);
   }
   createWriteStream(path, options) {
     if (options === undefined) options = {};
@@ -230,10 +233,10 @@ class FileSystemContext {
     if (options.mode === undefined) options.mode = 0o666;
     if (options.autoClose === undefined) options.autoClose = true;
     let fsc = this.mountNormalize(path);
-    if (!fsc[0].getPerms(fsc[0].fs.geteInode(parentPath(fsc[1]))).write) throw new Error('ERRNO 13 no permission');
-    if (fsc[0].fs.exists(fsc[1]))
+    if (path != null && !fsc[0].getPerms(fsc[0].fs.geteInode(parentPath(fsc[1]))).write) throw new Error('ERRNO 13 no permission');
+    if (path != null && fsc[0].fs.exists(fsc[1]))
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new Error('ERRNO 13 no permission');
-    return VFSWriteStream(this, path, options);
+    return new VFSWriteStream(this, path, options);
   }
   linkSync(pathf, patht) {
     let fscf = this.mountNormalize(pathf, false);
@@ -755,4 +758,4 @@ class FileSystemContext {
     this.importSystemRaw(JSON.parse(str));
   }
 }
-module.exports = {FileSystemContext, init};
+module.exports = { FileSystemContext, init };

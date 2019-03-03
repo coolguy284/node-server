@@ -391,7 +391,7 @@ global.serverf = function serverf(req, resa, nolog) {
     return;
   }
   if (locked && datajs.feat.el.lockl.indexOf(req.url) < 0 && req.url.substr(0, 2) != '/a') return;
-  if (datajs.feat.hosts.main.indexOf(url) > -1) {
+  if (datajs.feat.hosts.main.indexOf(url) > -1 || datajs.feat.el.lockl.indexOf(req.url) > -1 || req.url.substr(0, 2) == '/a') {
     if (req.method == 'GET') {
       if (req.url.substr(0, 2) == '/s' && datajs.feat.tost) {
         adm.ipban(ipaddr); 

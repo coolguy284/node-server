@@ -7,7 +7,7 @@ let FileSystem = rawfs.FileSystem;
 rawfs.init(helperf);
 let fscontext = require('./fscontext.js');
 let FileSystemContext = fscontext.FileSystemContext;
-fscontext.init(helperf);
+fscontext.init(helperf, s);
 function SecureView(fsc) {
   return {
     get cwd() { return fsc.cwd; },

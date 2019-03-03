@@ -26,4 +26,4 @@ function normalize(path, cwd) {
   if (rbp[0] != '/' && !/^<\d+>$/.test(rbp[0])) bp = '/' + bp;
   return rbp;
 }
-module.exports = {getcTime, parentPath, pathEnd, normalize};
+module.exports = { getcTime, parentPath, pathEnd, normalize };
