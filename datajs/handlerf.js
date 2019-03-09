@@ -89,4 +89,26 @@ module.exports = {
     }
     return -1;
   },
+  'coolguy284/user/adv-sitemap.xml' : function (req, res) {
+    let str = fs.readFileSync('user_websites/coolguy284/sitemap.xml').toString(),
+      tstr = fs.readFileSync('user_websites/coolguy284/sitemappart.xml').toString(),
+      bstr = [];
+    let cr = datajs.crawl.crawl('/index.html');
+    for (var i in cr) {
+      bstr.push(tstr.replace('{path}', cr[i][0]).replace('{date}', cr[i][1]).replace('{priority}', cr[i][2]));
+    }
+    str = str.replace('{info}', bstr.join('\n'));
+    res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
+    res.write(str);
+    res.end();
+    if (datajs.feat.cache.adv) {
+      datajs.handlerf['coolguy284/user/adv-sitemap.xml'] = function (req, res) {
+        res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
+        res.write(str);
+        res.end();
+        return -1;
+      }
+    }
+    return -1;
+  },
 };

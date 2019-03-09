@@ -1,0 +1,5 @@
+  <url>
+    <loc>https://c284.herokuapp.com{path}</loc>
+    <lastmod>{date}</lastmod>
+    <priority>{priority}</priority>
+  </url>
