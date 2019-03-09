@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Alphabet</title>
+    <style>
+      input[type=text] {
+        font-family: monospace;
+        font-size: 48px;
+        width: 100%;
+      }
+      .inp {
+        font-family: monospace;
+        font-size: 48px;
+        width: 100%;
+      }
+      .tl {
+        font-family: monospace;
+        font-size: 24px;
+        width: 100%;
+      }
+      #main {
+        width: 400px;
+        margin: auto;
+      }
+      #mains {
+        width: 200px;
+        margin: auto;
+      }
+      #ctn {
+        width: 100px;
+        margin: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div id = 'main'>
+      <button onclick = 'CTN()'>Char to Num</button>
+      <button onclick = 'NTC()'>Num to Char</button>
+      <button onclick = 'BNA()'>Before and After</button>
+      <div id = 'mains'>
+        <span id = 'stat'></span>
+      </div>
+    </div>
+    <div id = 'ctn' style = 'display:none;'>
+      <span id = 'ctnl' class = 'tl'></span><br>
+      <span id = 'ctnt' class = 'inp'></span><br>
+      <input type = 'text' id = 'ctni'>
+    </div>
+    <script>
+      var map = [
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+        'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+      ];
+      var ent = function(){};
+      function sleep(ms) {
+        return new Promise(function (resolve, reject) {
+          setTimeout(resolve, ms);
+        });
+      }
+      function awaitent() {
+        return new Promise(function (resolve, reject) {
+          ent = resolve;
+        });
+      }
+      function norm() {
+        main.style = '';
+        ctn.style = 'display:none';
+      }
+      async function redflash(obj) {
+        obj.style.background = '#ff0000';
+        await sleep(100);
+        obj.style.background = '#ffffff';
+      }
+      async function CTN() {
+        main.style = 'display:none;';
+        ctn.style = '';
+        var times = parseInt(prompt('Times?'));
+        var passes = 0, misses = 0, stim, tims = [];
+        var rand, res;
+        ctni.focus();
+        for (var i = 0; i < times; i++) {
+          rand = Math.floor(Math.random() * 26);
+          ctnt.innerHTML = map[rand];
+          ctnl.innerHTML = '' + (i + 1) + '/' + times;
+          stim = Date.now();
+          res = await awaitent();
+          if (res == '') break;
+          else if (parseInt(res) == rand + 1) {
+            passes++;
+            tims.push(Date.now() - stim);
+          } else {
+            ctnt.innerHTML = rand + 1;
+            await redflash(ctn);
+            misses++;
+          }
+        }
+        var timtot = 0;
+        for (var i in tims) timtot += tims[i] / 1000;
+        var timmean = Math.floor(timtot / tims.length * 1000) / 1000;
+        var timme = (tims.length % 2 == 1 ? tims[Math.floor(tims.length / 2)] : (tims[Math.floor(tims.length / 2) - 1] + tims[Math.floor(tims.length / 2)]) / 2) / 1000;
+        var timmn = Math.min(...tims) / 1000;
+        var timmx = Math.max(...tims) / 1000;
+        stat.innerHTML = 'Passes: ' + passes + '<br>Misses: ' + misses + '<br>Accuracy: ' + Math.floor(passes / (passes + misses) * 100) + '%<br>Time Total: ' + timtot + 's<br>Time Mean: ' + timmean + 's<br>Time Median: ' + timme + 's<br>Time Min: ' + timmn + 's<br>Time Max: ' + timmx + 's';
+        norm();
+      }
+      async function NTC() {
+        main.style = 'display:none;';
+        ctn.style = '';
+        var times = parseInt(prompt('Times?'));
+        var passes = 0, misses = 0, stim, tims = [];
+        var rand, res;
+        ctni.focus();
+        for (var i = 0; i < times; i++) {
+          rand = Math.floor(Math.random() * 26);
+          ctnt.innerHTML = rand + 1;
+          ctnl.innerHTML = '' + (i + 1) + '/' + times;
+          stim = Date.now();
+          res = await awaitent();
+          if (res == '') break;
+          else if (res == map[rand]) {
+            passes++;
+            tims.push(Date.now() - stim);
+          } else {
+            ctnt.innerHTML = map[rand];
+            await redflash(ctn);
+            misses++;
+          }
+        }
+        var timtot = 0;
+        for (var i in tims) timtot += tims[i] / 1000;
+        var timmean = Math.floor(timtot / tims.length * 1000) / 1000;
+        var timme = (tims.length % 2 == 1 ? tims[Math.floor(tims.length / 2)] : (tims[Math.floor(tims.length / 2) - 1] + tims[Math.floor(tims.length / 2)]) / 2) / 1000;
+        var timmn = Math.min(...tims) / 1000;
+        var timmx = Math.max(...tims) / 1000;
+        stat.innerHTML = 'Passes: ' + passes + '<br>Misses: ' + misses + '<br>Accuracy: ' + Math.floor(passes / (passes + misses) * 100) + '%<br>Time Total: ' + timtot + 's<br>Time Mean: ' + timmean + 's<br>Time Median: ' + timme + 's<br>Time Min: ' + timmn + 's<br>Time Max: ' + timmx + 's';
+        norm();
+      }
+      ctni.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+          ent(ctni.value);
+          ctni.value = '';
+        }
+      });
+    </script>
+  </body>
+</html>

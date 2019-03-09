@@ -90,4 +90,5 @@ module.exports = {
   's' : require('./s.js'),
   'Throttle' : require('./throttle.js'),
   'splash' : require('./splash.js'),
+  'crawl' : require('./crawl.js'),
 };

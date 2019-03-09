@@ -482,11 +482,16 @@ class FileSystem {
     for (let i in arr) {
       let inof = arr[i][1];
       let inot = this.getInod(inof, 0);
-      if (inot == 4 && inl.indexOf(inof) < 0) {
-        inl.push(inof);
-        this.rmdir(path + '/' + arr[i][0], inl);
-      } else {
+      let refcnt = this.getInod(inof, 1);
+      if (refcnt > 1 && refcnt > this.internalLinks(inof)) {
         this.unlink(path + '/' + arr[i][0]);
+      } else {
+        if (inot == 4 && inl.indexOf(inof) < 0) {
+          inl.push(inof);
+          this.rmdir(path + '/' + arr[i][0], inl);
+        } else {
+          this.unlink(path + '/' + arr[i][0]);
+        }
       }
     }
     this.unlink(path);
@@ -571,7 +576,7 @@ class FileSystem {
         if (inos == ino) return [path];
         let fc = this.parseFolder(this.inoarr[inos]);
         for (var i in fc) {
-          //if (inods.indexOf(fc[i][1]) > -1) continue;
+          if (inods.indexOf(fc[i][1]) > -1) continue;
           if (fc[i][1] == ino) {
             lkp.push(path + fc[i][0]);
           } else {
@@ -582,13 +587,27 @@ class FileSystem {
     }
     return lkp;
   }
-  lookupAll() {
+  lookupAll(symlink) {
     let arr = [];
     for (var i = 0; i < this.inoarr.length; i++) {
       if (this.fi.indexOf(i) > -1) continue;
-      arr.push(this.reverseLookup(i));
+      arr.push(this.reverseLookup(i, symlink));
     }
     return arr;
+  }
+  internalLinks(ino, aino, inos) {
+    if (aino === undefined) aino = ino;
+    if (inos === undefined) inos = [];
+    let cnt = 0;
+    let fc = this.parseFolder(this.inoarr[aino]);
+    for (var i in fc) {
+      if (inos.indexOf(fc[i][1]) > -1) continue;
+      inos.push(fc[i][1]);
+      if (this.getInod(fc[i][1], 0) != 4) continue;
+      if (fc[i][1] == ino) cnt++;
+      else cnt += this.internalLinks(ino, fc[i][1], inos);
+    }
+    return cnt;
   }
   wipefi() {
     if (!this.writable) throw new Error('read only filesystem');
