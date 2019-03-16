@@ -1,15 +1,17 @@
 module.exports = {
-  'getpath' : function (path, addl) {
+  getpath: function (path, addl) {
+    if (addl[0] == '/') return addl;
     path = path.split('/').slice(0, -1).concat(addl.split('/'));
     let bp = [];
     for (var i in path) {
-      if (path[i] == '..') bp.splice(bp.length - 2, 1);
+      if (path[i] == '..') bp.splice(bp.length - 1, 1);
       else bp.push(path[i]);
     }
     return bp.join('/');
   },
-  'crawl' : function (path, arr, paths, pri) {
+  crawl: function (path, arr, paths, pri) {
     if (pri === undefined) pri = 1;
+    if (pri < 0) throw new Error('KRASH ' + util.inspect([path, arr, paths, pri]));
     if (arr === undefined) arr = [[path, fs.statSync('websites' + path).mtime.toISOString().split('T')[0], pri]];
     if (paths === undefined) paths = [path];
     let hrefs = fs.readFileSync('websites' + path).toString().match(/(?<=<a.*href\s*=\s*(?:'|")).*?(?=(?:'|")>)/g);

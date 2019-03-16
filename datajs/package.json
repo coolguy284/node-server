@@ -1,0 +1,6 @@
+{
+  "name": "datajs",
+  "description": "The datajs package for server, which contains almost all of the javascript the server uses.",
+  "version": "1.0.0",
+  "main": "data.js"
+}

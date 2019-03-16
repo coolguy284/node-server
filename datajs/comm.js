@@ -1,32 +1,32 @@
 // jshint -W061
 module.exports = {
-  'nlist' : ['help', 'say', 'spls', 'splb', 'edtt', 'webban', 'webunban', 'webpardon', 'lock', 'unlock', 'kick', 'ban', 'unban', 'pardon', 'ipban', 'ban-ip', 'ipunban', 'unban-ip', 'ippardon', 'pardon-ip', 'ripban', 'rban-ip', 'ripunban', 'runban-ip', 'rippardon', 'rpardon-ip', 'feat', 'rule', 'get', 'cc', 'cct', 'crct'],
-  'list' : {
-    'help' : ['Lists all commands or usage of one.', '[command]'],
-    'say' : ['Says something in chat, under the name of "[server]".', '<text>'],
-    'spls' : ['Remove something from chat at a specific index.', '<index>'],
-    'splb' : ['Remove a number of things from the beginning of the chat.', '<number>'],
-    'edtt' : ['Edit the text of the chat.', '<index> <text>'],
-    'webban' : ['Ban an ip from this website.', '<ip>'],
-    'webunban' : ['Unban an ip from this website.', '<ip>'],
-    'lock' : ['Lock the server, preventing all requests except administration.', ''],
-    'unlock' : ['Unlock the server, allowing all requests to it.', ''],
-    'kick' : ['Kick someone from the chat.', '<name>'],
-    'ban' : ['Ban someone from the chat.', '<name>'],
-    'unban' : ['Unban someone from the chat', '<name>'],
-    'ipban' : ['Ban an ip from the chat.', '<ip>'],
-    'ipunban' : ['Unban an ip from the chat.', '<ip>'],
-    'ripban' : ['Ban an ip from the BSC.', '<ip>'],
-    'ripunban' : ['Unban an ip from the BSC.', '<ip>'],
-    'cadd' : ['Add a command to be run with a key.', '<keyvar> <code>'],
-    'caddb' : ['Add a command to be run with multiple keys.', '<keyarr> <code>'],
-    'feat' : ['Edit a feature of this website.', '<name> [value]'],
-    'get' : ['Get a statistic about the server', '[statistic]'],
-    'cc' : ['Clear the console.', ''],
-    'cct' : ['Clear the chat.', ''],
-    'crct' : ['Clear the chat.', '']
+  nlist: ['help', 'say', 'spls', 'splb', 'edtt', 'webban', 'webunban', 'webpardon', 'lock', 'unlock', 'kick', 'ban', 'unban', 'pardon', 'ipban', 'ban-ip', 'ipunban', 'unban-ip', 'ippardon', 'pardon-ip', 'ripban', 'rban-ip', 'ripunban', 'runban-ip', 'rippardon', 'rpardon-ip', 'feat', 'rule', 'get', 'cc', 'cct', 'crct'],
+  list: {
+    help: ['Lists all commands or usage of one.', '[command]'],
+    say: ['Says something in chat, under the name of "[server]".', '<text>'],
+    spls: ['Remove something from chat at a specific index.', '<index>'],
+    splb: ['Remove a number of things from the beginning of the chat.', '<number>'],
+    edtt: ['Edit the text of the chat.', '<index> <text>'],
+    webban: ['Ban an ip from this website.', '<ip>'],
+    webunban: ['Unban an ip from this website.', '<ip>'],
+    lock: ['Lock the server, preventing all requests except administration.', ''],
+    unlock: ['Unlock the server, allowing all requests to it.', ''],
+    kick: ['Kick someone from the chat.', '<name>'],
+    ban: ['Ban someone from the chat.', '<name>'],
+    unban: ['Unban someone from the chat', '<name>'],
+    ipban: ['Ban an ip from the chat.', '<ip>'],
+    ipunban: ['Unban an ip from the chat.', '<ip>'],
+    ripban: ['Ban an ip from the BSC.', '<ip>'],
+    ripunban: ['Unban an ip from the BSC.', '<ip>'],
+    cadd: ['Add a command to be run with a key.', '<keyvar> <code>'],
+    caddb: ['Add a command to be run with multiple keys.', '<keyarr> <code>'],
+    feat: ['Edit a feature of this website.', '<name> [value]'],
+    get: ['Get a statistic about the server', '[statistic]'],
+    cc: ['Clear the console.', ''],
+    cct: ['Clear the chat.', ''],
+    crct: ['Clear the chat.', '']
   },
-  'map' : function (val) {
+  map: function (val) {
     switch (val) {
       case 'help':
         return datajs.comm.list.help;
@@ -83,7 +83,7 @@ module.exports = {
         return datajs.comm.list.crct;
     }
   },
-  'run' : function (tex, console) {
+  run: function (tex, console) {
     if (tex[0] == '/') {
       tex = tex.substr(1, Infinity);
     }
@@ -107,9 +107,11 @@ module.exports = {
         break;
       case 'spls':
         chat.splice(args[0], 1);
+        eslistener.emit('chat-refresh');
         break;
       case 'splb':
         chat.splice(0, args[0]);
+        eslistener.emit('chat-spliceb', args[0]);
         break;
       case 'edtt':
         adm.setchat(args[0], null, null, args.slice(1, Infinity));
@@ -192,6 +194,7 @@ module.exports = {
         break;
       case 'cct':
         chat.splice(0, Infinity);
+        eslistener.emit('chat-clear');
         break;
       case 'crct':
         rchat.splice(0, Infinity);

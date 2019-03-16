@@ -1,6 +1,6 @@
 // jshint -W041
 module.exports = {
-  'BitView' : class {
+  BitView: class {
     constructor(val) {
       if (val instanceof ArrayBuffer) {
         this.dv = new DataView(val);
@@ -46,7 +46,7 @@ module.exports = {
       }
     }
   },
-  'Char8Array' : function Char8Array(val) {
+  Char8Array: function Char8Array(val) {
     if (['[object Uint8Array]', '[object Uint8ClampedArray]'].indexOf(Object.prototype.toString.call(val)) > -1) {
       this.uiarr = val;
     } else {
@@ -54,7 +54,7 @@ module.exports = {
     }
     return new Proxy(this, module.exports.c8trap);
   },
-  'c8trap' : {
+  c8trap: {
     get : function (obj, nam) {
       if (nam == 'inspect') {
         return function () {return 'Char8Array [ ' + Array.from(obj.uiarr).map(x => util.inspect(String.fromCharCode(x))).join(', ') + ' ]'};

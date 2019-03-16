@@ -1,6 +1,6 @@
 // jshint -W041
 module.exports = {
-  'ConsoleStream' : class ConsoleStream extends stream.Writable {
+  ConsoleStream: class ConsoleStream extends stream.Writable {
     constructor(cm, options) {
       super(options);
       this.cm = cm;
@@ -28,7 +28,7 @@ module.exports = {
       if (this.pl != '') this.cm(this.pl);
     }
   },
-  'ValueStream' : class ValueStream extends stream.Readable {
+  ValueStream: class ValueStream extends stream.Readable {
     constructor(val, lim, options) {
       super(options);
       if (val === undefined && val === null) val = 0;
@@ -49,7 +49,7 @@ module.exports = {
       }
     }
   },
-  'RandomStream' : class RandomStream extends stream.Readable {
+  RandomStream: class RandomStream extends stream.Readable {
     constructor(lim, options) {
       super(options);
       if (lim === undefined && lim === null) lim = Infinity;
@@ -68,7 +68,7 @@ module.exports = {
       }
     }
   },
-  'BufReadStream' : class BufReadStream extends stream.Readable {
+  BufReadStream: class BufReadStream extends stream.Readable {
     constructor(ibuf, options) {
       super(options);
       if (!ibuf) ibuf = Buffer.alloc(0);
@@ -88,10 +88,10 @@ module.exports = {
       }
     }
   },
-  'BufWriteStream' : class BufWriteStream extends stream.Writable {
+  BufWriteStream: class BufWriteStream extends stream.Writable {
     constructor(ibuf, dyn, options) {
       super(options);
-      if (dyn === undefined) dyn = false;
+      if (dyn == undefined) dyn = false;
       if (dyn) {
         if (!ibuf) ibuf = [];
         this.ibufa = ibuf;
@@ -134,7 +134,7 @@ module.exports = {
       }
     }
   },
-  'DevNullStream' : class DevNullStream extends stream.Writable {
+  DevNullStream: class DevNullStream extends stream.Writable {
     constructor(options) {
       super(options);
     }
@@ -142,7 +142,7 @@ module.exports = {
       cb();
     }
   },
-  'SimCompDecode' : class SimpCompEncode extends stream.Transform {
+  SimCompDecode: class SimpCompEncode extends stream.Transform {
     constructor(options) {
       super(options);
       this.mode = 0;

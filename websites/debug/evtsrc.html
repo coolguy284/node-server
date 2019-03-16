@@ -9,6 +9,10 @@
       es.addEventListener('tester', function (e) {
         document.write('message: ' + e.data + '<br>');
       });
+      es.addEventListener('closeport', function (e) {
+        es.close();
+        document.write('closed channel');
+      });
     </script>
   </body>
 </html>

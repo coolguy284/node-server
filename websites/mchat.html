@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Multi Channel Chat</title>
+    <style>
+      body {
+        font-family: consolas, monospace;
+        font-size: 15px;
+      }
+      input[type = text] {
+        font-family: consolas, monospace;
+      }
+      #ct {
+        width: 100%;
+        height: calc(100vh - 40px);
+        overflow: auto;
+        white-space: pre;
+      }
+      #cinp {
+        width: calc(100% - 200px);
+      }
+    </style>
+  </head>
+  <body>
+    <div id = 'st'>
+      Enter chat channel: <input type = 'text' id = 'ccnl'><br>
+      Enter username: <input type = 'text' id = 'cuser'><br>
+      Enter channel password: <input type = 'text' id = 'cpass'> (optional)<br>
+      <button onclick = 'ToMain()'>Start</button>
+    </div>
+    <div id = 'main' style = 'display:none;'>
+      <div id = 'ct'></div>
+      <input type = 'text' id = 'cinp'>
+      <button onclick = 'Send()'>Send</button>
+      <select id = 'cmod'>
+        <option value = 'raw'>Raw</option>
+        <option value = 'html' selected>HTML</option>
+      </select>
+    </div>
+    <script src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js'></script>
+    <script src = 'js/base64.js'></script>
+    <script src = 'js/sha256.js'></script>
+    <script>
+      let getting = false, narrfoc = false;
+      let arrstr = '';
+      let chathist = [], histind = 0, currtext = '', currmode = 'html';
+      function escapeHTML(str) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+      function unescapeHTML(str) {
+        return str.replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&');
+      }
+      function AESEncrypt(text, pass) {
+        return CryptoJS.AES.encrypt(text, pass).toString();
+      }
+      function AESDecrypt(ct, pass) {
+        return CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(ct, pass));
+      }
+      function SetEnd(txt) {  
+        if (txt.createTextRange) {  
+          //IE  
+          var FieldRange = txt.createTextRange();  
+          FieldRange.moveStart('character', txt.value.length);  
+          FieldRange.collapse();  
+          FieldRange.select();  
+        } else {  
+          //Firefox and Opera  
+          txt.focus();  
+          var length = txt.value.length;  
+          txt.setSelectionRange(length, length);  
+        }  
+      }
+      async function ToMain() {
+        let v = await (await fetch('m?ccl=' + Base64.encode(JSON.stringify([ccnl.value, sha256.hex(cpass.value)])))).text();
+        if (v == '2') {
+          alert('Invalid password');
+          return;
+        }
+        st.style.display = 'none';
+        main.style.display = '';
+      }
+      function ToEnt() {
+        main.style.display = 'none';
+        st.style.display = '';
+      }
+      function Chan() {
+        alert('channel nonexistent');
+        ToEnt();
+      }
+      function MD() {
+        alert('mchat disabled');
+        ToEnt();
+      }
+      async function Get() {
+        if (main.style.cssText == '') {
+          let arr = JSON.parse(Base64.decode(await (await fetch('m?cnl=' + Base64.encode(ccnl.value))).text()));
+          if (arr === 0) { MD(); return; }
+          if (arr === 1) { Chan(); return; }
+          arr = arr.map(x => {
+            let ci = JSON.parse(AESDecrypt(x[1], cpass.value));
+            return x[0] + ' ' + escapeHTML(ci[0]) + ' ' + ci[1];
+          });
+          let narrstr = arr.join('<br>');
+          if (arrstr != narrstr) {
+            ct.innerHTML = narrstr;
+            arrstr = narrstr;
+            if (document.focus) narrfoc = false;
+            else narrfoc = true;
+          }
+          if (narrfoc) {
+            document.title = '!message! Multi Channel Chat';
+            setTimeout(() => document.title = 'Multi Channel Chat', 500);
+          } else document.title = 'Multi Channel Chat';
+        }
+      }
+      async function Send() {
+        let req = await (await fetch('m?tex=' + Base64.encode(
+          JSON.stringify([
+            ccnl.value,
+            AESEncrypt(JSON.stringify([
+              '<' + cuser.value + '>',
+              cinp.value
+            ]), cpass.value)
+          ])
+        ))).json();
+        if (req == 1) Chan();
+        else {
+          if (chathist.length > 0) {
+            if (chathist[chathist.length-1][0] != cinp.value) {
+              chathist.push([cinp.value, cmod.value]);
+            }
+          } else {
+            chathist.push([cinp.value, cmod.value]);
+          }
+          if (chathist.length > 100) {
+            chathist.splice(0, chathist.length - 100);
+          }
+          cinp.value = '';
+          histind = chathist.length;
+          currtext = '';
+          currmode = cmod.value;
+        }
+      }
+      setInterval(Get, 1000);
+      ccnl.addEventListener('keydown', function (e) {
+        if (e.keyCode == 13) ToMain();
+      });
+      cuser.addEventListener('keydown', function (e) {
+        if (e.keyCode == 13) ToMain();
+      });
+      cpass.addEventListener('keydown', function (e) {
+        if (e.keyCode == 13) ToMain();
+      });
+      /*cinp.addEventListener('keydown', function (e) {
+        if (e.keyCode == 13) Send();
+      });*/
+      cinp.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+          Send();
+        } else if (e.keyCode === 38) {
+          if (histind > 0) {
+            histind -= 1;
+            cinp.value = chathist[histind][0];
+            cmod.value = chathist[histind][1];
+          }
+          setTimeout(function(){ cinp.selectionStart = cinp.selectionEnd = 10000; }, 0);
+          SetEnd(cinp);
+        } else if (e.keyCode === 40) {
+          if (histind < chathist.length - 1) {
+            histind += 1;
+            cinp.value = chathist[histind][0];
+            cmod.value = chathist[histind][1];
+          } else if (histind == chathist.length - 1) {
+            histind = chathist.length;
+            cinp.value = currtext;
+            cmod.value = currmode;
+          }
+          setTimeout(function(){ cinp.selectionStart = cinp.selectionEnd = 10000; }, 0);
+          SetEnd(cinp);
+        } else if (e.keyCode === 8) {
+          histind = chathist.length;
+          setTimeout(function() {currtext = cinp.value; currmode = cmod.value;}, 0);
+        }
+      });
+      cinp.addEventListener('keypress', function (e) {
+        if (!e.charCode) {return;}
+        histind = chathist.length;
+        setTimeout(function() {currtext = cinp.value; currmode = cmod.value;}, 0);
+      });
+    </script>
+  </body>
+</html>

@@ -1,6 +1,6 @@
 // jshint -W041
 module.exports = {
-  'exec' : function (genf, params) {
+  exec: function (genf, params) {
     let rv, cba = [], done = false;
     cba.push(genf.apply(null, params));
     while (!done) {
@@ -23,12 +23,12 @@ module.exports = {
     }
     return rv;
   },
-  'func1' : function (lim, arr) {
+  func1: function (lim, arr) {
     if (!arr) arr = [];
     if (lim > 0) {arr.push('e'); module.exports.func1(lim - 1, arr)}
     return arr;
   },
-  'func1a' : function* (lim, arr) {
+  func1a: function* (lim, arr) {
     if (!arr) arr = [];
     if (lim > 0) {arr.push('e'); yield [module.exports.func1a, [lim - 1, arr]]}
     yield ['return', arr];

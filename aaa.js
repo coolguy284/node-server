@@ -67,15 +67,17 @@ console.debug = consoleCall.bind(global, 'debug');
 console.warn = consoleCall.bind(global, 'warn');
 console.error = consoleCall.bind(global, 'error');
 console.clear = consoleCall.bind(global, 'clear');
+console.tslog = (str) => console.log('[' + new Date().toISOString() + ']' + (str.length > 0 ? ' ' + str : ''));
 global.http = require('http');
 global.fs = require('fs');
 global.path = require('path');
 global.os = require('os');
 global.cp = require('child_process');
 global.stream = require('stream');
+global.EventEmitter = require('events');
 global.crypto = require('crypto');
 global.util = require('util');
-global.datajs = require('./datajs/data.js');
+global.datajs = require('./datajs');
 global.exjson = datajs.exjson;
 global.Throttle = datajs.Throttle;
 if (datajs.feat.enc == 'aes') {
@@ -117,6 +119,8 @@ try {
     console.error(e);
   }
 }
+while (colog.length < datajs.feat.lim.cologmin) colog.unshift(['', '{}']);
+while (cologd.length < datajs.feat.lim.cologdmin) cologd.unshift(['', '{}']);
 process.on('uncaughtException', function (err) {
   console.error('An exception occured and was caught to prevent server shutdown. Server may be unstable.');
   console.error(err);
@@ -126,7 +130,7 @@ process.on('unhandledRejection', function (reason, p) {
   console.error(reason);
 });
 global.vm = require('vm');
-global.vfs = require('./vfs/vfs.js');
+global.vfs = require('./vfs');
 global.reqg = require('./request_get.js');
 global.reqh = require('./request_head.js');
 global.hreq = require('./host_request.js');
@@ -136,11 +140,6 @@ try {
   console.warn('mime import failed');
   global.mime = {getType: function () {return null;}};
 }
-try {
-  global.pstree = require('ps-tree');
-} catch (e) {
-  console.warn('ps-tree import failed');
-}
 global.savedvars = {timeout:0,maxtimeout:0,uptime:0,maxuptime:0,np:[]};
 global.debreq = [];
 global.consoles = {};
@@ -148,14 +147,14 @@ global.consoleswpenc = [];
 global.codel = [];
 global.baniplist = [];
 global.chatherelist = [];
+global.chattyplist = [];
 global.chatkicklist = [];
 global.chatbanlist = [];
 global.chatbaniplist = [];
 global.rchatbaniplist = [];
-global.chattyplist = [];
+global.mchatbaniplist = [];
 global.owneyesid = [];
 global.loginid = [];
-global.starttime = new Date().getTime();
 global.ticks = 0;
 global.req10s = false;
 global.locked = false;
@@ -222,25 +221,10 @@ if (datajs.feat.datadir != '') {
   global.savedvarsa = {};
   global.saveddat = {};
 }
-while (colog.length < datajs.feat.lim.cologmin) colog.unshift(['', '{}']);
-while (cologd.length < datajs.feat.lim.cologdmin) cologd.unshift(['', '{}']);
+global.eslistener = new EventEmitter();
 global.savedvars = Object.assign(savedvars, savedvarsa);
 delete global.savedvarsa;
-global.savev = function savev() {
-  fs.writeFile(datajs.feat.datadir + '/chat.json', JSON.stringify(chat), function (err) {});
-  fs.writeFile(datajs.feat.datadir + '/rchat.json', JSON.stringify(rchat), function (err) {});
-  fs.writeFile(datajs.feat.datadir + '/mchat.json', JSON.stringify(mchat), function (err) {});
-  fs.writeFile(datajs.feat.datadir + '/views.json', JSON.stringify(viewshist), function (err) {});
-  if (datajs.feat.enc == 'b64') {
-    fs.writeFile(datajs.feat.datadir + '/colog.dat', b64a.encode(JSON.stringify(colog)), function (err) {});
-    fs.writeFile(datajs.feat.datadir + '/cologd.dat', b64a.encode(JSON.stringify(cologd)), function (err) {});
-  } else if (datajs.feat.enc == 'aes') {
-    fs.writeFile(datajs.feat.datadir + '/colog.dat', CryptoJS.AES.encrypt(JSON.stringify(colog), b64a.server), function (err) {});
-    fs.writeFile(datajs.feat.datadir + '/cologd.dat', CryptoJS.AES.encrypt(JSON.stringify(cologd), b64a.server), function (err) {});
-  }
-  fs.writeFile(datajs.feat.datadir + '/savedvars.json', JSON.stringify(savedvars), function (err) {});
-  fs.writeFile(datajs.feat.datadir + '/saveddat.json', JSON.stringify(saveddat), function (err) {});
-};
+global.savev = datajs.tick.savev;
 adm = datajs.adm;
 comm = datajs.comm.run;
 datajs.tick.on();
@@ -371,7 +355,7 @@ global.serverf = function serverf(req, resa, nolog) {
           console.log(datajs.tn('[' + tsd + '] ' + datajs.ipform(ipaddr) + ' ' + proto.padEnd(5) + ' ' + url + ' ' + req.method + ' ' + url + ' ' + req.url, datajs.feat.lim.cologm) + ' banned');
         }
         cologdadd('[' + tsd + '] ' + datajs.ipform(req.connection.remoteAddress) + ' ' + proto.padEnd(5) + ' ' + url + ' ' + req.method + ' ' + req.url + ' ' + req.headers['x-forwarded-for'] + ' banned');
-        res.writeHead(403, {'Content-Type':'text/plain; charset=utf-8'});
+        res.writeHead(403, {'Content-Type': 'text/plain; charset=utf-8'});
         res.write('You are banned.');
         res.end();
         return;
@@ -386,12 +370,17 @@ global.serverf = function serverf(req, resa, nolog) {
     }
   }
   if (proto == 'http' && datajs.feat.httpsf) {
-    res.writeHead(303, {'Location' : 'https://' + url + req.url});
+    res.writeHead(303, {'Location': 'https://' + url + req.url});
     res.end();
     return;
   }
-  if (locked && datajs.feat.el.lockl.indexOf(req.url) < 0 && req.url.substr(0, 2) != '/a') return;
-  if (datajs.feat.hosts.main.indexOf(url) > -1 || datajs.feat.el.lockl.indexOf(req.url) > -1 || req.url.substr(0, 2) == '/a') {
+  if (locked && datajs.feat.el.lockl.indexOf(req.url) < 0 && req.url.substr(0, 2) != '/a') {
+    res.writeHead(403, {'Content-Type': 'text/plain; charset=utf-8'});
+    res.write('You are banned.');
+    res.end();
+    return;
+  }
+  if (datajs.feat.hosts.main.indexOf(url) > -1 || datajs.feat.el.lockl.indexOf(req.url) > -1 || req.url.substr(0, 2) == '/a' || !datajs.feat.hosts.map[url]) {
     if (req.method == 'GET') {
       if (req.url.substr(0, 2) == '/s' && datajs.feat.tost) {
         adm.ipban(ipaddr); 
@@ -425,15 +414,21 @@ global.serverf = function serverf(req, resa, nolog) {
   } catch (e) {
     console.error(e);
     try {
-      fs.readFile('websites/perr.html', function (err, data) {
-        try {
-          res.writeHead(500, {'Content-Type':'text/html; charset=utf-8'});
-          res.write(data.toString().replace('{error}', util.inspect(e).replace('\n', '<br>')));
-          res.end();
-        } catch (e) {
-          console.error(e);
-        }
-      });
+      if (datajs.feat.errmsg) {
+        fs.readFile('websites/perrmsg.html', function (err, data) {
+          try {
+            res.writeHead(500, {'Content-Type': 'text/html; charset=utf-8'});
+            res.write(data.toString().replace('{error}', util.inspect(e).replace('\n', '<br>')));
+            res.end();
+          } catch (e) {
+            console.error(e);
+          }
+        });
+      } else {
+        let rs = fs.createReadStream('websites/perr.html');
+        res.writeHead(500, {'Content-Type': 'text/html; charset=utf-8'});
+        rs.pipe(res);
+      }
     } catch (e) {
       console.error(e);
     }
@@ -446,8 +441,8 @@ global.serverf = function serverf(req, resa, nolog) {
 global.serv = http.createServer(serverf).listen(port, undefined, function (err) {
   global.slt = process.hrtime();
   if (err) {
-    console.log('[' + new Date().toISOString() + '] Error: ' + err);
+    console.tslog('Error: ' + err);
   } else {
-    console.log('[' + new Date().toISOString() + '] Server Listening on Port ' + port + ' (starting time: ' + (((slt[0] + slt[1] / 1e9) - (sst[0] + sst[1] / 1e9)) * 1000).toFixed(3) + 'ms)');
+    console.tslog('Server Listening on Port ' + port + ' (starting time: ' + (((slt[0] + slt[1] / 1e9) - (sst[0] + sst[1] / 1e9)) * 1000).toFixed(3) + 'ms)');
   }
 });

@@ -1,5 +1,5 @@
 module.exports = {
-  'filt' : function (arr, opts) {
+  filt: function (arr, opts) {
     if (!opts) opts = {};
     if (opts.regexp && opts.regexp.constructor.name == 'RegExp') {
       opts.regexp = [opts.regexp, 'url'];
@@ -47,7 +47,7 @@ module.exports = {
     }
     return ra;
   },
-  'prnt' : function (arr, opts, cons) {
+  prnt: function (arr, opts, cons) {
     if (cons === undefined) cons = console.log;
     if (!opts) opts = {};
     if (opts.modts === undefined) opts.modts = true;

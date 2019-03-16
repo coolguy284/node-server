@@ -1,0 +1,6 @@
+{
+  "name": "vfs",
+  "description": "A completely virtual file system stored in RAM.",
+  "version": "1.0.0",
+  "main": "vfs.js"
+}

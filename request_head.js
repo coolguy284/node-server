@@ -5,7 +5,7 @@ module.exports = function headf(req, res, ipaddr, proto, url, cookies, nam) {
     case '/':
     case '/delay.log':
     case '/admin.html':
-      res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
+      res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
       res.end();
       break;
     case '/livechat.dat':
@@ -46,7 +46,7 @@ module.exports = function headf(req, res, ipaddr, proto, url, cookies, nam) {
     case '/colog.dat':
     case '/cologd.dat':
       if (datajs.feat.colog) {
-        res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
+        res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8'});
         res.end();
       } else {datajs.rm.sn(res);}
       break;
@@ -60,13 +60,13 @@ module.exports = function headf(req, res, ipaddr, proto, url, cookies, nam) {
   switch ((mode == 1) ? true : 'corn') {
     case req.url.substr(0, 18) == '/livechatd.dat?ts=':
       if (datajs.feat.chat) {
-        res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
+        res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8'});
         res.end();
       } else {datajs.rm.sn(res);}
       break;
     case req.url.substr(0, 5) == '/r?u=':
     case req.url.substr(0, 5) == '/r?e=':
-      res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
+      res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
       res.end();
       break;
     case req.url.substr(0, 6) == '/r?uh=':
@@ -100,11 +100,11 @@ module.exports = function headf(req, res, ipaddr, proto, url, cookies, nam) {
   if (mode == 2) {
     let v = req.url.split('/');
     if (v[v.length-1] === '' && v[v.length-2].indexOf('.') > -1) {
-      res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
+      res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
       res.end();
       return;
     } else if (v[v.length-1] === '' && v[v.length-2].indexOf('.') < 0) {
-      res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
+      res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
       res.end();
       return;
     }
@@ -116,21 +116,21 @@ module.exports = function headf(req, res, ipaddr, proto, url, cookies, nam) {
         if (fs.existsSync('websites' + req.url)) {
           let size = fs.statSync('websites' + req.url).size;
           res.writeHead(206, {
-            'Content-Type':(datajs.mime.get(req.url) + '; charset=utf-8'),
-            'Content-Range':('bytes ' + rstart + '-' + rend + '/' + size),
-            'Content-Length':Math.min(rend - rstart, size),
+            'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
+            'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+            'Content-Length': Math.min(rend - rstart, size),
           });
           res.end();
-        } else if (fs.existsSync(req.url.substr(1, Infinity)) && datajs.feat.debug) {
+        } else if (fs.existsSync(req.url.substr(1, Infinity)) && datajs.feat.debug.js) {
           let size = fs.statSync(req.url.substr(1, Infinity)).size;
           res.writeHead(206, {
-            'Content-Type':(datajs.mime.get(req.url) + '; charset=utf-8'),
-            'Content-Range':('bytes ' + rstart + '-' + rend + '/' + size),
-            'Content-Length':Math.min(rend - rstart, size),
+            'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
+            'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+            'Content-Length': Math.min(rend - rstart, size),
           });
           res.end();
         } else {
-          res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
+          res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
           res.end();
         }
         return;
@@ -143,21 +143,21 @@ module.exports = function headf(req, res, ipaddr, proto, url, cookies, nam) {
     if (fs.existsSync('websites' + req.url)) {
       let rs = fs.createReadStream('websites' + req.url);
       res.writeHead(200, {
-        'Content-Type':(datajs.mime.get(req.url) + '; charset=utf-8'),
-        'Content-Length':fs.statSync('websites' + req.url).size,
-        'Accept-Ranges':'bytes'
+        'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
+        'Content-Length': fs.statSync('websites' + req.url).size,
+        'Accept-Ranges': 'bytes'
       });
       res.end();
-    } else if (fs.existsSync(req.url.substr(1, Infinity)) && datajs.feat.debug) {
+    } else if (fs.existsSync(req.url.substr(1, Infinity)) && datajs.feat.debug.js) {
       let rs = fs.createReadStream(req.url.substr(1, Infinity));
       res.writeHead(200, {
-        'Content-Type':(datajs.mime.get(req.url) + '; charset=utf-8'),
-        'Content-Length':fs.statSync(req.url.substr(1, Infinity)).size,
-        'Accept-Ranges':'bytes'
+        'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
+        'Content-Length': fs.statSync(req.url.substr(1, Infinity)).size,
+        'Accept-Ranges': 'bytes'
       });
       res.end();
     } else {
-      res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
+      res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
       res.end();
     }
   }
