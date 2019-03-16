@@ -4,17 +4,17 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
   switch (req.url) {
     case '/':
       let rs = fs.createReadStream('websites/indexredirect.html');
-      res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
+      res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
       rs.pipe(res);
       break;
     case '/admin.html':
       let ras = fs.createReadStream('websites/admin.html');
-      res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
+      res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
       ras.pipe(res);
       break;
     case '/delay.log':
       let dfunc = function (val) {res.write(val + '\n');};
-      res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
+      res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8'});
       for (let dc = 0; dc < 10; dc++) {
         setTimeout(dfunc, dc * 200, dc);
       }
@@ -23,7 +23,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
     case '/evtsrc.log':
       let dfunc2 = function (val) {res.write('event: tester\ndata: ' + val + '\n\n');};
       let dfunc3 = function () {res.end();};
-      res.writeHead(200, {'Content-Type':'text/event-stream','Connection':'keep-alive','Cache-Control':'no-cache','Transfer-Encoding':'chunked'});
+      res.writeHead(200, {'Content-Type': 'text/event-stream','Connection': 'keep-alive','Cache-Control': 'no-cache','Transfer-Encoding': 'chunked'});
       for (let dc = 0; dc < 11; dc++) {
         if (dc == 10) {
           setTimeout(dfunc3, dc * 1000, dc);
@@ -35,7 +35,41 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
     case '/livechat.dat':
       if (datajs.feat.chat) {
         datajs.rm.restext(res, b64.encode(JSON.stringify(chat)));
-      } else {datajs.rm.sn(res);}
+      } else datajs.rm.sn(res);
+      break;
+    case '/livechates.dat':
+      if (datajs.feat.chates) {
+        res.writeHead(200, {'Content-Type': 'text/event-stream','Connection': 'keep-alive','Cache-Control': 'no-cache','Transfer-Encoding': 'chunked'});
+        var ChatMSG = function (s) {
+          res.write('event: chat-msg\ndata: ' + s + '\n\n');
+        }, ChatRefresh = function () {
+          res.write('event: chat-refresh\n\n');
+        }, ChatSpliceb = function (i) {
+          res.write('event: chat-spliceb\ndata: ' + i + '\n\n');
+        }, ChatClear = function () {
+          res.write('event: chat-clear\n\n');
+        };
+        eslistener.on('chat-msg', ChatMSG);
+        eslistener.on('chat-refresh', ChatRefresh);
+        eslistener.on('chat-spliceb', ChatSpliceb);
+        eslistener.on('chat-clear', ChatClear);
+        res.on('close', function () {
+          eslistener.off('chat-msg', ChatMSG);
+          eslistener.off('chat-refresh', ChatRefresh);
+          eslistener.off('chat-spliceb', ChatSpliceb);
+          eslistener.off('chat-clear', ChatClear);
+        });
+        res.on('destroy', function () {
+          eslistener.off('chat-msg', ChatMSG);
+          eslistener.off('chat-refresh', ChatRefresh);
+          eslistener.off('chat-spliceb', ChatSpliceb);
+          eslistener.off('chat-clear', ChatClear);
+        });
+      } else {
+        res.writeHead(200, {'Content-Type': 'text/event-stream','Connection': 'keep-alive','Cache-Control': 'no-cache','Transfer-Encoding': 'chunked'});
+        res.write('event: no-es\n\n');
+        res.end();
+      }
       break;
     case '/livechathere.dat':
       if (datajs.feat.chathere) {
@@ -72,14 +106,14 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       let gid = (Math.random() * 1000000 + '').split('.')[0];
       owneyesid.push([gid, stime.getTime()]);
       fs.readFile('websites/debug/owneyes.html', function (err, data) {
-        res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
+        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
         res.write(data.toString().replace('{id}', gid));
         res.end();
       });
       break;
     case '/colog.dat':
       if (datajs.feat.colog) {
-        res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
+        res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8'});
         if (datajs.feat.enc == 'b64') {
           res.write(b64a.encode(JSON.stringify(colog)));
         } else if (datajs.feat.enc == 'aes') {
@@ -90,7 +124,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       break;
     case '/cologd.dat':
       if (datajs.feat.colog) {
-        res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
+        res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8'});
         if (datajs.feat.enc == 'b64') {
           res.write(b64a.encode(JSON.stringify(cologd)));
         } else if (datajs.feat.enc == 'aes') {
@@ -101,6 +135,10 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       break;
     case '/lat.log':
       datajs.rm.sn(res);
+      break;
+    case '/errtest.log':
+      if (datajs.feat.debug.testerr) throw new Error('test error');
+      else datajs.rm.sn(res);
       break;
     default:
       mode = 1;
@@ -125,7 +163,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       break;
     case req.url.substr(0, 5) == '/r?u=':
       fs.readFile('websites/redirecttemplate.html', function (err, data) {
-        res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
+        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
         res.write(data.toString().replace('{redirect-url}', decodeURIComponent(req.url.substr(5, 2048))));
         res.end();
       });
@@ -133,7 +171,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
     case req.url.substr(0, 5) == '/r?e=':
       let rurl = b64.decode(req.url.substr(5, 2048));
       fs.readFile('websites/redirecttemplate.html', function (err, data) {
-        res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
+        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
         res.write(data.toString().replace('{redirect-url}', rurl));
         res.end();
       });
@@ -150,11 +188,8 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       if (datajs.feat.chat) {
         cv = JSON.parse(b64.decode(req.url.substr(7, 65536)));
         if (chatbanlist.indexOf(cv[0]) < 0 && chatbaniplist.indexOf(ipaddr) < 0) {
-          chat.push(['[' + stime.toISOString() + ']', '<' + cv[0] + '>', cv[1]]);
-          if (chat.length > datajs.feat.lim.chat) {
-            chat.splice(0, chat.length - datajs.feat.lim.chat);
-          }
-          setTimeout(datajs.cleartyplist, 1000, cv[0]);
+          adm.addchat(stime, '<' + cv[0] + '>', cv[1]);
+          setTimeout(datajs.cleartyplist, 100, cv[0]);
         }
       }
       datajs.rm.sn(res);
@@ -187,29 +222,46 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
     case req.url.substr(0, 7) == '/r?tex=':
       if (datajs.feat.rchat) {
         if (rchatbaniplist.indexOf(ipaddr) < 0) {
-          cv = req.url.substr(7, 2048);
-          rchat.push(cv);
-          if (rchat.length > datajs.feat.lim.rchat) {
-            rchat.splice(0, rchat.length - datajs.feat.lim.rchat);
-          }
+          adm.raddchat(req.url.substr(7, 2048));
         }
       }
       datajs.rm.sn(res);
       break;
+    case req.url.substr(0, 7) == '/m?ccl=':
+      console.log('j');
+      if (datajs.feat.mchat) {
+        console.log('k');
+        let ar = JSON.parse(b64.decode(req.url.substr(7, 2048)));
+        if (mchat[ar[0]]) {
+          console.log('vin');
+          if (mchat[ar[0]].hash != ar[1]) {
+            console.log('lin');
+            datajs.rm.restext(res, '2');
+          } else datajs.rm.sn(res);
+        } else {
+          console.log('in');
+          adm.mcreatechat(ar[0], ar[1]);
+          datajs.rm.sn(res);
+        }
+      } else datajs.rm.restext(res, '3');
+      break;
+    case req.url.substr(0, 7) == '/m?cnl=':
+      if (datajs.feat.mchat) {
+        let nam = b64.decode(req.url.substr(7, 2048));
+        if (mchat[nam]) {
+          datajs.rm.restext(res, b64.encode(JSON.stringify(mchat[nam].chat)));
+        } else datajs.rm.restext(res, '1');
+      } else datajs.rm.restext(res, '0');
+      break;
     case req.url.substr(0, 7) == '/m?tex=':
       if (datajs.feat.mchat) {
-        if (rchatbaniplist.indexOf(ipaddr) < 0) {
-          cv = JSON.parse(req.url.substr(7, 2048));
+        if (mchatbaniplist.indexOf(ipaddr) < 0) {
+          cv = JSON.parse(b64.decode(req.url.substr(7, 2048)));
           if (mchat[cv[0]]) {
-            mchat[cv[0]].push(cv[1]);
-            if (mchat[cv[0]].length > datajs.feat.lim.mchat) {
-              mchat[cv[0]].splice(0, mchat.length - datajs.feat.lim.mchat);
-            }
-            datajs.rm.sn(res);
+            adm.maddchat(cv[0], null, cv[1]);
+            datajs.rm.restext(res, '0');
           } else {
-            res.writeHead(500, {'Content-Type':'text/plain; charset=utf-8'});
-            res.write('0');
-            res.end();
+            datajs.rm.restext(res, '1');
           }
         }
       }
@@ -225,10 +277,10 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
     case req.url.substr(0, 7) == '/pagg?=':
       if (req.url.substr(7, 2048) == 'tism') {
         let rs = fs.createReadStream('user_websites/coolguy284/tism.html');
-        res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
+        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
         rs.pipe(res);
       } else {
-        res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
+        res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8'});
         res.write('no.');
         res.end();
       }
@@ -236,7 +288,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
     case req.url.substr(0, 7) == '/oi?vr=':
       for (let i in owneyesid) {
         if (req.url.substr(7, Infinity) == owneyesid[i][0]) {
-          res.writeHead(200, {'Content-Type':'text/plain'});
+          res.writeHead(200, {'Content-Type': 'text/plain'});
           res.write('ｈｅｌｏ');
           res.end();
           break;
@@ -294,7 +346,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       }
       if (datajs.feat.colog && consoles[ra[0]]) {
         if (sha256.hex(ra[1]) == (consoles[ra[0]].phash || b64a.server)) {
-          res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
+          res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8'});
           if (datajs.feat.enc == 'b64') {
             res.write(b64a.encode(JSON.stringify(consoles[ra[0]].colog)));
           } else if (datajs.feat.enc == 'aes') {
@@ -358,11 +410,15 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
                 };
               } else {
                 if (tx == '^C') {
-                  pstree(consol.cp.pid, function (err, children) {
-                    //cp.spawn('kill', ['-15'].concat(children.map(function (p) { return p.PID })));
-                    children.forEach(function (val) {process.kill(val.PID, 'SIGINT');});
-                    setTimeout(function () {consol.cp.kill(); delete consol.cp;}, 100);
-                  });
+                  try {
+                    datajs.pstree.getallchilds(consol.cp.pid).reverse().forEach(function (val) {
+                      process.kill(val, 'SIGINT');
+                    });
+                    consol.cp.kill();
+                    delete consol.cp;
+                  } catch (e) {
+                    process.kill(consol.cp.pid, 'SIGINT');
+                  }
                 } else {
                   try {
                     consol.cp.stdin.write(Buffer.from(tx + '\n'));
@@ -429,14 +485,14 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
     let v = req.url.split('/');
     if (v[v.length-1] === '' && v[v.length-2].indexOf('.') > -1) {
       fs.readFile('websites/redirecttemplate.html', function (err, data) {
-        res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
+        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
         res.write(data.toString().replace('{redirect-url}', req.url.replace(/\/{1,}$/g, '')));
         res.end();
       });
       return -1;
     } else if (v[v.length-1] === '' && v[v.length-2].indexOf('.') < 0) {
       fs.readFile('websites/redirecttemplate.html', function (err, data) {
-        res.writeHead(200, {'Content-Type':'text/html; charset=utf-8'});
+        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
         res.write(data.toString().replace('{redirect-url}', req.url + 'index.html'));
         res.end();
       });
@@ -451,23 +507,23 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
           let rs = fs.createReadStream('websites' + req.url, {start: rstart, end: rend});
           let size = fs.statSync('websites' + req.url).size;
           res.writeHead(206, {
-            'Content-Type':(datajs.mime.get(req.url) + '; charset=utf-8'),
-            'Content-Range':('bytes ' + rstart + '-' + rend + '/' + size),
-            'Content-Length':Math.min(rend - rstart, size),
+            'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
+            'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+            'Content-Length': Math.min(rend - rstart, size),
           });
           rs.pipe(res);
-        } else if (fs.existsSync(req.url.substr(1, Infinity)) && datajs.feat.debug) {
+        } else if (fs.existsSync(req.url.substr(1, Infinity)) && datajs.feat.debug.js) {
           let rs = fs.createReadStream(req.url.substr(1, Infinity), {start: rstart, end: rend});
           let size = fs.statSync(req.url.substr(1, Infinity)).size;
           res.writeHead(206, {
-            'Content-Type':(datajs.mime.get(req.url) + '; charset=utf-8'),
-            'Content-Range':('bytes ' + rstart + '-' + rend + '/' + size),
-            'Content-Length':Math.min(rend - rstart, size),
+            'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
+            'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+            'Content-Length': Math.min(rend - rstart, size),
           });
           rs.pipe(res);
         } else {
           let rs = fs.createReadStream('websites/p404.html');
-          res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
+          res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
           rs.pipe(res);
         }
         return -1;
@@ -482,20 +538,20 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       if (fs.statSync(rpath).isFile()) {
         let rs = fs.createReadStream(rpath);
         res.writeHead(200, {
-          'Content-Type':(datajs.mime.get(req.url) + '; charset=utf-8'),
-          'Content-Length':fs.statSync(rpath).size,
-          'Accept-Ranges':'bytes'
+          'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
+          'Content-Length': fs.statSync(rpath).size,
+          'Accept-Ranges': 'bytes'
         });
         rs.pipe(res);
       } else {
         runelse = true;
       }
-    } else if (fs.existsSync(req.url.substr(1, Infinity)) && datajs.feat.debug) {
+    } else if (fs.existsSync(req.url.substr(1, Infinity)) && datajs.feat.debug.js) {
       let rs = fs.createReadStream(req.url.substr(1, Infinity));
       res.writeHead(200, {
-        'Content-Type':(datajs.mime.get(req.url) + '; charset=utf-8'),
-        'Content-Length':fs.statSync(req.url.substr(1, Infinity)).size,
-        'Accept-Ranges':'bytes'
+        'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
+        'Content-Length': fs.statSync(req.url.substr(1, Infinity)).size,
+        'Accept-Ranges': 'bytes'
       });
       rs.pipe(res);
     } else {
@@ -515,7 +571,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
           }
         } else {
           let rs = fs.createReadStream('websites/user/signedout.html');
-          res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
+          res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
           rs.pipe(res);
         }
       } else {
@@ -527,17 +583,17 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       Object.keys(datajs.handlerp).forEach(function (val) {if (req.url.startsWith(val) && val.startsWith(hanp)) {hanp = val;}});
       if (hanp) {
         return datajs.handlerp[hanp](req, res);
-      } else if (datajs.handlerf.hasOwnProperty('null' + req.url)) {
-        return datajs.handlerf['null' + req.url](req, res);
-      } else if (nam !== null && datajs.handlerf.hasOwnProperty(nam + req.url)) {
-        return datajs.handlerf[nam + req.url](req, res);
+      } else if (datajs.handlerf.main.hasOwnProperty(req.url)) {
+        return datajs.handlerf.main[req.url](req, res);
+      } else if (nam !== null && datajs.handlerf.hasOwnProperty(nam) && datajs.handlerf[nam].hasOwnProperty(req.url)) {
+        return datajs.handlerf[nam][req.url](req, res);
       } else if (datajs.feat.tempp.hasOwnProperty(req.url)) {
         res.writeHead(200, datajs.feat.tempp[req.url][0]);
         res.write(datajs.feat.tempp[req.url][1]);
         res.end();
       } else {
         let rs = fs.createReadStream('websites/p404.html');
-        res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
+        res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
         rs.pipe(res);
         return 'p404';
       }

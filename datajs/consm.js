@@ -1,6 +1,6 @@
 // jshint -W086
 module.exports = {
-  'create' : function (name, type, opts) {
+  create: function (name, type, opts) {
     if (type === undefined) {
       type = 'normal';
     }
@@ -49,7 +49,7 @@ module.exports = {
     }
     consoles[name] = co;
   },
-  'remove' : function (name) {
+  remove: function (name) {
     let ind = consoleswpenc.indexOf(name);
     delete consoles[name];
     if (ind > -1) {

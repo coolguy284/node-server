@@ -23,9 +23,9 @@ testobj.smobj.target = testobj;
 testobj.smobj.loupe = testobj.smobj;
 */
 module.exports = {
-  'symbolk' : ['hasInstance', 'isConcatSpreadable', 'iterator', 'match', 'replace', 'search', 'species', 'split', 'toPrimitive', 'toStringTag', 'unscopables'],
-  'symbolv' : [Symbol.hasInstance, Symbol.isConcatSpreadable, Symbol.iterator, Symbol.match, Symbol.replace, Symbol.search, Symbol.species, Symbol.split, Symbol.toPrimitive, Symbol.toStringTag, Symbol.unscopables],
-  'getarr' : function (obj, rs) {
+  symbolk: ['hasInstance', 'isConcatSpreadable', 'iterator', 'match', 'replace', 'search', 'species', 'split', 'toPrimitive', 'toStringTag', 'unscopables'],
+  symbolv: [Symbol.hasInstance, Symbol.isConcatSpreadable, Symbol.iterator, Symbol.match, Symbol.replace, Symbol.search, Symbol.species, Symbol.split, Symbol.toPrimitive, Symbol.toStringTag, Symbol.unscopables],
+  getarr: function (obj, rs) {
     let bks = false;
     let bs = '';
     let bds = false;
@@ -66,7 +66,7 @@ module.exports = {
     }
     return obj;
   },
-  'stringify' : function (val, opts, obja, rs) {
+  stringify: function (val, opts, obja, rs) {
     if (opts === undefined) {
       opts = {};
     }
@@ -169,7 +169,7 @@ module.exports = {
       return '{' + bs + '}';
     }
   },
-  'parse' : function (val, obj, rs, poarr) {
+  parse: function (val, obj, rs, poarr) {
     if (val.length > 0) {
       if (val == 'undefined') {
         return undefined;
@@ -415,7 +415,7 @@ module.exports = {
       }
     }
   },
-  'gettype' : function (obj) {
+  gettype: function (obj) {
     let objs = Object.prototype.toString.call(obj);
     if (objs == '[object Array]') {
       return 'array';
@@ -427,7 +427,7 @@ module.exports = {
       return 'object';
     }
   },
-  'serialize' : function (obj, opts, ra) {
+  serialize: function (obj, opts, ra) {
     let init = false;
     if (opts === undefined) opts = {};
     if (ra === undefined) {ra = [[], [], []]; init = true;}
@@ -524,7 +524,7 @@ module.exports = {
       return datajs.exjson.stringify(ra);
     }
   },
-  'deserialize' : function (ra, opts) {
+  deserialize: function (ra, opts) {
     if (opts === undefined) opts = {};
     ra = datajs.exjson.parse(ra);
     for (let i in ra[1]) {
