@@ -308,7 +308,7 @@
         return date.getHours() * 3600000 + date.getMinutes() * 60000 + date.getSeconds() * 1000 + date.getMilliseconds();
       }
       function GetDateByDay(year, month, week, day) {
-        var fd = new Date(2018, month, 1).getDay();
+        var fd = new Date(year, month, 1).getDay();
         if (day < fd) fd = day - fd + 7;
         else fd = day - fd;
         return new Date(year, month, fd + week * 7 - 6);
