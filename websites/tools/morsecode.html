@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset = 'utf-8'>
+    <meta name = 'viewport' content = 'width=device-width'>
+    <title>Morse Code</title>
+  </head>
+  <body>
+    <button onclick = 'tmor()'>Text > Morse Code</button>
+    <button onclick = 'ttex()'>Morse Code > Text</button>
+    <button onclick = 'tmors()'>Text > Morse Code (Simple)</button>
+    <button onclick = 'ttexs()'>Morse Code (Simple) > Text</button>
+    <fieldset>
+      <legend>Text</legend>
+      <textarea id = 'texta' style = 'width:100%;height:200px;'></textarea>
+    </fieldset>
+    <fieldset>
+      <legend>Morse Code</legend>
+      <textarea id = 'morta' style = 'width:100%;height:200px;'></textarea>
+    </fieldset>
+    <script>
+      let map = {
+        A: '• ---',
+        B: '--- • • •',
+        C: '--- • --- •',
+        D: '--- • •',
+        E: '•',
+        F: '• • --- •',
+        G: '--- --- •',
+        H: '• • • •',
+        I: '• •',
+        J: '• --- --- ---',
+        K: '--- • ---',
+        L: '• --- • •',
+        M: '--- ---',
+        N: '--- •',
+        O: '--- --- ---',
+        P: '• --- --- •',
+        Q: '--- --- • ---',
+        R: '• --- •',
+        S: '• • •',
+        T: '---',
+        U: '• • ---',
+        V: '• • • ---',
+        W: '• --- ---',
+        X: '--- • • ---',
+        Y: '--- • --- ---',
+        Z: '--- --- • •',
+        '0': '--- --- --- --- ---',
+        '1': '• --- --- --- ---',
+        '2': '• • --- --- ---',
+        '3': '• • • --- ---',
+        '4': '• • • • ---',
+        '5': '• • • • •',
+        '6': '--- • • • •',
+        '7': '--- --- • • •',
+        '8': '--- --- --- • •',
+        '9': '--- --- --- --- •',
+      }, simpmap = {
+        A: '•-',
+        B: '-•••',
+        C: '-•-•',
+        D: '-••',
+        E: '•',
+        F: '••-•',
+        G: '--•',
+        H: '••••',
+        I: '••',
+        J: '•---',
+        K: '-•-',
+        L: '•-••',
+        M: '--',
+        N: '-•',
+        O: '---',
+        P: '•--•',
+        Q: '--•-',
+        R: '•-•',
+        S: '•••',
+        T: '-',
+        U: '••-',
+        V: '•••-',
+        W: '•--',
+        X: '-••-',
+        Y: '-•--',
+        Z: '--••',
+        '0': '-----',
+        '1': '•----',
+        '2': '••---',
+        '3': '•••--',
+        '4': '••••-',
+        '5': '•••••',
+        '6': '-••••',
+        '7': '--•••',
+        '8': '---••',
+        '9': '----•',
+      };
+      let mapkeys = Object.keys(map), simpmapkeys = Object.keys(simpmap);
+      function tmor() {
+        morta.value = texta.value.toUpperCase().split(/ /g).map(
+          y => y.split('').map(z => map[z]).join('   ')
+        ).join('       ');
+      }
+      function ttex() {
+        texta.value = morta.value.split(/       /g).map(
+          x => x.split(/   /g).map(y => y.replace(/\./g, '•').replace(/\b-\b/g, '•')).map(
+            y => mapkeys.find(key => map[key] == y)
+          ).join('')
+        ).join(' ');
+      }
+      function tmors() {
+        morta.value = texta.value.toUpperCase().split(/ /g).map(
+          y => y.split('').map(z => simpmap[z]).join(' ')
+        ).join('  ');
+      }
+      function ttexs() {
+        texta.value = morta.value.split(/  /g).map(
+          x => x.split(/ /g).map(y => y.replace(/\./g, '•')).map(
+            y => simpmapkeys.find(key => simpmap[key] == y)
+          ).join('')
+        ).join(' ');
+      }
+    </script>
+  </body>
+</html>
