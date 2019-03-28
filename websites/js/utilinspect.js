@@ -61,7 +61,7 @@ utila = (function () {
     if (opts.depth < 0) return '[Array]';
     opts = Object.assign({}, opts);
     opts.objs = [...opts.objs, val];
-    let ba = [], ind = -1, vkeys;
+    let ba = [], ind = -1, exc = true, vkeys;
     if (bkeys === undefined) {
       if (opts.showHidden == true) bkeys = Reflect.ownKeys(val);
       else bkeys = Object.keys(val);
@@ -73,7 +73,10 @@ utila = (function () {
     for (let iv in vkeys) {
       let i = vkeys[iv];
       if (ba.length + 1 > opts.maxArrayLength) {
-        ba.push('... ' + (val.length - i) + ' more items');
+        let ia = val.length - i;
+        if (ia > 1) ba.push('... ' + ia + ' more items');
+        else ba.push('... 1 more item');
+        exc = false;
         break;
       }
       if (i != ind + 1) {
@@ -83,6 +86,11 @@ utila = (function () {
       }
       ba.push(formatValue(val[i], Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
       ind = parseInt(i);
+    }
+    if (val.length > ind + 1 && exc) {
+      let la = val.length - ind - 1;
+      if (la > 1) ba.push('... ' + la + ' more items');
+      else ba.push('... 1 more item');
     }
     keys.forEach(function (i) {
       ba.push(stringProp(i) + ': ' + formatPropDes(Object.getOwnPropertyDescriptor(val, i), Object.assign(Object.assign({}, opts), {depth:opts.depth-1,indentLvl:opts.indentLvl+2})));
