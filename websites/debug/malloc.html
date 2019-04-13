@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Malloc</title>
+  </head>
+  <body>
+    Amount: <input type = 'text' id = 'amts'> <button onclick = 'Test()'>Test</button><br>
+    <span id = 'gb' style = 'font-family:monospace;font-size:48px;'></span>
+    <script>
+      let run = false, arr = '';
+      function randstr(len) {
+        let s = '';
+        for (var i = 0; i < len; i++) s += String.fromCharCode(Math.random() * 65536);
+        return s;
+      }
+      async function Test() {
+        try {
+        if (run) run = false;
+        else {
+          run = true;
+          let amt = parseInt(amts.value);
+          arr = '';
+          for (var i = 0; i < amt; i++) {
+            if (run == false) break;
+            arr += randstr(18000);
+            gb.innerHTML = `${i + 1} MB`;
+            await new Promise((r, j) => setTimeout(r, 0));
+          }
+          run = false;
+        }
+        } catch (e) {console.error(e)}
+      }
+    </script>
+  </body>
+</html>

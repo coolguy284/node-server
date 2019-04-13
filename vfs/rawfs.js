@@ -497,6 +497,8 @@ class FileSystem {
     this.unlink(path);
   }
   read(ino, sp, buffer, offset, length, position) {
+    if (offset === undefined) offset = 0;
+    if (length === undefined) length = buffer.length;
     if (offset + length > buffer.length) throw new Error('buffer too short');
     if (typeof position == 'number' && position < 0) throw new Error('invalid position');
     if (position == null) {
@@ -514,6 +516,8 @@ class FileSystem {
     return length;
   }
   write(ino, sp, buffer, offset, length, position) {
+    if (offset === undefined) offset = 0;
+    if (length === undefined) length = buffer.length;
     if (!this.writable) throw new Error('read-only filesystem');
     if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
     if (offset + length > buffer.length) throw new Error('buffer too short');

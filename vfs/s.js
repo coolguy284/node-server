@@ -5,7 +5,7 @@ class VFSReadStream extends stream.Readable {
     this.path = path;
     this.autoClose = options.autoClose;
     if (this.autoClose) this.closed = false;
-    if (options.fd === undefined) {
+    if (options.fd === undefined || options.fd === null) {
       this.fd = this.fsc.openSync(path, 'r');
     } else {
       this.fd = options.fd;
@@ -28,8 +28,8 @@ class VFSReadStream extends stream.Readable {
     if (this.start) {
       let rv = true;
       while (rv) {
-        if (this.start + size > this.end) size = this.end - this.start;
-        if (size == 0) {
+        if (this.start + this.bytesRead + size > this.end) size = this.end - this.start;
+        if (size <= 0) {
           this.push(null);
           if (this.autoClose) {
             this.fsc.closeSync(this.fd);
@@ -38,9 +38,9 @@ class VFSReadStream extends stream.Readable {
           rv = false;
         } else {
           let buf = Buffer.allocUnsafe(size);
-          this.fsc.readSync(this.fd, buf, 0, size, this.start);
-          this.start += size;
+          this.fsc.readSync(this.fd, buf, 0, size, this.start + this.bytesRead);
           this.bytesRead += size;
+          size = this._readableState.highWaterMark;
           rv = this.push(buf);
         }
       }
@@ -48,7 +48,7 @@ class VFSReadStream extends stream.Readable {
       let rv = true;
       while (rv) {
         let buf = Buffer.allocUnsafe(size);
-        let len = this.fsc.readSync(this.fd, buf, 0, size, this.start);
+        let len = this.fsc.readSync(this.fd, buf, 0, size);
         if (len < size) {
           this.push(buf.slice(0, len));
           this.bytesRead += len;
@@ -56,10 +56,12 @@ class VFSReadStream extends stream.Readable {
           if (this.autoClose) {
             this.fsc.closeSync(this.fd);
             this.closed = true;
+            return;
           }
         } else {
-          rv = this.push(buf);
           this.bytesRead += size;
+          size = this._readableState.highWaterMark;
+          rv = this.push(buf);
         }
       }
     }
@@ -79,7 +81,7 @@ class VFSWriteStream extends stream.Writable {
     this.path = path;
     this.autoClose = options.autoClose;
     if (this.autoClose) this.closed = false;
-    if (options.fd === undefined) {
+    if (options.fd === undefined || options.fd === null) {
       this.fd = this.fsc.openSync(path, 'w');
     } else {
       this.fd = options.fd;
@@ -93,10 +95,9 @@ class VFSWriteStream extends stream.Writable {
     this.bytesWritten = 0;
   }
   _write(chunk, enc, cb) {
-    if (this.closed) return;
+    if (this.closed) { cb(); return; }
     if (this.start) {
-      this.fsc.writeSync(this.fd, chunk, 0, chunk.length, this.start);
-      this.start += chunk.length;
+      this.fsc.writeSync(this.fd, chunk, 0, chunk.length, this.start + this.bytesWritten);
       this.bytesWritten += chunk.length;
       cb();
     } else {

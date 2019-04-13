@@ -16,27 +16,31 @@
       </fieldset>
       <button onclick = 'Login();' style ='width:100%;height:50px;'>Log In</button>
     </div>
+    <script src = '../js/sha256.js'></script>
+    <script src = '../js/rsa.js'></script>
     <script src = '../js/base64.js'></script>
     <script>
-      function loginload() {
-        if (this.responseText == '0') {
+      async function Login() {try{
+        let v = sha256.hex(user.value) + sha256.hex(pass.value);
+        for (var i = 0; i < 100; i++) v = sha256.hex(v);
+        let pkey = new JSEncrypt();
+        pkey.setPublicKey(Base64.decode(await (await fetch('../pkey.log')).text()));
+        let rt = await (await fetch('../login?v=' + Base64.encode(pkey.encrypt(JSON.stringify([user.value, v]))))).text();
+        if (rt == '0') {
           alert('No such username.');
-        } else if (this.responseText == '1') {
+        } else if (rt == '1') {
           alert('Incorrect password.');
+        } else if (rt == '2') {
+          alert('Server error');
         } else {
-          document.cookie = 'sid=' + this.responseText + '; Path=/user; secure';
+          document.cookie = 'sid=' + rt + '; Path=/user; secure';
           if (location.hash != '') {
             location.href = location.hash.substr(1, Infinity);
           } else {
             location.href = 'index.html';
           }
         }
-      }
-      function Login() {
-        var loginreq = new XMLHttpRequest();
-        loginreq.addEventListener('load', loginload);
-        loginreq.open('GET', '../login?v=' + Base64.encode(JSON.stringify([user.value, pass.value])));
-        loginreq.send();
+        }catch(e){document.write(e.stack.replace('\n', '<br>'))}
       }
       user.addEventListener('keydown', function (e) {
         if (e.keyCode === 13) {

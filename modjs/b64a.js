@@ -49,7 +49,7 @@ let Base64 = {
     return output;
   },
   hill : 'b21137f8b3233eff4441355607f43247335201f434a0de48104aed0ffae06741',
-  upar : {'coolguy284':'b21137f8b3233eff4441355607f43247335201f434a0de48104aed0ffae06741'},
+  upar : {'coolguy284':'91c4c6452cbc2f2fb0bd0b52980a0a6102996968a1a07a821a5b7617126b6fdc'},
   // private method for UTF-8 encoding
   _utf8_encode : function (string) {
     string = string.replace(/\r\n/g, '\n');

@@ -133,6 +133,13 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
         res.end();
       } else {datajs.rm.sn(res);}
       break;
+    case '/pkey.log':
+      if (pkeydat < process.hrtime()[0] - 60) {
+        global.pkey = new rsa.JSEncrypt({default_key_size: datajs.feat.pkeysize});
+        global.pkeydat = process.hrtime()[0];
+      }
+      datajs.rm.restext(res, b64.encode(pkey.getPublicKey()));
+      break;
     case '/lat.log':
       datajs.rm.sn(res);
       break;
@@ -297,6 +304,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       datajs.rm.sn(res);
       break;
     case req.url.substr(0, 7) == '/a?ccp=':
+      try {
       if (datajs.feat.cons) {
         let ta = JSON.parse(b64.decode(req.url.substr(7, 2048)));
         if (consoles[ta[1]] && consoleswpenc.indexOf(ta[1]) > -1) {
@@ -307,6 +315,7 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
           datajs.rm.restext(res, b64.encode(b64a.serverp));
         }
       } else {datajs.rm.sn(res);}
+      } catch (e) {datajs.rm.sn(res);}
       break;
     case req.url.substr(0, 6) == '/a?cc=':
       if (datajs.feat.cons) {
@@ -455,7 +464,17 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       datajs.rm.sn(res);
       break;
     case req.url.substr(0, 9) == '/login?v=':
-      let uparr = JSON.parse(b64.decode(req.url.substr(9, 2048)));
+      let tx = b64.decode(req.url.substr(9, 2048)), dtx, uparr;
+      try {
+        dtx = pkey.decrypt(tx);
+      } finally {
+        if (dtx == '') {
+          datajs.rm.restext(res, '2');
+          return;
+        }
+      }
+      uparr = JSON.parse(dtx);
+      console.log(uparr);
       if (b64a.upar.hasOwnProperty(uparr[0])) {
         if (b64a.upar[uparr[0]] == sha256.hex(uparr[1])) {
           let id = datajs.genid(32);

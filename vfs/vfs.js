@@ -80,32 +80,40 @@ function SecureView(fsc) {
     fsync: fsc.fsync.bind(fsc),
   };
 }
-let rfs = new FileSystem({writable:true});
-let rfs2 = new FileSystem({writable:true});
-let fsv = new FileSystemContext(rfs);
-let fsv2 = new FileSystemContext(rfs2);
 module.exports = {
   helperf, VFSReadStream, VFSWriteStream,
   FileSystem, FileSystemContext, SecureView,
-  rfs, rfs2, fs: fsv, fs2: fsv2,
 };
-fsv.mkdirSync('/dir');
-fsv.writeFileSync('/dir/Some File.txt', 'This is a test file, inside a folder.');
-fsv.linkSync('/dir/Some File.txt', '/dir/File Hardlink.txt');
-fsv.symlinkSync('Some File.txt', '/dir/File Symlink.txt');
-fsv.mkdirSync('/dir/Some Folder');
-fsv.writeFileSync('/dir/Some Folder/File in Folder.txt', 'A file in a folder, to demonstrate symlinks.');
-fsv.linkSync('/dir/Some Folder', '/dir/Folder Hardlink');
-fsv.symlinkSync('Some Folder', '/dir/Folder Symlink');
-fsv.mkdirSync('/dir/Folder Mount Point');
-fsv.mount('/dir/Folder Mount Point', 0, fsv, '/dir/Some Folder');
-fsv.mkdirSync('/dir/Folder Hardlink Loop');
-fsv.linkSync('/dir/Folder Hardlink Loop', '/dir/Folder Hardlink Loop/Loop');
-fsv.writeFileSync('/dir/Folder Hardlink Loop/file.txt', 'A text file to demonstrate the strange infinite nested directory structure.');
-fsv.mkdirSync('/dir/Folder Symlink Loop');
-fsv.symlinkSync('.', '/dir/Folder Symlink Loop/Loop');
-fsv.writeFileSync('/dir/Folder Symlink Loop/file.txt', 'A text file to demonstrate the nested directory structure.');
-fsv.mkdirSync('/fs2');
-fsv.mount('/fs2', 0, fsv2, '/ell');
-fsv2.mkdirSync('/ell');
-fsv2.writeFileSync('/ell/test.txt', 'A test text file in a mounted filesystem.');
+exports = module.exports;
+let rfs, rfs2, fsv, fsv2;
+function prep() {
+  rfs = new FileSystem({writable:true});
+  rfs2 = new FileSystem({writable:true});
+  fsv = new FileSystemContext(rfs);
+  fsv2 = new FileSystemContext(rfs2);
+  exports.rfs = rfs;
+  exports.rfs2 = rfs2;
+  exports.fs = fsv;
+  exports.fs2 = fsv2;
+  fsv.mkdirSync('/dir');
+  fsv.writeFileSync('/dir/Some File.txt', 'This is a test file, inside a folder.');
+  fsv.linkSync('/dir/Some File.txt', '/dir/File Hardlink.txt');
+  fsv.symlinkSync('Some File.txt', '/dir/File Symlink.txt');
+  fsv.mkdirSync('/dir/Some Folder');
+  fsv.writeFileSync('/dir/Some Folder/File in Folder.txt', 'A file in a folder, to demonstrate symlinks.');
+  fsv.linkSync('/dir/Some Folder', '/dir/Folder Hardlink');
+  fsv.symlinkSync('Some Folder', '/dir/Folder Symlink');
+  fsv.mkdirSync('/dir/Folder Mount Point');
+  fsv.mount('/dir/Folder Mount Point', 0, fsv, '/dir/Some Folder');
+  fsv.mkdirSync('/dir/Folder Hardlink Loop');
+  fsv.linkSync('/dir/Folder Hardlink Loop', '/dir/Folder Hardlink Loop/Loop');
+  fsv.writeFileSync('/dir/Folder Hardlink Loop/file.txt', 'A text file to demonstrate the strange infinite nested directory structure.');
+  fsv.mkdirSync('/dir/Folder Symlink Loop');
+  fsv.symlinkSync('.', '/dir/Folder Symlink Loop/Loop');
+  fsv.writeFileSync('/dir/Folder Symlink Loop/file.txt', 'A text file to demonstrate the nested directory structure.');
+  fsv.mkdirSync('/fs2');
+  fsv.mount('/fs2', 0, fsv2, '/ell');
+  fsv2.mkdirSync('/ell');
+  fsv2.writeFileSync('/ell/test.txt', 'A test text file in a mounted filesystem.');
+}
+prep();

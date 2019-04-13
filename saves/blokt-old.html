@@ -154,6 +154,7 @@
     right: 0;
   }
 </style>
+<!--<script type="text/javascript" language="javascript" src="/js/vendor/jquery-1.11.0.min.js"></script>-->
 <link rel="stylesheet" href="https://useast-www.securly.com/css/colorbox.css"/>
 <link rel="stylesheet" href="https://useast-www.securly.com/css/main.css"/>
 <link rel="stylesheet" href="https://useast-www.securly.com/app/css/login-layouts.css">
@@ -175,7 +176,7 @@
     ========================================================================== -->
     <!-- <div class="col-sm-5 left-bg-img block-bg hidden-xs"> -->
     <div class="col-sm-5 left-bg-img block-bg hidden-xs">    <!-- QADUX-116 -->
-          <a>
+          <a href="https://useast-www.securly.com">
         <img src="https://useast-www.securly.com/app/images/logo.svg" alt="Securly" title="Securly" class="logo">
       </a>
     <section id="blockMessage">
@@ -206,7 +207,7 @@
   ========================================================================== -->
   <div class="col-sm-7 right-bg-content">
     <div class="other-option">
-      <a class="visible-xs"><img src="https://useast-www.securly.com/app/images/logo.svg" alt="Securly" title="Securly" class="logo"></a>
+      <a href="https://useast-www.securly.com" class="visible-xs"><img src="https://useast-www.securly.com/app/images/logo.svg" alt="Securly" title="Securly" class="logo"></a>
     </div>
     <section>
       <div class="form-section">
@@ -245,12 +246,16 @@
           <h2>Sorry, you can't access the page</h2>
           <span class="gray-tip">If you think you should see this page use the button below to request access.</span>
         </div>
+        <!--<script language="javascript">
+          var param = "txt";
+        </script>-->
         <!--IF LOGIN IS TRUE-->
         <!--IF TEACHER WHITELIST IS TRUE-->
         <!--<script language="javascript">
             param += "TWL";
         </script>-->
-          <a class="btn btnn btn-google">
+          <!--<a href="https://www.google.com/accounts/Logout?continue=https%3A%2F%2Faccounts.google.com%2Fo%2Foauth2%2Fauth%3Fresponse_type%3Dcode%26access_type%3Donline%26client_id%3D476568907389-qipsbu3rb7c689u6k2a4rejrprgtdq6k.apps.googleusercontent.com%26redirect_uri%3Dhttps%253A%252F%252Fuseast-www.securly.com%252Foauth2callback%26state%3D%257B%2522module%2522%253A%2522User%2522%252C%2522action%2522%253A%2522whitelist%2522%252C%2522jumpUrl%2522%253A%2522d3d3LnJlZGRpdC5jb20v%2522%252C%2522oauthType%2522%253A1%257D%26scope%3Dhttps%253A%252F%252Fwww.googleapis.com%252Fauth%252Fuserinfo.email%2520https%253A%252F%252Fwww.googleapis.com%252Fauth%252Fadmin.directory.user.readonly%2520https%253A%252F%252Fwww.googleapis.com%252Fauth%252Fadmin.directory.domain.readonly%26approval_prompt%3Dauto" class="btn icon-button">-->
+          <a href="https://www.google.com/accounts/Logout?continue=https%3A%2F%2Faccounts.google.com%2Fo%2Foauth2%2Fauth%3Fresponse_type%3Dcode%26access_type%3Donline%26client_id%3D476568907389-qipsbu3rb7c689u6k2a4rejrprgtdq6k.apps.googleusercontent.com%26redirect_uri%3Dhttps%253A%252F%252Fuseast-www.securly.com%252Foauth2callback%26state%3D%257B%2522module%2522%253A%2522User%2522%252C%2522action%2522%253A%2522whitelist%2522%252C%2522jumpUrl%2522%253A%2522d3d3LnJlZGRpdC5jb20v%2522%252C%2522oauthType%2522%253A1%257D%26scope%3Dhttps%253A%252F%252Fwww.googleapis.com%252Fauth%252Fuserinfo.email%2520https%253A%252F%252Fwww.googleapis.com%252Fauth%252Fadmin.directory.user.readonly%2520https%253A%252F%252Fwww.googleapis.com%252Fauth%252Fadmin.directory.domain.readonly%26approval_prompt%3Dauto" class="btn btnn btn-google">
           <img src="https://useast-www.securly.com/app/images/g-logo.png" alt="Google Icon"><span>Temporarily Allow</span>
           </a>
             <!--
@@ -259,6 +264,12 @@
             -->
            <!-- <span class="ss-compose"></span> -->
           </a>
+        
+        <!--<script language="JavaScript">
+          if ($('#' + param).length) {
+            $('#' + param).show();
+          }
+        </script>-->
       </div>
     </section>
     <img  src="https://useast-www.securly.com/schoollogos/indian_creek_logo.png" alt="School Logo" class="bottom-logo">
@@ -267,6 +278,38 @@
     ========================================================================== -->
   </div>
   </div>
+<!--<script>
+  $(document).ready(function () {
+    var detailsOpen = false;
+    var blockMessageHeight = $('#blockMessage').height();
+    var bodyHeight = $('body').height();
+    var bmh = '';
+    if (bodyHeight < 1000) {
+      console.log('short')
+      $('#blockMessage').css('margin-top', '-74px')
+    } else {
+      console.log('tall');
+    }
+    $('#inline').on('click', function () {
+      bodyHeight = $('body').height();
+      blockMessageHeight = $('#blockMessage').height();
+      if (detailsOpen == false) {
+        bmh = ((bodyHeight / 2) + (blockMessageHeight / 2 ) ) + 'px';
+        bmhf = (((bodyHeight * .84) / 2) + (blockMessageHeight / 2 ) ) + 'px';
+        $('#inline-content').css({'display': 'block', 'top': bmh});
+        $('.fullscreen').css({'display': 'block', 'top': bmhf});
+        $('.details').css('display', 'block');
+        $('#inline-close').css('display', 'inline-block');
+        detailsOpen = true;
+      } else {
+        $('#inline-content').css('display', 'none');
+        $('.details').css('display', 'none');
+        $('#inline-close').css('display', 'none');
+        detailsOpen = false;
+      }
+    });
+  });
+</script>-->
 </div>
 <!--END BLOCKED TEMPLATE-->
 <!--DETAILS SECTION-->
