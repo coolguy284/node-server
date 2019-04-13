@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Wide Latin Converter</title>
+  </head>
+  <body>
+    <button onclick = 'twid()'>Normal Text > Wide Latin</button>
+    <button onclick = 'ttex()'>Wide Latin > Normal Text</button>
+    <fieldset>
+      <legend>Normal Text</legend>
+      <textarea id = 'texta' style = 'width:100%;height:200px;'></textarea>
+    </fieldset>
+    <fieldset>
+      <legend>Wide Latin</legend>
+      <textarea id = 'widta' style = 'width:100%;height:200px;'></textarea>
+    </fieldset>
+    <script>
+      let nts = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~⸨⸩¢£¬¯¦¥₩';
+      let wts = '　！＂＃＄％＆＇（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［＼］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝～｟｠￠￡￢￣￤￥￦';
+      /*
+      let nts = ' !#$%&\()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
+      let wts = '　！＃＄％＆（）＊＋，−．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝〜';*/
+      function twid() {
+        let t = texta.value.split('');
+        widta.value = t.map(x => {
+          let i = nts.indexOf(x);
+          if (i > -1) return wts[i];
+          else return x;
+        }).join('');
+      }
+      function ttex() {
+        let t = widta.value.split('');
+        texta.value = t.map(x => {
+          let i = wts.indexOf(x);
+          if (i > -1) return nts[i];
+          else return x;
+        }).join('');
+      }
+    </script>
+  </body>
+</html>

@@ -208,3 +208,29 @@ addGlobalHotkey(function(){
 },[17,73]);
 //keypress
 if ([37, 38, 39, 40, 16, 17, 18, 20, 91, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 27].indexOf(e.keyCode) != -1) {return;} // also in admin.html
+
+//---------------login.html---------------
+function loginload() {
+  if (this.responseText == '0') {
+    alert('No such username.');
+  } else if (this.responseText == '1') {
+    alert('Incorrect password.');
+  } else {
+    document.cookie = 'sid=' + this.responseText + '; Path=/user; secure';
+    if (location.hash != '') {
+      location.href = location.hash.substr(1, Infinity);
+    } else {
+      location.href = 'index.html';
+    }
+  }
+}
+function Login() {
+  let v = sha256.hex(sha256.hex(user.value) + sha256.hex(pass.value));
+  for (var i = 0; i < 100; i++) v = sha256.hex(v);
+  var loginreq = new XMLHttpRequest();
+  loginreq.addEventListener('load', loginload);
+  loginreq.open('GET', '../login?v=' + Base64.encode(JSON.stringify([user.value, v])));
+  loginreq.send();
+}
+
+//---------------admin.html---------------

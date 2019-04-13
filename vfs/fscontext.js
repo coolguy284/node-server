@@ -183,7 +183,7 @@ class FileSystemContext {
   writeFileSync(path, buf, options) {
     if (typeof path == 'number') {
       if (this.fd[path] === undefined) throw new Error('bad file descriptor');
-      if (this.fd[path].indexOf('w') < 0) throw new Error('file not opened in write mode');
+      if (this.fd[path][0].indexOf('w') < 0) throw new Error('file not opened in write mode');
       if (!this.fd[path][1].getPerms(this.fd[path][2]).write) throw new Error('ERRNO 13 no permission');
       return this.fd[path][1].fs.writeFileFD(this.fd[path][2], buf, this.fd[path][3], options);
     } else {
@@ -197,7 +197,7 @@ class FileSystemContext {
   appendFileSync(path, buf, options) {
     if (typeof path == 'number') {
       if (this.fd[path] === undefined) throw new Error('bad file descriptor');
-      if (this.fd[path].indexOf('a') < 0) throw new Error('file not opened in append mode');
+      if (this.fd[path][0].indexOf('a') < 0) throw new Error('file not opened in append mode');
       if (!this.fd[path][1].getPerms(this.fd[path][2]).write) throw new Error('ERRNO 13 no permission');
       return this.fd[path][1].appendFileFD(this.fd[path][2], this.fd[path][3], buf, options);
     } else {
@@ -512,7 +512,7 @@ class FileSystemContext {
     switch (flags) {
       case 'a':
       case 'as':
-        if (!this.existsSync(path)) this.writeFile(path, '');
+        if (!this.existsSync(path)) this.writeFileSync(path, '');
         mn = this.mountNormalize(path);
         return this.addfd(['a', mn[0], mn[0].fs.geteInode(mn[1]), 0]);
         break;
@@ -524,13 +524,13 @@ class FileSystemContext {
         break;
       case 'a+':
       case 'as+':
-        if (!this.existsSync(path)) this.writeFile(path, '');
+        if (!this.existsSync(path)) this.writeFileSync(path, '');
         mn = this.mountNormalize(path);
         return this.addfd(['ra', mn[0], mn[0].fs.geteInode(mn[1]), 0]);
         break;
       case 'ax+':
         if (this.existsSync(path)) throw new Error('file already exists');
-        this.writeFile(path, '');
+        this.writeFileSync(path, '');
         mn = this.mountNormalize(path);
         return this.addfd(['ra', mn[0], mn[0].fs.geteInode(mn[1]), 0]);
         break;
@@ -546,7 +546,7 @@ class FileSystemContext {
         return this.addfd(['rw', mn[0], mn[0].fs.geteInode(mn[1]), 0]);
         break;
       case 'w':
-        this.writeFile(path, '');
+        this.writeFileSync(path, '');
         mn = this.mountNormalize(path);
         return this.addfd(['w', mn[0], mn[0].fs.geteInode(mn[1]), 0]);
         break;
@@ -556,7 +556,7 @@ class FileSystemContext {
         return this.addfd(['w', mn[0], mn[0].fs.geteInode(mn[1]), 0]);
         break;
       case 'w+':
-        this.writeFile(path, '');
+        this.writeFileSync(path, '');
         mn = this.mountNormalize(path);
         return this.addfd(['rw', mn[0], mn[0].fs.geteInode(mn[1]), 0]);
         break;
@@ -596,50 +596,49 @@ class FileSystemContext {
   }
   readSync(fd, buffer, offset, length, position) {
     if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
-    if (this.fd[fd].indexOf('r') < 0) throw new Error('file not opened in read mode');
+    if (this.fd[fd][0].indexOf('r') < 0) throw new Error('file not opened in read mode');
     if (!this.getPerms(this.fd[fd][2]).read) throw new Error('ERRNO 13 no permission');
     let res = this.fd[fd][1].fs.read(this.fd[fd][2], this.fd[fd][3], buffer, offset, length, position);
-    if (position == null) this.fd[fd][3] += res[0];
+    if (position == null) this.fd[fd][3] += res;
     return res;
   }
   writeSync(fd, buffer, offset, length, position) {
     if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
-    if (this.fd[fd].indexOf('w') < 0) throw new Error('file not opened in write mode');
+    if (this.fd[fd][0].indexOf('w') < 0) throw new Error('file not opened in write mode');
     if (!this.getPerms(this.fd[fd][2]).write) throw new Error('ERRNO 13 no permission');
     let res;
     if (typeof buffer == 'string') {
       res = this.fd[fd][1].fs.writeStr(this.fd[fd][2], this.fd[fd][3], buffer, offset, length);
-      if (offset == null) this.fd[fd][3] += res[0];
+      if (offset == null) this.fd[fd][3] += res;
     } else {
       res = this.fd[fd][1].fs.write(this.fd[fd][2], this.fd[fd][3], buffer, offset, length, position);
-      if (position == null) this.fd[fd][3] += res[0];
+      if (position == null) this.fd[fd][3] += res;
     }
     return res;
   }
   fstatSync(fd, options) {
     if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
-    if (this.fd[fd].indexOf('r') < 0) throw new Error('file not opened in read mode');
     if (!this.getPerms(this.fd[fd][2]).read) throw new Error('ERRNO 13 no permission');
     return this.fd[fd][1].fs.statFD(this.fd[fd][2], options);
   }
   fchmodSync(fd, mode) {
     if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
-    if (this.fd[fd].indexOf('w') < 0) throw new Error('file not opened in write mode');
+    if (this.fd[fd][0].indexOf('w') < 0) throw new Error('file not opened in write mode');
     return this.fd[fd][1].fs.chmodFD(this.fd[fd][2], mode);
   }
   fchownSync(fd, uid, gid) {
     if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
-    if (this.fd[fd].indexOf('w') < 0) throw new Error('file not opened in write mode');
+    if (this.fd[fd][0].indexOf('w') < 0) throw new Error('file not opened in write mode');
     return this.fd[fd][1].fs.chownFD(this.fd[fd][2], uid, gid);
   }
   futimesSync(fd, atime, mtime) {
     if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
-    if (this.fd[fd].indexOf('w') < 0) throw new Error('file not opened in write mode');
+    if (this.fd[fd][0].indexOf('w') < 0) throw new Error('file not opened in write mode');
     return this.fd[fd][1].fs.utimesFD(this.fd[fd][2], atime, mtime);
   }
   ftruncateSync(fd, len) {
     if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
-    if (this.fd[fd].indexOf('w') < 0) throw new Error('file not opened in write mode');
+    if (this.fd[fd][0].indexOf('w') < 0) throw new Error('file not opened in write mode');
     return this.fd[fd][1].fs.truncateFD(this.fd[fd][2], len);
   }
   read(fd, buffer, offset, length, position, cb) {

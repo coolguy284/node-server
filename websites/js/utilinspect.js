@@ -11,20 +11,20 @@ utila = (function () {
     sorted: false,
   };
   let typedArrays = ['Int8Array', 'Uint8Array', 'Uint8ClampedArray', 'Int16Array', 'Uint16Array', 'Int32Array', 'Uint32Array', 'BigInt64Array', 'BigUint64Array', 'Float32Array', 'Float64Array'];
-  let boxedPrimitives = ['Boolean', 'Number', 'BigInt', 'Symbol', 'String'];
+  let boxedPrimitives = ['Boolean', 'Number', 'BigInt', 'String', 'Symbol'];
   let className = function(val) {
     try { return val.constructor.name; } catch (e) { return '[Object: null prototype]';}
-  }
+  };
   let objectToString = function(val) {
     let tv = Object.prototype.toString.call(val);
     return tv.substring(8, tv.length - 1);
-  }
+  };
   let stringProp = function(val) {
     if (typeof val == 'symbol') return '[' + inspect(val) + ']';
     if ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$_'.indexOf(val[0]) < 0) return inspect(val);
     for (let i in val) if ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$_'.indexOf(val[i]) < 0) return inspect(val);
     return val;
-  }
+  };
   let inspect = function(val, opts) {
     if (opts === undefined) opts = {};
     if (opts.showHidden === undefined) opts.showHidden = defaultOptions.showHidden;
@@ -38,7 +38,7 @@ utila = (function () {
     opts.indentLvl = 0;
     opts.objs = [];
     return formatValue(val, opts);
-  }
+  };
   let formatObject = function(val, opts, keys, ins) {
     if (opts.depth < 0) return ins || '[Object]';
     opts = Object.assign({}, opts);
@@ -56,7 +56,7 @@ utila = (function () {
     if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
     if (baj == '') return ins || '{}';
     else return '{ ' + (ins !== undefined ? ins + ' ' : '') + baj + ' }';
-  }
+  };
   let formatArray = function(val, opts, bkeys) {
     if (opts.depth < 0) return '[Array]';
     opts = Object.assign({}, opts);
@@ -99,7 +99,7 @@ utila = (function () {
     if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
     if (baj == '') return '[]';
     else return '[ ' + baj + ' ]';
-  }
+  };
   let formatMap = function(val, opts, keys) {
     if (opts.depth < 0) return '[Map]';
     opts = Object.assign({}, opts);
@@ -121,7 +121,7 @@ utila = (function () {
     if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
     if (baj == '') return '{}';
     else return '{ ' + baj + ' }';
-  }
+  };
   let formatSet = function(val, opts, keys) {
     if (opts.depth < 0) return '[Set]';
     opts = Object.assign({}, opts);
@@ -143,31 +143,26 @@ utila = (function () {
     if (baj.length > opts.breakLength) baj = ba.join(',\n' + ' '.repeat(opts.indentLvl + 2));
     if (baj == '') return '{}';
     else return '{ ' + baj + ' }';
-  }
+  };
   let formatPropDes = function(val, opts) {
     if (val.get && val.set) return '[Getter/Setter]';
     else if (val.get) return '[Getter]';
     else if (val.set) return '[Setter]';
     return formatValue(val.value, opts);
-  }
+  };
   let formatValue = function(val, opts) {
-    if (val === undefined) {
-      return 'undefined';
-    } else if (val === null) {
-      return 'null';
-    } else if (typeof val == 'boolean') {
-      return val.toString();
-    } else if (typeof val == 'number') {
+    if (val === undefined) return 'undefined';
+    else if (val === null) return 'null';
+    else if (typeof val == 'boolean') return val.toString();
+    else if (typeof val == 'number') {
       if (Object.is(val, -0)) {
         return '-0';
       } else {
         return val.toString();
       }
-    } else if (typeof val == 'bigint') {
-      return val.toString() + 'n';
-    } else if (typeof val == 'symbol') {
-      return val.toString();
-    } else if (typeof val == 'string') {
+    } else if (typeof val == 'bigint') return val.toString() + 'n';
+    else if (typeof val == 'symbol') return val.toString();
+    else if (typeof val == 'string') {
       let js = JSON.stringify(val);
       return '\'' + js.substring(1, js.length - 1).replace(/'/g, '\\\'').replace(/\\"/g, '"') + '\'';
     } else if (typeof val == 'function') {
@@ -237,9 +232,10 @@ utila = (function () {
         return cn + ' [' + objs + '] ' + formatObject(val, opts);
       }
     }
-  }
+  };
   inspect.custom = Symbol('util.inspect.custom');
-  return {defaultOptions, typedArrays, boxedPrimitives, className, objectToString, stringProp, inspect, formatObject, formatArray, formatMap, formatSet, formatPropDes, formatValue};
+  return { defaultOptions, typedArrays, boxedPrimitives, className, objectToString, stringProp, inspect, formatObject, formatArray, formatMap, formatSet, formatPropDes, formatValue };
 })();
 Object.assign(util, utila);
+delete utila;
 inspect = util.inspect;

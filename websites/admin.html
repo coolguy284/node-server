@@ -78,6 +78,7 @@
           seron1 = 'Server On';
         } else {
           PassReload();
+          return;
         }
         try {
         if (document.hidden || cifr.contentWindow.getSelection().toString() == '') {
@@ -102,12 +103,6 @@
         }
         getting = false;
       }
-      function reqgp() {
-        if (this.responseText != '') {
-          serverp = Base64.decode(this.responseText);
-          //Base64.s = serverp;
-        }
-      }
       function reqsp() {
         if (this.responseText != '0' && this.responseText != '') {
           PassReload();
@@ -120,6 +115,7 @@
         }
         if (serverp == '') {
           PassReload();
+          return;
         }
         if (!getting) {
           getting = true;
@@ -160,6 +156,29 @@
           }
         }
       }
+      async function PassReload() {
+        if (ks.value.length > 0) {
+          //let pkey = new JSEncrypt();
+          //pkey.setPublicKey(await (await fetch(surl.value + 'pkey.log')).text());
+          let url;
+          switch (dc.value) {
+            case 'reg':
+            case 'deb':
+            case 'cmc':
+            case 'bsh':
+              url = surl.value + 'a?ccp=' + Base64.encode(JSON.stringify([ks.value, null]));
+              break;
+            case 'cus':
+              url = surl.value + 'a?ccp=' + Base64.encode(JSON.stringify([ks.value, constr.value]));
+              break;
+          }
+          let rt = await (await fetch(url)).text();
+          if (rt != '') {
+            serverp = Base64.decode(rt);
+          }
+        }
+      }
+      /*
       function PassReload() {
         if (ks.value.length > 0) {
           var req = new XMLHttpRequest();
@@ -178,6 +197,13 @@
           req.send();
         }
       }
+      function reqgp() {
+        if (this.responseText != '') {
+          serverp = Base64.decode(this.responseText);
+          //Base64.s = serverp;
+        }
+      }
+      */
       function Send() {
         try {
         if (ks.value != '') {

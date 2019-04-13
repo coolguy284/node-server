@@ -8,7 +8,7 @@ utila = (function () {
     let perc = false, str = args[0], argind = 1, bs = '';
     while (str.length > 0) {
       let si = str.search('%');
-      if (si < 0 || !str[si + 1]) {bs += str; break;}
+      if (si < 0 || !str[si + 1]) { bs += str; break; }
       bs += str.substr(0, si);
       let i = si + 1;
       if (argind < args.length) {
@@ -47,8 +47,9 @@ utila = (function () {
       bs += ' ' + args.slice(argind, Infinity).map((x) => {if (typeof x == 'string') return x; return inspect(x)}).join(' ');
     }
     return bs;
-  }
-  return {format};
+  };
+  return { format };
 })();
 Object.assign(util, utila);
+delete utila;
 format = util.format;

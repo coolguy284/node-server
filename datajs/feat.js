@@ -16,6 +16,7 @@ module.exports = {
   reqtimelog: false, // log request time
   errmsg: false, // show message with server error
   enc: 'aes',
+  pkeysize: 1024,
   datadir: 'data', // directory to save server state, '' for no state saving
   ipdm: 1,
   httpsf: true,
