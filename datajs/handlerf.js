@@ -1,6 +1,6 @@
 module.exports = {
   main: {
-    '/dat.html': function (req, res) {
+    '/dat.html': function (req, res, rrid, ipaddr, proto, url, cookies, nam) {
       res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8'});
       res.write(new Date().toString());
       res.end();

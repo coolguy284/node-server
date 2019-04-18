@@ -2,6 +2,7 @@
 // jshint ignore:start
 global.AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
 global.GeneratorFunction = Object.getPrototypeOf(function*(){}).constructor;
+global.AsyncGeneratorFunction = Object.getPrototypeOf(async function*(){}).constructor;
 // jshint ignore:end
 let cons = require('./console.js');
 module.exports = {

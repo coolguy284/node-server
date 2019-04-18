@@ -157,6 +157,7 @@ global.owneyesid = [];
 global.loginid = [];
 global.pkey = {};
 global.pkeydat = -1000;
+global.rid = 0;
 global.ticks = 0;
 global.req10s = false;
 global.locked = false;
@@ -268,7 +269,7 @@ global.serverf = function serverf(req, resa, nolog) {
   if (datajs.feat.reqtimelog) {
     rst = process.hrtime();
   }
-  let res, ipaddr, proto, url, cookies, nam = null, sn = false;
+  let res, rrid = rid++, ipaddr, proto, url, cookies, nam = null, sn = false;
   try {
   savedvars.timeout = 0;
   if (datajs.feat.bwlimits.main == Infinity) {
@@ -280,6 +281,9 @@ global.serverf = function serverf(req, resa, nolog) {
   }
   switch (datajs.feat.ipdm) {
     case 0:
+      ipaddr = req.connection.remoteAddress;
+      break;
+    case 1:
       if (req.headers['x-forwarded-for']) {
         let shead = req.headers['x-forwarded-for'].split(', ');
         if (shead.length > 2) {
@@ -291,7 +295,7 @@ global.serverf = function serverf(req, resa, nolog) {
         ipaddr = req.connection.remoteAddress;
       }
       break;
-    case 1:
+    case 2:
       if (req.headers['x-forwarded-for']) {
         let shead = req.headers['x-forwarded-for'].split(', ');
         ipaddr = shead[shead.length - 1];
@@ -319,11 +323,8 @@ global.serverf = function serverf(req, resa, nolog) {
       }
       break;
   }
-  if (req.headers.host) {
-    url = req.headers.host;
-  } else {
-    url = 'null';
-  }
+  if (req.headers.host) url = req.headers.host;
+  else url = '';
   cookies = datajs.rm.parsecookies(req);
   if (cookies.sid) {
     if (datajs.feat.loginip) {
@@ -342,7 +343,7 @@ global.serverf = function serverf(req, resa, nolog) {
   }
   global.stime = new Date();
   if (datajs.feat.debreq && datajs.feat.el.cons.indexOf(req.url) < 0 && datajs.feat.el.consv.every(datajs.notstartswith, req.url)) {
-    debreq.push(datajs.rm.reqinfo(req, stime.getTime(), ipaddr, proto, url, cookies, nam));
+    debreq.push(datajs.rm.reqinfo(req, rrid, stime.getTime(), ipaddr, proto, url, cookies, nam));
     if (debreq.length > datajs.feat.lim.debreq) {
       debreq.splice(0, debreq.length - datajs.feat.lim.debreq);
     }
@@ -352,22 +353,22 @@ global.serverf = function serverf(req, resa, nolog) {
       let tsd = stime.toISOString();
       if (baniplist.indexOf(ipaddr.replace('::ffff:', '')) > -1 || (req.connection.remoteAddress != '::ffff:127.0.0.1' && datajs.feat.intmode)) {
         if (datajs.feat.hosts.main.indexOf(url) > -1) {
-          console.log(datajs.tn('[' + tsd + '] ' + datajs.ipform(ipaddr) + ' ' + proto.padEnd(5) + ' ' + req.method + ' ' + url + ' ' + req.url, datajs.feat.lim.cologm) + ' banned');
+          console.log(datajs.tn('[' + tsd + '] ' + (''+rrid).padStart(5, '0') + ' ' + datajs.ipform(ipaddr) + ' ' + proto.padEnd(5) + ' ' + req.method + ' ' + url + ' ' + req.url, datajs.feat.lim.cologm) + ' banned');
         } else {
-          console.log(datajs.tn('[' + tsd + '] ' + datajs.ipform(ipaddr) + ' ' + proto.padEnd(5) + ' ' + url + ' ' + req.method + ' ' + url + ' ' + req.url, datajs.feat.lim.cologm) + ' banned');
+          console.log(datajs.tn('[' + tsd + '] ' + (''+rrid).padStart(5, '0') + ' ' + datajs.ipform(ipaddr) + ' ' + proto.padEnd(5) + ' ' + url + ' ' + req.method + ' ' + url + ' ' + req.url, datajs.feat.lim.cologm) + ' banned');
         }
-        cologdadd('[' + tsd + '] ' + datajs.ipform(req.connection.remoteAddress) + ' ' + proto.padEnd(5) + ' ' + url + ' ' + req.method + ' ' + req.url + ' ' + req.headers['x-forwarded-for'] + ' banned');
+        cologdadd('[' + tsd + '] ' + (''+rrid).padStart(5, '0') + ' ' + datajs.ipform(req.connection.remoteAddress) + ' ' + proto.padEnd(5) + ' ' + url + ' ' + req.method + ' ' + req.url + ' ' + req.headers['x-forwarded-for'] + ' banned');
         res.writeHead(403, {'Content-Type': 'text/plain; charset=utf-8'});
         res.write('You are banned.');
         res.end();
         return;
       } else {
         if (datajs.feat.hosts.main.indexOf(url) > -1) {
-          console.log(datajs.tn('[' + tsd + '] ' + datajs.ipform(ipaddr) + ' ' + proto.padEnd(5) + ' ' + req.method + ' ' + req.url, datajs.feat.lim.cologm));
+          console.log(datajs.tn('[' + tsd + '] ' + (''+rrid).padStart(5, '0') + ' ' + datajs.ipform(ipaddr) + ' ' + proto.padEnd(5) + ' ' + req.method + ' ' + req.url, datajs.feat.lim.cologm));
         } else {
-          console.log(datajs.tn('[' + tsd + '] ' + datajs.ipform(ipaddr) + ' ' + proto.padEnd(5) + ' ' + url + ' ' + req.method + ' ' + req.url, datajs.feat.lim.cologm));
+          console.log(datajs.tn('[' + tsd + '] ' + (''+rrid).padStart(5, '0') + ' ' + datajs.ipform(ipaddr) + ' ' + proto.padEnd(5) + ' ' + url + ' ' + req.method + ' ' + req.url, datajs.feat.lim.cologm));
         }
-        cologdadd('[' + tsd + '] ' + datajs.ipform(req.connection.remoteAddress) + ' ' + proto.padEnd(5) + ' ' + url + ' ' + req.method + ' ' + url + ' ' + req.url + ' ' + req.headers['x-forwarded-for']);
+        cologdadd('[' + tsd + '] ' + (''+rrid).padStart(5, '0') + ' ' + datajs.ipform(req.connection.remoteAddress) + ' ' + proto.padEnd(5) + ' ' + url + ' ' + req.method + ' ' + url + ' ' + req.url + ' ' + req.headers['x-forwarded-for']);
       }
     }
   }
@@ -387,7 +388,7 @@ global.serverf = function serverf(req, resa, nolog) {
       if (req.url.substr(0, 2) == '/s' && datajs.feat.tost) {
         adm.ipban(ipaddr); 
       }
-      let rp = reqg(req, res, ipaddr, proto, url, cookies, nam);
+      let rp = reqg(req, res, rrid, ipaddr, proto, url, cookies, nam);
       if (!nolog && rp != -1) {
         if (datajs.feat.el.vh.indexOf(req.url) < 0 && datajs.feat.el.vhv.every(datajs.notstartswith, req.url) && Object.keys(datajs.handlerp).every(datajs.notstartswith, req.url)) {
           if (rp != 'p404') {
@@ -402,14 +403,14 @@ global.serverf = function serverf(req, resa, nolog) {
         }
       }
     } else if (req.method == 'HEAD') {
-      reqh(req, res, ipaddr, proto, url, cookies, nam);
+      reqh(req, res, rrid, ipaddr, proto, url, cookies, nam);
     } else {
       res.writeHead(501);
       res.end();
     }
   } else {
     let althost = datajs.feat.hosts.map[url];
-    hreq(req, res, ipaddr, proto, url, althost, cookies, nam);
+    hreq(req, res, rrid, ipaddr, proto, url, althost, cookies, nam);
   }
   req10s = true;
   global.etime = new Date();

@@ -1,5 +1,5 @@
 // jshint maxerr:1000
-module.exports = function headf(req, res, ipaddr, proto, url, cookies, nam) {
+module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam) {
   let mode = 0;
   switch (req.url) {
     case '/':

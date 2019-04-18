@@ -1,7 +1,7 @@
 // panel of switches for the server
 module.exports = {
   chat: true,
-  chates: true, // eventstream chat
+  chates: false, // eventstream chat
   chathere: true,
   chattyp: true,
   chatkick: true,
@@ -18,8 +18,16 @@ module.exports = {
   enc: 'aes',
   pkeysize: 1024,
   datadir: 'data', // directory to save server state, '' for no state saving
-  ipdm: 1,
+  // mode of determining client ip address
+  // 0 - use req.connection.remoteAddress
+  // 1 - use x-forwarded-for, pick the third item from the end of list, if list is shorter than 3, then pick first item in list, if header nonexistent then req.connection.remoteAddress
+  // 2 - use x-forwarded-for, pick last item in list, if nonexistent then req.connection.remoteAddress
+  ipdm: 2,
   httpsf: true,
+  // mode of determining whether connection is https or not
+  // 0 - use req.connection.encrypted
+  // 1 - use x-forwarded-proto, if nonexistent then req.connection.encrypted
+  // 2 - use x-forwarded-proto, if nonexistent then https
   httpsdm: 2,
   tickint: 1000, // server ticking interval
   savefreq: 10, // server saves state every nth tick
@@ -41,7 +49,7 @@ module.exports = {
     cologd: 100,
     cologmin: 100,
     cologdmin: 100,
-    cologm: 300,
+    cologm: 300, // request log character limit
     debreq: 100000,
   },
   cache: {

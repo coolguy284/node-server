@@ -5,7 +5,7 @@ module.exports = {
     res.end();
   },
   '/ng?n=': function (req, res) {
-    savedvars.np.push(decodeURIComponent(req.url.substr(6, Infinity)));
+    if (savedvars.np) savedvars.np.push(decodeURIComponent(req.url.substr(6, Infinity)));
     res.writeHead(204);
   },
 };

@@ -1,4 +1,4 @@
-module.exports = function hreq(req, res, ipaddr, proto, url, althost, cookies, nam) {
+module.exports = function hreq(req, res, rrid, ipaddr, proto, url, althost, cookies, nam) {
   if (althost == 'test') {
     if (req.method == 'GET') {
       if (req.url == '/') {
