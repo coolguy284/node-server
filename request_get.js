@@ -1,5 +1,5 @@
 // jshint maxerr:1000 -W041 -W061
-module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
+module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam) {
   let mode = 0;
   switch (req.url) {
     case '/':
@@ -601,11 +601,11 @@ module.exports = function getf(req, res, ipaddr, proto, url, cookies, nam) {
       let hanp = '';
       Object.keys(datajs.handlerp).forEach(function (val) {if (req.url.startsWith(val) && val.startsWith(hanp)) {hanp = val;}});
       if (hanp) {
-        return datajs.handlerp[hanp](req, res);
+        return datajs.handlerp[hanp](req, res, rrid, ipaddr, proto, url, cookies, nam);
       } else if (datajs.handlerf.main.hasOwnProperty(req.url)) {
-        return datajs.handlerf.main[req.url](req, res);
+        return datajs.handlerf.main[req.url](req, res, rrid, ipaddr, proto, url, cookies, nam);
       } else if (nam !== null && datajs.handlerf.hasOwnProperty(nam) && datajs.handlerf[nam].hasOwnProperty(req.url)) {
-        return datajs.handlerf[nam][req.url](req, res);
+        return datajs.handlerf[nam][req.url](req, res, rrid, ipaddr, proto, url, cookies, nam);
       } else if (datajs.feat.tempp.hasOwnProperty(req.url)) {
         res.writeHead(200, datajs.feat.tempp[req.url][0]);
         res.write(datajs.feat.tempp[req.url][1]);

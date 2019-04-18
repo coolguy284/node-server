@@ -12,7 +12,7 @@ module.exports = {
     res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
     res.end();
   },
-  reqinfo: function reqinfo(req, ts, ipaddr, proto, url, cookies, nam) {
+  reqinfo: function reqinfo(req, rrid, ts, ipaddr, proto, url, cookies, nam) {
     let socket = {
       encrypted: req.socket.encrypted,
       localAddress: req.socket.localAddress,
@@ -24,6 +24,7 @@ module.exports = {
     return {
       method: req.method,
       url: req.url,
+      rrid: rrid,
       timestamp: ts,
       headers: req.headers,
       connection: socket,

@@ -9,10 +9,13 @@ function init(a) {
 class FileSystem {
   constructor(opts) {
     if (typeof opts == 'string') {
-      this.importSystem(opts);
+      this.importSystemString(opts);
       return;
     } else if (typeof opts == 'boolean') {
       opts = {writable:opts};
+    } else if (opts instanceof Buffer) {
+      this.importSystem(opts);
+      return;
     }
     if (opts === undefined) opts = {};
     if (opts.writable === undefined) opts.writable = false;
@@ -44,8 +47,8 @@ class FileSystem {
     }
     if (opts.fi === undefined) opts.fi = [];
     this.writable = opts.writable;
-    this.inoarr = opts.inoarr;
     this.inodarr = opts.inodarr;
+    this.inoarr = opts.inoarr;
     this.fi = opts.fi;
   }
   getInod(ino, ind) {
@@ -619,30 +622,116 @@ class FileSystem {
       delete this.inoarr[this.fi[i]];
       delete this.inodarr[this.fi[i]];
     }
+    this.fi.splice(0, Infinity);
   }
-  exportSystemRaw() {
+  exportSystemRawString() {
     let arr = [this.writable, [], [], []];
-    for (var i = 0; i < this.inoarr.length; i++) arr[1].push(this.inoarr[i] !== undefined ? this.inoarr[i].toString('binary') : undefined);
-    for (var i = 0; i < this.inodarr.length; i++) arr[2].push(this.inodarr[i] !== undefined ? this.inodarr[i].toString('binary') : undefined);
+    for (var i = 0; i < this.inodarr.length; i++) arr[1].push(this.inodarr[i] !== undefined ? this.inodarr[i].toString('binary') : undefined);
+    for (var i = 0; i < this.inoarr.length; i++) arr[2].push(this.inoarr[i] !== undefined ? this.inoarr[i].toString('binary') : undefined);
     for (var i = 0; i < this.fi.length; i++) arr[3].push(this.fi[i]);
     return arr;
   }
-  exportSystem() {
-    return JSON.stringify(this.exportSystemRaw());
+  exportSystemString() {
+    return JSON.stringify(this.exportSystemRawString());
   }
-  importSystemRaw(arr) {
-    if (!this.writable) throw new Error('read only filesystem');
+  importSystemRawString(arr) {
+    if (!this.writable && this.writable != null) throw new Error('read only filesystem');
     this.writable = arr[0];
-    this.inoarr.splice(0, Infinity);
-    this.inodarr.splice(0, Infinity);
-    this.fi.splice(0, Infinity);
-    for (var i = 0; i < arr[1].length; i++) this.inoarr.push(arr[1][i] != undefined ? Buffer.from(arr[1][i], 'binary') : undefined);
-    for (var i = 0; i < arr[2].length; i++) this.inodarr.push(arr[2][i] != undefined ? Buffer.from(arr[2][i], 'binary') : undefined);
+    if (this.inodarr) this.inodarr.splice(0, Infinity);
+    else this.inodarr = [];
+    if (this.inoarr) this.inoarr.splice(0, Infinity);
+    else this.inoarr = [];
+    if (this.fi) this.fi.splice(0, Infinity);
+    else this.fi = [];
+    for (var i = 0; i < arr[1].length; i++) this.inodarr.push(arr[1][i] != null ? Buffer.from(arr[1][i], 'binary') : undefined);
+    for (var i = 0; i < arr[2].length; i++) this.inoarr.push(arr[2][i] != null ? Buffer.from(arr[2][i], 'binary') : undefined);
     for (var i = 0; i < arr[3].length; i++) this.fi.push(arr[3][i]);
   }
-  importSystem(str) {
-    if (!this.writable) throw new Error('read only filesystem');
-    this.importSystemRaw(JSON.parse(str));
+  importSystemString(str) {
+    if (!this.writable && this.writable != null) throw new Error('read only filesystem');
+    this.importSystemRawString(JSON.parse(str));
+  }
+  exportSystemSize() {
+    let v = 13;
+    for (let i = 0; i < this.inodarr.length; i++) v += this.inodarr[i] != null ? 32 : 1;
+    for (let i = 0; i < this.inoarr.length; i++) v += this.inoarr[i] != null ? 4 + this.inoarr[i].length : 4;
+    v += this.fi.length * 4;
+    return v;
+  }
+  exportSystem() {
+    let head = Buffer.alloc(13);
+    let inodbufs = [];
+    for (let i = 0; i < this.inodarr.length; i++) {
+      let buf;
+      if (this.inodarr[i] != null) buf = this.inodarr[i];
+      else {
+        buf = Buffer.alloc(1);
+        buf.writeUInt8(255, 0);
+      }
+      inodbufs.push(buf);
+    }
+    let inodbuf = Buffer.concat(inodbufs);
+    inodbufs.slice(0, Infinity);
+    let inobufs = [];
+    for (let i = 0; i < this.inoarr.length; i++) {
+      let head = Buffer.alloc(4);
+      if (this.inoarr[i] != null) {
+        head.writeUInt32BE(this.inoarr[i].length, 0);
+        inobufs.push(head);
+        if (this.inoarr[i].length > 0) inobufs.push(this.inoarr[i]);
+      } else {
+        head.writeUInt32BE(0xffffffff, 0);
+        inobufs.push(head);
+      }
+    }
+    let inobuf = Buffer.concat(inobufs);
+    inobufs.slice(0, Infinity);
+    let fibuf = Buffer.alloc(this.fi.length * 4);
+    for (let i = 0; i < this.fi.length; i++) {
+      fibuf.writeUInt32BE(this.fi[i], i * 4);
+    }
+    head.writeUInt8(this.writable ? 128 : 0, 0);
+    head.writeUInt32BE(inodbuf.length, 1);
+    head.writeUInt32BE(inobuf.length, 5);
+    head.writeUInt32BE(fibuf.length, 9);
+    return Buffer.concat([
+      head,
+      inodbuf,
+      inobuf,
+      fibuf
+    ]);
+  }
+  importSystem(buf) {
+    if (!this.writable && this.writable != null) throw new Error('read only filesystem');
+    let head = buf.slice(0, 13);
+    let flags = head.readUInt8(0);
+    if (flags & 128) this.writable = true;
+    else this.writable = false;
+    if (this.inodarr) this.inodarr.splice(0, Infinity);
+    else this.inodarr = [];
+    if (this.inoarr) this.inoarr.splice(0, Infinity);
+    else this.inoarr = [];
+    if (this.fi) this.fi.splice(0, Infinity);
+    else this.fi = [];
+    let inodlen = head.readUInt32BE(1);
+    for (let i = 0, ind = 0; i < inodlen; i++, ind++) {
+      if (buf.readUInt8(13 + i) != 255) {
+        this.inodarr[ind] = buf.slice(13 + i, 13 + i + 32);
+        i += 31;
+      }
+    }
+    let inolen = head.readUInt32BE(5);
+    for (let i = 0, ind = 0; i < inolen; i += 4, ind++) {
+      let len = buf.readUInt32BE(13 + inodlen + i);
+      if (len != 0xffffffff) {
+        this.inoarr[ind] = buf.slice(17 + inodlen + i, 17 + inodlen + i + len);
+        i += len;
+      }
+    }
+    let filen = head.readUInt32BE(9);
+    for (let i = 0; i < filen; i += 4) {
+      this.fi.push(buf.readUInt32BE(13 + inodlen + inolen + i));
+    }
   }
 }
 module.exports = { FileSystem, init };
