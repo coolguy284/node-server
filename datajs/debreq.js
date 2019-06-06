@@ -1,3 +1,4 @@
+// jshint -W018
 module.exports = {
   /* filters the debreq with opts
     opts [Number]: gets request with number as id

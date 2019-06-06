@@ -1,3 +1,4 @@
+// jshint -W041
 /*
 \x1b[<seq1>;<seq2>...m
 dark - 30-37 40-47
@@ -117,7 +118,7 @@ let StdoutStream = class StdoutStream extends stream.Duplex {
             this.term.clearLines(this.term.y - 1, cm);
             this.term.setPos(1, 1);
           } else {
-            this.term.clearLine(this.term.y - 1, this.term.x - 1, );
+            this.term.clearLine(this.term.y - 1, this.term.x - 1);
             this.term.clearLines(this.term.y - 1, cm);
           }
           this.esc = false;
@@ -215,7 +216,7 @@ let StdoutStream = class StdoutStream extends stream.Duplex {
     }
     done();
   }
-}
+};
 let Terminal = class Terminal {
   constructor(width, height) {
     this.width = width;
@@ -426,4 +427,4 @@ let Terminal = class Terminal {
     return bs;
   }
 };
-module.exports = {Terminal, StdoutStream, c8d, c8b, c256};
+module.exports = { Terminal, StdoutStream, c8d, c8b, c256 };

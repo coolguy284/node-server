@@ -28,4 +28,4 @@ function help(val) {
   if (val in topics) return topics[val];
   else return 'Topic not found, call help with no parameters for main help';
 }
-module.exports = {help, topics};
+module.exports = { help, topics };

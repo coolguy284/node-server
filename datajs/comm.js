@@ -1,4 +1,4 @@
-// jshint -W061
+// jshint maxerr:1000 -W061
 module.exports = {
   nlist: ['help', 'say', 'spls', 'splb', 'edtt', 'webban', 'webunban', 'webpardon', 'lock', 'unlock', 'kick', 'ban', 'unban', 'pardon', 'ipban', 'ban-ip', 'ipunban', 'unban-ip', 'ippardon', 'pardon-ip', 'ripban', 'rban-ip', 'ripunban', 'runban-ip', 'rippardon', 'rpardon-ip', 'feat', 'rule', 'get', 'cc', 'cct', 'crct'],
   list: {

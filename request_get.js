@@ -235,18 +235,13 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
       datajs.rm.sn(res);
       break;
     case req.url.substr(0, 7) == '/m?ccl=':
-      console.log('j');
       if (datajs.feat.mchat) {
-        console.log('k');
         let ar = JSON.parse(b64.decode(req.url.substr(7, 2048)));
         if (mchat[ar[0]]) {
-          console.log('vin');
           if (mchat[ar[0]].hash != ar[1]) {
-            console.log('lin');
             datajs.rm.restext(res, '2');
           } else datajs.rm.sn(res);
         } else {
-          console.log('in');
           adm.mcreatechat(ar[0], ar[1]);
           datajs.rm.sn(res);
         }
@@ -450,18 +445,85 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
       break;
     case req.url.substr(0, 6) == '/a?ng=':
       cv = JSON.parse(b64.decode(req.url.substr(6, Infinity)));
-      if (saveddat.hasOwnProperty(cv[0]) && sha256.hex(cv[1]) == b64a.server) {
-        datajs.rm.restext(res, saveddat[cv[0]]);
-      } else {
-        datajs.rm.sn(res);
-      }
+      let prop = nam != null ? nam : 'main';
+      if (saveddat[prop].hasOwnProperty(cv[0]) && sha256.hex(cv[1]) == b64a.server) {
+        datajs.rm.restext(res, saveddat[prop][cv[0]]);
+      } else datajs.rm.sn(res);
       break;
-    case req.url.substr(0, 6) == '/a?ns=':
-      cv = JSON.parse(b64.decode(req.url.substr(6, Infinity)));
-      if (saveddat.hasOwnProperty(cv[0]) && sha256.hex(cv[1]) == b64a.server) {
-        saveddat[cv[0]] = cv[2];
+    case req.url.substr(0, 9) == '/a?fstyp=':
+      try {
+      cv = JSON.parse(cjsdec(req.url.substr(9, Infinity), b64a.serverp));
+      let dcon;
+      try {
+      switch (cv[0]) {
+        case 'reg':
+          dcon = fs.statSync(cv[1]);
+          break;
+        case 'vfs':
+          dcon = vfs.fs.statSync(cv[1]);
+          break;
       }
-      datajs.rm.sn(res);
+      var t = 10;
+      while (dcon.isSymbolicLink()) {
+        if (t < 0) {
+          datajs.rm.restext(res, cjsenc('1', b64a.serverp));
+          return;
+        }
+        switch (cv[0]) {
+          case 'reg':
+            cv[1] = fs.readlink(cv[1]);
+            dcon = fs.statSync(cv[1]);
+            break;
+          case 'vfs':
+            cv[1] = vfs.fs.readlink(cv[1]);
+            dcon = vfs.fs.statSync(cv[1]);
+            break;
+        }
+        t--;
+      }
+      if (dcon.isFile()) typ = 8;
+      else if (dcon.isDirectory()) typ = 4;
+      else typ = 0;
+      datajs.rm.restext(res, cjsenc(JSON.stringify(typ), b64a.serverp));
+      } catch (e) { datajs.rm.restext(res, cjsenc('0', b64a.serverp)); }
+      } catch (e) { datajs.rm.sn(res); }
+      break;
+    case req.url.substr(0, 9) == '/a?fsdir=':
+      try {
+      cv = JSON.parse(cjsdec(req.url.substr(9, Infinity), b64a.serverp));
+      let dcon;
+      switch (cv[0]) {
+        case 'reg':
+          dcon = fs.readdirSync(cv[1], { withFileTypes: true });
+          break;
+        case 'vfs':
+          dcon = vfs.fs.readdirSync(cv[1], { withFileTypes: true });
+          break;
+      }
+      dcon = dcon.map(x => {
+        if (x.isFile()) typ = 8;
+        else if (x.isDirectory()) typ = 4;
+        else if (x.isSymbolicLink()) typ = 10;
+        else typ = 0;
+        return [x.name, typ];
+      });
+      datajs.rm.restext(res, cjsenc(JSON.stringify(dcon), b64a.serverp));
+      } catch (e) { datajs.rm.sn(res); }
+      break;
+    case req.url.substr(0, 9) == '/a?fstex=':
+      try {
+      cv = JSON.parse(cjsdec(req.url.substr(9, Infinity), b64a.serverp));
+      let dcon;
+      switch (cv[0]) {
+        case 'reg':
+          dcon = fs.readFileSync(cv[1]).toString();
+          break;
+        case 'vfs':
+          dcon = vfs.fs.readFileSync(cv[1]).toString();
+          break;
+      }
+      datajs.rm.restext(res, cjsenc(dcon, b64a.serverp));
+      } catch (e) { datajs.rm.sn(res); }
       break;
     case req.url.substr(0, 9) == '/login?v=':
       let tx = b64.decode(req.url.substr(9, 2048)), dtx, uparr;
@@ -474,7 +536,6 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
         }
       }
       uparr = JSON.parse(dtx);
-      console.log(uparr);
       if (b64a.upar.hasOwnProperty(uparr[0])) {
         if (b64a.upar[uparr[0]] == sha256.hex(uparr[1])) {
           let id = datajs.genid(32);

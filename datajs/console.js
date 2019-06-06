@@ -109,4 +109,4 @@ let Console = class Console {
     }
   }
 };
-module.exports = {Console, counts, times, grouplvl};
+module.exports = { Console, counts, times, grouplvl };

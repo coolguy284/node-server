@@ -1,4 +1,3 @@
-// jshint maxerr:1000 -W054
 // jshint ignore:start
 global.AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
 global.GeneratorFunction = Object.getPrototypeOf(function*(){}).constructor;

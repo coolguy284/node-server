@@ -1,3 +1,4 @@
+// jshint -W083
 let numstatlinux = ['Tgid', 'Ngid', 'Pid', 'PPid', 'TracerPid', 'FDSize', 'NStgid', 'NSpid', 'NSpgid', 'NSsid', 'Threads', 'NoNewPrivs', 'Seccomp', 'voluntary_ctxt_switches', 'nonvoluntary_ctxt_switches'];
 function pidlist() {
   if (process.platform == 'linux') {
