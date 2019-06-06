@@ -6,10 +6,10 @@ module.exports = {
     savedvars.uptime = (new Date().getTime()) - sst;
     savedvars.maxuptime = Math.max(savedvars.uptime, savedvars.maxuptime);
     let remt = new Date().getTime();
-    global.chatherelist = chatherelist.filter(function (val) {return val[0] > remt - 5000});
-    global.chattyplist = chattyplist.filter(function (val) {return val[0] > remt - 2000});
-    global.owneyesid = owneyesid.filter(function (val) {return val[0] > remt - 5000});
-    global.loginid = loginid.filter(function (val) {return val[0] > remt - 864000000});
+    global.chatherelist = chatherelist.filter(val => val[0] > remt - 5000);
+    global.chattyplist = chattyplist.filter(val => val[0] > remt - 2000);
+    global.owneyesid = owneyesid.filter(val => val[0] > remt - 5000);
+    global.loginid = loginid.filter(val => val[0] > remt - 864000000);
     if (Math.random() < 0.0001 && chatherelist.length == 5) {
       adm.addchat(null, '[server ghost]', datajs.splash[Math.floor(Math.random() * datajs.splash.length)]);
     }

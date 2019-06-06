@@ -19,7 +19,10 @@
     <script>
       var edited = false;
       function Save() {
-        return fetch('../a?ns=' + Base64.encode(JSON.stringify([notev.value, skv.value, CryptoJS.AES.encrypt(ta.value, ekv.value).toString()]))).then(function () {edited = false;});
+        return fetch('../a?ns', {
+          method: 'POST',
+          body: Base64.encode(JSON.stringify([notev.value, skv.value, CryptoJS.AES.encrypt(ta.value, ekv.value).toString()])),
+        }).then(function () {edited = false;});
       }
       function Load() {
         if (edited) {
@@ -34,16 +37,16 @@
         }).then(function () {edited = false;});
       }
       function SClear() {
-        Save().then(function () {ta.value = '';});
+        Save().then(function () {ta.value = ''; edited = false;});
       }
       function SCC() {
-        Save().then(function () {ta.value = ''; skv.value = ''; ekv.value = '';});
+        Save().then(function () {ta.value = ''; notev.value = ''; skv.value = ''; ekv.value = ''; edited = false;});
       }
       function Clear() {
-        ta.value = '';
+        ta.value = ''; edited = false;
       }
       function ClearA() {
-        ta.value = ''; skv.value = ''; ekv.value = '';
+        ta.value = ''; notev.value = ''; skv.value = ''; ekv.value = ''; eited = false;
       }
       onbeforeunload = function () {
         if (edited) {

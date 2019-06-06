@@ -104,9 +104,9 @@
           if (arrstr != narrstr) {
             ct.innerHTML = narrstr;
             arrstr = narrstr;
-            if (document.focus) narrfoc = false;
-            else narrfoc = true;
+            if (document.hidden) narrfoc = true;
           }
+          if (!document.hidden) narrfoc = false;
           if (narrfoc) {
             document.title = '!message! Multi Channel Chat';
             setTimeout(() => document.title = 'Multi Channel Chat', 500);

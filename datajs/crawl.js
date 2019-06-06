@@ -1,3 +1,4 @@
+// jshint -W041
 module.exports = {
   getpath: function (path, addl) {
     if (addl[0] == '/') return addl;

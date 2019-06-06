@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name = 'referrer' content = 'no-referrer' />
+    <title>Admin FS</title>
+    <style>
+      #editord {
+        display: none;
+        position: absolute;
+        left: 50%;
+        margin-left: -300px;
+        width: 600px;
+        height: 550px;
+      }
+      #editor {
+        width: 100%;
+        height: 100%;
+        padding: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <input type = 'hidden' id = 'enc' value = 'aes'>
+    <input type = 'hidden' id = 'surl' value = ''>
+    <input type = 'password' id = 'ks'>
+    <button onclick = 'Up()'>Up</button>
+    <input type = 'text' id = 'fpath' style = 'width:calc(100% - 240px);font-family:monospace;'>
+    <button onclick = 'Go()'>Go</button><br>
+    <iframe src = '' style = 'float:left;width:calc(100% - 8px);height:300px;' id = 'cifr'></iframe>
+    <div id = 'editord' onresize = 'editor.resize()'>
+      <div id = 'editor' onresize = 'editor.resize()'></div>
+      <button onclick = 'editord.style.display = "none"' style = 'position:relative;right:5px;top:5px;'>X</button>
+    </div>
+    <script src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/ace.js'></script>
+    <script src = 'js/base64.js'></script>
+    <script src = 'js/rsa.js'></script>
+    <script>
+      var escaper = document.createElement('textarea');
+      function escapeHTML(html) {
+        escaper.textContent = html;
+        return escaper.innerHTML;
+      }
+      function unescapeHTML(html) {
+        escaper.innerHTML = html;
+        return escaper.textContent;
+      }
+      function cjsenc(text, pass) {
+        return CryptoJS.AES.encrypt(text, pass).toString();
+      }
+      function cjsdec(ct, pass) {
+        return CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(ct, pass));
+      }
+      var connst = new Date().getTime();
+      var clat = 0;
+      var passt = 0;
+      var serverp = '';
+      var doreload = true;
+      var getting = false;
+      var verbose = false;
+      var editor = ace.edit('editor');
+      editor.setOptions({
+        tabSize: 2,
+        wrap: true,
+        printMargin: false,
+        theme: 'ace/theme/solarized_dark'
+      });
+      function toparts(str) {
+        let p = str.split(':');
+        return [p[0], p.slice(1, Infinity).join(':')];
+      }
+      async function PassReload() {
+        if (ks.value.length > 0) {
+          let url = surl.value + 'a?ccp=' + Base64.encode(JSON.stringify([ks.value, null]));
+          let rt = await (await fetch(url)).text();
+          if (rt != '') serverp = Base64.decode(rt);
+        }
+      }
+      async function Go() {
+        try {
+          let tok = cjsenc(JSON.stringify(toparts(fpath.value)), serverp);
+          let typ = cjsdec(await (await fetch(surl.value + 'a?fstyp=' + tok)).text(), serverp);
+          if (typ == 4) {
+            let rt = await (await fetch(surl.value + 'a?fsdir=' + tok)).text();
+            try {
+              rt = JSON.parse(cjsdec(rt, serverp));
+              rt.sort((a, b) => {
+                if (a[1] == 8 && b[1] == 4) return 1;
+                else if (a[1] == 4 && b[1] == 8) return -1;
+                else if (a[0] > b[0]) return 1;
+                else if (a[0] < b[0]) return -1;
+                else return 0;
+              });
+              rt = rt.map(x => {
+                return '<tr><td>' + x[1] + '</td><td><a class = "fsentry" href = "' + fpath.value + '/' + x[0] + '">' + x[0] + '</a></td></tr>';
+              });
+              cifr.contentDocument.body.innerHTML = '<table>\n  <tr><th>T</th><th>Name</th></tr>\n  ' + rt.join('\n  ') + '\n</table>';
+              Array.prototype.forEach.call(
+                cifr.contentDocument.getElementsByClassName('fsentry'),
+                x => {
+                  x.addEventListener('click', e => {
+                    fpath.value = e.target.href;
+                    Go();
+                    e.preventDefault();
+                    return false;
+                  });
+                }
+              );
+            } catch (e) { alert(rt); console.error(e); }
+          } else if (typ == 8) {
+            let f = fpath.value.split('/').slice(-1)[0].split('.'), ext;
+            if (f.length > 1) ext = f[f.length - 1];
+            else ext = '';
+            fpath.value = UpPath(fpath.value);
+            let rt = await (await fetch(surl.value + 'a?fstex=' + tok)).text();
+            try {
+              rt = cjsdec(rt, serverp);
+              if (ext == 'txt') editor.session.setMode('ace/mode/text');
+              else if (ext == 'html') editor.session.setMode('ace/mode/html');
+              else if (ext == 'js') editor.session.setMode('ace/mode/javascript');
+              else if (ext == 'css') editor.session.setMode('ace/mode/css');
+              else if (ext == 'xml') editor.session.setMode('ace/mode/xml');
+              else editor.session.setMode('ace/mode/text');
+              editor.setValue(rt, -1);
+              editord.style.display = '';
+              alert(rt);
+            } catch (e) { alert(rt); console.error(e); }
+          } else if (typ == 0) {
+            cifr.contentDocument.body.innerHTML = 'No Such File';
+          } else if (typ == 1) {
+            cifr.contentDocument.body.innerHTML = 'Invalid Symlink';
+          }
+        } catch (e) {
+          alert(`Error: ${e}`);
+          console.error(e);
+          PassReload();
+        }
+      }
+      function UpPath(path) {
+        let p = toparts(path);
+        let sp = p[1].split(/\/|\\/g);
+        if (sp.length == 0) return p[0] + ':/';
+        else if (sp.length == 1) return p[0] + ':.';
+        else if (sp[0] == '') return p[0] + ':' + sp.slice(0, -1).join('/').padStart(1, '/');
+        else return p[0] + ':' + sp.slice(0, -1).join('/');
+      }
+      function DownPath(path, val) {
+        if (path == '/') return path + val;
+        else return path + '/' + val;
+      }
+      function Up() {
+        fpath.value = UpPath(fpath.value);
+        Go();
+      }
+      function Down(val) {
+        fpath.value = DownPath(fpath.value, val);
+        Go();
+      }
+      onload = function () {
+        cifr.contentDocument.body.style = 'font-family:monospace;white-space:pre;width:98%;';
+        fpath.value = 'reg:.';
+      };
+      ks.addEventListener('keydown', e => {
+        if (passt < Date.now()) PassReload();
+        else passt = Date.now() + 1000;
+      });
+      ks.addEventListener('focusout', e => {
+        if (passt < Date.now()) PassReload();
+        else passt = Date.now() + 1000;
+      });
+      fpath.addEventListener('keydown', e => { if (e.keyCode === 13) Go(); });
+    </script>
+  </body>
+</html>

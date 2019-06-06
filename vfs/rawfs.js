@@ -459,7 +459,7 @@ class FileSystem {
           case 8: typ = 2; break;
           case 10: typ = 3; break;
         }
-        return fs.Dirent(x[0], typ);
+        return new fs.Dirent(x[0], typ);
       });
     } else {
       return pf.map(x => x[0]);

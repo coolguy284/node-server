@@ -1,4 +1,4 @@
-// jshint maxerr:1000
+// jshint -W041
 module.exports = {
   setchat: function setchat(ind, ts, nam, tex) {
     if (typeof ts != 'string') ts = chat[ind][0];
@@ -9,7 +9,7 @@ module.exports = {
     eslistener.emit('chat-refresh');
   },
   addchat: function addchat(ts, nam, tex) {
-    if (ts === undefined || ts === null) ts = new Date().toISOString();
+    if (ts == null) ts = new Date().toISOString();
     else if (ts instanceof Date) ts = ts.toISOString();
     else if (typeof ts != 'string') ts = ts.toString();
     chat.push(['[' + ts + ']', nam, tex]);
@@ -35,7 +35,7 @@ module.exports = {
     };
   },
   maddchat: function maddchat(nam, ts, j) {
-    if (ts === undefined || ts === null) ts = new Date().toISOString();
+    if (ts == null) ts = new Date().toISOString();
     else if (ts instanceof Date) ts = ts.toISOString();
     else if (typeof ts != 'string') ts = ts.toString();
     if (mchat[nam]) {
