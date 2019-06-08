@@ -8,9 +8,10 @@
         display: none;
         position: absolute;
         left: 50%;
-        margin-left: -300px;
-        width: 600px;
-        height: 550px;
+        top: 5px;
+        margin-left: -550px;
+        width: 1100px;
+        height: 500px;
       }
       #editor {
         width: 100%;
@@ -29,7 +30,7 @@
     <iframe src = '' style = 'float:left;width:calc(100% - 8px);height:300px;' id = 'cifr'></iframe>
     <div id = 'editord' onresize = 'editor.resize()'>
       <div id = 'editor' onresize = 'editor.resize()'></div>
-      <button onclick = 'editord.style.display = "none"' style = 'position:relative;right:5px;top:5px;'>X</button>
+      <button onclick = 'editord.style.display = "none"' style = 'position:absolute;right:10px;top:5px;'><img src = 'images/close.png' style = 'width:20px;height:20px;'></button>
     </div>
     <script src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/ace.js'></script>
@@ -92,7 +93,7 @@
                 else return 0;
               });
               rt = rt.map(x => {
-                return '<tr><td>' + x[1] + '</td><td><a class = "fsentry" href = "' + fpath.value + '/' + x[0] + '">' + x[0] + '</a></td></tr>';
+                return '<tr><td>' + x[1] + '</td><td><a class = "fsentry" href = "' + DownPath(fpath.value, x[0]) + '">' + x[0] + '</a></td></tr>';
               });
               cifr.contentDocument.body.innerHTML = '<table>\n  <tr><th>T</th><th>Name</th></tr>\n  ' + rt.join('\n  ') + '\n</table>';
               Array.prototype.forEach.call(
@@ -122,8 +123,7 @@
               else if (ext == 'xml') editor.session.setMode('ace/mode/xml');
               else editor.session.setMode('ace/mode/text');
               editor.setValue(rt, -1);
-              editord.style.display = '';
-              alert(rt);
+              editord.style.display = 'block';
             } catch (e) { alert(rt); console.error(e); }
           } else if (typ == 0) {
             cifr.contentDocument.body.innerHTML = 'No Such File';
@@ -145,7 +145,8 @@
         else return p[0] + ':' + sp.slice(0, -1).join('/');
       }
       function DownPath(path, val) {
-        if (path == '/') return path + val;
+        let p = toparts(path);
+        if (p[1] == '/') return p[0] + ':' + p[1] + val;
         else return path + '/' + val;
       }
       function Up() {
