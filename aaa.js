@@ -69,6 +69,7 @@ console.error = consoleCall.bind(global, 'error');
 console.clear = consoleCall.bind(global, 'clear');
 console.tslog = (str) => console.log('[' + new Date().toISOString() + ']' + (str.length > 0 ? ' ' + str : ''));
 global.http = require('http');
+global.https = require('https');
 global.fs = require('fs');
 global.path = require('path');
 global.os = require('os');

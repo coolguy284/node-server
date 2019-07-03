@@ -144,6 +144,9 @@ var varns = {
   BigInt: new ExpFunc(function (args) {
     return GetBigInt(args[0].val);
   }),
+  BigNum: new ExpFunc(function (args) {
+    return GetBigNum(args[0].val);
+  }),
   String: new ExpFunc(function (args) {
     return GetString(args[0].val);
   }),
@@ -185,10 +188,10 @@ var varns = {
     }
   }),
   globals: new ExpFunc(function (args, globals, locals) {
-    return new ExpObject(globals);
+    return globals;
   }),
   locals: new ExpFunc(function (args, globals, locals) {
-    return new ExpObject(locals);
+    return locals;
   }),
   compileExpr: new ExpFunc(function (args) {
     if (args[0].type == 'string') return new ExpJSObj(ToExpArr(args[0].val));
@@ -240,6 +243,8 @@ var varns = {
     } else if (args[0].type == 'bigint') {
       if (args[0].val < 0) return GetBigInt(-args[0].val);
       else return GetBigInt(args[0].val);
+    } else if (args[0].type == 'bignum') {
+      return GetBigNum(math.abs(args[0]));
     } else if (args[0].type == 'complex') {
       return ExpExponentiate(ExpAdd(ExpExponentiate(args[0].a, GetNumber(2)), ExpExponentiate(args[0].b, GetNumber(2))), GetNumber(0.5));
     }
@@ -257,14 +262,17 @@ var varns = {
   floor: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.floor(args[0].val));
     else if (args[0].type == 'bigint') return GetBigInt(args[0].val);
+    else if (args[0].type == 'bignum') return GetBigNum(math.floor(args[0].val));
   }),
   ceil: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.ceil(args[0].val));
     else if (args[0].type == 'bigint') return GetBigInt(args[0].val);
+    else if (args[0].type == 'bignum') return GetBigNum(math.ceil(args[0].val));
   }),
   round: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.round(args[0].val));
     else if (args[0].type == 'bigint') return GetBigInt(args[0].val);
+    else if (args[0].type == 'bignum') return GetBigNum(math.round(args[0].val));
   }),
   trunc: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.trunc(args[0].val));
@@ -362,32 +370,48 @@ var varns = {
   }),
   sqrt: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.sqrt(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.sqrt(args[0].val));
   }),
   cbrt: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.cbrt(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.cbrt(args[0].val));
   }),
   hypot: new ExpFunc(function (args) {
     if (args.every(x => x.type == 'number')) return GetNumber(Math.hypot.apply(Math, args.map(x => x.val)));
+    else if (args.every(x => x.type == 'bignum')) return GetBigNum(math.hypot.apply(math, args.map(x => x.val)));
   }),
   exp: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.exp(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.exp(args[0].val));
+  }),
+  pow: new ExpFunc(function (args) {
+    return ExpExponentiate(args[0], args[1]);
+  }),
+  root: new ExpFunc(function (args) {
+    if (args[0].type == 'number') return ExpExponentiate(args[0], ExpDivide(GetNumber(1), args[1]));
+    else if (args[0].type == 'bignum') return ExpExponentiate(args[0], ExpDivide(GetBigNum(1), args[1]));
   }),
   log: new ExpFunc(function (args) {
     let val;
     if (args[0].type == 'number') {
       if (args[1]) {
-        if (args[1].val == 2) return Math.log2(args[0].val);
-        else if (args[1].val == 10) return Math.log10(args[0].val);
-        else val = Math.log(args[0].val);
+        if (args[1].val == 2) val = Math.log2(args[0].val);
+        else if (args[1].val == 10) val = Math.log10(args[0].val);
+        else val = Math.log(args[0].val) / Math.log(args[1].val);
       } else val = Math.log(args[0].val);
+      return GetNumber(val);
     } else if (args[0].type == 'bigint') {
       if (args[1]) {
-        if (args[1].val == 10) return varns.log10.val(args[0]).val;
+        if (args[1].val == 10) val = varns.log10.val(args[0]).val;
         else val = varns.log10.val(args[0]).val * varns.ln10.val;
       } else val = varns.log10.val(args[0]).val * varns.ln10.val;
+      return GetNumber(val);
+    } else if (args[0].type == 'bignum') {
+      if (args[1]) {
+        val = math.log(args[0].val, args[1].val);
+      } else val = math.log(args[0].val);
+      return GetBigNum(val);
     }
-    if (args.length == 1) return val;
-    else return val / Math.log(args[1].val);
   }),
   log10: new ExpFunc(function (args) {
     if (args[0].type == 'number') {
@@ -396,6 +420,8 @@ var varns = {
       let es = args[0].val.toString();
       let tv = Math.log10(Number(es.substr(0, 12)));
       return GetNumber((tv - Math.floor(tv)) - 1 + es.length);
+    } else if (args[0].type == 'bignum') {
+      return GetBigNum(math.log10(args[0].val));
     }
   }),
   log2: new ExpFunc(function (args) {
@@ -403,16 +429,8 @@ var varns = {
       return GetNumber(Math.log2(args[0].val));
     } else if (args[0].type == 'bigint') {
       return GetNumber(varns.log10.val(args[0]).val * varns.ln10.val / varns.ln2.val);
-    }
-  }),
-  pow: new ExpFunc(function (args) {
-    return ExpExponentiate(args[0], args[1]);
-  }),
-  root: new ExpFunc(function (args) {
-    if (args[0].type == 'number' && args[1].type == 'number') {
-      return GetNumber(args[0].val ** (1 / args[1].val));
-    } else if (args[0].type == 'bigint' && args[1].type == 'bigint') {
-      return GetBigInt(args[0].val ** (1 / args[1].val));
+    } else if (args[0].type == 'bignum') {
+      return GetBigNum(math.log2(args[0].val));
     }
   }),
   tet: new ExpFunc(function (args) {
@@ -445,55 +463,121 @@ var varns = {
       } else if (fv < 0) {
         return GetNumber(NaN);
       }
+    } else if (args[0].type == 'bignum') {
+      return GetBigNum(math.gamma(math.add(args[0].val, 1)));
     }
   }),
   gamma: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(gamma(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.gamma(args[0].val));
   }),
   degrees: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(args[0].val / Math.PI * 180);
+    else if (args[0].type == 'bignum') return GetBigNum(math.multiply(math.divide(args[0].val, math.pi), 180));
   }),
   radians: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(args[0].val / 180 * Math.PI);
+    else if (args[0].type == 'bignum') return GetBigNum(math.multiply(math.divide(args[0].val, 180), math.pi));
   }),
   sin: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.sin(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.sin(args[0].val));
   }),
   cos: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.cos(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.cos(args[0].val));
   }),
   tan: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.tan(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.tan(args[0].val));
+  }),
+  csc: new ExpFunc(function (args) {
+    if (args[0].type == 'number') return GetNumber(1 / Math.sin(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.csc(args[0].val));
+  }),
+  sec: new ExpFunc(function (args) {
+    if (args[0].type == 'number') return GetNumber(1 / Math.cos(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.sec(args[0].val));
+  }),
+  cot: new ExpFunc(function (args) {
+    if (args[0].type == 'number') return GetNumber(1 / Math.tan(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.cot(args[0].val));
   }),
   asin: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.asin(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.asin(args[0].val));
   }),
   acos: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.acos(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.acos(args[0].val));
   }),
   atan: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.atan(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.atan(args[0].val));
   }),
   atan2: new ExpFunc(function (args) {
-    if (args[0].type == 'number') return GetNumber(Math.atan2(args[0].val, args[1].val));
+    if (args[0].type == 'number' && args[0].type == 'number') return GetNumber(Math.atan2(args[0].val, args[1].val));
+    else if (args[0].type == 'bignum' && args[1].type == 'number' || args[0].type == 'number' && args[1].type == 'bignum' || args[0].type == 'bignum' && args[1].type == 'bignum') return GetBigNum(math.atan2(args[0].val, args[1].val));
+  }),
+  acsc: new ExpFunc(function (args) {
+    if (args[0].type == 'number') return GetNumber(Math.asin(1 / args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.acsc(args[0].val));
+  }),
+  asec: new ExpFunc(function (args) {
+    if (args[0].type == 'number') return GetNumber(Math.acos(1 / args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.asec(args[0].val));
+  }),
+  acot: new ExpFunc(function (args) {
+    if (args[0].type == 'number') return GetNumber(Math.atan(1 / args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.acot(args[0].val));
   }),
   sinh: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.sinh(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.sinh(args[0].val));
   }),
   cosh: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.cosh(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.cosh(args[0].val));
   }),
   tanh: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.tanh(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.tanh(args[0].val));
+  }),
+  csch: new ExpFunc(function (args) {
+    if (args[0].type == 'number') return GetNumber(1 / Math.sinh(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.csch(args[0].val));
+  }),
+  sech: new ExpFunc(function (args) {
+    if (args[0].type == 'number') return GetNumber(1 / Math.cosh(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.sech(args[0].val));
+  }),
+  coth: new ExpFunc(function (args) {
+    if (args[0].type == 'number') return GetNumber(1 / Math.tanh(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.coth(args[0].val));
   }),
   asinh: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.asinh(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.asinh(args[0].val));
   }),
   acosh: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.acosh(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.acosh(args[0].val));
   }),
   atanh: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.atanh(args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.atanh(args[0].val));
+  }),
+  acsch: new ExpFunc(function (args) {
+    if (args[0].type == 'number') return GetNumber(Math.asinh(1 / args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.acsch(args[0].val));
+  }),
+  asech: new ExpFunc(function (args) {
+    if (args[0].type == 'number') return GetNumber(Math.acosh(1 / args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.asech(args[0].val));
+  }),
+  acoth: new ExpFunc(function (args) {
+    if (args[0].type == 'number') return GetNumber(Math.atanh(1 / args[0].val));
+    else if (args[0].type == 'bignum') return GetBigNum(math.acoth(args[0].val));
   }),
   tohexstr: new ExpFunc(function (args) {
     return GetString(args[0].val.toString(16));
@@ -556,6 +640,18 @@ var varns = {
     }
     return GetBigInt(bi);
   }),
+  clear: new ExpFunc(function (args) {
+    calcarr.splice(0, Infinity);
+    CalcArrRefresh();
+    return 'console cleared';
+  }),
+  reset: new ExpFunc(function (args) {
+    globalns = CreateNSCopy(varns);
+    localns = CreateNS({});
+    calcarr.splice(0, Infinity);
+    CalcArrRefresh();
+    return 'variables reset and console cleared';
+  }),
   vn: new ExpObject({e: GetString('val')}),
 };
 varns.Number.val.MAX_SAFE_INT = varns.Number.val.MAX_SAFE_INTEGER = GetNumber(Number.MAX_SAFE_INTEGER);
@@ -570,3 +666,10 @@ varns.Matrix.val.ident = new ExpFunc(function (args) {
   }
 });
 varns.vn.val.v = varns.vn;
+
+function CreateNS(obj) {
+  return new ExpObject(obj);
+}
+function CreateNSCopy(obj) {
+  return new ExpObject(Object.assign({}, obj));
+}

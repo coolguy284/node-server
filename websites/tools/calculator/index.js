@@ -1,4 +1,5 @@
 var calcarr = [], cinphist = [], histind = 0, currtext = '';
+var globalns = CreateNSCopy(varns), localns = CreateNS({});
 function HelpTogg() {
   if (helpdiv.style.cssText == 'display: none;') {
     helpdiv.style = 'position:fixed;top:2px;width:calc(100% - 10px);height:400px;background:#ffffffff;overflow:scroll;word-break:break-word;';
@@ -54,6 +55,8 @@ function ObjToText(val, va) {
     else return '' + val.val;
   } else if (val.type == 'bigint') {
     return '' + val.val + 'n';
+  } else if (val.type == 'bignum') {
+    return '' + val.val.toString() + 'd';
   } else if (val.type == 'string') {
     return inspect(val.val);
   } else if (val.type == 'array') {
@@ -81,6 +84,8 @@ function ObjToText(val, va) {
     return ExpSurrToStr(val.valarr);
   } else if (val.type == 'jsobj') {
     return 'JSObj { ' + inspect(val.val) + ' }';
+  } else if (val.toString !== undefined) {
+    return val.toString();
   } else {
     return inspect(val);
   }
@@ -89,7 +94,7 @@ function ParseText(val) {
   let rval;
   try {
     if (val[0] == ':') rval = inspect(eval(val.substr(1, Infinity)));
-    else rval = ObjToText(ParseExpArr(ToExpArr(val), varns, varns)[0][0]);
+    else rval = ObjToText(ParseExpArr(ToExpArr(val), globalns, localns)[0][0]);
   } catch (e) {
     rval = e.toString() + '\n' + e.stack.replace(/\n$/, '');
   }
@@ -167,7 +172,7 @@ cinp.addEventListener('keydown', function (e) {
       histind -= 1;
       cinp.value = cinphist[histind];
     }
-    setTimeout(function(){ cinp.selectionStart = cinp.selectionEnd = 10000; }, 0);
+    setTimeout(function () { cinp.selectionStart = cinp.selectionEnd = 10000; }, 0);
   } else if (e.keyCode === 40) {
     if (histind < cinphist.length - 1) {
       histind += 1;
@@ -176,14 +181,14 @@ cinp.addEventListener('keydown', function (e) {
       histind = cinphist.length;
       cinp.value = currtext;
     }
-    setTimeout(function(){ cinp.selectionStart = cinp.selectionEnd = 10000; }, 0);
+    setTimeout(function () { cinp.selectionStart = cinp.selectionEnd = 10000; }, 0);
   } else if (e.keyCode === 8) {
     histind = cinphist.length;
-    setTimeout(function() {currtext = cinp.value;}, 0);
+    setTimeout(function () {currtext = cinp.value;}, 0);
   }
 });
 cinp.addEventListener('keypress', function (e) {
   if (!e.charCode) {return;}
   histind = cinphist.length;
-  setTimeout(function() {currtext = cinp.value;}, 0);
+  setTimeout(function () {currtext = cinp.value;}, 0);
 });

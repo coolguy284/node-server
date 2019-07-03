@@ -131,7 +131,11 @@ function ToExpArr(val) {
       if (p.emod) {
         if (NUME.indexOf(val[i]) < 0) {
           p.ra.push(GetNumber(p.bs.slice(0, -1)), GetOperator('*'), new ExpVariable('e'));
-          if (OPS.indexOf(val[i]) > -1) {
+          if (val[i] == 'd') {
+            p.ra.push(GetBigNum(p.bs));
+            p.bs = '';
+            p.bt = 'bigint';
+          } else if (OPS.indexOf(val[i]) > -1) {
             p.ra.push(GetOperator(val[i]));
             p.bs = '';
             p.bt = '';
@@ -156,6 +160,9 @@ function ToExpArr(val) {
           p.bt = 'var';
         } else if (val[i] == 'n') {
           p.ra.push(GetBigInt(p.bs));
+          p.bt = 'bigint';
+        } else if (val[i] == 'd') {
+          p.ra.push(GetBigNum(p.bs));
           p.bt = 'bigint';
         } else if (OPS.indexOf(val[i]) > -1) {
           p.ra.push(GetNumber(p.bs));
@@ -188,6 +195,9 @@ function ToExpArr(val) {
         p.bs = '';
         p.bt = 'paren';
         p.pl.push('p');
+      } else if (val[i] == ' ') {
+        p.bs = '';
+        p.bt = '';
       }
     } else if (p.bt == 'string') {
       ExpArrString(val[i], p);
