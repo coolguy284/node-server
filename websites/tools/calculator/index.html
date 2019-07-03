@@ -83,7 +83,7 @@
           </table>
           <h3 class = 'mgn'>Functions</h3>
           <h4 class = 'mgn'>Constructors</h4>
-          The functions <code>Boolean</code>, <code>Number</code>, <code>BigInt</code>, <code>String</code>, <code>Array</code>, <code>Object</code>, <code>Function</code>, <code>Complex</code>, <code>Matrix</code>, and <code>Surreal</code> create objects of their type.
+          The functions <code>Boolean</code>, <code>Number</code>, <code>BigInt</code>, <code>BigNum</code>, <code>String</code>, <code>Array</code>, <code>Object</code>, <code>Function</code>, <code>Complex</code>, <code>Matrix</code>, and <code>Surreal</code> create objects of their type.
           <h4 class = 'mgn'>Namespace</h4>
           <code>globals()</code> - returns global namespace object<br>
           <code>locals()</code> - returns local namespace object
@@ -105,6 +105,7 @@
           <code>ceil(number)</code> - rounds number up<br>
           <code>round(number)</code> - rounds number to closest integer<br>
           <code>trunc(number)</code> - truncates decimal digits from number<br>
+          <code>hypot(*coords)</code> - gets distance to origin from coords<br>
           <code>gcd(*values)</code> - calculates gcd of values<br>
           <code>lcm(*values)</code> - calculates lcm of values<br>
           <code>lerp(from, to, num)</code> - returns a number that is num of the way from "from" to "to"<br>
@@ -122,22 +123,27 @@
           <code>sqrt(number)</code> - gets the square root of a number<br>
           <code>cbrt(number)</code> - gets the cube root of a number<br>
           <code>exp(number)</code> - calculates e raised to the power of a number<br>
+          <code>pow(base, exponent)</code> - calculates base raised to the power of exponent<br>
+          <code>root(number, root)</code> - calculates nth root of a number<br>
           <code>log(number[, base])</code> - calculates the logarythm of a number, with an optional base<br>
           <code>log10(number)</code> - calculates the base 10 logarythm of a number<br>
           <code>log2(number)</code> - calculates the base 2 logarythm of a number<br>
-          <code>pow(base, exponent)</code> - calculates base raised to the power of exponent<br>
-          <code>root(number, root)</code> - calculates nth root of a number<br>
           <code>tet(number, number)</code> - calculates the teteration of two numbers<br>
           <code>sroot(number, number)</code> - calculates the super-root of two numbers<br>
           <code>slog(number, number)</code> - calculates the super-logarythm of two numbers<br>
           <code>fact(number)</code> - calculates the factorial of a number, decimals allowed<br>
-          <code>gamma(number)</code> - the gamma function<br>
+          <code>gamma(number)</code> - the gamma function
+          <h4 class = 'mgn'>Trigonometry</h4>
           <code>degrees(number)</code> - converts number from radians to degrees<br>
           <code>radians(number)</code> - converts number from degrees to radians<br>
           <code>[sin, cos, tan](number)</code> - trigonometric functions<br>
-          <code>[asin, acos, atan, atan2](number)</code> - inverses of trigonometric functions<br>
+          <code>[csc, sec, cot](number)</code> - reciprocal trigonometric functions<br>
+          <code>[asin, acos, atan, atan2](number)</code> - inverse trigonometric functions<br>
+          <code>[acsc, asec, acot](number)</code> - inverse reciprocal trigonometric functions<br>
           <code>[sinh, cosh, tanh](number)</code> - hyperbolic functions<br>
-          <code>[asinh, acosh, atanh](number)</code> - inverses of hyperbolic functions
+          <code>[csch, sech, coth](number)</code> - reciprocal hyperbolic functions<br>
+          <code>[asinh, acosh, atanh](number)</code> - inverse hyperbolic functions<br>
+          <code>[acsch, asech, acoth](number)</code> - inverse reciprocal hyperbolic functions
           <h4 class = 'mgn'>Number to Base</h4>
           <code>[[tohexstr, tooctstr, tobinstr, todecstr](number), tobasestr(number, base)]</code> - converts a number to a string in bases [16, 8, 2, 10, any]<br>
           <code>[[fromhexstr, fromhexstrn, fromoctstr, fromoctstrn, frombinstr, frombinstrn, fromdecstr, fromdecstrn](number), [frombasestr, frombasestrn](number, base)]</code> - converts a number to a string in bases [16, 8, 2, 10, any], with an n suffix for bigints instead
@@ -211,5 +217,6 @@
     <script src = 'stmtconvert.js'></script>
     <script src = 'stmtparser.js'></script>
     <script src = 'index.js'></script>
+    <script src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.10.3/math.min.js'></script>
   </body>
 </html>

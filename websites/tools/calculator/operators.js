@@ -22,6 +22,7 @@ function ExpBitwiseNot(val) {
 function ExpUnaryPlus(val) {
   if (val.type == 'number' || val.type == 'string') return GetNumber(+val.val);
   else if (val.type == 'bigint') return GetBigInt(+val.val);
+  else if (val.type == 'bignum') return GetBigNum(math.unaryPlus(val.val));
   else {
     if (val.__pos__) {
       let rv = val.__pos__();
@@ -33,6 +34,7 @@ function ExpUnaryPlus(val) {
 function ExpUnaryMinus(val) {
   if (val.type == 'number' || val.type == 'string') return GetNumber(-val.val);
   else if (val.type == 'bigint') return GetBigInt(-val.val);
+  else if (val.type == 'bignum') return GetBigNum(math.unaryMinus(val.val));
   else {
     if (val.__neg__) {
       let rv = val.__neg__();
@@ -47,6 +49,8 @@ function ExpExponentiate(val1, val2) {
   } else if (val1.type == 'bigint' && val2.type == 'bigint') {
     if (val1.val.toString().length * Number(val2.val) > BIGLIMIT.digit) throw new Error('large exponentation attempted, to disable warning turn off in settings.');
     return GetBigInt(val1.val ** val2.val);
+  } else if (val1.type == 'bignum' && val2.type == 'bignum') {
+    return GetBigNum(math.pow(val1.val, val2.val));
   } else {
     if (val1.__pow__) {
       let rv = val1.__pow__(val2);
@@ -61,6 +65,8 @@ function ExpMultiply(val1, val2) {
   } else if (val1.type == 'bigint' && val2.type == 'bigint') {
     if (val1.val.toString().length + val2.val.toString().length > BIGLIMIT.digit) throw new Error('large multiplication attempted, to disable warning turn off in settings.');
     return GetBigInt(val1.val * val2.val);
+  } else if (val1.type == 'bignum' && val2.type == 'bignum') {
+    return GetBigNum(math.multiply(val1.val, val2.val));
   } else if (val1.type == 'string' && val2.type == 'number') {
     if (val1.val.length * val2.val > BIGLIMIT.strlen) throw new Error('large string repeat attempted, to disable warning turn off in settings.');
     return GetString(val1.val.repeat(val2.val));
@@ -84,6 +90,8 @@ function ExpDivide(val1, val2) {
     return GetNumber(val1.val / val2.val);
   } else if (val1.type == 'bigint' && val2.type == 'bigint') {
     return GetBigInt(val1.val / val2.val);
+  } else if (val1.type == 'bignum' && val2.type == 'bignum') {
+    return GetBigNum(math.divide(val1.val, val2.val));
   } else {
     if (val1.__div__) {
       let rv = val1.__div__(val2);
@@ -101,6 +109,8 @@ function ExpRemainder(val1, val2) {
     return GetNumber(val1.val % val2.val);
   } else if (val1.type == 'bigint' && val2.type == 'bigint') {
     return GetBigInt(val1.val % val2.val);
+  } else if (val1.type == 'bignum' && val2.type == 'bignum') {
+    return GetBigNum(math.mod(val1.val, val2.val));
   } else {
     throw new Error('unsupported operand type(s) for %: \'' + val1.type + '\' and \'' + val2.type + '\'');
   }
@@ -110,6 +120,8 @@ function ExpAdd(val1, val2) {
     return GetNumber(val1.val + val2.val);
   } else if (val1.type == 'bigint' && val2.type == 'bigint') {
     return GetBigInt(val1.val + val2.val);
+  } else if (val1.type == 'bignum' && val2.type == 'bignum') {
+    return GetBigNum(math.add(val1.val, val2.val));
   } else if (val1.type == 'string' && val2.type == 'string') {
     return GetString(val1.val + val2.val);
   } else {
@@ -129,6 +141,8 @@ function ExpSubtract(val1, val2) {
     return GetNumber(val1.val - val2.val);
   } else if (val1.type == 'bigint' && val2.type == 'bigint') {
     return GetBigInt(val1.val - val2.val);
+  } else if (val1.type == 'bignum' && val2.type == 'bignum') {
+    return GetBigNum(math.subtract(val1.val, val2.val));
   } else {
     if (val1.__sub__) {
       let rv = val1.__sub__(val2);
@@ -162,6 +176,8 @@ function ExpBitwiseRightShift(val1, val2) {
 function ExpGreaterThan(val1, val2) {
   if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
     return GetBool(val1.val > val2.val);
+  } else if (val1.type == 'bignum' && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string' || val2.type == 'bignum') || val2.type == 'bignum' && (val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string')) {
+    return GetBool(math.larger(val1.val, val2.val));
   } else {
     if (val1.__gt__) {
       let rv = val1.__gt__(val2);
@@ -177,6 +193,8 @@ function ExpGreaterThan(val1, val2) {
 function ExpLessThan(val1, val2) {
   if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
     return GetBool(val1.val < val2.val);
+  } else if (val1.type == 'bignum' && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string' || val2.type == 'bignum') || val2.type == 'bignum' && (val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string')) {
+    return GetBool(math.smaller(val1.val, val2.val));
   } else {
     if (val1.__lt__) {
       let rv = val1.__lt__(val2);
@@ -192,6 +210,8 @@ function ExpLessThan(val1, val2) {
 function ExpGreaterThanEqual(val1, val2) {
   if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
     return GetBool(val1.val >= val2.val);
+  } else if (val1.type == 'bignum' && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string' || val2.type == 'bignum') || val2.type == 'bignum' && (val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string')) {
+    return GetBool(math.largerEq(val1.val, val2.val));
   } else {
     if (val1.__ge__) {
       let rv = val1.__ge__(val2);
@@ -207,6 +227,8 @@ function ExpGreaterThanEqual(val1, val2) {
 function ExpLessThanEqual(val1, val2) {
   if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
     return GetBool(val1.val <= val2.val);
+  } else if (val1.type == 'bignum' && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string' || val2.type == 'bignum') || val2.type == 'bignum' && (val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string')) {
+    return GetBool(math.smallerEq(val1.val, val2.val));
   } else {
     if (val1.__le__) {
       let rv = val1.__le__(val2);
@@ -222,31 +244,35 @@ function ExpLessThanEqual(val1, val2) {
 function ExpEqual(val1, val2) {
   if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
     return GetBool(val1.val === val2.val);
+  } else if (val1.type == 'bignum' && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string' || val2.type == 'bignum') || val2.type == 'bignum' && (val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string')) {
+    return GetBool(math.equal(val1.val, val2.val));
   } else {
     if (val1.__eq__) {
       let rv = val1.__eq__(val2);
-      if (rv !== undefined) return rv;
-    }
-    if (val2.__ne__) {
-      let rv = val2.__ne__(val1);
-      if (rv !== undefined) return rv;
-    }
-    return GetBool(false);
-  }
-}
-function ExpNotEqual(val1, val2) {
-  if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
-    return GetBool(val1.val !== val2.val);
-  } else {
-    if (val1.__ne__) {
-      let rv = val1.__ne__(val2);
       if (rv !== undefined) return rv;
     }
     if (val2.__eq__) {
       let rv = val2.__eq__(val1);
       if (rv !== undefined) return rv;
     }
-    return GetBool(true);
+    return ExpIs(val1, val2);
+  }
+}
+function ExpNotEqual(val1, val2) {
+  if ((val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string') && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string')) {
+    return GetBool(val1.val !== val2.val);
+  } else if (val1.type == 'bignum' && (val2.type == 'number' || val2.type == 'bigint' || val2.type == 'string' || val2.type == 'bignum') || val2.type == 'bignum' && (val1.type == 'number' || val1.type == 'bigint' || val1.type == 'string')) {
+    return GetBool(math.unequal(val1.val, val2.val));
+  } else {
+    if (val1.__ne__) {
+      let rv = val1.__ne__(val2);
+      if (rv !== undefined) return rv;
+    }
+    if (val2.__ne__) {
+      let rv = val2.__ne__(val1);
+      if (rv !== undefined) return rv;
+    }
+    return ExpLogicalNot(ExpIs(val1, val2));
   }
 }
 function ExpIs(val1, val2) {

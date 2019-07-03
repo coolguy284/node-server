@@ -18,6 +18,10 @@ function ExpBigInt(val) {
   this.type = 'bigint';
   this.val = BigInt(val);
 }
+function ExpBigNum(val) {
+  this.type = 'bignum';
+  this.val = math.bignumber(val);
+}
 function ExpString(val) {
   this.type = 'string';
   this.val = String(val);

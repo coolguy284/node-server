@@ -8,8 +8,8 @@ function ParseExpArr(arr, globals, locals) {
   // variable, property access, function call
   for (let i = 0; i < arr.length; i++) {
     if (arr[i].type == 'variable' && VARRESCLS(arr, i)) {
-      if (arr[i].val in locals) arr[i] = locals[arr[i].val];
-      else if (arr[i].val in globals) arr[i] = globals[arr[i].val];
+      if (arr[i].val in locals.val) arr[i] = locals.val[arr[i].val];
+      else if (arr[i].val in globals.val) arr[i] = globals.val[arr[i].val];
       else throw new Error('variable ' + arr[i].val + ' nonexistent');
     } else if (arr[i].type == 'tarray') {
       for (let j in arr[i].val) arr[i].val[j] = ParseExpArr(arr[i].val[j], globals, locals)[0][0];
@@ -72,9 +72,9 @@ function ParseExpArr(arr, globals, locals) {
             let varn = arr[i + 1];
             if (varn.type != 'variable') throw new Error('delete: unexpected token');
             varn = varn.val;
-            if (varn in locals) {
+            if (varn in locals.val) {
               arr.splice(i, 2, GetBool(true));
-              delete locals[varn];
+              delete locals.val[varn];
             } else {
               arr.splice(i, 2, GetBool(false));
             }
@@ -304,7 +304,7 @@ function ParseExpArr(arr, globals, locals) {
         } else {
           if (exp[i].type != 'variable') throw new Error('invalid left-hand side in assignment');
           let nam = exp[i].val, val = exp[i + 1];
-          locals[nam] = val;
+          locals.val[nam] = val;
           exp.splice(i, 2, val);
           op.splice(i, 1);
           nb = true;

@@ -37,6 +37,10 @@ function GetBigInt(val) {
   if (v > -6 && v < 257) return CL_NUMS[Number(v) + 5];
   return new ExpBigInt(v);
 }
+function GetBigNum(val) {
+  if (window.math === undefined) throw new Error('math.js not loaded');
+  return new ExpBigNum(val);
+}
 function GetString(val) {
   var v = String(val);
   return new ExpString(v);

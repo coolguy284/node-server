@@ -74,7 +74,7 @@ module.exports = {
     // urls that dont get logged in console
     cons: ['/livechat.dat', '/liverchat.json', '/liveviews.dat', '/comms.json', '/colog.dat', '/cologd.dat', '/livechathere.dat', '/livechattyp.dat', '/livechatkick.dat', '/lat.log'],
     // url startswiths that dont get logged in console
-    consv: ['/s?her=', '/s?typ=', '/m?cnl=', '/a?co=', '/a?cd=', '/a?ccp=', '/a?rc='],
+    consv: ['/s?her=', '/s?typ=', '/m?cnl=', '/a?co=', '/a?cd=', '/a?ccp=', '/a?rc=', '/a?fstyp=', '/a?fsdir=', '/a?fstex='],
     // locked server allowable urls
     lockl: ['/admin.html', '/colog.dat', '/cologd.dat'],
     // urls that dont show up in viewshist
