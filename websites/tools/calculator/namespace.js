@@ -41,14 +41,14 @@ function sroot(v, x) {
 	let min = 1;
 	let max = 1e12;
 	let ct = 1000;
-	while (Math.abs(max-min)>1e-12) {
+	while (Math.abs(max - min) > 1e-12) {
 	  let val = tet(xv, x);
 	  if (val > v) {
-	    max=xv;
-	    xv=(min+xv)/2;
+	    max = xv;
+	    xv = (min + xv) / 2;
 	  } else if (val < v) {
-	    min=xv;
-	    xv=(xv+max)/2;
+	    min = xv;
+	    xv = (xv + max) / 2;
 	  } else {
 	    break;
 	  }
@@ -57,7 +57,6 @@ function sroot(v, x) {
 	return xv;
 }
 function slog(v, b) {
-  let val;
 	if (v < 0) {
     try {
       return slog(pow(b, v), b) - 1;
@@ -65,7 +64,7 @@ function slog(v, b) {
       return -Infinity;
     }
 	} else if (v <= 1) {
-		val = -1 + ((2 * log(b)) / (1 + log(b))) * v + ((1 - log(b)) / (1 + log(b))) * pow(v, 2);
+		return -1 + ((2 * log(b)) / (1 + log(b))) * v + ((1 - log(b)) / (1 + log(b))) * pow(v, 2);
 	} else if (v > 1) {
     try {
       return slog(log(v, b), b) + 1;
@@ -73,7 +72,115 @@ function slog(v, b) {
       return Infinity;
     }
 	}
-	return val;
+}
+function mod1math(v) {
+  return math.mod(v, 1);
+}
+function powmath(b, x) {
+  return math.pow(b, x);
+}
+function logmath(v, b) {
+  if (math.equal(b, 2)) return math.log2(v);
+  else if (math.equal(b, 10)) return math.log10(v);
+  else if (b === undefined) return math.log(v);
+  return math.log(v, b);
+}
+function tetmath(b, x) {
+  let val;
+  if (math.smaller(x, math.bignumber('-1'))) {
+    val = tetmath(b, math.subtract(mod1math(x), math.bignumber('1')));
+    while (math.smallerEq(x, math.bignumber('-1'))) {
+      if (math.isNaN(val)) break;
+      val = logmath(val, b);
+      x = math.add(x, math.bignumber('1'));
+    }
+  } else if (math.smallerEq(x, math.bignumber('0'))) {
+    if (math.equal(x, math.bignumber('-1'))) {
+      val = math.bignumber('0');
+    } else {
+      val = math.add(math.bignumber('1'), 
+        math.subtract(
+          math.multiply(
+            math.divide(
+              math.multiply(math.bignumber('2'), logmath(b)),
+              math.add(math.bignumber('1'), logmath(b))
+            ),
+            x
+          ),
+          math.multiply(
+            math.divide(
+              math.subtract(math.bignumber('1'), logmath(b)),
+              math.add(math.bignumber('1'), logmath(b))
+            ),
+            powmath(x, math.bignumber('2'))
+          )
+        )
+      );
+    }
+  } else if (math.larger(x, math.bignumber('0'))) {
+    val = tetmath(b, math.subtract(mod1math(x), math.bignumber('1')));
+    while (math.largerEq(x, math.bignumber('0'))) {
+      if (math.equal(val, math.bignumber('Infinity'))) break;
+      val = powmath(b, val);
+      x = math.subtract(x, 1);
+    }
+  }
+  return val;
+}
+function srootmath(v, x) {
+	let xv = math.bignumber('2');
+	let min = math.bignumber('1');
+	let max = math.bignumber('1e12');
+	let ct = 1000;
+	while (math.larger(math.abs(math.subtract(max, min)), math.bignumber('1e-64'))) {
+	  let val = tetmath(xv, x);
+	  if (math.larger(val, v)) {
+	    max = xv;
+	    xv = math.divide(math.add(min, xv), math.bignumber('2'));
+	  } else if (math.smaller(val, v)) {
+	    min = xv;
+	    xv = math.divide(math.add(xv, max), math.bignumber('2'));
+	  } else {
+	    break;
+	  }
+	  if (!--ct) break;
+	}
+	return xv;
+}
+function slogmath(v, b) {
+	if (math.smaller(v, math.bignumber('0'))) {
+    try {
+      return math.subtract(slogmath(powmath(b, v), b), math.bignumber('1'));
+    } catch (e) {
+      return math.bignumber('-Infinity');
+    }
+	} else if (math.smallerEq(v, math.bignumber('1'))) {
+		return math.add(
+      math.add(
+        math.bignumber('-1'),
+        math.multiply(
+          math.divide(
+            math.multiply(math.bignumber('2'), logmath(b)),
+            math.add(math.bignumber('1'), logmath(b))
+          ),
+          v
+        )
+      ),
+      math.multiply(
+        math.divide(
+          math.subtract(math.bignumber('1'), logmath(b)),
+          math.add(math.bignumber('1'), logmath(b))
+        ),
+        math.pow(v, math.bignumber('2'))
+      )
+    );
+	} else if (math.larger(v, math.bignumber('1'))) {
+    try {
+      return math.add(slogmath(logmath(v, b), b), math.bignumber('1'));
+    } catch (e) {
+      return math.bignumber('Infinity');
+    }
+	}
 }
 function wtn(b, x) {
   return pow(b, pow(b, (x - 1)));
@@ -124,6 +231,11 @@ var varns = {
   Infinity: GetNumber(Infinity),
   infinity: GetNumber(Infinity),
   inf: GetNumber(Infinity),
+  Infinityd: GetUndefined(),
+  infinityd: GetUndefined(),
+  infd: GetUndefined(),
+  NaNd: GetUndefined(),
+  nand: GetUndefined(), 
   i: GetComplex('0+1i'),
   w: GetSurreal('w'),
   pi: GetNumber(Math.PI),
@@ -135,6 +247,15 @@ var varns = {
   sqrt1_2: GetNumber(Math.SQRT1_2),
   ln2: GetNumber(Math.LN2),
   ln10: GetNumber(Math.LN10),
+  pid: GetUndefined(),
+  degd: GetUndefined(),
+  radd: GetUndefined(),
+  ed: GetUndefined(),
+  phid: GetUndefined(),
+  sqrt2d: GetUndefined(),
+  sqrt1_2d: GetUndefined(),
+  ln2d: GetUndefined(),
+  ln10d: GetUndefined(),
   Boolean: new ExpFunc(function (args) {
     return GetBool(args[0].val);
   }),
@@ -145,7 +266,8 @@ var varns = {
     return GetBigInt(args[0].val);
   }),
   BigNum: new ExpFunc(function (args) {
-    return GetBigNum(args[0].val);
+    if (args[0].type == 'bigint') return GetBigNum(args[0].val.toString());
+    else return GetBigNum(args[0].val);
   }),
   String: new ExpFunc(function (args) {
     return GetString(args[0].val);
@@ -366,7 +488,9 @@ var varns = {
     return ExpMultiply(args[0], args[0]);
   }),
   cb: new ExpFunc(function (args) {
-    return ExpExponentiate(args[0], GetNumber(3));
+    if (args[0].type == 'number') return ExpExponentiate(args[0], GetNumber(3));
+    else if (args[0].type == 'bigint') return ExpExponentiate(args[0], GetBigInt(3));
+    else if (args[0].type == 'bignum') return ExpExponentiate(args[0], GetBigNum(3));
   }),
   sqrt: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(Math.sqrt(args[0].val));
@@ -408,7 +532,9 @@ var varns = {
       return GetNumber(val);
     } else if (args[0].type == 'bignum') {
       if (args[1]) {
-        val = math.log(args[0].val, args[1].val);
+        if (math.equal(args[1].val, 2)) val = math.log2(args[0].val);
+        else if (math.equal(args[1].val, 10)) val = math.log10(args[0].val);
+        else val = math.log(args[0].val, args[1].val);
       } else val = math.log(args[0].val);
       return GetBigNum(val);
     }
@@ -435,12 +561,15 @@ var varns = {
   }),
   tet: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(tet(args[0].val, args[1].val));
+    else if (args[0].type == 'bignum') return GetBigNum(tetmath(args[0].val, args[1].val));
   }),
   sroot: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(sroot(args[0].val, args[1].val));
+    else if (args[0].type == 'bignum') return GetBigNum(srootmath(args[0].val, args[1].val));
   }),
   slog: new ExpFunc(function (args) {
     if (args[0].type == 'number') return GetNumber(slog(args[0].val, args[1].val));
+    else if (args[0].type == 'bignum') return GetBigNum(slogmath(args[0].val, args[1].val));
   }),
   fact: new ExpFunc(function (args) {
     if (args[0].type == 'number') {
@@ -654,6 +783,7 @@ var varns = {
   }),
   vn: new ExpObject({e: GetString('val')}),
 };
+
 varns.Number.val.MAX_SAFE_INT = varns.Number.val.MAX_SAFE_INTEGER = GetNumber(Number.MAX_SAFE_INTEGER);
 varns.Number.val.MIN_SAFE_INT = varns.Number.val.MIN_SAFE_INTEGER = GetNumber(Number.MIN_SAFE_INTEGER);
 varns.Number.val.MAX_VALUE = GetNumber(Number.MAX_VALUE);
@@ -665,6 +795,27 @@ varns.Matrix.val.ident = new ExpFunc(function (args) {
     return mat;
   }
 });
+function onload_namespace() {
+  if (window.math !== undefined) {
+    varns.Infinityd = GetBigNum(Infinity);
+    varns.infinityd = GetBigNum(Infinity);
+    varns.infd = GetBigNum(Infinity);
+    varns.NaNd = GetBigNum(NaN);
+    varns.nand = GetBigNum(NaN);
+    varns.pid = GetBigNum('3.141592653589793238462643383279502884197169399375105820974944592');
+    varns.degd = GetBigNum(math.divide(varns.pid.val, math.bignumber('180')));
+    varns.radd = GetBigNum(math.divide(math.bignumber('180'), varns.pid.val));
+    varns.ed = GetBigNum(math.exp(math.bignumber('1')));
+    varns.phid = GetBigNum(math.divide(math.add(math.bignumber('1'), math.sqrt(math.bignumber('5'))), math.bignumber('2')));
+    varns.sqrt2d = GetBigNum(math.sqrt(math.bignumber('2')));
+    varns.sqrt1_2d = GetBigNum(math.sqrt(math.bignumber('0.5')));
+    varns.ln2d = GetBigNum(math.log(math.bignumber('2')));
+    varns.ln10d = GetBigNum(math.log(math.bignumber('10')));
+    globalns = CreateNSCopy(varns);
+    varns.BigNum.val.MAX_VALUE = GetBigNum('9.999999999999999999999999999999999999999999999999999999999999999e9000000000000000');
+    varns.BigNum.val.MIN_VALUE = GetBigNum('1e-9000000000000000');
+  }
+}
 varns.vn.val.v = varns.vn;
 
 function CreateNS(obj) {

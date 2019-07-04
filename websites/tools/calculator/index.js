@@ -149,6 +149,8 @@ function CalcArrRefresh() {
   calcres.scrollTop = calcres.scrollHeight;
 }
 onload = function () {
+  onload_typessupp();
+  onload_namespace();
   let cd = new Date();
   if (cd.getMonth() == 4 && cd.getDate() == 1) {
     realmode.value = 1;

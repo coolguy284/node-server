@@ -5,6 +5,7 @@ var CL_FALSE = new ExpBool(false);
 var CL_INFINITY = new ExpNumber(Infinity);
 var CL_NINFINITY = new ExpNumber(-Infinity);
 var CL_NAN = new ExpNumber(NaN);
+var CL_INFINITYD, CL_NINFINITYD, CL_NAND;
 var CL_NZERO = new ExpNumber(-0);
 var CL_NUMS = [];
 for (var i = -5; i < 257; i++) CL_NUMS.push(new ExpNumber(i));
@@ -34,11 +35,15 @@ function GetNumber(val) {
 function GetBigInt(val) {
   if (CL_BIGINTS.length == 0) throw new Error('bigints unsupported by browser');
   var v = BigInt(val);
-  if (v > -6 && v < 257) return CL_NUMS[Number(v) + 5];
+  if (v > -6 && v < 257) return CL_BIGINTS[Number(v) + 5];
   return new ExpBigInt(v);
 }
 function GetBigNum(val) {
   if (window.math === undefined) throw new Error('math.js not loaded');
+  var v = math.bignumber(val);
+  if (math.equal(v, Infinity)) return CL_INFINITYD;
+  if (math.equal(v, -Infinity)) return CL_NINFINITYD;
+  if (math.isNaN(v)) return CL_NAND;
   return new ExpBigNum(val);
 }
 function GetString(val) {
@@ -57,4 +62,8 @@ function GetSurreal(val) {
 function GetOperator(val) {
   if (val in CL_OPS) return CL_OPS[val];
   return new ExpOperator(val);
+}
+
+function onload_typessupp() {
+  try { CL_INFINITYD = new ExpBigNum(Infinity); CL_NINFINITYD = new ExpBigNum(-Infinity); CL_NAND = new ExpBigNum(NaN); } catch (e) {}
 }
