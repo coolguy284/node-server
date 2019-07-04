@@ -1,4 +1,5 @@
 function ExpPropAcc(val1, val2) {
+  if (val1.type == 'string') return val1.val.hasOwnProperty(val2.val) ? GetString(val1.val[val2.val]) : GetUndefined();
   var rv = val1.val.hasOwnProperty(val2.val) ? val1.val[val2.val] : undefined;
   if (rv !== undefined) return rv;
   if (val2.val == 'val' || val2.val == 'type') return GetUndefined();

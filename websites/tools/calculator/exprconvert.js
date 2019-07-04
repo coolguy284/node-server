@@ -68,7 +68,7 @@ function ExpArrString(val, p) {
     if (val == p.bas[0]) {
       p.ra.push(GetString(p.bs));
       p.bs = '';
-      p.bt = '';
+      p.bt = 'bigint';
       p.bas.splice(0, Infinity);
     } else if (val == '\\') {
       p.bas[1] = true;
@@ -195,6 +195,11 @@ function ToExpArr(val) {
         p.bs = '';
         p.bt = 'paren';
         p.pl.push('p');
+      } else if (val[i] == '[') {
+        p.ra.push(GetOperator('.'));
+        p.bt = 'propacc';
+        p.pl.push('a');
+        p.bs = '';
       } else if (val[i] == ' ') {
         p.bs = '';
         p.bt = '';
