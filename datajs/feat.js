@@ -13,11 +13,16 @@ module.exports = {
   debreq: true,
   cons: true,
   stdincons: false, // whether stdin can execute code
-  reqtimelog: false, // log request time
+  reqtimelog: false, // log time to complete request
   errmsg: false, // show message with server error
   enc: 'aes',
   pkeysize: 1024,
   datadir: 'data', // directory to save server state, '' for no state saving
+  // file logging flags (add values together) NOT IMPLEMENTED
+  // 1 - log colog
+  // 2 - log cologd
+  // 4 - log json of requests
+  filelog: 0,
   // mode of determining client ip address
   // 0 - use req.connection.remoteAddress
   // 1 - use x-forwarded-for, pick the third item from the end of list, if list is shorter than 3, then pick first item in list, if header nonexistent then req.connection.remoteAddress

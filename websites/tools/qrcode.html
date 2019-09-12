@@ -1,0 +1,203 @@
+<!doctype html>
+<html>
+  <head>
+    <title>coolguy284.com: QR Code Generator</title>
+    <style>
+      #qrsvg {
+        width: 600px;
+        height: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <select id = 'dattype'>
+      <option value = 'text'>Raw Text</option>
+      <option value = 'url'>URL</option>
+      <option value = 'wifi'>Wifi Login</option>
+    </select>
+    <button onclick = 'tqr()'>Make QR Code</button>
+    <input type = 'checkbox' id = 'contupdval' checked>
+    <label for = 'contupdval'>Update Continuously</label>
+    <div id = 'textdv' style = 'display:none;'>
+      <fieldset>
+        <legend>Text</legend>
+        <textarea id = 'texta' style = 'width:100%;height:200px;'></textarea>
+      </fieldset>
+    </div>
+    <div id = 'urldv' style = 'display:none;'>
+      <fieldset>
+        <legend>URL</legend>
+        <input type = 'text' id = 'urlta' style = 'width:100%;'>
+      </fieldset>
+    </div>
+    <div id = 'wifidv' style = 'display:none;'>
+      <fieldset>
+        <legend>Wifi Login</legend>
+        SSID: <input type = 'text' id = 'wifissidval' style = 'width:200px;'><br>
+        Security Type: <select id = 'wifiencval'>
+          <option value = 'WPA'>WPA / WPA2</option>
+          <option value = 'WEP'>WEP</option>
+          <option value = ''>None</option>
+        </select><br>
+        Password: <input type = 'password' id = 'wifipassval' style = 'width: 200px;'><br>
+        <input type = 'checkbox' id = 'wifihiddenval'>
+        <label for = 'wifihiddenval'>Hidden SSID</label>
+      </fieldset>
+    </div>
+    <details>
+      <summary>Advanced QR Code Settings</summary>
+      Error Correction:
+      <input type = 'radio' id = 'erro1' name = 'errval' value = 'LOW' checked>
+      <label for = 'erro1'>Low</label>
+      <input type = 'radio' id = 'erro2' name = 'errval' value = 'MEDIUM'>
+      <label for = 'erro2'>Medium</label>
+      <input type = 'radio' id = 'erro3' name = 'errval' value = 'QUARTILE'>
+      <label for = 'erro3'>Quartile</label>
+      <input type = 'radio' id = 'erro4' name = 'errval' value = 'HIGH'>
+      <label for = 'erro4'>High</label><br>
+      QR Code Version (min, max):
+      <input type = 'number' id = 'verminval' min = 1 max = 40 value = 1 style = 'width:40px;'>,
+      <input type = 'number' id = 'vermaxval' min = 1 max = 40 value = 40 style = 'width:40px;'><br>
+      Mask (-1 for automatic, otherwise 0-7): <input type = 'number' id = 'maskval' min = -1 max = 7 value = -1 style = 'width:40px;'><br>
+      <input type = 'checkbox' id = 'ecboostval'>
+      <label for = 'ecboostval'>Boost error correction within same level</label><br><br>
+      Pixels per module: <input type = 'number' id = 'ppmval' min = 1 value = 4 style = 'width:40px;'><br>
+      Border size (modules): <input type = 'number' id = 'bsmval' min = 0 value = 4 style = 'width:40px;'><br>
+      Output Format:
+      <input type = 'radio' id = 'ofo1' name = 'ofval' value = 'bitmap' checked>
+      <label for = 'ofo1'>Bitmap</label>
+      <input type = 'radio' id = 'ofo2' name = 'ofval' value = 'svg'>
+      <label for = 'ofo2'>SVG</label>
+    </details>
+    <fieldset>
+      <legend>QR Code</legend>
+      <canvas id = 'qrcanvas'></canvas>
+      <svg id = 'qrsvg' style = 'display:none;'></svg><br>
+    </fieldset>
+    <fieldset>
+      <legend>Additional Info</legend>
+      Data: <br>
+      <span id = 'addldata'></span><br>
+      (<span id = 'addldatalen'></span> characters)<br>
+      QR Code Version: <span id = 'addlqrversion'></span><br>
+      Mask Pattern: <span id = 'addlqrmask'></span><br>
+      Segment Metadata: <span id = 'addlsegmeta'></span><br>
+      Total Data Bits: <span id = 'addltotalbits'></span><br>
+      Error Correction Level: <span id = 'addlerrcorr'></span><br>
+    </fieldset>
+    <script src = '../js/qrcodegen.js'></script>
+    <script>
+      /*function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+      }*/
+      function getnameval(name) {
+        var objs = document.getElementsByName(name);
+        for (var i = 0, len = objs.length; i < len; i++) {
+          if (objs[i].checked) return objs[i].value;
+        }
+      }
+      function enc(str) {
+        return str.replace(/\\/g, '\\\\')
+                  .replace(/"/g, '\\"')
+                  .replace(/;/g, '\\;')
+                  .replace(/,/g, '\\,')
+                  .replace(/:/g, '\\:');
+      }
+      function updtab() {
+        textdv.style = 'display:none;';
+        urldv.style = 'display:none;';
+        wifidv.style = 'display:none;';
+        switch (dattype.value) {
+          case 'text': textdv.style = ''; break;
+          case 'url': urldv.style = ''; break;
+          case 'wifi': wifidv.style = ''; break;
+        }
+      }
+      function describe1seg(seg) {
+        var Mode = qrcodegen.QrSegment.Mode;
+        switch (seg.mode) {
+          case Mode.NUMERIC: return 'numeric';
+          case Mode.ALPHANUMERIC: return 'alphanumeric';
+          case Mode.BYTE: return 'byte';
+          case Mode.KANJI: return 'kanji';
+          default: return 'unknown';
+        }
+      }
+      function describesegs(segs) {
+        if (segs.length == 0) return 'no segments';
+        else {
+          return `${segs.length} segment(s) with modes: ${segs.map(describe1seg).join(', ')}`;
+        }
+      }
+      function describeqr(text, qr, segs) {
+        addldata.innerText = text;
+        addldatalen.innerText = text.length;
+        addlqrversion.innerText = qr.version;
+        addlqrmask.innerText = qr.mask;
+        addlsegmeta.innerText = describesegs(segs);
+        addltotalbits.innerText = qrcodegen.QrSegment.getTotalBits(segs, qr.version);
+        addlerrcorr.innerText = ['Low', 'Medium', 'Quartile', 'High'][qr.errorCorrectionLevel.ordinal];
+        /*return [
+          `Data:`,
+          '"""',
+          `${text}`,
+          '"""',
+          `(${text.length} characters)`,
+          `QR Code Version: ${qr.version}`,
+          `Mask Pattern: ${qr.mask}`,
+          `Segment Metadata: ${describesegs(segs)}`,
+          `Total Data Bits: ${qrcodegen.QrSegment.getTotalBits(segs, qr.version)}`,
+          `Error Correction Level: ${['Low', 'Medium', 'Quartile', 'High'][qr.errorCorrectionLevel.ordinal]}`,
+        ].join('\n');*/
+      }
+      function tqr() {
+        var text;
+        switch (dattype.value) {
+          case 'text': text = texta.value; break;
+          case 'url': text = urlta.value; break;
+          case 'wifi': text = `WIFI:S:${enc(wifissidval.value)};T:${wifiencval.value};P:${wifipassval.value};H:${''+wifihiddenval.checked};`; break;
+        }
+        qrcanvas.style.display = 'none';
+        qrsvg.style.display = 'none';
+        var QRC = qrcodegen.QrCode;
+        var segs = qrcodegen.QrSegment.makeSegments(text);
+        var qr = QRC.encodeSegments(segs, QRC.Ecc[getnameval('errval')], parseInt(verminval.value), parseInt(vermaxval.value), parseInt(maskval.value), ecboostval.checked);
+        if (getnameval('ofval') == 'bitmap') {
+          qrcanvas.style.removeProperty('display');
+          //var ppm = parseInt(ppmval.value), bsm = parseInt(bsmval.value);
+          //qrcanvas.width = qrcanvas.height = ppm * (qr1.size + bsm * 2);
+          qr.drawCanvas(parseInt(ppmval.value), parseInt(bsmval.value), qrcanvas);
+          /*for (var y = 0; y < qr1.size; y++) {
+            for (var x = 0; x < qr1.size; x++) {
+              console.log(qr1.getModule(x, y));
+            }
+          }*/
+        } else {
+          qrsvg.style.removeProperty('display');
+          //var qr0 = QRC.encodeText(text, QRC.Ecc[getnameval('errval')]);
+          //var svg = qr0.toSvgString(4);
+          var code = qr.toSvgString(parseInt(bsmval.value));
+          qrsvg.innerHTML = code;
+        }
+        describeqr(text, qr, segs);
+      }
+      function upd() {
+        setTimeout(() => {
+          if (contupdval.checked) tqr();
+        }, 15);
+      }
+      dattype.addEventListener('change', updtab);
+      updtab();
+      [texta, urlta, wifissidval, wifipassval].forEach(x => x.addEventListener('keydown', upd));
+      [texta, urlta, wifissidval, wifipassval].forEach(x => x.addEventListener('paste', upd));
+      [wifiencval, wifihiddenval, erro1, erro2, erro3, erro4, verminval, vermaxval, maskval, ecboostval, ppmval, bsmval, ofo1, ofo2].forEach(x => x.addEventListener('change', upd));
+      upd();
+    </script>
+  </body>
+</html>
