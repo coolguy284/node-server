@@ -90,8 +90,8 @@ let rfs, rfs2, fsv, fsv2;
 function prep() {
   rfs = new FileSystem({writable:true});
   rfs2 = new FileSystem({writable:true});
-  fsv = new FileSystemContext(rfs);
-  fsv2 = new FileSystemContext(rfs2);
+  fsv = new FileSystemContext(rfs, {uid:1000});
+  fsv2 = new FileSystemContext(rfs2, {uid:1000});
   exports.rfs = rfs;
   exports.rfs2 = rfs2;
   exports.fs = fsv;
