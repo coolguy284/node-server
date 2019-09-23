@@ -1,3 +1,4 @@
+var stream = require('stream');
 class VFSReadStream extends stream.Readable {
   constructor(fsc, path, options) {
     super(options);

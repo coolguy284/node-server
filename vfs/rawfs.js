@@ -1,5 +1,7 @@
 // jshint -W041
+var fs = require('fs');
 let getcTime, parentPath, pathEnd, normalize;
+let BLKSIZE = 4096;
 function init(a) {
   getcTime = a.getcTime;
   parentPath = a.parentPath;
@@ -51,6 +53,7 @@ class FileSystem {
     this.inoarr = opts.inoarr;
     this.fi = opts.fi;
   }
+
   getInod(ino, ind) {
     switch (ind) {
       case 0: return this.inodarr[ino].readUInt8(0);
@@ -77,6 +80,7 @@ class FileSystem {
       case 8: return this.inodarr[ino].writeUInt32BE(val, 28);
     }
   }
+
   incref(ino) {
     this.setInod(ino, 2, this.getInod(ino, 2) + 1);
   }
@@ -84,6 +88,7 @@ class FileSystem {
     this.setInod(ino, 2, this.getInod(ino, 2) - 1);
     if (this.getInod(ino, 2) <= 0) this.fi.push(ino);
   }
+
   parseFolder(buf, encoding) {
     let foldarr = buf.toString(encoding).split('\n');
     if (foldarr.length == 1 && foldarr[0] == '') foldarr.pop();
@@ -92,6 +97,7 @@ class FileSystem {
     for (var i in foldarr) foldarr[i][1] = parseInt(foldarr[i][1]);
     return foldarr;
   }
+
   popfi(typ) {
     if (!this.writable) throw new Error('read-only filesystem');
     let ino;
@@ -111,6 +117,7 @@ class FileSystem {
     this.setInod(ino, 5, ctime);
     return ino;
   }
+
   getInode(path, symlink) {
     if (symlink === undefined) symlink = true;
     if (path == '/') {
@@ -183,32 +190,124 @@ class FileSystem {
     this.setInod(ino, 4, ctime);
     this.setInod(ino, 5, ctime);
   }
+
   exists(path) {
     return this.getInode(path) != null;
   }
   stat(path, options) {
     let ino = this.geteInode(path);
     if (options && options.bigint) {
-      return new fs.Stats(null, BigInt(this.getInod(ino, 0) * 0o10000 + this.getInod(ino, 6)), BigInt(this.getInod(ino, 2)), BigInt(this.getInod(ino, 7)), BigInt(this.getInod(ino, 8)), null, BigInt(1), BigInt(ino), BigInt(this.inoarr[ino].length), BigInt(this.inoarr[ino].length), BigInt(this.getInod(ino, 5)), BigInt(this.getInod(ino, 4)), BigInt(this.getInod(ino, 3)), BigInt(this.getInod(ino, 3)));
+      return new fs.Stats(
+        50, // dev
+        BigInt(this.getInod(ino, 0) * 0o10000 + this.getInod(ino, 6)), // mode
+        BigInt(this.getInod(ino, 2)), // nlink
+        BigInt(this.getInod(ino, 7)), // uid
+        BigInt(this.getInod(ino, 8)), // gid
+        0, // rdev
+        BigInt(BLKSIZE), // blksize
+        BigInt(ino), // ino
+        BigInt(this.inoarr[ino].length), // size
+        BigInt(Math.ceil(this.inoarr[ino].length / BLKSIZE)), // blocks
+        BigInt(this.getInod(ino, 5)), // atim_msec
+        BigInt(this.getInod(ino, 4)), // mtim_msec
+        BigInt(this.getInod(ino, 3)), // ctim_msec
+        BigInt(this.getInod(ino, 3)) // birthtim_msec
+      );
     } else {
-      return new fs.Stats(null, this.getInod(ino, 0) * 0o10000 + this.getInod(ino, 6), this.getInod(ino, 2), this.getInod(ino, 7), this.getInod(ino, 8), null, 1, ino, this.inoarr[ino].length, this.inoarr[ino].length, this.getInod(ino, 5), this.getInod(ino, 4), this.getInod(ino, 3), this.getInod(ino, 3));
+      return new fs.Stats(
+        50, // dev
+        this.getInod(ino, 0) * 0o10000 + this.getInod(ino, 6), // mode
+        this.getInod(ino, 2), // nlink
+        this.getInod(ino, 7), // uid
+        this.getInod(ino, 8), // gid
+        0, // rdev
+        BLKSIZE, // blksize
+        ino, // ino
+        this.inoarr[ino].length, // size
+        Math.ceil(this.inoarr[ino].length / BLKSIZE), // blocks
+        this.getInod(ino, 5), // atim_msec
+        this.getInod(ino, 4), // mtim_msec
+        this.getInod(ino, 3), // ctim_msec
+        this.getInod(ino, 3) // birthtim_msec
+      );
     }
   }
   lstat(path, options) {
     let ino = this.geteInode(path, false);
     if (options && options.bigint) {
-      return new fs.Stats(null, BigInt(this.getInod(ino, 0) * 0o10000 + this.getInod(ino, 6)), BigInt(this.getInod(ino, 2)), BigInt(this.getInod(ino, 7)), BigInt(this.getInod(ino, 8)), null, BigInt(1), BigInt(ino), BigInt(this.inoarr[ino].length), BigInt(this.inoarr[ino].length), BigInt(this.getInod(ino, 5)), BigInt(this.getInod(ino, 4)), BigInt(this.getInod(ino, 3)), BigInt(this.getInod(ino, 3)));
+      return new fs.Stats(
+        50, // dev
+        BigInt(this.getInod(ino, 0) * 0o10000 + this.getInod(ino, 6)), // mode
+        BigInt(this.getInod(ino, 2)), // nlink
+        BigInt(this.getInod(ino, 7)), // uid
+        BigInt(this.getInod(ino, 8)), // gid
+        0, // rdev
+        BigInt(BLKSIZE), // blksize
+        BigInt(ino), // ino
+        BigInt(this.inoarr[ino].length), // size
+        BigInt(Math.ceil(this.inoarr[ino].length / BLKSIZE)), // blocks
+        BigInt(this.getInod(ino, 5)), // atim_msec
+        BigInt(this.getInod(ino, 4)), // mtim_msec
+        BigInt(this.getInod(ino, 3)), // ctim_msec
+        BigInt(this.getInod(ino, 3)) // birthtim_msec
+      );
     } else {
-      return new fs.Stats(null, this.getInod(ino, 0) * 0o10000 + this.getInod(ino, 6), this.getInod(ino, 2), this.getInod(ino, 7), this.getInod(ino, 8), null, 1, ino, this.inoarr[ino].length, this.inoarr[ino].length, this.getInod(ino, 5), this.getInod(ino, 4), this.getInod(ino, 3), this.getInod(ino, 3));
+      return new fs.Stats(
+        50, // dev
+        this.getInod(ino, 0) * 0o10000 + this.getInod(ino, 6), // mode
+        this.getInod(ino, 2), // nlink
+        this.getInod(ino, 7), // uid
+        this.getInod(ino, 8), // gid
+        0, // rdev
+        BLKSIZE, // blksize
+        ino, // ino
+        this.inoarr[ino].length, // size
+        Math.ceil(this.inoarr[ino].length / BLKSIZE), // blocks
+        this.getInod(ino, 5), // atim_msec
+        this.getInod(ino, 4), // mtim_msec
+        this.getInod(ino, 3), // ctim_msec
+        this.getInod(ino, 3) // birthtim_msec
+      );
     }
   }
   statFD(ino, options) {
     if (options && options.bigint) {
-      return new fs.Stats(null, BigInt(this.getInod(ino, 0) * 0o10000 + this.getInod(ino, 6)), BigInt(this.getInod(ino, 2)), BigInt(this.getInod(ino, 7)), BigInt(this.getInod(ino, 8)), null, BigInt(1), BigInt(ino), BigInt(this.inoarr[ino].length), BigInt(this.inoarr[ino].length), BigInt(this.getInod(ino, 5)), BigInt(this.getInod(ino, 4)), BigInt(this.getInod(ino, 3)), BigInt(this.getInod(ino, 3)));
+      return new fs.Stats(
+        50, // dev
+        BigInt(this.getInod(ino, 0) * 0o10000 + this.getInod(ino, 6)), // mode
+        BigInt(this.getInod(ino, 2)), // nlink
+        BigInt(this.getInod(ino, 7)), // uid
+        BigInt(this.getInod(ino, 8)), // gid
+        0, // rdev
+        BigInt(BLKSIZE), // blksize
+        BigInt(ino), // ino
+        BigInt(this.inoarr[ino].length), // size
+        BigInt(Math.ceil(this.inoarr[ino].length / BLKSIZE)), // blocks
+        BigInt(this.getInod(ino, 5)), // atim_msec
+        BigInt(this.getInod(ino, 4)), // mtim_msec
+        BigInt(this.getInod(ino, 3)), // ctim_msec
+        BigInt(this.getInod(ino, 3)) // birthtim_msec
+      );
     } else {
-      return new fs.Stats(null, this.getInod(ino, 0) * 0o10000 + this.getInod(ino, 6), this.getInod(ino, 2), this.getInod(ino, 7), this.getInod(ino, 8), null, 1, ino, this.inoarr[ino].length, this.inoarr[ino].length, this.getInod(ino, 5), this.getInod(ino, 4), this.getInod(ino, 3), this.getInod(ino, 3));
+      return new fs.Stats(
+        50, // dev
+        this.getInod(ino, 0) * 0o10000 + this.getInod(ino, 6), // mode
+        this.getInod(ino, 2), // nlink
+        this.getInod(ino, 7), // uid
+        this.getInod(ino, 8), // gid
+        0, // rdev
+        BLKSIZE, // blksize
+        ino, // ino
+        this.inoarr[ino].length, // size
+        Math.ceil(this.inoarr[ino].length / BLKSIZE), // blocks
+        this.getInod(ino, 5), // atim_msec
+        this.getInod(ino, 4), // mtim_msec
+        this.getInod(ino, 3), // ctim_msec
+        this.getInod(ino, 3) // birthtim_msec
+      );
     }
   }
+
   chmod(path, mode) {
     if (!this.writable) throw new Error('read-only filesystem');
     if (mode < 0 && mode > 0o777) throw new Error('invalid permission mode');
@@ -291,6 +390,7 @@ class FileSystem {
     this.setInod(ino, 5, Number(atime));
     this.setInod(ino, 4, Number(mtime));
   }
+
   readFile(path, options) {
     if (typeof options == 'string') options = {encoding:options};
     if (options === undefined) options = {};
@@ -398,6 +498,7 @@ class FileSystem {
     this.setInod(ino, 4, ctime);
     this.setInod(ino, 5, ctime);
   }
+
   link(pathf, patht, nincref) {
     if (!this.writable) throw new Error('read-only filesystem');
     let ino = this.geteInode(pathf, false);
@@ -422,6 +523,7 @@ class FileSystem {
     this.setInod(inop, 4, ctime);
     this.setInod(inop, 5, ctime);
   }
+
   copyFile(pathf, patht) {
     if (!this.writable) throw new Error('read-only filesystem');
     let inof = this.geteInode(pathf);
@@ -430,6 +532,7 @@ class FileSystem {
     this.inoarr[inot] = Buffer.from(this.inoarr[inof]);
     this.setInod(inof, 5, this.getInod(inot, 3));
   }
+
   readlink(path, options) {
     let ino = this.geteInode(path, false);
     if (this.getInod(ino, 0) != 10) throw new Error('path not a symbolic link');
@@ -444,6 +547,7 @@ class FileSystem {
     if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
     this.inoarr[ino] = Buffer.from(target);
   }
+
   readdir(path, options) {
     if (options === undefined) options = {};
     if (options.encoding) options.encoding = 'utf8';
@@ -465,13 +569,16 @@ class FileSystem {
       return pf.map(x => x[0]);
     }
   }
+
   mkdir(path) {
     this.createFile(path, 4);
   }
+
   rename(pathf, patht) {
     this.link(pathf, patht, true);
     this.unlink(pathf, true);
   }
+
   rmdir(path, inl) {
     if (inl === undefined) inl = [];
     let ino = this.geteInode(path, false);
@@ -499,6 +606,7 @@ class FileSystem {
     }
     this.unlink(path);
   }
+
   read(ino, sp, buffer, offset, length, position) {
     if (offset === undefined) offset = 0;
     if (length === undefined) length = buffer.length;
@@ -558,6 +666,7 @@ class FileSystem {
     this.setInod(ino, 5, ctime);
     return buf.length;
   }
+
   reverseLookup(ino, symlink, inos, path, inods, lkp) {
     if (symlink === undefined) symlink = false;
     if (inos === undefined) inos = 0;
@@ -594,6 +703,7 @@ class FileSystem {
     }
     return lkp;
   }
+
   lookupAll(symlink) {
     let arr = [];
     for (var i = 0; i < this.inoarr.length; i++) {
@@ -602,6 +712,7 @@ class FileSystem {
     }
     return arr;
   }
+
   internalLinks(ino, aino, inos) {
     if (aino === undefined) aino = ino;
     if (inos === undefined) inos = [];
@@ -616,6 +727,7 @@ class FileSystem {
     }
     return cnt;
   }
+
   wipefi() {
     if (!this.writable) throw new Error('read only filesystem');
     for (var i in this.fi) {
@@ -624,6 +736,7 @@ class FileSystem {
     }
     this.fi.splice(0, Infinity);
   }
+
   exportSystemRawString() {
     let arr = [this.writable, [], [], []];
     for (var i = 0; i < this.inodarr.length; i++) arr[1].push(this.inodarr[i] !== undefined ? this.inodarr[i].toString('binary') : undefined);
