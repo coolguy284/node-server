@@ -19,6 +19,7 @@ ReadOnlyFSError.prototype.name = 'ReadOnlyFSError';
 
 let osfserrcodes = {
   'EPERM': [1, 'Operation not permitted'],
+  'EACCES': [13, 'Permission denied'],
   'ENOENT': [2, 'No such file or directory'],
   'EEXIST': [17, 'File exists'],
   'ENOTDIR': [20, 'Not a directory'],

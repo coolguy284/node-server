@@ -17,12 +17,13 @@ class FileSystemContext {
     if (opts.uids === undefined) opts.uids = { 0: 'root', 1000: 'ss2' };
     if (opts.gids === undefined) opts.gids = { 0: 'root', 1000: 'ss2' };
     if (opts.uid === undefined) opts.uid = 0;
-    if (opts.groups === undefined) opts.groups = { 'root': [0], 'admin': [1000] };
+    if (opts.groups === undefined) opts.groups = { 'root': [0], 'ss2': [1000] };
     if (opts.mounts === undefined) opts.mounts = [[], [], [], []];
     if (opts.fd === undefined) opts.fd = [];
     this.fs = fs;
     this.cwd = opts.cwd;
     this.uid = opts.uid;
+    this.gid = this.uid;
     this.uids = opts.uids;
     this.gids = opts.gids;
     this.groups = opts.groups;
@@ -78,6 +79,7 @@ class FileSystemContext {
   }
 
   getPerms(ino) {
+    if (this.uid == 0) return {read: 1, write: 1, execute: 1};
     let pl = this.fs.getInod(ino, 6);
     if (this.uid == this.fs.getInod(ino, 7)) {
       return {read: pl & 0o400 ? 1 : 0, write: pl & 0o200 ? 1 : 0, execute: pl & 0o100 ? 1 : 0};
@@ -138,36 +140,36 @@ class FileSystemContext {
 
   chmodSync(path, mode) {
     let fsc = this.mountNormalize(path);
-    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new OSFSError('EACCES');
+    if (this.uid != fsc[0].fs.getInod(fsc[0].fs.geteInode(fsc[1]), 7) && this.uid != 0) throw new OSFSError('EACCES');
     return fsc[0].fs.chmod(fsc[1], mode);
   }
   lchmodSync(path, mode) {
     let fsc = this.mountNormalize(path, false);
-    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1], false)).write) throw new OSFSError('EACCES');
+    if (this.uid != fsc[0].fs.getInod(fsc[0].fs.geteInode(fsc[1]), 7) && this.uid != 0) throw new OSFSError('EACCES');
     return fsc[0].fs.lchmod(fsc[1], mode);
   }
   chownSync(path, uid, gid) {
     let fsc = this.mountNormalize(path);
-    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new OSFSError('EACCES');
+    if (this.uid != fsc[0].fs.getInod(fsc[0].fs.geteInode(fsc[1]), 7) && this.uid != 0) throw new OSFSError('EACCES');
     if (THROWONBADUGID && !fsc[0].uids[uid]) throw new Error('nonexistent uid');
     if (THROWONBADUGID && !fsc[0].gids[gid]) throw new Error('nonexistent gid');
     return fsc[0].fs.chown(fsc[1], uid, gid);
   }
   lchownSync(path, uid, gid) {
     let fsc = this.mountNormalize(path, false);
-    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1], false)).write) throw new OSFSError('EACCES');
+    if (this.uid != fsc[0].fs.getInod(fsc[0].fs.geteInode(fsc[1]), 7) && this.uid != 0) throw new OSFSError('EACCES');
     if (THROWONBADUGID && !fsc[0].uids[uid]) throw new Error('nonexistent uid');
     if (THROWONBADUGID && !fsc[0].gids[gid]) throw new Error('nonexistent gid');
     return fsc[0].fs.lchown(fsc[1], uid, gid);
   }
   chattrSync(path, attrb) {
     let fsc = this.mountNormalize(path);
-    if (this.uid != fsc[0].fs.getInod(fsc[0].fs.geteInode(fsc[1]), 7)) throw new OSFSError('EACCES', 'only owner can change attrs');
+    if (this.uid != fsc[0].fs.getInod(fsc[0].fs.geteInode(fsc[1]), 7) && this.uid != 0) throw new OSFSError('EACCES', 'only owner can change attrs');
     return fsc[0].fs.chattr(path, attrb);
   }
   lchattrSync(path, attrb) {
     let fsc = this.mountNormalize(path, false);
-    if (this.uid != fsc[0].fs.getInod(fsc[0].fs.geteInode(fsc[1], false), 7)) throw new OSFSError('EACCES', 'only owner can change attrs');
+    if (this.uid != fsc[0].fs.getInod(fsc[0].fs.geteInode(fsc[1], false), 7) && this.uid != 0) throw new OSFSError('EACCES', 'only owner can change attrs');
     return fsc[0].fs.lchattr(path, attrb);
   }
   utimesSync(path, atime, mtime) {
@@ -199,7 +201,7 @@ class FileSystemContext {
       if (!fsc[0].getPerms(fsc[0].fs.geteInode(parentPath(fsc[1]))).write) throw new OSFSError('EACCES');
       if (fsc[0].fs.exists(fsc[1]))
       if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new OSFSError('EACCES');
-      return fsc[0].fs.writeFile(fsc[1], buf, options);
+      return fsc[0].fs.writeFile(fsc[1], buf, options, fsc[0].uid, fsc[0].gid);
     }
   }
   appendFileSync(path, buf, options) {
@@ -213,7 +215,7 @@ class FileSystemContext {
       if (!fsc[0].getPerms(this.fs.geteInode(parentPath(fsc[1]))).write) throw new OSFSError('EACCES');
       if (fsc[0].fs.exists(fsc[1]))
       if (!fsc[0].getPerms(this.fs.geteInode(fsc[1])).write) throw new OSFSError('EACCES');
-      return fsc[0].fs.appendFile(fsc[1], buf, options);
+      return fsc[0].fs.appendFile(fsc[1], buf, options, fsc[0].uid, fsc[0].gid);
     }
   }
   truncateSync(path, len) {
@@ -274,7 +276,7 @@ class FileSystemContext {
     if (!fsct[0].getPerms(fsct[0].fs.geteInode(fsct[1])).write) throw new OSFSError('EACCES');
     if (flags & 1 && fsct[0].fs.exists(fsct[1])) throw new OSFSError('EEXIST');
     if (Object.is(fscf.fs, fsct.fs)) {
-      return fscf[0].fs.copyFile(fscf[1], fsct[1]);
+      return fscf[0].fs.copyFile(fscf[1], fsct[1], flags, fscf[0].uid, fscf[0].gid);
     }
     return fsct[0].fs.writeFile(fsct[1], fscf[0].fs.readFile(fscf[1]));
   }
@@ -290,7 +292,7 @@ class FileSystemContext {
     if (!fsct[0].getPerms(fsct[0].fs.geteInode(parentPath(fsct[1]))).write) throw new OSFSError('EACCES');
     if (fsct[0].fs.exists(fsct[1]))
     if (!fsct[0].getPerms(fsct[0].fs.geteInode(fsct[1])).write) throw new OSFSError('EACCES');
-    return fsct[0].fs.symlink(pathf, fsct[1]);
+    return fsct[0].fs.symlink(pathf, fsct[1], fsct[0].uid, fsct[0].gid);
   }
 
   readdirSync(path, options) {
@@ -300,11 +302,13 @@ class FileSystemContext {
   }
 
   mkdirSync(path, options) {
+    if (options === undefined) options = {};
+    if (options.mode === undefined) options.mode = 0o666;
     let fsc = this.mountNormalize(path);
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(parentPath(fsc[1]))).write) throw new OSFSError('EACCES');
     if (fsc[0].fs.exists(fsc[1]))
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new OSFSError('EACCES');
-    return fsc[0].fs.mkdir(fsc[1], options);
+    return fsc[0].fs.mkdir(fsc[1], options, fsc[0].uid, fsc[0].gid);
   }
 
   renameSync(pathf, patht) {

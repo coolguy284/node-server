@@ -94,7 +94,10 @@ class FileSystem {
     return foldarr;
   }
 
-  popfi(typ) {
+  popfi(typ, mode, uid, gid) {
+    if (mode === undefined) mode = 0o777;
+    if (uid === undefined) uid = 0;
+    if (gid === undefined) gid = 0;
     if (!this.writable) throw new OSFSError('EROFS');
     let ino;
     if (this.fi.length > 0) {
@@ -106,11 +109,14 @@ class FileSystem {
     }
     let ctime = getcTime();
     this.inoarr[ino] = Buffer.alloc(0);
-    this.inodarr[ino] = Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+    this.inodarr[ino] = Buffer.alloc(32);
     this.setInod(ino, 0, typ);
     this.setInod(ino, 3, ctime);
     this.setInod(ino, 4, ctime);
     this.setInod(ino, 5, ctime);
+    this.setInod(ino, 6, mode);
+    this.setInod(ino, 7, uid);
+    this.setInod(ino, 8, gid);
     return ino;
   }
 
@@ -157,20 +163,20 @@ class FileSystem {
     }
     return rv;
   }
-  createFile(path, typ) {
+  createFile(path, typ, mode, uid, gid) {
     if (!this.writable) throw new OSFSError('EROFS');
     if (this.exists(path)) throw new OSFSError('EEXIST');
     let inop = this.geteInode(parentPath(path));
     if (this.getInod(inop, 1) & 128) throw new OSFSError('EPERM', 'parent folder immutable');
-    let ino = this.popfi(typ);
+    let ino = this.popfi(typ, mode, uid, gid);
     this.appendFolder(inop, pathEnd(path), ino);
     this.incref(ino);
     return ino;
   }
-  getcInode(path, typ, symlink) {
+  getcInode(path, typ, symlink, mode, uid, gid) {
     let ino = this.getInode(path, symlink);
     if (ino === null) {
-      return this.createFile(path, typ);
+      return this.createFile(path, typ, mode, uid, gid);
     } else {
       return ino;
     }
@@ -407,13 +413,15 @@ class FileSystem {
     if (options.encoding === null) return Buffer.from(this.inoarr[ino].slice(sp, Infinity));
     else return this.inoarr[ino].slice(sp, Infinity).toString(options.encoding);
   }
-  writeFile(path, buf, options) {
+  writeFile(path, buf, options, uid, gid) {
     if (typeof options == 'string') options = {encoding:options};
     if (options === undefined) options = {};
     if (options.encoding === undefined) options.encoding = 'utf8';
     if (options.mode === undefined) options.mode = 0o666;
+    if (uid === undefined) uid = 0;
+    if (gid === undefined) gid = 0;
     if (!this.writable) throw new OSFSError('EROFS');
-    let ino = this.getcInode(path, 8);
+    let ino = this.getcInode(path, 8, true, options.mode, uid, gid);
     if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.inoarr[ino] = Buffer.from(buf, options.encoding);
     let ctime = getcTime();
@@ -442,9 +450,11 @@ class FileSystem {
     if (options === undefined) options = {};
     if (options.encoding === undefined) options.encoding = 'utf8';
     if (options.mode === undefined) options.mode = 0o666;
+    if (uid === undefined) uid = 0;
+    if (gid === undefined) gid = 0;
     if (!this.writable) throw new OSFSError('EROFS');
     if (typeof buf == 'string') buf = Buffer.from(buf, options.encoding);
-    let ino = this.getcInode(path, 8);
+    let ino = this.getcInode(path, 8, true, options.mode, uid, gid);
     if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.inoarr[ino] = Buffer.concat([this.inoarr[ino], buf]);
     let ctime = getcTime();
@@ -523,11 +533,19 @@ class FileSystem {
     this.setInod(inop, 5, ctime);
   }
 
-  copyFile(pathf, patht) {
+  copyFile(pathf, patht, flags, uid, gid) {
+    flags = Number(flags);
+    if (flags != flags) throw new OSFSError('EINVAL', 'Bad flag value');
+    if (uid === undefined) uid = 0;
+    if (gid === undefined) gid = 0;
+    if (flags & 4) throw new Error('No COW support');
     if (!this.writable) throw new OSFSError('EROFS');
     let inof = this.geteInode(pathf);
-    if (this.exists(patht)) this.unlink(patht);
-    let inot = this.getcInode(patht, 8);
+    if (this.exists(patht)) {
+      if (flags & 1) throw new OSFSError('EEXIST');
+      else this.unlink(patht);
+    }
+    let inot = this.getcInode(patht, 8, true, this.getInod(inof, 6), uid, gid);
     this.inoarr[inot] = Buffer.from(this.inoarr[inof]);
     this.setInod(inof, 5, this.getInod(inot, 3));
   }
@@ -540,9 +558,10 @@ class FileSystem {
     else if (options.encoding == 'buffer') return Buffer.from(this.inoarr[ino]);
     else return this.inoarr[ino].toString(options.encoding);
   }
-  symlink(target, path) {
+  symlink(target, path, uid, gid) {
+    if (!this.writable) throw new OSFSError('EROFS');
     if (this.exists(path)) throw new OSFSError('EEXIST');
-    let ino = this.getcInode(path, 10);
+    let ino = this.getcInode(path, 10, true, 0o666, uid, gid);
     if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.inoarr[ino] = Buffer.from(target);
   }
@@ -569,8 +588,10 @@ class FileSystem {
     }
   }
 
-  mkdir(path) {
-    this.createFile(path, 4);
+  mkdir(path, options, mode, uid, gid) {
+    if (options === undefined) options = {};
+    if (options.mode === undefined) options.mode = 0o666;
+    this.createFile(path, 4, options.mode, uid, gid);
   }
 
   rename(pathf, patht) {
