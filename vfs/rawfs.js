@@ -21,6 +21,7 @@ class FileSystem {
     if (opts.maxsize === undefined) opts.maxsize = 2 ** 32;
     if (opts.maxinodes === undefined) opts.maxinodes = 2 ** 24;
     if (opts.wipeonfi === undefined) opts.wipeonfi = false;
+    if (opts.updatime === undefined) opts.updatime = false;
     if (opts.inoarr === undefined) opts.inoarr = [Buffer.alloc(0)];
     if (opts.inodarr === undefined) {
       let ctime = getcTime();
@@ -36,12 +37,13 @@ class FileSystem {
         0x04, // file type: 4 - directory, 10 - file, 12 - symlink
         0x00, // fs flags: iasSA---
         0x00, 0x01, // refrence count
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // create time
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // modify time
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // access time
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // modify time
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // change time
+        //0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // birth time
         0x01, 0xff, // permissions
         0x00, 0x00, 0x00, 0x00, // uid
-        0x00, 0x00, 0x00, 0x00 // gid
+        0x00, 0x00, 0x00, 0x00, // gid
       ])];
       opts.inodarr[0].writeUIntBE(ctime, 4, 6);
       opts.inodarr[0].writeUIntBE(ctime, 10, 6);
@@ -52,6 +54,7 @@ class FileSystem {
     this.blocksize = opts.blocksize;
     this.maxsize = opts.maxsize;
     this.maxinodes = opts.maxinodes;
+    this.wipeonfi = opts.wipeonfi;
     this.inodarr = opts.inodarr;
     this.inoarr = opts.inoarr;
     this.fi = opts.fi;
@@ -99,18 +102,42 @@ class FileSystem {
   }
 
   parseFolder(buf, encoding) {
-    let foldarr = buf.toString(encoding).split('\n');
+    /*let foldarr = buf.toString(encoding).split('\n');
     if (foldarr.length == 1 && foldarr[0] == '') foldarr.pop();
     foldarr = foldarr.map(x => x.split(':'));
     if (encoding == 'buffer') for (var i in foldarr) foldarr[i][0] = Buffer.from(foldarr[i][0]);
     for (var i in foldarr) foldarr[i][1] = parseInt(foldarr[i][1]);
-    return foldarr;
+    return foldarr;*/
+    if (encoding === undefined) encoding = 'utf8';
+    let foldarr = [];
+    for (let i = 0, s = 0; i < buf.length; i++) {
+      if (buf[i] == 0x0a) {
+        foldarr.push(Buffer.from(buf.slice(s, i)));
+        s = i + 1;
+      } else if (i == buf.length - 1) {
+        foldarr.push(Buffer.from(buf.slice(s, buf.length)));
+      }
+    }
+    return foldarr.map(x => {
+      for (let i = x.length; i >= 0; i--) {
+        if (x[i] == 0x3a) {
+          let buf = Buffer.from(x.slice(0, i));
+          let ino = Number(Buffer.from(x.slice(i + 1, x.length)).toString());
+          if (encoding == 'buffer') return [buf, ino];
+          else return [buf.toString(encoding), ino];
+        }
+      }
+    });
   }
 
-  popfi(typ, mode, uid, gid) {
+  popfi(typ, mode, uid, gid, fc) {
     if (mode === undefined) mode = 0o777;
     if (uid === undefined) uid = 0;
     if (gid === undefined) gid = 0;
+    if (fc !== undefined) {
+      if (!Buffer.isBuffer(fc)) throw new Error('File contents not buffer');
+      if (this.getFreeBytes() < fc.length) throw new OSFSError('ENOSPC');
+    }
     if (!this.writable) throw new OSFSError('EROFS');
     let ino;
     if (this.fi.length > 0) {
@@ -130,7 +157,7 @@ class FileSystem {
       }
     }
     let ctime = getcTime();
-    this.inoarr[ino] = Buffer.alloc(0);
+    this.inoarr[ino] = fc || Buffer.alloc(0);
     this.inodarr[ino] = Buffer.alloc(32);
     this.setInod(ino, 0, typ);
     this.setInod(ino, 3, ctime);
@@ -185,12 +212,12 @@ class FileSystem {
     }
     return rv;
   }
-  createFile(path, typ, mode, uid, gid) {
+  createFile(path, typ, mode, uid, gid, fc) {
     if (!this.writable) throw new OSFSError('EROFS');
     if (this.exists(path)) throw new OSFSError('EEXIST');
     let inop = this.geteInode(parentPath(path));
     if (this.getInod(inop, 1) & 128) throw new OSFSError('EPERM', 'parent folder immutable');
-    let ino = this.popfi(typ, mode, uid, gid);
+    let ino = this.popfi(typ, mode, uid, gid, fc);
     try { this.appendFolder(inop, pathEnd(path), ino); } catch (e) {
       if (e instanceof OSFSError && e.code == 'ENOSPC') this.decref(ino);
       throw e;
@@ -198,10 +225,10 @@ class FileSystem {
     this.incref(ino);
     return ino;
   }
-  getcInode(path, typ, symlink, mode, uid, gid) {
+  getcInode(path, typ, symlink, mode, uid, gid, fc) {
     let ino = this.getInode(path, symlink);
     if (ino === null) {
-      return this.createFile(path, typ, mode, uid, gid);
+      return this.createFile(path, typ, mode, uid, gid, fc);
     } else {
       return ino;
     }
@@ -211,9 +238,15 @@ class FileSystem {
     let ab = Buffer.from((this.inoarr[ino].length != 0 ? '\n' : '') + nam + ':' + inot);
     if (this.getFreeBytes() < ab.length) throw new OSFSError('ENOSPC');
     this.inoarr[ino] = Buffer.concat([this.inoarr[ino], ab]);
+    this.updateFileTimes(ino, 3);
+  }
+
+  updateFileTimes(ino, flag) {
+    if (!this.writable) throw new OSFSError('EROFS');
     let ctime = getcTime();
-    this.setInod(ino, 4, ctime);
-    this.setInod(ino, 5, ctime);
+    if (flag & 4) this.setInod(ino, 3, ctime);
+    if (flag & 2) this.setInod(ino, 4, ctime);
+    if (flag & 1) this.setInod(ino, 5, ctime);
   }
 
   getUsedBytes() {
@@ -340,6 +373,13 @@ class FileSystem {
     }
   }
 
+  access(path, mode) {
+    let ino = this.geteInode(path);
+    if (this.writable) {
+      this.updateFileTimes(ino, 4);
+    }
+  }
+
   chmod(path, mode) {
     if (!this.writable) throw new OSFSError('EROFS');
     if (mode < 0) throw new OSFSError('EINVAL', 'invalid permission mode');
@@ -347,9 +387,7 @@ class FileSystem {
     let ino = this.geteInode(path);
     if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.setInod(ino, 6, mode);
-    let ctime = getcTime();
-    this.setInod(ino, 4, ctime);
-    this.setInod(ino, 5, ctime);
+    this.updateFileTimes(ino, 1);
   }
   lchmod(path, mode) {
     if (!this.writable) throw new OSFSError('EROFS');
@@ -358,9 +396,7 @@ class FileSystem {
     let ino = this.geteInode(path, false);
     if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.setInod(ino, 6, mode);
-    let ctime = getcTime();
-    this.setInod(ino, 4, ctime);
-    this.setInod(ino, 5, ctime);
+    this.updateFileTimes(ino, 1);
   }
   chmodFD(ino, mode) {
     if (!this.writable) throw new OSFSError('EROFS');
@@ -368,9 +404,7 @@ class FileSystem {
     mode = mode & 0o777;
     if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.setInod(ino, 6, mode);
-    let ctime = getcTime();
-    this.setInod(ino, 4, ctime);
-    this.setInod(ino, 5, ctime);
+    this.updateFileTimes(ino, 1);
   }
   chown(path, uid, gid) {
     if (!this.writable) throw new OSFSError('EROFS');
@@ -378,9 +412,7 @@ class FileSystem {
     if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.setInod(ino, 7, uid);
     this.setInod(ino, 8, gid);
-    let ctime = getcTime();
-    this.setInod(ino, 4, ctime);
-    this.setInod(ino, 5, ctime);
+    this.updateFileTimes(ino, 1);
   }
   lchown(path, uid, gid) {
     if (!this.writable) throw new OSFSError('EROFS');
@@ -388,9 +420,7 @@ class FileSystem {
     if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.setInod(ino, 7, uid);
     this.setInod(ino, 8, gid);
-    let ctime = getcTime();
-    this.setInod(ino, 4, ctime);
-    this.setInod(ino, 5, ctime);
+    this.updateFileTimes(ino, 1);
   }
   chownFD(ino, uid, gid) {
     if (!this.writable) throw new OSFSError('EROFS');
@@ -398,32 +428,36 @@ class FileSystem {
     if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.setInod(ino, 7, uid);
     this.setInod(ino, 8, gid);
-    let ctime = getcTime();
-    this.setInod(ino, 4, ctime);
-    this.setInod(ino, 5, ctime);
+    this.updateFileTimes(ino, 1);
   }
   chattr(path, attrb) {
     if (!this.writable) throw new OSFSError('EROFS');
     if (attrb < 0 && attrb > 255) throw new OSFSError('EINVAL', 'invalid file attributes');
     let ino = this.geteInode(path);
     this.setInod(ino, 1, attrb);
+    this.updateFileTimes(ino, 1);
   }
   lchattr(path, attrb) {
     if (!this.writable) throw new OSFSError('EROFS');
     if (attrb < 0 && attrb > 255) throw new OSFSError('EINVAL', 'invalid file attributes');
     let ino = this.geteInode(path, false);
     this.setInod(ino, 1, attrb);
+    this.updateFileTimes(ino, 1);
   }
   utimes(path, atime, mtime) {
+    if (!this.writable) throw new OSFSError('EROFS');
     let ino = this.geteInode(path);
     if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.setInod(ino, 5, Number(atime));
     this.setInod(ino, 4, Number(mtime));
+    this.updateFileTimes(ino, 1);
   }
   utimesFD(ino, atime, mtime) {
+    if (!this.writable) throw new OSFSError('EROFS');
     if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.setInod(ino, 5, Number(atime));
     this.setInod(ino, 4, Number(mtime));
+    this.updateFileTimes(ino, 1);
   }
 
   readFile(path, options) {
@@ -431,7 +465,7 @@ class FileSystem {
     if (options === undefined) options = {};
     if (options.encoding === undefined) options.encoding = null;
     let ino = this.geteInode(path);
-    if (this.writable) this.setInod(ino, 5, getcTime());
+    if (this.writable) this.updateFileTimes(ino, 4);
     if (options.encoding === null) return Buffer.from(this.inoarr[ino]);
     else return this.inoarr[ino].toString(options.encoding);
   }
@@ -439,7 +473,7 @@ class FileSystem {
     if (typeof options == 'string') options = {encoding:options};
     if (options === undefined) options = {};
     if (options.encoding === undefined) options.encoding = null;
-    if (this.writable) this.setInod(ino, 5, getcTime());
+    if (this.writable) this.updateFileTimes(ino, 4);
     if (options.encoding === null) return Buffer.from(this.inoarr[ino].slice(sp, Infinity));
     else return this.inoarr[ino].slice(sp, Infinity).toString(options.encoding);
   }
@@ -455,9 +489,7 @@ class FileSystem {
     let ino = this.getcInode(path, 8, true, options.mode, uid, gid);
     if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.inoarr[ino] = Buffer.from(buf, options.encoding);
-    let ctime = getcTime();
-    this.setInod(ino, 4, ctime);
-    this.setInod(ino, 5, ctime);
+    this.updateFileTimes(ino, 3);
   }
   writeFileFD(ino, sp, buf, options) {
     if (typeof options == 'string') options = {encoding:options};
@@ -473,9 +505,7 @@ class FileSystem {
       if (this.getFreeBytes() < buf.length) throw new OSFSError('ENOSPC');
       this.inoarr[ino] = Buffer.concat([this.inoarr[ino].slice(0, sp), buf]);
     }
-    let ctime = getcTime();
-    this.setInod(ino, 4, ctime);
-    this.setInod(ino, 5, ctime);
+    this.updateFileTimes(ino, 3);
   }
   appendFile(path, buf, options) {
     if (typeof options == 'string') options = {encoding:options};
@@ -490,9 +520,7 @@ class FileSystem {
     let ino = this.getcInode(path, 8, true, options.mode, uid, gid);
     if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.inoarr[ino] = Buffer.concat([this.inoarr[ino], buf]);
-    let ctime = getcTime();
-    this.setInod(ino, 4, ctime);
-    this.setInod(ino, 5, ctime);
+    this.updateFileTimes(ino, 3);
   }
   appendFileFD(ino, sp, buf, options) {
     if (typeof options == 'string') options = {encoding:options};
@@ -504,9 +532,7 @@ class FileSystem {
     if (this.getFreeBytes() < buf.length) throw new OSFSError('ENOSPC');
     if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.inoarr[ino] = Buffer.concat([this.inoarr[ino], buf]);
-    let ctime = getcTime();
-    this.setInod(ino, 4, ctime);
-    this.setInod(ino, 5, ctime);
+    this.updateFileTimes(ino, 3);
   }
   truncate(path, len) {
     if (len === undefined) len = 0;
@@ -522,9 +548,7 @@ class FileSystem {
       this.inoarr[ino].copy(nbuf);
       this.inoarr[ino] = nbuf;
     }
-    let ctime = getcTime();
-    this.setInod(ino, 4, ctime);
-    this.setInod(ino, 5, ctime);
+    this.updateFileTimes(ino, 3);
   }
   truncateFD(ino, len) {
     if (len === undefined) len = 0;
@@ -539,9 +563,7 @@ class FileSystem {
       this.inoarr[ino].copy(nbuf);
       this.inoarr[ino] = nbuf;
     }
-    let ctime = getcTime();
-    this.setInod(ino, 4, ctime);
-    this.setInod(ino, 5, ctime);
+    this.updateFileTimes(ino, 3);
   }
 
   link(pathf, patht, nincref) {
@@ -564,9 +586,7 @@ class FileSystem {
     pf.splice(delino, 1);
     this.inoarr[inop] = Buffer.from(pf.map(x => x.join(':')).join('\n'));
     if (!ndecref) this.decref(ino);
-    let ctime = getcTime();
-    this.setInod(inop, 4, ctime);
-    this.setInod(inop, 5, ctime);
+    this.updateFileTimes(inop, 3);
   }
 
   copyFile(pathf, patht, flags, uid, gid) {
@@ -582,15 +602,14 @@ class FileSystem {
       else this.unlink(patht);
     }
     if (this.getFreeBytes() < this.inoarr[inof].length) throw new OSFSError('ENOSPC');
-    let inot = this.getcInode(patht, 8, true, this.getInod(inof, 6), uid, gid);
-    this.inoarr[inot] = Buffer.from(this.inoarr[inof]);
-    this.setInod(inof, 5, this.getInod(inot, 3));
+    let inot = this.getcInode(patht, 8, true, this.getInod(inof, 6), uid, gid, Buffer.from(this.inoarr[inof]));
+    this.updateFileTimes(inof, 4);
   }
 
   readlink(path, options) {
     let ino = this.geteInode(path, false);
     if (this.getInod(ino, 0) != 10) throw new OSFSError('EINVAL', 'path not a symbolic link');
-    if (this.writable) this.setInod(ino, 5, getcTime());
+    if (this.writable) this.updateFileTimes(ino, 4);
     if (!options) return this.inoarr[ino].toString();
     else if (options.encoding == 'buffer') return Buffer.from(this.inoarr[ino]);
     else return this.inoarr[ino].toString(options.encoding);
@@ -600,9 +619,7 @@ class FileSystem {
     if (this.exists(path)) throw new OSFSError('EEXIST');
     let tb = Buffer.from(target);
     if (this.getFreeBytes() < tb.length) throw new OSFSError('ENOSPC');
-    let ino = this.getcInode(path, 10, true, 0o666, uid, gid);
-    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
-    this.inoarr[ino] = tb;
+    let ino = this.getcInode(path, 10, true, 0o666, uid, gid, tb);
   }
 
   readdir(path, options) {
@@ -611,7 +628,7 @@ class FileSystem {
     if (options.withFileTypes === undefined) options.withFileTypes = false;
     let ino = this.geteInode(path);
     let pf = this.parseFolder(this.inoarr[ino], options.encoding);
-    if (this.writable) this.setInod(ino, 5, getcTime());
+    if (this.writable) this.updateFileTimes(ino, 4);
     if (options.withFileTypes) {
       return pf.map(x => {
         let rtyp = this.getInod(x[1], 0), typ;
@@ -682,7 +699,7 @@ class FileSystem {
         length = this.inoarr[ino].length - position;
       } else this.inoarr[ino].copy(buffer, offset, position, position + length);
     }
-    if (this.writable) this.setInod(ino, 5, getcTime());
+    if (this.writable) this.updateFileTimes(ino, 4);
     return length;
   }
   write(ino, sp, buffer, offset, length, position) {
@@ -703,9 +720,7 @@ class FileSystem {
         this.inoarr[ino] = Buffer.concat([this.inoarr[ino].slice(0, position), buffer.slice(offset, offset + length)]);
       } else buffer.copy(this.inoarr[ino], position, offset, offset + length);
     }
-    let ctime = getcTime();
-    this.setInod(ino, 4, ctime);
-    this.setInod(ino, 5, ctime);
+    this.updateFileTimes(ino, 3);
     return length;
   }
   writeStr(ino, sp, string, position, encoding) {
@@ -724,15 +739,14 @@ class FileSystem {
         this.inoarr[ino] = Buffer.concat([this.inoarr[ino].slice(0, position), buffer]);
       } else buffer.copy(this.inoarr[ino], position);
     }
-    let ctime = getcTime();
-    this.setInod(ino, 4, ctime);
-    this.setInod(ino, 5, ctime);
+    this.updateFileTimes(ino, 3);
     return buf.length;
   }
 
   fsStat() {
     let blocks = this.maxsize / this.blocksize;
-    let blocksused = this.inoarr.reduce((a, x) => a + Math.ceil(x.length / this.blocksize), 0);
+    //let blocksused = this.inoarr.reduce((a, x) => a + Math.ceil(x.length / this.blocksize), 0);
+    let blocksused = Math.ceil(this.getUsedBytes() / this.blocksize);
     return {
       bsize: this.blocksize,
       frsize: this.blocksize,
@@ -742,8 +756,8 @@ class FileSystem {
       files: this.maxinodes,
       ffree: this.maxinodes - this.inoarr.length,
       favail: this.maxinodes - this.inoarr.length,
-      fsid: 62147,
-      flag: 0,
+      fsid: 1, //62147,
+      flag: Number(!this.writable),
       namemax: 100000,
     };
   }
@@ -797,6 +811,7 @@ class FileSystem {
   internalLinks(ino, aino, inos) {
     if (aino === undefined) aino = ino;
     if (inos === undefined) inos = [];
+    if (this.getInod(ino, 0) != 4) return 0;
     let cnt = 0;
     let fc = this.parseFolder(this.inoarr[aino]);
     for (var i in fc) {
@@ -1075,7 +1090,7 @@ class FileSystem {
     else this.fi = [];
     this.blocksize = 2 ** head.readUInt8(2);
     this.maxsize = head.readUIntBE(3, 6);
-    this.maxinodes = head.readUIntBE(9);
+    this.maxinodes = head.readUInt32BE(9);
     let ind = 0;
     let inodlen = head.readUIntBE(13, 6);
     for (let i = 0; i < inodlen; i++, ind++) {
