@@ -214,7 +214,7 @@ class VFSExportRFSStream extends stream.Readable {
         else if (this.part == 1) this.pushInod();
         else if (this.part == 2) this.pushIno();
         else if (this.part == 3) this.pushFi();
-        } else if (this.part == 4) {
+        else if (this.part == 4) {
           this.push(null);
           this.rfs.writable = this.writable;
           this.part = 5;
@@ -226,7 +226,7 @@ class VFSExportRFSStream extends stream.Readable {
         else if (this.part == 1) this.pushInod();
         else if (this.part == 2) this.pushIno();
         else if (this.part == 3) this.pushFi();
-        } else if (this.part == 4) {
+        else if (this.part == 4) {
           this.push(null);
           this.rfs.writable = this.writable;
           this.part = 5;
