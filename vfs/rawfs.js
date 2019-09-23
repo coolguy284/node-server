@@ -1,13 +1,9 @@
 // jshint -W041
 var fs = require('fs');
-let getcTime, parentPath, pathEnd, normalize;
+let { getcTime, parentPath, pathEnd, normalize } = require('./helperf.js');
+let { ReadOnlyFSError, OSFSError } = require('./errors.js');
 let BLKSIZE = 4096;
-function init(a) {
-  getcTime = a.getcTime;
-  parentPath = a.parentPath;
-  pathEnd = a.pathEnd;
-  normalize = a.normalize;
-}
+
 class FileSystem {
   constructor(opts) {
     if (typeof opts == 'string') {
@@ -20,7 +16,7 @@ class FileSystem {
       return;
     }
     if (opts === undefined) opts = {};
-    if (opts.writable === undefined) opts.writable = false;
+    if (opts.writable === undefined) opts.writable = true;
     if (opts.inoarr === undefined) opts.inoarr = [Buffer.alloc(0)];
     if (opts.inodarr === undefined) {
       let ctime = getcTime();
@@ -99,7 +95,7 @@ class FileSystem {
   }
 
   popfi(typ) {
-    if (!this.writable) throw new Error('read-only filesystem');
+    if (!this.writable) throw new OSFSError('EROFS');
     let ino;
     if (this.fi.length > 0) {
       ino = this.fi.splice(0, 1)[0];
@@ -149,7 +145,7 @@ class FileSystem {
       if (this.getInod(ino, 0) == 10 && (symlink || parseInt(i) != patharr.length - 1)) {
         ino = this.getInode(normalize(this.inoarr[ino].toString(), parentPath(cp)));
       } else if (this.getInod(ino, 0) != 4 && parseInt(i) != patharr.length - 1) {
-        throw new Error(cp + ' not a directory');
+        throw new OSFSError('ENOTDIR', cp);
       }
     }
     return ino;
@@ -157,15 +153,15 @@ class FileSystem {
   geteInode(path, symlink) {
     let rv = this.getInode(path, symlink);
     if (rv === null) {
-      throw new Error('ENOENT no such file or directory: ' + path);
+      throw new OSFSError('ENOENT', path);
     }
     return rv;
   }
   createFile(path, typ) {
-    if (!this.writable) throw new Error('read-only filesystem');
-    if (this.exists(path)) throw new Error('path already exists');
+    if (!this.writable) throw new OSFSError('EROFS');
+    if (this.exists(path)) throw new OSFSError('EEXIST');
     let inop = this.geteInode(parentPath(path));
-    if (this.getInod(inop, 1) & 128) throw new Error('parent folder immutable');
+    if (this.getInod(inop, 1) & 128) throw new OSFSError('EPERM', 'parent folder immutable');
     let ino = this.popfi(typ);
     this.appendFolder(inop, pathEnd(path), ino);
     this.incref(ino);
@@ -180,7 +176,7 @@ class FileSystem {
     }
   }
   appendFolder(ino, nam, inot) {
-    if (!this.writable) throw new Error('read-only filesystem');
+    if (!this.writable) throw new OSFSError('EROFS');
     if (this.inoarr[ino].length == 0) {
       this.inoarr[ino] = Buffer.concat([this.inoarr[ino], Buffer.from(nam + ':' + inot)]);
     } else {
@@ -309,38 +305,41 @@ class FileSystem {
   }
 
   chmod(path, mode) {
-    if (!this.writable) throw new Error('read-only filesystem');
-    if (mode < 0 && mode > 0o777) throw new Error('invalid permission mode');
+    if (!this.writable) throw new OSFSError('EROFS');
+    if (mode < 0) throw new OSFSError('EINVAL', 'invalid permission mode');
+    mode = mode & 0o777;
     let ino = this.geteInode(path);
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.setInod(ino, 6, mode);
     let ctime = getcTime();
     this.setInod(ino, 4, ctime);
     this.setInod(ino, 5, ctime);
   }
   lchmod(path, mode) {
-    if (!this.writable) throw new Error('read-only filesystem');
-    if (mode < 0 && mode > 0o777) throw new Error('invalid permission mode');
+    if (!this.writable) throw new OSFSError('EROFS');
+    if (mode < 0) throw new OSFSError('EINVAL', 'invalid permission mode');
+    mode = mode & 0o777;
     let ino = this.geteInode(path, false);
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.setInod(ino, 6, mode);
     let ctime = getcTime();
     this.setInod(ino, 4, ctime);
     this.setInod(ino, 5, ctime);
   }
   chmodFD(ino, mode) {
-    if (!this.writable) throw new Error('read-only filesystem');
-    if (mode < 0 && mode > 0o777) throw new Error('invalid permission mode');
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
+    if (!this.writable) throw new OSFSError('EROFS');
+    if (mode < 0) throw new OSFSError('EINVAL', 'invalid permission mode');
+    mode = mode & 0o777;
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.setInod(ino, 6, mode);
     let ctime = getcTime();
     this.setInod(ino, 4, ctime);
     this.setInod(ino, 5, ctime);
   }
   chown(path, uid, gid) {
-    if (!this.writable) throw new Error('read-only filesystem');
+    if (!this.writable) throw new OSFSError('EROFS');
     let ino = this.geteInode(path);
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.setInod(ino, 7, uid);
     this.setInod(ino, 8, gid);
     let ctime = getcTime();
@@ -348,9 +347,9 @@ class FileSystem {
     this.setInod(ino, 5, ctime);
   }
   lchown(path, uid, gid) {
-    if (!this.writable) throw new Error('read-only filesystem');
+    if (!this.writable) throw new OSFSError('EROFS');
     let ino = this.geteInode(path, false);
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.setInod(ino, 7, uid);
     this.setInod(ino, 8, gid);
     let ctime = getcTime();
@@ -358,9 +357,9 @@ class FileSystem {
     this.setInod(ino, 5, ctime);
   }
   chownFD(ino, uid, gid) {
-    if (!this.writable) throw new Error('read-only filesystem');
+    if (!this.writable) throw new OSFSError('EROFS');
     let ino = this.geteInode(path);
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.setInod(ino, 7, uid);
     this.setInod(ino, 8, gid);
     let ctime = getcTime();
@@ -368,25 +367,25 @@ class FileSystem {
     this.setInod(ino, 5, ctime);
   }
   chattr(path, attrb) {
-    if (!this.writable) throw new Error('read-only filesystem');
-    if (attrb < 0 && attrb > 255) throw new Error('invalid file attributes');
+    if (!this.writable) throw new OSFSError('EROFS');
+    if (attrb < 0 && attrb > 255) throw new OSFSError('EINVAL', 'invalid file attributes');
     let ino = this.geteInode(path);
     this.setInod(ino, 1, attrb);
   }
   lchattr(path, attrb) {
-    if (!this.writable) throw new Error('read-only filesystem');
-    if (attrb < 0 && attrb > 255) throw new Error('invalid file attributes');
+    if (!this.writable) throw new OSFSError('EROFS');
+    if (attrb < 0 && attrb > 255) throw new OSFSError('EINVAL', 'invalid file attributes');
     let ino = this.geteInode(path, false);
     this.setInod(ino, 1, attrb);
   }
   utimes(path, atime, mtime) {
     let ino = this.geteInode(path);
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.setInod(ino, 5, Number(atime));
     this.setInod(ino, 4, Number(mtime));
   }
   utimesFD(ino, atime, mtime) {
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.setInod(ino, 5, Number(atime));
     this.setInod(ino, 4, Number(mtime));
   }
@@ -413,9 +412,9 @@ class FileSystem {
     if (options === undefined) options = {};
     if (options.encoding === undefined) options.encoding = 'utf8';
     if (options.mode === undefined) options.mode = 0o666;
-    if (!this.writable) throw new Error('read-only filesystem');
+    if (!this.writable) throw new OSFSError('EROFS');
     let ino = this.getcInode(path, 8);
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.inoarr[ino] = Buffer.from(buf, options.encoding);
     let ctime = getcTime();
     this.setInod(ino, 4, ctime);
@@ -426,8 +425,8 @@ class FileSystem {
     if (options === undefined) options = {};
     if (options.encoding === undefined) options.encoding = 'utf8';
     if (options.mode === undefined) options.mode = 0o666;
-    if (!this.writable) throw new Error('read-only filesystem');
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
+    if (!this.writable) throw new OSFSError('EROFS');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     buf = Buffer.from(buf, options.encoding);
     if (buf.length + sp < this.inoarr[ino].length) {
       buf.copy(this.inoarr[ino], sp);
@@ -443,10 +442,10 @@ class FileSystem {
     if (options === undefined) options = {};
     if (options.encoding === undefined) options.encoding = 'utf8';
     if (options.mode === undefined) options.mode = 0o666;
-    if (!this.writable) throw new Error('read-only filesystem');
+    if (!this.writable) throw new OSFSError('EROFS');
     if (typeof buf == 'string') buf = Buffer.from(buf, options.encoding);
     let ino = this.getcInode(path, 8);
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.inoarr[ino] = Buffer.concat([this.inoarr[ino], buf]);
     let ctime = getcTime();
     this.setInod(ino, 4, ctime);
@@ -457,9 +456,9 @@ class FileSystem {
     if (options === undefined) options = {};
     if (options.encoding === undefined) options.encoding = 'utf8';
     if (options.mode === undefined) options.mode = 0o666;
-    if (!this.writable) throw new Error('read-only filesystem');
+    if (!this.writable) throw new OSFSError('EROFS');
     if (typeof buf == 'string') buf = Buffer.from(buf, options.encoding);
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.inoarr[ino] = Buffer.concat([this.inoarr[ino], buf]);
     let ctime = getcTime();
     this.setInod(ino, 4, ctime);
@@ -468,7 +467,7 @@ class FileSystem {
   truncate(path, len) {
     if (len === undefined) len = 0;
     let ino = this.geteInode(path);
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     if (this.inoarr[ino].length > len) {
       let nbuf = Buffer.allocUnsafe(len);
       this.inoarr[ino].copy(nbuf, 0, 0, len);
@@ -484,7 +483,7 @@ class FileSystem {
   }
   truncateFD(ino, len) {
     if (len === undefined) len = 0;
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     if (this.inoarr[ino].length > len) {
       let nbuf = Buffer.allocUnsafe(len);
       this.inoarr[ino].copy(nbuf, 0, 0, len);
@@ -500,19 +499,19 @@ class FileSystem {
   }
 
   link(pathf, patht, nincref) {
-    if (!this.writable) throw new Error('read-only filesystem');
+    if (!this.writable) throw new OSFSError('EROFS');
     let ino = this.geteInode(pathf, false);
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
-    if (this.exists(patht)) throw new Error('path already exists');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
+    if (this.exists(patht)) throw new OSFSError('EEXIST');
     this.appendFolder(this.geteInode(parentPath(patht)), pathEnd(patht), ino);
     if (!nincref) this.incref(ino);
   }
   unlink(path, ndecref) {
-    if (!this.writable) throw new Error('read-only filesystem');
+    if (!this.writable) throw new OSFSError('EROFS');
     let inop = this.geteInode(parentPath(path));
-    if (this.getInod(inop, 1) & 128) throw new Error('parent folder immutable');
+    if (this.getInod(inop, 1) & 128) throw new OSFSError('EPERM', 'parent folder immutable');
     let ino = this.geteInode(path, false);
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     let pf = this.parseFolder(this.inoarr[inop]);
     let delino = null, pathlast = path.split('/').slice(-1)[0];
     for (let i in pf) if (pf[i][0] == pathlast && pf[i][1] == ino) delino = i;
@@ -525,7 +524,7 @@ class FileSystem {
   }
 
   copyFile(pathf, patht) {
-    if (!this.writable) throw new Error('read-only filesystem');
+    if (!this.writable) throw new OSFSError('EROFS');
     let inof = this.geteInode(pathf);
     if (this.exists(patht)) this.unlink(patht);
     let inot = this.getcInode(patht, 8);
@@ -535,16 +534,16 @@ class FileSystem {
 
   readlink(path, options) {
     let ino = this.geteInode(path, false);
-    if (this.getInod(ino, 0) != 10) throw new Error('path not a symbolic link');
+    if (this.getInod(ino, 0) != 10) throw new OSFSError('EINVAL', 'path not a symbolic link');
     if (this.writable) this.setInod(ino, 5, getcTime());
     if (!options) return this.inoarr[ino].toString();
     else if (options.encoding == 'buffer') return Buffer.from(this.inoarr[ino]);
     else return this.inoarr[ino].toString(options.encoding);
   }
   symlink(target, path) {
-    if (this.exists(path)) throw new Error('path already exists');
+    if (this.exists(path)) throw new OSFSError('EEXIST');
     let ino = this.getcInode(path, 10);
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.inoarr[ino] = Buffer.from(target);
   }
 
@@ -583,7 +582,7 @@ class FileSystem {
     if (inl === undefined) inl = [];
     let ino = this.geteInode(path, false);
     let typ = this.getInod(ino, 0);
-    if (typ == 8) throw new Error('cannot rmdir a file');
+    if (typ == 8) throw new OSFSError('ENOTDIR', 'cannot rmdir a file');
     if (typ == 10) {
       this.unlink(path);
       return;
@@ -610,8 +609,8 @@ class FileSystem {
   read(ino, sp, buffer, offset, length, position) {
     if (offset === undefined) offset = 0;
     if (length === undefined) length = buffer.length;
-    if (offset + length > buffer.length) throw new Error('buffer too short');
-    if (typeof position == 'number' && position < 0) throw new Error('invalid position');
+    if (offset + length > buffer.length) throw new OSFSError('EINVAL', 'buffer too short');
+    if (typeof position == 'number' && position < 0) throw new OSFSError('EINVAL', 'invalid position');
     if (position == null) {
       if (sp + length > this.inoarr[ino].length) {
         this.inoarr[ino].copy(buffer, offset, sp);
@@ -629,10 +628,10 @@ class FileSystem {
   write(ino, sp, buffer, offset, length, position) {
     if (offset === undefined) offset = 0;
     if (length === undefined) length = buffer.length;
-    if (!this.writable) throw new Error('read-only filesystem');
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
-    if (offset + length > buffer.length) throw new Error('buffer too short');
-    if (typeof position == 'number' && position < 0) throw new Error('invalid position');
+    if (!this.writable) throw new OSFSError('EROFS');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
+    if (offset + length > buffer.length) throw new OSFSError('EINVAL', 'buffer too short');
+    if (typeof position == 'number' && position < 0) throw new OSFSError('EINVAL', 'invalid position');
     if (position == null) {
       if (sp + length > this.inoarr[ino].length) {
         this.inoarr[ino] = Buffer.concat([this.inoarr[ino].slice(0, sp), buffer.slice(offset, offset + length)]);
@@ -648,9 +647,9 @@ class FileSystem {
     return length;
   }
   writeStr(ino, sp, string, position, encoding) {
-    if (!this.writable) throw new Error('read-only filesystem');
-    if (this.getInod(ino, 1) & 128) throw new Error('file immutable');
-    if (typeof position == 'number' && position < 0) throw new Error('invalid position');
+    if (!this.writable) throw new OSFSError('EROFS');
+    if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
+    if (typeof position == 'number' && position < 0) throw new OSFSError('EINVAL', 'invalid position');
     let buf = Buffer.from(string, encoding);
     if (position == null) {
       if (sp + buf.length > this.inoarr[ino].length) {
@@ -729,7 +728,7 @@ class FileSystem {
   }
 
   wipefi() {
-    if (!this.writable) throw new Error('read only filesystem');
+    if (!this.writable) throw new OSFSError('EROFS');
     for (var i in this.fi) {
       delete this.inoarr[this.fi[i]];
       delete this.inodarr[this.fi[i]];
@@ -748,7 +747,7 @@ class FileSystem {
     return JSON.stringify(this.exportSystemRawString());
   }
   importSystemRawString(arr) {
-    if (!this.writable && this.writable != null) throw new Error('read only filesystem');
+    if (!this.writable && this.writable != null) throw new OSFSError('EROFS');
     this.writable = arr[0];
     if (this.inodarr) this.inodarr.splice(0, Infinity);
     else this.inodarr = [];
@@ -761,7 +760,7 @@ class FileSystem {
     for (var i = 0; i < arr[3].length; i++) this.fi.push(arr[3][i]);
   }
   importSystemString(str) {
-    if (!this.writable && this.writable != null) throw new Error('read only filesystem');
+    if (!this.writable && this.writable != null) throw new OSFSError('EROFS');
     this.importSystemRawString(JSON.parse(str));
   }
   exportSystemSize() {
@@ -815,7 +814,7 @@ class FileSystem {
     ]);
   }
   importSystem(buf) {
-    if (!this.writable && this.writable != null) throw new Error('read only filesystem');
+    if (!this.writable && this.writable != null) throw new OSFSError('EROFS');
     let head = buf.slice(0, 13);
     let flags = head.readUInt8(0);
     if (flags & 128) this.writable = true;
@@ -847,4 +846,5 @@ class FileSystem {
     }
   }
 }
-module.exports = { FileSystem, init };
+
+module.exports = { FileSystem };

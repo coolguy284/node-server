@@ -1,13 +1,12 @@
-let helperf = require('./helperf.js');
-let s = require('./s.js');
-let VFSReadStream = s.VFSReadStream;
-let VFSWriteStream = s.VFSWriteStream;
-let rawfs = require('./rawfs.js');
-let FileSystem = rawfs.FileSystem;
-rawfs.init(helperf);
-let fscontext = require('./fscontext.js');
-let FileSystemContext = fscontext.FileSystemContext;
-fscontext.init(helperf, s);
+let helperf = require('./helperf.js'),
+    errors = require('./errors.js'),
+    s = require('./s.js'),
+    rawfs = require('./rawfs.js'),
+    fscontext = require('./fscontext.js');
+let { VFSReadStream, VFSWriteStream } = s;
+let { FileSystem } = rawfs;
+let { FileSystemContext } = fscontext;
+
 function SecureView(fsc) {
   return {
     get cwd() { return fsc.cwd; },
@@ -80,11 +79,13 @@ function SecureView(fsc) {
     fsync: fsc.fsync.bind(fsc),
   };
 }
+
 module.exports = {
-  helperf, VFSReadStream, VFSWriteStream,
+  helperf, errors, VFSReadStream, VFSWriteStream,
   FileSystem, FileSystemContext, SecureView,
 };
 exports = module.exports;
+
 let rfs, rfs2, fsv, fsv2;
 function prep() {
   rfs = new FileSystem({writable:true});
