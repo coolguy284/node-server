@@ -25,6 +25,7 @@ let osfserrcodes = {
   'ENOTDIR': [20, 'Not a directory'],
   'EISDIR': [21, 'Is a directory'],
   'EINVAL': [22, 'Invalid argument'],
+  'ENOSPC': [28, 'No space left on device'],
   'EROFS': [30, 'Read-only file system'],
 };
 
