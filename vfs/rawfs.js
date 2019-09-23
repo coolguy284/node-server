@@ -2,6 +2,7 @@
 let fs = require('fs');
 let { getcTime, parentPath, pathEnd, normalize } = require('./helperf.js');
 let { ReadOnlyFSError, OSFSError } = require('./errors.js');
+let { VFSImportRFSStream, VFSExportRFSStream } = require('./s.js');
 
 class FileSystem {
   constructor(opts) {
@@ -844,22 +845,173 @@ class FileSystem {
     if (!this.writable && this.writable != null) throw new OSFSError('EROFS');
     this.importSystemRawString(JSON.parse(str));
   }
+
+  /* Legacy V1 VFS Export Format
+    Header 13 bytes:
+     - 00 - 01 0b ab000000
+      - a - writable flag
+      - b - wipeonfi flag
+     - 01 - 05 0x cccccccc
+      - c - Big-Endian 32-bit int representing size of inod section
+     - 05 - 09 0x dddddddd
+      - d - Big-Endian 32-bit int representing size of ino section
+     - 09 - 0d 0x eeeeeeee
+      - e - Big-Endian 32-bit int representing size of fi section
+    Inod section:
+     - made up of modules, each module 1/32 bytes:
+     - 00 - 01 0x aa
+      - a - 8-bit int, if 255 then module is 1 byte in size and the contents of an element of inodarr is undefined, else 32 bytes representing the contents of an element of inodarr
+    Ino section:
+     - made up of modules, each module 4+ bytes:
+     - 00 - 04 0x aaaaaaaa
+      - a - Big-Endian 32-bit int, if 2**32-1 then the contents of an element of inodarr is undefined, else representing size of an element of inoarr
+    Fi section:
+     - made up of modules, each module 4 bytes:
+     - 00 - 04 0x aaaaaaaa
+      - a - Big-Endian 32-bit int representing element of fi
+  */
+  exportSystemLegacyV1Size() {
+    let v = 13;
+    for (let i = 0; i < this.inodarr.length; i++) v += this.inodarr[i] != null ? 32 : 1;
+    for (let i = 0; i < this.inoarr.length; i++) v += this.inoarr[i] != null ? 4 + this.inoarr[i].length : 4;
+    v += this.fi.length * 4;
+    return v;
+  }
+  exportSystemLegacyV1() {
+    let head = Buffer.alloc(13);
+    let inodbufs = [];
+    for (let i = 0; i < this.inodarr.length; i++) {
+      let buf;
+      if (this.inodarr[i] != null) buf = this.inodarr[i];
+      else {
+        buf = Buffer.alloc(1);
+        buf.writeUInt8(255, 0);
+      }
+      inodbufs.push(buf);
+    }
+    let inodbuf = Buffer.concat(inodbufs);
+    inodbufs.slice(0, Infinity);
+    let inobufs = [];
+    for (let i = 0; i < this.inoarr.length; i++) {
+      let head = Buffer.alloc(4);
+      if (this.inoarr[i] != null) {
+        head.writeUInt32BE(this.inoarr[i].length, 0);
+        inobufs.push(head);
+        if (this.inoarr[i].length > 0) inobufs.push(this.inoarr[i]);
+      } else {
+        head.writeUInt32BE(0xffffffff, 0);
+        inobufs.push(head);
+      }
+    }
+    let inobuf = Buffer.concat(inobufs);
+    inobufs.slice(0, Infinity);
+    let fibuf = Buffer.alloc(this.fi.length * 4);
+    for (let i = 0; i < this.fi.length; i++) {
+      fibuf.writeUInt32BE(this.fi[i], i * 4);
+    }
+    head.writeUInt8(this.writable ? 128 : 0 + this.wipeonfi ? 64 : 0, 0);
+    head.writeUInt32BE(inodbuf.length, 1);
+    head.writeUInt32BE(inobuf.length, 5);
+    head.writeUInt32BE(fibuf.length, 9);
+    return Buffer.concat([
+      head,
+      inodbuf,
+      inobuf,
+      fibuf
+    ]);
+  }
+  importSystemLegacyV1(buf) {
+    if (!this.writable && this.writable != null) throw new OSFSError('EROFS');
+    let head = buf.slice(0, 13);
+    let flags = head.readUInt8(0);
+    if (flags & 128) this.writable = true;
+    else this.writable = false;
+    if (flags & 64) this.wipeonfi = true;
+    else this.wipeonfi = false;
+    if (this.inodarr) this.inodarr.splice(0, Infinity);
+    else this.inodarr = [];
+    if (this.inoarr) this.inoarr.splice(0, Infinity);
+    else this.inoarr = [];
+    if (this.fi) this.fi.splice(0, Infinity);
+    else this.fi = [];
+    this.blocksize = 4096;
+    this.maxsize = 2**32;
+    this.maxinodes = 2**24;
+    let inodlen = head.readUInt32BE(1);
+    for (let i = 0, ind = 0; i < inodlen; i++, ind++) {
+      if (buf.readUInt8(13 + i) != 255) {
+        this.inodarr[ind] = buf.slice(13 + i, 13 + i + 32);
+        i += 31;
+      }
+    }
+    let inolen = head.readUInt32BE(5);
+    for (let i = 0, ind = 0; i < inolen; i += 4, ind++) {
+      let len = buf.readUInt32BE(13 + inodlen + i);
+      if (len != 0xffffffff) {
+        this.inoarr[ind] = buf.slice(17 + inodlen + i, 17 + inodlen + i + len);
+        i += len;
+      }
+    }
+    let filen = head.readUInt32BE(9);
+    for (let i = 0; i < filen; i += 4) {
+      this.fi.push(buf.readUInt32BE(13 + inodlen + inolen + i));
+    }
+  }
+  exportSystemLegacyV1Stream() {
+    return new VFSExportRFSStream(this, {version: 1});
+  }
+  importSystemLegacyV1Stream() {
+    return new VFSImportRFSStream(this, {version: 1});
+  }
+
+  /* VFS Export Format
+    Header 31 bytes:
+     - 00 - 01 0x aa
+      - a - 8-bit int representing version number, equal to 2
+     - 01 - 02 0b bc000000
+      - b - writable flag
+      - c - wipeonfi flag
+     - 02 - 03 0x dd
+      - d - 8-bit int representing base2 logarythm of block size
+     - 03 - 09 0x eeeeeeeeeeee
+      - e - Big-Endian 48-bit int representing maximum size of filesystem
+     - 09 - 0d 0x ffffffff
+      - f - Big-Endian 32-bit int representing maximum number of inodes
+     - 0d - 13 0x gggggggggggg
+      - g - Big-Endian 48-bit int representing size of inod section
+     - 13 - 19 0x hhhhhhhhhhhh
+      - h - Big-Endian 48-bit int representing size of ino section
+     - 19 - 1f 0x iiiiiiiiiiii
+      - i - Big-Endian 48-bit int representing size of fi section
+    Inod section:
+     - made up of modules, each module 1/32 bytes:
+     - 00 - 01 0x aa
+      - a - 8-bit int, if 255 then module is 1 byte in size and the contents of an element of inodarr is undefined, else 32 bytes representing the contents of an element of inodarr
+    Ino section:
+     - made up of modules, each module 4+ bytes:
+     - 00 - 04 0x aaaaaaaa
+      - a - Big-Endian 32-bit int, if 2**32-1 then the contents of an element of inodarr is undefined, else representing size of an element of inoarr
+    Fi section:
+     - made up of modules, each module 4 bytes:
+     - 00 - 04 0x aaaaaaaa
+      - a - Big-Endian 32-bit int representing element of fi
+  */
   exportSystemSize() {
-    let v = 24;
+    let v = 31;
     for (let i = 0; i < this.inodarr.length; i++) v += this.inodarr[i] != null ? 32 : 1;
     for (let i = 0; i < this.inoarr.length; i++) v += this.inoarr[i] != null ? 4 + this.inoarr[i].length : 4;
     v += this.fi.length * 4;
     return v;
   }
   exportSystemSizeAdv() {
-    let head = 24, inodarr = 0, inoarr = 0, fi;
+    let head = 31, inodarr = 0, inoarr = 0, fi;
     for (let i = 0; i < this.inodarr.length; i++) inodarr += this.inodarr[i] != null ? 32 : 1;
     for (let i = 0; i < this.inoarr.length; i++) inoarr += this.inoarr[i] != null ? 4 + this.inoarr[i].length : 4;
     fi = this.fi.length * 4;
     return [head, inodarr, inoarr, fi];
   }
   exportSystem() {
-    let head = Buffer.allocUnsafe(24);
+    let head = Buffer.allocUnsafe(31);
     let inodbufs = [];
     for (let i = 0; i < this.inodarr.length; i++) {
       let buf;
@@ -874,14 +1026,14 @@ class FileSystem {
     inodbufs.slice(0, Infinity);
     let inobufs = [];
     for (let i = 0; i < this.inoarr.length; i++) {
-      let head = Buffer.allocUnsafe(4);
+      let inohead = Buffer.allocUnsafe(4);
       if (this.inoarr[i] != null) {
-        head.writeUInt32BE(this.inoarr[i].length, 0);
-        inobufs.push(head);
+        inohead.writeUInt32BE(this.inoarr[i].length, 0);
+        inobufs.push(inohead);
         if (this.inoarr[i].length > 0) inobufs.push(this.inoarr[i]);
       } else {
-        head.writeUInt32BE(0xffffffff, 0);
-        inobufs.push(head);
+        inohead.writeUInt32BE(0xffffffff, 0);
+        inobufs.push(inohead);
       }
     }
     let inobuf = Buffer.concat(inobufs);
@@ -890,13 +1042,14 @@ class FileSystem {
     for (let i = 0; i < this.fi.length; i++) {
       fibuf.writeUInt32BE(this.fi[i], i * 4);
     }
-    head.writeUInt8(this.writable ? 128 : 0 + this.wipeonfi ? 64 : 0, 0);
-    head.writeUInt8(Math.ceil(Math.log2(this.blocksize)), 1);
-    head.writeUInt(this.maxsize, 2, 6);
-    head.writeUInt32BE(this.maxinodes, 8);
-    head.writeUInt32BE(inodbuf.length, 12);
-    head.writeUInt32BE(inobuf.length, 16);
-    head.writeUInt32BE(fibuf.length, 20);
+    head.writeUInt8(2, 0);
+    head.writeUInt8(this.writable ? 128 : 0 + this.wipeonfi ? 64 : 0, 1);
+    head.writeUInt8(Math.ceil(Math.log2(this.blocksize)), 2);
+    head.writeUIntBE(this.maxsize, 3, 6);
+    head.writeUInt32BE(this.maxinodes, 9);
+    head.writeUIntBE(inodbuf.length, 13, 6);
+    head.writeUIntBE(inobuf.length, 19, 6);
+    head.writeUIntBE(fibuf.length, 25, 6);
     return Buffer.concat([
       head,
       inodbuf,
@@ -906,8 +1059,10 @@ class FileSystem {
   }
   importSystem(buf) {
     if (!this.writable && this.writable != null) throw new OSFSError('EROFS');
-    let head = buf.slice(0, 24);
-    let flags = head.readUInt8(0);
+    let head = buf.slice(0, 31);
+    let version = head.readUInt8(0);
+    if ([0, 64, 128, 192].indexOf(version) > -1) return this.importSystemLegacyV1(buf);
+    let flags = head.readUInt8(1);
     if (flags & 128) this.writable = true;
     else this.writable = false;
     if (flags & 64) this.wipeonfi = true;
@@ -918,30 +1073,38 @@ class FileSystem {
     else this.inoarr = [];
     if (this.fi) this.fi.splice(0, Infinity);
     else this.fi = [];
-    this.blocksize = 2 ** head.readUInt8(1);
-    this.maxsize = head.readUIntBE(2, 6);
-    this.maxinodes = head.readUIntBE(8);
-    let inodlen = head.readUInt32BE(12);
-    this.inodarr.length = inodlen;
-    for (let i = 0, ind = 0; i < inodlen; i++, ind++) {
-      if (buf.readUInt8(13 + i) != 255) {
-        this.inodarr[ind] = buf.slice(24 + i, 24 + i + 32);
+    this.blocksize = 2 ** head.readUInt8(2);
+    this.maxsize = head.readUIntBE(3, 6);
+    this.maxinodes = head.readUIntBE(9);
+    let ind = 0;
+    let inodlen = head.readUIntBE(13, 6);
+    for (let i = 0; i < inodlen; i++, ind++) {
+      if (buf.readUInt8(31 + i) != 255) {
+        this.inodarr[ind] = buf.slice(31 + i, 31 + i + 32);
         i += 31;
       }
     }
-    let inolen = head.readUInt32BE(16);
-    this.inoarr.length = inolen;
-    for (let i = 0, ind = 0; i < inolen; i += 4, ind++) {
-      let len = buf.readUInt32BE(24 + inodlen + i);
+    if (this.inodarr.length < ind) this.inodarr.length = ind;
+    ind = 0;
+    let inolen = head.readUIntBE(19, 6);
+    for (let i = 0; i < inolen; i += 4, ind++) {
+      let len = buf.readUInt32BE(31 + inodlen + i);
       if (len != 0xffffffff) {
-        this.inoarr[ind] = buf.slice(28 + inodlen + i, 28 + inodlen + i + len);
+        this.inoarr[ind] = buf.slice(35 + inodlen + i, 35 + inodlen + i + len);
         i += len;
       }
     }
-    let filen = head.readUInt32BE(20);
+    if (this.inoarr.length < ind) this.inoarr.length = ind;
+    let filen = head.readUIntBE(25, 6);
     for (let i = 0; i < filen; i += 4) {
-      this.fi.push(buf.readUInt32BE(24 + inodlen + inolen + i));
+      this.fi.push(buf.readUInt32BE(31 + inodlen + inolen + i));
     }
+  }
+  exportSystemStream() {
+    return new VFSExportRFSStream(this);
+  }
+  importSystemStream() {
+    return new VFSImportRFSStream(this);
   }
 }
 

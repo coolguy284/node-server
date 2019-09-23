@@ -303,7 +303,7 @@ class FileSystemContext {
 
   mkdirSync(path, options) {
     if (options === undefined) options = {};
-    if (options.mode === undefined) options.mode = 0o666;
+    if (options.mode === undefined) options.mode = 0o777;
     let fsc = this.mountNormalize(path);
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(parentPath(fsc[1]))).write) throw new OSFSError('EACCES');
     if (fsc[0].fs.exists(fsc[1]))

@@ -1,4 +1,5 @@
-var stream = require('stream');
+let stream = require('stream');
+let { OSFSError } = require('./errors.js');
 
 class VFSReadStream extends stream.Readable {
   constructor(fsc, path, options) {
@@ -127,24 +128,41 @@ class VFSWriteStream extends stream.Writable {
 
 class VFSExportRFSStream extends stream.Readable {
   constructor(rfs, options) {
+    if (options === undefined) options = {};
+    if (options.version === undefined) options.version = 2;
     super(options);
     this.rfs = rfs;
     this.writable = rfs.writable;
     rfs.writable = false;
+    this.version = options.version;
     this.part = 0;
     this.i = 0;
     this.keepGoing = true;
   }
+  
+  pushHeadLegacyV1() {
+    let s = this.rfs.exportSystemSizeAdv();
+    let head = Buffer.alloc(13);
+    head.writeUInt8(this.rfs.writable ? 128 : 0 + this.rfs.wipeonfi ? 64 : 0, 0);
+    head.writeUInt32BE(s[1], 1);
+    head.writeUInt32BE(s[2], 5);
+    head.writeUInt32BE(s[3], 9);
+    this.keepGoing = this.push(head);
+    this.part = 1;
+    this.i = 0;
+  }
+
   pushHead() {
     let s = this.rfs.exportSystemSizeAdv();
-    let head = Buffer.alloc(24);
-    head.writeUInt8(this.rfs.writable ? 128 : 0 + this.rfs.wipeonfi ? 64 : 0, 0);
-    head.writeUInt8(Math.ceil(Math.log2(this.rfs.blocksize)), 1);
-    head.writeUInt(this.rfs.maxsize, 2, 6);
-    head.writeUInt32BE(this.rfs.maxinodes, 8);
-    head.writeUInt32BE(s[1], 12);
-    head.writeUInt32BE(s[2], 16);
-    head.writeUInt32BE(s[3], 20);
+    let head = Buffer.alloc(31);
+    head.writeUInt8(2, 0);
+    head.writeUInt8(this.rfs.writable ? 128 : 0 + this.rfs.wipeonfi ? 64 : 0, 1);
+    head.writeUInt8(Math.ceil(Math.log2(this.rfs.blocksize)), 2);
+    head.writeUIntBE(this.rfs.maxsize, 3, 6);
+    head.writeUInt32BE(this.rfs.maxinodes, 9);
+    head.writeUIntBE(s[1], 13, 6);
+    head.writeUIntBE(s[2], 19, 6);
+    head.writeUIntBE(s[3], 25, 6);
     this.keepGoing = this.push(head);
     this.part = 1;
     this.i = 0;
@@ -188,24 +206,33 @@ class VFSExportRFSStream extends stream.Readable {
       this.i = 0;
     } else this.i++;
   }
-  actRead() {
-    if (!this.keepGoing) return;
-    if (this.part == 0) {
-      this.pushHead();
-    } else if (this.part == 1) {
-      this.pushInod();
-    } else if (this.part == 2) {
-      this.pushIno();
-    } else if (this.part == 3) {
-      this.pushFi();
-    } else if (this.part == 4) {
-      this.push(null);
-      this.rfs.writable = this.writable;
-      this.part = 5;
-    } else if (this.part == 5) this.push(null);
-  }
+  
   _read(size) {
-    while (this.keepGoing) this.actRead();
+    if (this.version == 1) {
+      while (this.keepGoing) {
+        if (this.part == 0) this.pushHeadLegacyV1();
+        else if (this.part == 1) this.pushInod();
+        else if (this.part == 2) this.pushIno();
+        else if (this.part == 3) this.pushFi();
+        } else if (this.part == 4) {
+          this.push(null);
+          this.rfs.writable = this.writable;
+          this.part = 5;
+        } else this.push(null);
+      }
+    } else if (this.version == 2) {
+      while (this.keepGoing) {
+        if (this.part == 0) this.pushHead();
+        else if (this.part == 1) this.pushInod();
+        else if (this.part == 2) this.pushIno();
+        else if (this.part == 3) this.pushFi();
+        } else if (this.part == 4) {
+          this.push(null);
+          this.rfs.writable = this.writable;
+          this.part = 5;
+        } else this.push(null);
+      }
+    }
   }
   _destroy(err, cb) {
     this.rfs.writable = this.writable;
@@ -215,8 +242,12 @@ class VFSExportRFSStream extends stream.Readable {
 
 class VFSImportRFSStream extends stream.Writable {
   constructor(rfs, options) {
+    if (!rfs.writable && rfs.writable != null) throw new OSFSError('EROFS');
     super(options);
     this.rfs = rfs;
+    this.writable = rfs.writable;
+    rfs.writable = false;
+    this.version = options && options.version;
     this.part = 0;
     this.i = 0;
     this.tempbuf = null;
