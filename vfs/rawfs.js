@@ -3,6 +3,7 @@ let fs = require('fs');
 let { getcTime, parentPath, pathEnd, normalize } = require('./helperf.js');
 let { ReadOnlyFSError, OSFSError } = require('./errors.js');
 let { VFSImportRFSStream, VFSExportRFSStream } = require('./s.js');
+let INODSIZE = 32;
 
 class FileSystem {
   constructor(opts) {
@@ -136,7 +137,9 @@ class FileSystem {
     if (gid === undefined) gid = 0;
     if (fc !== undefined) {
       if (!Buffer.isBuffer(fc)) throw new Error('File contents not buffer');
-      if (this.getFreeBytes() < fc.length) throw new OSFSError('ENOSPC');
+      if (this.getFreeBytes() < fc.length + INODSIZE) throw new OSFSError('ENOSPC');
+    } else {
+      if (this.getFreeBytes() < INODSIZE) throw new OSFSError('ENOSPC');
     }
     if (!this.writable) throw new OSFSError('EROFS');
     let ino;
@@ -250,10 +253,10 @@ class FileSystem {
   }
 
   getUsedBytes() {
-    return this.inoarr.reduce((a, x) => a + x.length, 0);
+    return this.inoarr.reduce((a, x) => a + x.length, 0) + this.inodarr.length * INODSIZE;
   }
   getFreeBytes() {
-    return this.maxsize - this.inoarr.reduce((a, x) => a + x.length, 0);
+    return this.maxsize - this.getUsedBytes();
   }
 
   exists(path) {
@@ -485,7 +488,11 @@ class FileSystem {
     if (uid === undefined) uid = 0;
     if (gid === undefined) gid = 0;
     if (!this.writable) throw new OSFSError('EROFS');
-    if (this.getFreeBytes() < buf.length) throw new OSFSError('ENOSPC');
+    if (this.exists(path)) {
+      if (this.getFreeBytes() < buf.length) throw new OSFSError('ENOSPC');
+    } else {
+      if (this.getFreeBytes() < buf.length + INODSIZE) throw new OSFSError('ENOSPC');
+    }
     let ino = this.getcInode(path, 8, true, options.mode, uid, gid);
     if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.inoarr[ino] = Buffer.from(buf, options.encoding);
@@ -516,7 +523,11 @@ class FileSystem {
     if (gid === undefined) gid = 0;
     if (!this.writable) throw new OSFSError('EROFS');
     if (typeof buf == 'string') buf = Buffer.from(buf, options.encoding);
-    if (this.getFreeBytes() < buf.length) throw new OSFSError('ENOSPC');
+    if (this.exists(path)) {
+      if (this.getFreeBytes() < buf.length) throw new OSFSError('ENOSPC');
+    } else {
+      if (this.getFreeBytes() < buf.length + INODSIZE) throw new OSFSError('ENOSPC');
+    }
     let ino = this.getcInode(path, 8, true, options.mode, uid, gid);
     if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
     this.inoarr[ino] = Buffer.concat([this.inoarr[ino], buf]);
@@ -601,7 +612,7 @@ class FileSystem {
       if (flags & 1) throw new OSFSError('EEXIST');
       else this.unlink(patht);
     }
-    if (this.getFreeBytes() < this.inoarr[inof].length) throw new OSFSError('ENOSPC');
+    if (this.getFreeBytes() < this.inoarr[inof].length + INODSIZE) throw new OSFSError('ENOSPC');
     let inot = this.getcInode(patht, 8, true, this.getInod(inof, 6), uid, gid, Buffer.from(this.inoarr[inof]));
     this.updateFileTimes(inof, 4);
   }
@@ -618,7 +629,7 @@ class FileSystem {
     if (!this.writable) throw new OSFSError('EROFS');
     if (this.exists(path)) throw new OSFSError('EEXIST');
     let tb = Buffer.from(target);
-    if (this.getFreeBytes() < tb.length) throw new OSFSError('ENOSPC');
+    if (this.getFreeBytes() < tb.length + INODSIZE) throw new OSFSError('ENOSPC');
     let ino = this.getcInode(path, 10, true, 0o666, uid, gid, tb);
   }
 
