@@ -755,6 +755,12 @@ class FileSystemContext {
   fdatasync() {}
   fsync() {}
 
+  fsStat(path) {
+    let fsc = this.mountNormalize(path);
+    if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).read) throw new OSFSError('EACCES');
+    return fsc[0].fs.fsStat(fsc[1]);
+  }
+
   mount(pathf, typ, fs, patht) {
     if (patht === undefined) patht = '/';
     pathf = normalize(pathf, this.cwd);

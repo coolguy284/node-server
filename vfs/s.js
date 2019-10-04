@@ -128,13 +128,11 @@ class VFSWriteStream extends stream.Writable {
 
 class VFSExportRFSStream extends stream.Readable {
   constructor(rfs, options) {
-    if (options === undefined) options = {};
-    if (options.version === undefined) options.version = 2;
     super(options);
     this.rfs = rfs;
     this.writable = rfs.writable;
     rfs.writable = false;
-    this.version = options.version;
+    this.version = options && options.version || 2;
     this.part = 0;
     this.i = 0;
     this.keepGoing = true;
@@ -156,7 +154,7 @@ class VFSExportRFSStream extends stream.Readable {
     let s = this.rfs.exportSystemSizeAdv();
     let head = Buffer.alloc(31);
     head.writeUInt8(2, 0);
-    head.writeUInt8(this.rfs.writable ? 128 : 0 + this.rfs.wipeonfi ? 64 : 0, 1);
+    head.writeUInt8(this.rfs.writable ? 128 : 0 + this.rfs.wipeonfi ? 64 : 0 + this.rfs.archive ? 32 : 0, 1);
     head.writeUInt8(Math.ceil(Math.log2(this.rfs.blocksize)), 2);
     head.writeUIntBE(this.rfs.maxsize, 3, 6);
     head.writeUInt32BE(this.rfs.maxinodes, 9);
@@ -208,8 +206,8 @@ class VFSExportRFSStream extends stream.Readable {
   }
   
   _read(size) {
-    if (this.version == 1) {
-      while (this.keepGoing) {
+    while (this.keepGoing) {
+      if (this.version == 1) {
         if (this.part == 0) this.pushHeadLegacyV1();
         else if (this.part == 1) this.pushInod();
         else if (this.part == 2) this.pushIno();
@@ -219,9 +217,7 @@ class VFSExportRFSStream extends stream.Readable {
           this.rfs.writable = this.writable;
           this.part = 5;
         } else this.push(null);
-      }
-    } else if (this.version == 2) {
-      while (this.keepGoing) {
+      } else if (this.version == 2) {
         if (this.part == 0) this.pushHead();
         else if (this.part == 1) this.pushInod();
         else if (this.part == 2) this.pushIno();
@@ -235,7 +231,10 @@ class VFSExportRFSStream extends stream.Readable {
     }
   }
   _destroy(err, cb) {
-    this.rfs.writable = this.writable;
+    if (this.part < 5) {
+      this.rfs.writable = this.writable;
+      this.part = 5;
+    }
     cb();
   }
 }
@@ -247,11 +246,63 @@ class VFSImportRFSStream extends stream.Writable {
     this.rfs = rfs;
     this.writable = rfs.writable;
     rfs.writable = false;
-    this.version = options && options.version;
+    this.version = options && options.version || 0;
     this.part = 0;
     this.i = 0;
     this.tempbuf = null;
-    this.notenough = true;
+    this.inodlen;
+    this.inolen;
+    this.filen;
+  }
+
+  processHead(buf) {}
+
+  _write(chunk, enc, cb) {
+    let bufpos = 0;
+    while (bufpos < chunk.length) {
+      if (this.version == 0) {
+        if (chunk[0] & 0b11000000) this.version = 1;
+        else this.version = 2;
+      } else if (this.version == 1) {
+        if (this.part == 0) {
+          let br = 13 - Number(tempbuf && tempbuf.length);
+          if (chunk.length >= br) {
+            let cs = chunk.slice(0, br);
+            this.processHeadLegacyV1(tempbuf ? Buffer.concat([tempbuf, cs]) : cs);
+            bufpos = br;
+          } else {
+            this.tempbuf = chunk;
+            bufpos = chunk.length;
+          }
+        }
+      } else if (this.version == 2) {
+        if (this.part == 0) {
+          let br = 31 - Number(tempbuf && tempbuf.length);
+          if (chunk.length >= br) {
+            let cs = chunk.slice(0, br);
+            this.processHead(tempbuf ? Buffer.concat([tempbuf, cs]) : cs);
+            bufpos = br;
+          } else {
+            this.tempbuf = chunk;
+            bufpos = chunk.length;
+          }
+        }
+      }
+    }
+  }
+  _destroy(err, cb) {
+    if (this.part < 5) {
+      this.rfs.writable = this.writable;
+      this.part = 5;
+    }
+    cb();
+  }
+  _final(err, cb) {
+    if (this.part < 5) {
+      this.rfs.writable = this.writable;
+      this.part = 5;
+    }
+    cb();
   }
 }
 
