@@ -29,7 +29,16 @@ class FileSystem {
     if (opts.inodarr === undefined) {
       let ctime = getcTime();
       //opts.inodarr = [['d', 0, 1, ctime, ctime, ctime, 0o777, 'root', 'root']];
-      /* fs flags:
+      /*
+      file types:
+       1 - fifo
+       2 - character device
+       4 - directory
+       6 - block device
+      10 - file
+      12 - symlink
+      14 - socket
+      fs flags:
       i immutable
       a appendonly
       s secure delete
@@ -37,7 +46,7 @@ class FileSystem {
       A noatime
       */
       opts.inodarr = [Buffer.from([
-        0x04, // file type: 4 - directory, 10 - file, 12 - symlink
+        0x04, // file type
         0x00, // fs flags: iasSA---
         0x00, 0x01, // refrence count
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // access time

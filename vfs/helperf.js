@@ -26,7 +26,7 @@ function normalize(path, cwd) {
     else if (patharr[i] != '.') bp.push(patharr[i]);
   }
   let rbp = bp.join('/');
-  if (rbp[0] != '/' && !/^<\d+>$/.test(rbp[0])) bp = '/' + bp;
+  if (rbp[0] != '/' && !/^<\d+>$/.test(rbp[0])) rbp = '/' + rbp;
   return rbp;
 }
 function fnbufencode(buf) {

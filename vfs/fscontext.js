@@ -3,6 +3,10 @@ let { OSFSError } = require('./errors.js');
 let { VFSReadStream, VFSWriteStream } = require('./s.js');
 let THROWONBADUGID = false;
 
+function getPermsPath(obj, path) {
+  obj.getPerms(obj.fs.geteInode(path));
+}
+
 class FileSystemContext {
   constructor(fs, opts) {
     if (typeof fs == 'string') {
@@ -18,7 +22,12 @@ class FileSystemContext {
     if (opts.gids === undefined) opts.gids = { 0: 'root', 1000: 'ss2' };
     if (opts.uid === undefined) opts.uid = 0;
     if (opts.groups === undefined) opts.groups = { 'root': [0], 'ss2': [1000] };
-    if (opts.mounts === undefined) opts.mounts = [[], [], [], []];
+    if (opts.mounts === undefined) opts.mounts = [
+      [], // mount path
+      [], // mount type 0-fscontext 1-rfs 2-real fs
+      [], // mount fs object
+      [] // mount path in mounted filesystem
+    ];
     if (opts.fd === undefined) opts.fd = [];
     this.fs = fs;
     this.cwd = opts.cwd;
@@ -48,9 +57,10 @@ class FileSystemContext {
         let mind = this.mounts[0].indexOf(cp);
         if (mind > -1) {
           switch (this.mounts[1][mind]) {
-            case 0: return this.mounts[2][mind].mountNormalize(this.mounts[3][mind] + crp);
-            case 1: return [{fs: this.mounts[2][mind], cwd: '/', getPerms: function () {return {read:1,write:1,execute:1}}}, this.mounts[3][mind] + crp];
-            case 2: return [fs, this.mounts[3][mind] + crp];
+            case 0:
+              return this.mounts[2][mind].mountNormalize ? this.mounts[2][mind].mountNormalize(this.mounts[3][mind] + crp, symlink, mount) : [this.mounts[2][mind], this.mounts[3][mind] + crp];
+            case 1: return [{fs: this.mounts[2][mind], cwd: '/', getPerms: () => ({read:1,write:1,execute:1})}, this.mounts[3][mind] + crp];
+            case 2: return [{...this.mounts[2][mind], fs: {geteInode: () => null}, cwd: '/', getPerms: () => ({read:1,write:1,execute:1})}, this.mounts[3][mind] + crp];
           }
         }
       }
@@ -121,35 +131,53 @@ class FileSystemContext {
   existsSync(path) {
     let fsc = this.mountNormalize(path);
     try {
-      if (!fsc[0].getPerms(fsc[0].fs.geteInode(parentPath(fsc[1]))).read) throw new OSFSError('EACCES');
+      if (!fsc[0].getPerms(fsc[0].fs.geteInode(parentPath(fsc[1]))).read) return false;
       return fsc[0].fs.exists(fsc[1]);
     } catch (e) {
       return false;
     }
   }
+  accessSync(path, mode) {
+    let fsc = this.mountNormalize(path);
+    if (mode == null) mode = 0;
+    if (!fsc[0].fs) return fsc[0].accessSync(fsc[1], mode);
+    if (mode == 0) {
+      if (!fsc[0].existsSync(fsc[1])) throw new OSFSError('ENOENT');
+      return;
+    }
+    let perms = fsc[0].getPerms(fsc[0].fs.geteInode(parentPath(fsc[1])));
+    if (mode & 4 && !perms.read) throw new OSFSError('EACCES');
+    if (mode & 2 && !perms.write) throw new OSFSError('EACCES');
+    if (mode & 1 && !perms.execute) throw new OSFSError('EACCES');
+  }
   statSync(path, options) {
     let fsc = this.mountNormalize(path);
+    if (!fsc[0].fs) return fsc[0].statSync(fsc[1], options);
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).read) throw new OSFSError('EACCES');
     return fsc[0].fs.stat(fsc[1], options);
   }
   lstatSync(path, options) {
     let fsc = this.mountNormalize(path, false);
+    if (!fsc[0].fs) return fsc[0].lstatSync(fsc[1], options);
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1], false)).read) throw new OSFSError('EACCES');
     return fsc[0].fs.lstat(fsc[1], options);
   }
 
   chmodSync(path, mode) {
     let fsc = this.mountNormalize(path);
+    if (!fsc[0].fs) return fsc[0].chmodSync(fsc[1], mode);
     if (this.uid != fsc[0].fs.getInod(fsc[0].fs.geteInode(fsc[1]), 7) && this.uid != 0) throw new OSFSError('EACCES');
     return fsc[0].fs.chmod(fsc[1], mode);
   }
   lchmodSync(path, mode) {
     let fsc = this.mountNormalize(path, false);
+    if (!fsc[0].fs) return fsc[0].lchmodSync(fsc[1], mode);
     if (this.uid != fsc[0].fs.getInod(fsc[0].fs.geteInode(fsc[1]), 7) && this.uid != 0) throw new OSFSError('EACCES');
     return fsc[0].fs.lchmod(fsc[1], mode);
   }
   chownSync(path, uid, gid) {
     let fsc = this.mountNormalize(path);
+    if (!fsc[0].fs) return fsc[0].chownSync(fsc[1], uid, gid);
     if (this.uid != fsc[0].fs.getInod(fsc[0].fs.geteInode(fsc[1]), 7) && this.uid != 0) throw new OSFSError('EACCES');
     if (THROWONBADUGID && !fsc[0].uids[uid]) throw new Error('nonexistent uid');
     if (THROWONBADUGID && !fsc[0].gids[gid]) throw new Error('nonexistent gid');
@@ -157,6 +185,7 @@ class FileSystemContext {
   }
   lchownSync(path, uid, gid) {
     let fsc = this.mountNormalize(path, false);
+    if (!fsc[0].fs) return fsc[0].lchownSync(fsc[1], uid, gid);
     if (this.uid != fsc[0].fs.getInod(fsc[0].fs.geteInode(fsc[1]), 7) && this.uid != 0) throw new OSFSError('EACCES');
     if (THROWONBADUGID && !fsc[0].uids[uid]) throw new Error('nonexistent uid');
     if (THROWONBADUGID && !fsc[0].gids[gid]) throw new Error('nonexistent gid');
@@ -174,30 +203,37 @@ class FileSystemContext {
   }
   utimesSync(path, atime, mtime) {
     let fsc = this.mountNormalize(path);
+    if (!fsc[0].fs) return fsc[0].utimesSync(fsc[1], atime, mtime);
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new OSFSError('EACCES');
     return fsc[0].fs.utimes(fsc[1], atime, mtime);
   }
 
   readFileSync(path, options) {
     if (typeof path == 'number') {
-      if (this.fd[path] === undefined) throw new Error('bad file descriptor');
-      if (this.fd[path][0].indexOf('r') < 0) throw new Error('file not opened in read mode');
-      if (!this.getPerms(this.fd[path][2]).read) throw new OSFSError('EACCES');
-      return this.fd[path][1].fs.readFileFD(this.fd[path][2], this.fd[path][3], options);
+      let fdo = this.fd[path];
+      if (fdo === undefined) throw new Error('bad file descriptor');
+      if (fdo[0] == 'f') return fdo[1].readFileSync(fdo[2], options);
+      if (fdo[0].indexOf('r') < 0) throw new Error('file not opened in read mode');
+      if (!this.getPerms(fdo[2]).read) throw new OSFSError('EACCES');
+      return fdo[1].fs.readFileFD(fdo[2], fdo[3], options);
     } else {
       let fsc = this.mountNormalize(path);
+      if (!fsc[0].fs) return fsc[0].readFileSync(fsc[1], options);
       if (!this.getPerms(fsc[0].fs.geteInode(fsc[1])).read) throw new OSFSError('EACCES');
       return fsc[0].fs.readFile(fsc[1], options);
     }
   }
   writeFileSync(path, buf, options) {
     if (typeof path == 'number') {
-      if (this.fd[path] === undefined) throw new Error('bad file descriptor');
-      if (this.fd[path][0].indexOf('w') < 0) throw new Error('file not opened in write mode');
-      if (!this.fd[path][1].getPerms(this.fd[path][2]).write) throw new OSFSError('EACCES');
-      return this.fd[path][1].fs.writeFileFD(this.fd[path][2], buf, this.fd[path][3], options);
+      let fdo = this.fd[path];
+      if (fdo === undefined) throw new Error('bad file descriptor');
+      if (fdo[0] == 'f') return fdo[1].writeFileSync(fdo[2], buf, options);
+      if (fdo[0].indexOf('w') < 0) throw new Error('file not opened in write mode');
+      if (!fdo[1].getPerms(fdo[2]).write) throw new OSFSError('EACCES');
+      return fdo[1].fs.writeFileFD(fdo[2], buf, fdo[3], options);
     } else {
       let fsc = this.mountNormalize(path);
+      if (!fsc[0].fs) return fsc[0].writeFileSync(fsc[1], buf, options);
       if (!fsc[0].getPerms(fsc[0].fs.geteInode(parentPath(fsc[1]))).write) throw new OSFSError('EACCES');
       if (fsc[0].fs.exists(fsc[1]))
       if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new OSFSError('EACCES');
@@ -206,12 +242,15 @@ class FileSystemContext {
   }
   appendFileSync(path, buf, options) {
     if (typeof path == 'number') {
-      if (this.fd[path] === undefined) throw new Error('bad file descriptor');
-      if (this.fd[path][0].indexOf('a') < 0) throw new Error('file not opened in append mode');
-      if (!this.fd[path][1].getPerms(this.fd[path][2]).write) throw new OSFSError('EACCES');
-      return this.fd[path][1].appendFileFD(this.fd[path][2], this.fd[path][3], buf, options);
+      let fdo = this.fd[path];
+      if (fdo === undefined) throw new Error('bad file descriptor');
+      if (fdo[0] == 'f') return fdo[1].appendFileSync(fdo[2], buf, options);
+      if (fdo[0].indexOf('a') < 0) throw new Error('file not opened in append mode');
+      if (!fdo[1].getPerms(fdo[2]).write) throw new OSFSError('EACCES');
+      return fdo[1].appendFileFD(fdo[2], fdo[3], buf, options);
     } else {
       let fsc = this.mountNormalize(path);
+      if (!fsc[0].fs) return fsc[0].appendFileSync(fsc[1], buf, options);
       if (!fsc[0].getPerms(this.fs.geteInode(parentPath(fsc[1]))).write) throw new OSFSError('EACCES');
       if (fsc[0].fs.exists(fsc[1]))
       if (!fsc[0].getPerms(this.fs.geteInode(fsc[1])).write) throw new OSFSError('EACCES');
@@ -220,6 +259,7 @@ class FileSystemContext {
   }
   truncateSync(path, len) {
     let fsc = this.mountNormalize(path);
+    if (!fsc[0].fs) return fsc[0].truncateSync(fsc[1], len);
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(parentPath(fsc[1]))).write) throw new OSFSError('EACCES');
     if (fsc[0].fs.exists(fsc[1]))
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new OSFSError('EACCES');
@@ -253,7 +293,11 @@ class FileSystemContext {
   linkSync(pathf, patht) {
     let fscf = this.mountNormalize(pathf, false);
     let fsct = this.mountNormalize(patht);
-    if (!Object.is(fscf.fs, fsct.fs)) throw new Error('EINVAL', 'cannot link to different filesystems');
+    if (!fscf[0].fs || !fsct[0].fs) {
+      if (!fscf[0].fs && fsct[0].fs || fscf[0].fs && !fsct[0].fs) throw new Error('EINVAL', 'cannot link to different filesystems');
+      return fscf[0].linkSync(fscf[1], fsct[1]);
+    }
+    if (!Object.is(fscf[0].fs, fsct[0].fs)) throw new Error('EINVAL', 'cannot link to different filesystems');
     if (!fscf[0].getPerms(fscf[0].fs.geteInode(fscf[1], false)).read) throw new OSFSError('EACCES');
     if (!fsct[0].getPerms(fsct[0].fs.geteInode(parentPath(fsct[1]))).write) throw new OSFSError('EACCES');
     if (fsct[0].fs.exists(fsct[1]))
@@ -262,6 +306,7 @@ class FileSystemContext {
   }
   unlinkSync(path) {
     let fsc = this.mountNormalize(path, false);
+    if (!fsc[0].fs) return fsc[0].unlinkSync(fsc[1]);
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1], false)).write) throw new OSFSError('EACCES');
     return fsc[0].fs.unlink(fsc[1]);
   }
@@ -270,12 +315,17 @@ class FileSystemContext {
     if (flags === undefined) flags = 0;
     let fscf = this.mountNormalize(pathf);
     let fsct = this.mountNormalize(patht);
+    if (!fscf[0].fs || !fsct[0].fs) {
+      if (!fscf[0].fs) return fsct[0].fs.writeFile(fscf[0].readFileSync(fscf[1]), fsct[1]);
+      if (!fsct[0].fs) return fsct[0].writeFileSync(fscf[0].fs.readFile(fscf[1]), fsct[1]);
+      return fscf[0].copyFileSync(fscf[1], fsct[1]);
+    }
     if (!fscf[0].getPerms(fscf[0].fs.geteInode(fscf[1])).read) throw new OSFSError('EACCES');
     if (!fsct[0].getPerms(fsct[0].fs.geteInode(parentPath(fsct[1]))).write) throw new OSFSError('EACCES');
     if (fsct[0].fs.exists(fsct[1]))
     if (!fsct[0].getPerms(fsct[0].fs.geteInode(fsct[1])).write) throw new OSFSError('EACCES');
     if (flags & 1 && fsct[0].fs.exists(fsct[1])) throw new OSFSError('EEXIST');
-    if (Object.is(fscf.fs, fsct.fs)) {
+    if (Object.is(fscf[0].fs, fsct[0].fs)) {
       return fscf[0].fs.copyFile(fscf[1], fsct[1], flags, fscf[0].uid, fscf[0].gid);
     }
     return fsct[0].fs.writeFile(fsct[1], fscf[0].fs.readFile(fscf[1]));
@@ -283,12 +333,14 @@ class FileSystemContext {
 
   readlinkSync(path, options) {
     let fsc = this.mountNormalize(path, false);
+    if (!fsc[0].fs) return fsc[0].readlinkSync(fsc[1]);
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1], false)).read) throw new OSFSError('EACCES');
     return fsc[0].fs.readlink(fsc[1], options);
   }
 
   symlinkSync(pathf, patht, type) {
     let fsct = this.mountNormalize(patht);
+    if (!fsct[0].fs) return fsct[0].symlinkSync(pathf, fsct[1], type);
     if (!fsct[0].getPerms(fsct[0].fs.geteInode(parentPath(fsct[1]))).write) throw new OSFSError('EACCES');
     if (fsct[0].fs.exists(fsct[1]))
     if (!fsct[0].getPerms(fsct[0].fs.geteInode(fsct[1])).write) throw new OSFSError('EACCES');
@@ -297,6 +349,7 @@ class FileSystemContext {
 
   readdirSync(path, options) {
     let fsc = this.mountNormalize(path);
+    if (!fsc[0].fs) return fsc[0].readdirSync(fsc[1], options);
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).read) throw new OSFSError('EACCES');
     return fsc[0].fs.readdir(fsc[1], options);
   }
@@ -305,6 +358,7 @@ class FileSystemContext {
     if (options === undefined) options = {};
     if (options.mode === undefined) options.mode = 0o777;
     let fsc = this.mountNormalize(path);
+    if (!fsc[0].fs) return fsc[0].mkdirSync(fsc[1], options);
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(parentPath(fsc[1]))).write) throw new OSFSError('EACCES');
     if (fsc[0].fs.exists(fsc[1]))
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1])).write) throw new OSFSError('EACCES');
@@ -314,7 +368,11 @@ class FileSystemContext {
   renameSync(pathf, patht) {
     let fscf = this.mountNormalize(pathf, false);
     let fsct = this.mountNormalize(patht);
-    if (!Object.is(fscf.fs, fsct.fs)) throw new OSFSError('EINVAL', 'cannot rename to different filesystem');
+    if (!fscf[0].fs || !fsct[0].fs) {
+      if (!fscf[0].fs && fsct[0].fs || fscf[0].fs && !fsct[0].fs) throw new Error('EINVAL', 'cannot rename to different filesystems');
+      return fscf[0].renameSync(fscf[1], fsct[1]);
+    }
+    if (!Object.is(fscf[0].fs, fsct[0].fs)) throw new OSFSError('EINVAL', 'cannot rename to different filesystem');
     if (!fscf[0].getPerms(fscf[0].fs.geteInode(fscf[1], false)).write) throw new OSFSError('EACCES');
     if (!fsct[0].getPerms(fsct[0].fs.geteInode(parentPath(fsct[1]))).write) throw new OSFSError('EACCES');
     if (fsct[0].fs.exists(fsct[1]))
@@ -324,6 +382,7 @@ class FileSystemContext {
 
   rmdirSync(path) {
     let fsc = this.mountNormalize(path, false);
+    if (!fsc[0].fs) return fsc[0].rmdirSync(fsc[1]);
     if (!fsc[0].getPerms(fsc[0].fs.geteInode(fsc[1], false)).write) throw new OSFSError('EACCES');
     return fsc[0].fs.rmdir(fsc[1]);
   }
@@ -339,6 +398,17 @@ class FileSystemContext {
     });
   }
 
+  access(path, mode, cb) {
+    if (cb === undefined) {cb = mode; mode = undefined;}
+    setImmediate(() => {
+      try {
+        this.accessSync(path, mode)
+        return cb(undefined);
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
   stat(path, options, cb) {
     if (cb === undefined) {cb = options; options = undefined;}
     setImmediate(() => {
@@ -542,67 +612,63 @@ class FileSystemContext {
 
   openSync(path, flags, mode) {
     if (flags === undefined) flags = 'r';
-    let mn;
+    let mn = this.mountNormalize(path);
+    if (!mn[0].fs) {
+      let n = mn[0].openSync(mn[1], flags, mode);
+      return this.addfd(['f', mn[0], n, 0]);
+    }
     switch (flags) {
       case 'a':
       case 'as':
         if (!this.existsSync(path)) this.writeFileSync(path, '');
-        mn = this.mountNormalize(path);
         return this.addfd(['a', mn[0], mn[0].fs.geteInode(mn[1]), 0]);
         break;
       case 'ax':
         if (this.existsSync(path)) throw new OSFSError('EEXIST');
         this.writeFile(path, '');
-        mn = this.mountNormalize(path);
         return this.addfd(['a', mn[0], mn[0].fs.geteInode(mn[1]), 0]);
         break;
       case 'a+':
       case 'as+':
         if (!this.existsSync(path)) this.writeFileSync(path, '');
-        mn = this.mountNormalize(path);
         return this.addfd(['ra', mn[0], mn[0].fs.geteInode(mn[1]), 0]);
         break;
       case 'ax+':
         if (this.existsSync(path)) throw new OSFSError('EEXIST');
         this.writeFileSync(path, '');
-        mn = this.mountNormalize(path);
         return this.addfd(['ra', mn[0], mn[0].fs.geteInode(mn[1]), 0]);
         break;
       case 'r':
         if (!this.existsSync(path)) throw new OSFSError('ENOENT');
-        mn = this.mountNormalize(path);
         return this.addfd(['r', mn[0], mn[0].fs.geteInode(mn[1]), 0]);
         break;
       case 'r+':
       case 'rs+':
         if (!this.existsSync(path)) throw new OSFSError('ENOENT');
-        mn = this.mountNormalize(path);
         return this.addfd(['rw', mn[0], mn[0].fs.geteInode(mn[1]), 0]);
         break;
       case 'w':
         this.writeFileSync(path, '');
-        mn = this.mountNormalize(path);
         return this.addfd(['w', mn[0], mn[0].fs.geteInode(mn[1]), 0]);
         break;
       case 'wx':
         if (this.existsSync(path)) throw new OSFSError('EEXIST');
-        mn = this.mountNormalize(path);
         return this.addfd(['w', mn[0], mn[0].fs.geteInode(mn[1]), 0]);
         break;
       case 'w+':
         this.writeFileSync(path, '');
-        mn = this.mountNormalize(path);
         return this.addfd(['rw', mn[0], mn[0].fs.geteInode(mn[1]), 0]);
         break;
       case 'wx+':
         if (this.existsSync(path)) throw new OSFSError('EEXIST');
-        mn = this.mountNormalize(path);
         return this.addfd(['rw', mn[0], mn[0].fs.geteInode(mn[1]), 0]);
         break;
     }
   }
   closeSync(fd) {
-    if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
+    let fdo = this.fd[fd];
+    if (fdo === undefined) throw new Error('bad file descriptor');
+    if (fdo[0] == 'f') fdo[1].closeSync(fdo[2]);
     delete this.fd[fd];
     while (this.fd[this.fd.length - 1] === undefined && this.fd.length > 0) this.fd.splice(this.fd.length - 1, 1);
   }
@@ -631,54 +697,68 @@ class FileSystemContext {
   }
 
   readSync(fd, buffer, offset, length, position) {
-    if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
-    if (this.fd[fd][0].indexOf('r') < 0) throw new Error('file not opened in read mode');
-    if (!this.fd[fd][1].getPerms(this.fd[fd][2]).read) throw new OSFSError('EACCES');
-    let res = this.fd[fd][1].fs.read(this.fd[fd][2], this.fd[fd][3], buffer, offset, length, position);
-    if (position == null) this.fd[fd][3] += res;
+    let fdo = this.fd[fd];
+    if (fdo === undefined) throw new Error('bad file descriptor');
+    if (fdo[0] == 'f') return fdo[1].readSync(fdo[2], buffer, offset, length, position);
+    if (fdo[0].indexOf('r') < 0) throw new Error('file not opened in read mode');
+    if (!fdo[1].getPerms(fdo[2]).read) throw new OSFSError('EACCES');
+    let res = fdo[1].fs.read(fdo[2], fdo[3], buffer, offset, length, position);
+    if (position == null) fdo[3] += res;
     return res;
   }
   writeSync(fd, buffer, offset, length, position) {
-    if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
-    if (this.fd[fd][0].indexOf('w') < 0) throw new Error('file not opened in write mode');
-    if (!this.fd[fd][1].getPerms(this.fd[fd][2]).write) throw new OSFSError('EACCES');
+    let fdo = this.fd[fd];
+    if (fdo === undefined) throw new Error('bad file descriptor');
+    if (fdo[0] == 'f') return fdo[1].writeSync(fdo[2], buffer, offset, length, position);
+    if (fdo[0].indexOf('w') < 0) throw new Error('file not opened in write mode');
+    if (!fdo[1].getPerms(fdo[2]).write) throw new OSFSError('EACCES');
     let res;
     if (typeof buffer == 'string') {
-      res = this.fd[fd][1].fs.writeStr(this.fd[fd][2], this.fd[fd][3], buffer, offset, length);
-      if (offset == null) this.fd[fd][3] += res;
+      res = fdo[1].fs.writeStr(fdo[2], fdo[3], buffer, offset, length);
+      if (offset == null) fdo[3] += res;
     } else {
-      res = this.fd[fd][1].fs.write(this.fd[fd][2], this.fd[fd][3], buffer, offset, length, position);
-      if (position == null) this.fd[fd][3] += res;
+      res = fdo[1].fs.write(fdo[2], fdo[3], buffer, offset, length, position);
+      if (position == null) fdo[3] += res;
     }
     return res;
   }
 
   fstatSync(fd, options) {
-    if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
-    if (!this.fd[fd][1].getPerms(this.fd[fd][2]).read) throw new OSFSError('EACCES');
-    return this.fd[fd][1].fs.statFD(this.fd[fd][2], options);
+    let fdo = this.fd[fd];
+    if (fdo === undefined) throw new Error('bad file descriptor');
+    if (fdo[0] == 'f') return fdo[1].fstatSync(fdo[2], options);
+    if (!fdo[1].getPerms(fdo[2]).read) throw new OSFSError('EACCES');
+    return fdo[1].fs.statFD(fdo[2], options);
   }
 
   fchmodSync(fd, mode) {
-    if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
-    if (this.fd[fd][0].indexOf('w') < 0) throw new Error('file not opened in write mode');
-    return this.fd[fd][1].fs.chmodFD(this.fd[fd][2], mode);
+    let fdo = this.fd[fd];
+    if (fdo === undefined) throw new Error('bad file descriptor');
+    if (fdo[0] == 'f') return fdo[1].fchmodSync(fdo[2], mode);
+    if (fdo[0].indexOf('w') < 0) throw new Error('file not opened in write mode');
+    return fdo[1].fs.chmodFD(fdo[2], mode);
   }
   fchownSync(fd, uid, gid) {
-    if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
-    if (this.fd[fd][0].indexOf('w') < 0) throw new Error('file not opened in write mode');
-    return this.fd[fd][1].fs.chownFD(this.fd[fd][2], uid, gid);
+    let fdo = this.fd[fd];
+    if (fdo === undefined) throw new Error('bad file descriptor');
+    if (fdo[0] == 'f') return fdo[1].fchownSync(fdo[2], uid, gid);
+    if (fdo[0].indexOf('w') < 0) throw new Error('file not opened in write mode');
+    return fdo[1].fs.chownFD(fdo[2], uid, gid);
   }
   futimesSync(fd, atime, mtime) {
-    if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
-    if (this.fd[fd][0].indexOf('w') < 0) throw new Error('file not opened in write mode');
-    return this.fd[fd][1].fs.utimesFD(this.fd[fd][2], atime, mtime);
+    let fdo = this.fd[fd];
+    if (fdo === undefined) throw new Error('bad file descriptor');
+    if (fdo[0] == 'f') return fdo[1].futimesSync(fdo[2], atime, mtime);
+    if (fdo[0].indexOf('w') < 0) throw new Error('file not opened in write mode');
+    return fdo[1].fs.utimesFD(fdo[2], atime, mtime);
   }
 
   ftruncateSync(fd, len) {
-    if (this.fd[fd] === undefined) throw new Error('bad file descriptor');
-    if (this.fd[fd][0].indexOf('w') < 0) throw new Error('file not opened in write mode');
-    return this.fd[fd][1].fs.truncateFD(this.fd[fd][2], len);
+    let fdo = this.fd[fd];
+    if (fdo === undefined) throw new Error('bad file descriptor');
+    if (fdo[0] == 'f') return fdo[1].ftruncateSync(fdo[2], len);
+    if (fdo[0].indexOf('w') < 0) throw new Error('file not opened in write mode');
+    return fdo[1].fs.truncateFD(fdo[2], len);
   }
 
   read(fd, buffer, offset, length, position, cb) {
@@ -750,10 +830,35 @@ class FileSystemContext {
     });
   }
 
-  fdatasyncSync() {}
-  fsyncSync() {}
-  fdatasync() {}
-  fsync() {}
+  fdatasyncSync(fd) {
+    let fdo = this.fd[fd];
+    if (fdo === undefined) throw new Error('bad file descriptor');
+    if (!fdo[1].fs) return fdo[1].fdatasyncSync(fdo[2]);
+  }
+  fsyncSync(fd) {
+    let fdo = this.fd[fd];
+    if (fdo === undefined) throw new Error('bad file descriptor');
+    if (!fdo[1].fs) return fdo[1].fsyncSync(fdo[2]);
+  }
+
+  fdatasync(fd, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.fdatasyncSync(fd));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
+  fsync(fd, cb) {
+    setImmediate(() => {
+      try {
+        return cb(undefined, this.fsyncSync(fd));
+      } catch (e) {
+        return cb(e);
+      }
+    });
+  }
 
   fsStat(path) {
     let fsc = this.mountNormalize(path);
@@ -764,9 +869,8 @@ class FileSystemContext {
   mount(pathf, typ, fs, patht) {
     if (patht === undefined) patht = '/';
     pathf = normalize(pathf, this.cwd);
-    if (typ == 1) patht = normalize(patht);
-    patht.replace(/\/+$/, '');
-    patht += '/';
+    patht = normalize(patht);
+    if (patht != '/') patht += '/';
     this.mounts[0].push(pathf);
     this.mounts[1].push(typ);
     this.mounts[2].push(fs);
