@@ -88,6 +88,8 @@ exports = module.exports;
 
 let test = require('./test.js');
 
+exports.test = test;
+
 let { rfs, rfs2, fsv, fsv2 } = test.makeTestFS();
 
 exports.rfs = rfs;

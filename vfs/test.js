@@ -1,4 +1,4 @@
-let { FileSystem, FileSystemContext } = require('./vfs.js');
+let { FileSystem, FileSystemContext, helperf: { fnbufencode, fnbufdecode } } = require('./vfs.js');
 
 function makeTestFS() {
   let rfs = new FileSystem({writable:true, maxsize:2**30});
@@ -28,4 +28,22 @@ function makeTestFS() {
   return { rfs, rfs2, fsv, fsv2 };
 }
 
-module.exports = { makeTestFS };
+function testfnbuf() {
+  var bts = [
+    Buffer.from([1, 2, 3]),
+    Buffer.from([10, 9, 8]),
+    Buffer.from([1, 2, 10, 3]),
+    Buffer.from([10, 1, 2, 3, 10]),
+    Buffer.from([1, 2, 3, 10]),
+    Buffer.from([1, 10, 2, 10, 3]),
+    Buffer.from([10, 10, 1, 10, 2, 10, 3, 10, 10]),
+    Buffer.from([255, 10, 10, 1, 10, 2, 255, 10, 3, 10, 10, 255]),
+  ];
+  console.log(bts);
+  var bte = bts.map(x => fnbufencode(x));
+  console.log(bte);
+  var btu = bte.map(x => fnbufdecode(x));
+  console.log(btu);
+}
+
+module.exports = { makeTestFS, testfnbuf };
