@@ -885,33 +885,13 @@ class FileSystemContext {
     this.mounts[3].splice(mind, 1);
   }
 
-  exportSystemRaw() {
-    let arr = [...this.fs.exportSystemRawString(), this.cwd, this.uid, {}, {}, {}, []];
-    Object.assign(arr[6], this.uids);
-    Object.assign(arr[7], this.gids);
-    Object.assign(arr[8], this.groups);
-    for (var i = 0; i < this.fd.length; i++) arr[9].push(this.fd[i]);
-    return arr;
+  enableLogging(name) {
+    this.log = true;
+    this.name = name;
   }
-  exportSystem() {
-    return JSON.stringify(this.exportSystemRaw());
-  }
-
-  importSystemRaw(arr) {
-    this.fs.importSystemRawString(arr.slice(0, 4));
-    this.cwd = arr[4];
-    this.uid = arr[5];
-    for (var i in this.uids) delete this.uids[i];
-    for (var i in this.gids) delete this.gids[i];
-    for (var i in this.groups) delete this.groups[i];
-    this.fd.splice(0, Infinity);
-    Object.assign(this.uids, arr[6]);
-    Object.assign(this.gids, arr[7]);
-    Object.assign(this.groups, arr[8]);
-    for (var i = 0; i < arr[9].length; i++) this.fd.push(arr[9][i]);
-  }
-  importSystem(str) {
-    this.importSystemRaw(JSON.parse(str));
+  disableLogging() {
+    delete this.log;
+    delete this.name;
   }
 }
 
