@@ -29,4 +29,36 @@ function normalize(path, cwd) {
   if (rbp[0] != '/' && !/^<\d+>$/.test(rbp[0])) bp = '/' + bp;
   return rbp;
 }
-module.exports = { getcTime, parentPath, pathEnd, normalize };
+function fnbufencode(buf) {
+  let bufslices = [];
+  let s = 0;
+  for (let i = 0; i < buf.length; i++) {
+    if (buf[i] == 0x0a) {
+      if (i > s) bufslices.push(buf.slice(s, i));
+      bufslices.push(Buffer.from([0xff, 0x20]));
+      s = i + 1;
+    } else if (buf[i] == 0xff) {
+      if (i > s) bufslices.push(buf.slice(s, i));
+      bufslices.push(Buffer.from([0xff, 0xff]));
+      s = i + 1;
+    }
+  }
+  if (s < buf.length) bufslices.push(buf.slice(s, buf.length));
+  return Buffer.concat(bufslices);
+}
+function fnbufdecode(buf) {
+  let bufslices = [];
+  let s = 0;
+  for (let i = 0; i < buf.length; i++) {
+    if (buf[i] == 0xff) {
+      if (i > s) bufslices.push(buf.slice(s, i));
+      if (buf[i + 1] == 0x20) bufslices.push(Buffer.from([0x0a]));
+      else if (buf[i + 1] == 0xff) bufslices.push(Buffer.from([0xff]));
+      s = i + 2;
+      i++;
+    }
+  }
+  if (s < buf.length) bufslices.push(buf.slice(s, buf.length));
+  return Buffer.concat(bufslices);
+}
+module.exports = { getcTime, parentPath, pathEnd, normalize, fnbufencode, fnbufdecode };

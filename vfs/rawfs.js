@@ -1,6 +1,6 @@
 // jshint -W041
 let fs = require('fs');
-let { getcTime, parentPath, pathEnd, normalize } = require('./helperf.js');
+let { getcTime, parentPath, pathEnd, normalize, fnbufencode, fnbufdecode } = require('./helperf.js');
 let { ReadOnlyFSError, OSFSError } = require('./errors.js');
 let { VFSImportRFSStream, VFSExportRFSStream } = require('./s.js');
 let INODSIZE = 32;
@@ -24,6 +24,7 @@ class FileSystem {
     if (opts.wipeonfi === undefined) opts.wipeonfi = false;
     if (opts.updatime === undefined) opts.updatime = false;
     if (opts.archive === undefined) opts.archive = false;
+    if (opts.allowinoacc === undefined) opts.allowinoacc = false;
     if (opts.inoarr === undefined) opts.inoarr = [Buffer.alloc(0)];
     if (opts.inodarr === undefined) {
       let ctime = getcTime();
@@ -58,6 +59,7 @@ class FileSystem {
     this.maxinodes = opts.maxinodes;
     this.wipeonfi = opts.wipeonfi;
     this.archive = opts.archive;
+    this.allowinoacc = opts.allowinoacc;
     this.inodarr = opts.inodarr;
     this.inoarr = opts.inoarr;
     this.fi = opts.fi;
@@ -105,12 +107,6 @@ class FileSystem {
   }
 
   parseFolder(buf, encoding) {
-    /*let foldarr = buf.toString(encoding).split('\n');
-    if (foldarr.length == 1 && foldarr[0] == '') foldarr.pop();
-    foldarr = foldarr.map(x => x.split(':'));
-    if (encoding == 'buffer') for (var i in foldarr) foldarr[i][0] = Buffer.from(foldarr[i][0]);
-    for (var i in foldarr) foldarr[i][1] = parseInt(foldarr[i][1]);
-    return foldarr;*/
     if (encoding === undefined) encoding = 'utf8';
     let foldarr = [];
     for (let i = 0, s = 0; i < buf.length; i++) {
@@ -124,13 +120,23 @@ class FileSystem {
     return foldarr.map(x => {
       for (let i = x.length; i >= 0; i--) {
         if (x[i] == 0x3a) {
-          let buf = Buffer.from(x.slice(0, i));
+          let buf = fnbufdecode(Buffer.from(x.slice(0, i)));
           let ino = Number(Buffer.from(x.slice(i + 1, x.length)).toString());
-          if (encoding == 'buffer') return [buf, ino];
+          if (encoding == null) return [buf, ino];
           else return [buf.toString(encoding), ino];
         }
       }
     });
+  }
+  formFolder(foldarr, encoding) {
+    if (encoding === undefined) encoding = 'utf8';
+    return Buffer.concat(foldarr.map((x, i) => {
+      let bcarr;
+      if (encoding == null) bcarr = [fnbufencode(x[0]), Buffer.from([0x3a]), Buffer.from(String(x[1]))];
+      else bcarr = [fnbufencode(Buffer.from(x[0], encoding)), Buffer.from([0x3a]), Buffer.from(String(x[1]))];
+      if (i < foldarr.length - 1) bcarr.push(Buffer.from([0x0a]));
+      return Buffer.concat(bcarr);
+    }));
   }
 
   popfi(typ, mode, uid, gid, fc) {
@@ -179,12 +185,12 @@ class FileSystem {
     if (symlink === undefined) symlink = true;
     if (path == '/') {
       return 0;
-    } else if (/^<\d+>$/.test(path)) {
+    } else if (this.allowinoacc && /^<\d+>$/.test(path)) {
       return parseInt(path.substring(1, path.length - 1));
     }
     let ino = 0;
     let patharr = path.split('/');
-    if (/^<\d+>$/.test(patharr[0])) {
+    if (this.allowinoacc && /^<\d+>$/.test(patharr[0])) {
       ino = parseInt(patharr[0].substring(1, patharr[0].length - 1));
     }
     patharr.splice(0, 1);
@@ -242,10 +248,24 @@ class FileSystem {
   }
   appendFolder(ino, nam, inot) {
     if (!this.writable) throw new OSFSError('EROFS');
-    let ab = Buffer.from((this.inoarr[ino].length != 0 ? '\n' : '') + nam + ':' + inot);
+    let ab = Buffer.concat([Buffer.from(this.inoarr[ino].length != 0 ? '\n' : ''), fnbufencode(Buffer.from(nam)), Buffer.from(':'), Buffer.from(String(inot))]);
     if (this.getFreeBytes() < ab.length) throw new OSFSError('ENOSPC');
     this.inoarr[ino] = Buffer.concat([this.inoarr[ino], ab]);
     this.updateFileTimes(ino, 3);
+    this.archive = true;
+  }
+  remFromFolder(inop, nam) {
+    if (!this.writable) throw new OSFSError('EROFS');
+    let pf = this.parseFolder(this.inoarr[inop], null);
+    let delino = null;
+    for (let i in pf) {
+      if (pf[i][0].toString() == nam) {
+        delino = i;
+        break;
+      }
+    }
+    pf.splice(delino, 1);
+    this.inoarr[inop] = this.formFolder(pf, null);
     this.archive = true;
   }
 
@@ -671,11 +691,7 @@ class FileSystem {
     if (this.getInod(inop, 1) & 128) throw new OSFSError('EPERM', 'parent folder immutable');
     let ino = this.geteInode(path, false);
     if (this.getInod(ino, 1) & 128) throw new OSFSError('EPERM', 'file immutable');
-    let pf = this.parseFolder(this.inoarr[inop]);
-    let delino = null, pathlast = path.split('/').slice(-1)[0];
-    for (let i in pf) if (pf[i][0] == pathlast && pf[i][1] == ino) delino = i;
-    pf.splice(delino, 1);
-    this.inoarr[inop] = Buffer.from(pf.map(x => x.join(':')).join('\n'));
+    this.remFromFolder(inop, pathEnd(path));
     if (!ndecref) this.decref(ino);
     this.updateFileTimes(inop, 3);
     this.archive = true;
@@ -757,6 +773,7 @@ class FileSystem {
     if (inl === undefined) inl = [];
     if (!this.writable) throw new OSFSError('EROFS');
     let ino = this.geteInode(path, false);
+    if (inl.indexOf(ino) < 0) inl.push(ino);
     let typ = this.getInod(ino, 0);
     if (typ == 8) throw new OSFSError('ENOTDIR', 'cannot rmdir a file');
     if (typ == 10) {
@@ -769,16 +786,14 @@ class FileSystem {
       let inof = arr[i][1];
       let inot = this.getInod(inof, 0);
       let refcnt = this.getInod(inof, 1);
-      if (refcnt > 1 && refcnt > this.internalLinks(inof)) {
-        this.unlink(path + '/' + arr[i][0]);
-      } else {
-        if (inot == 4 && inl.indexOf(inof) < 0) {
-          inl.push(inof);
-          this.rmdir(path + '/' + arr[i][0], inl);
-        } else {
+      if (inot == 4 && inl.indexOf(inof) < 0) {
+        inl.push(inof);
+        if (refcnt > 1 && refcnt > this.internalLinks(inof)) {
           this.unlink(path + '/' + arr[i][0]);
+        } else {
+          this.rmdir(path + '/' + arr[i][0], inl);
         }
-      }
+      } else this.unlink(path + '/' + arr[i][0]);
     }
     this.unlink(path);
     this.archive = true;
@@ -1163,7 +1178,7 @@ class FileSystem {
       fibuf.writeUInt32BE(this.fi[i], i * 4);
     }
     head.writeUInt8(2, 0);
-    head.writeUInt8(this.writable ? 128 : 0 + this.wipeonfi ? 64 : 0 + this.archive ? 32 : 0, 1);
+    head.writeUInt8(this.writable ? 128 : 0 + this.wipeonfi ? 64 : 0 + this.archive ? 32 : 0 + this.allowinoacc ? 16 : 0, 1);
     head.writeUInt8(Math.ceil(Math.log2(this.blocksize)), 2);
     head.writeUIntBE(this.maxsize, 3, 6);
     head.writeUInt32BE(this.maxinodes, 9);
@@ -1189,6 +1204,8 @@ class FileSystem {
     else this.wipeonfi = false;
     if (flags & 32) this.archive = true;
     else this.archive = false;
+    if (flags & 16) this.allowinoacc = true;
+    else this.allowinoacc = false;
     if (this.inodarr) this.inodarr.splice(0, Infinity);
     else this.inodarr = [];
     if (this.inoarr) this.inoarr.splice(0, Infinity);
