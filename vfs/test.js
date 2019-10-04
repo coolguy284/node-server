@@ -1,3 +1,4 @@
+let vfs = require('./vfs.js');
 let { FileSystem, FileSystemContext, helperf: { fnbufencode, fnbufdecode } } = require('./vfs.js');
 
 function makeTestFS() {
@@ -28,6 +29,30 @@ function makeTestFS() {
   return { rfs, rfs2, fsv, fsv2 };
 }
 
+function pprinterrors() {
+  try {
+    throw new Error('FS');
+  } catch (e) {
+    console.error(e);
+  }
+  try {
+    throw new TypeError('FS');
+  } catch (e) {
+    console.error(e);
+  }
+  try {
+    throw new vfs.errors.ReadOnlyFSError();
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function importexportequalcheck() {
+  console.log(vfs.rfs.lookupAll());
+  vfs.rfs.importSystem(vfs.rfs.exportSystem());
+  console.log(vfs.rfs.lookupAll());
+}
+
 function testfnbuf() {
   var bts = [
     Buffer.from([1, 2, 3]),
@@ -46,4 +71,34 @@ function testfnbuf() {
   console.log(btu);
 }
 
-module.exports = { makeTestFS, testfnbuf };
+function complexrmdir() {
+  console.log(vfs.rfs.readdir('/dir'));
+  vfs.rfs.unlink('/dir/Some File.txt');
+  console.log(vfs.rfs.readdir('/dir'));
+  vfs.rfs.rmdir('/dir/Some Folder');
+  vfs.rfs.rmdir('/dir/Folder Hardlink');
+  console.log(vfs.rfs.readdir('/dir'));
+  console.log(vfs.rfs.readdir('/dir/Folder Hardlink Loop'));
+  console.log(vfs.rfs.readdir('/dir/Folder Hardlink Loop/Loop'));
+  vfs.rfs.rmdir('/dir/Folder Hardlink Loop');
+  console.log(vfs.rfs.readdir('/dir'));
+}
+
+function strangefilenames() {
+  console.log(vfs.rfs.readFile('/dir').toString());
+  console.log(vfs.rfs.readdir('/dir'));
+  vfs.rfs.writeFile('/dir/Test\n', 'NEWLINE FILE DUDES!!!');
+  vfs.rfs.writeFile('/dir/Test\xff', '0xFF FILE DUDES!!!');
+  console.log(vfs.rfs.readFile('/dir').toString());
+  console.log(vfs.rfs.readdir('/dir'));
+}
+
+function basicnormalize() {
+  var n = vfs.helperf.normalize;
+  console.log('STARTING');
+  console.log(n('/', '/'));
+  console.log(n('/test', '/'));
+  console.log(n('/test', '/ell'));
+}
+
+module.exports = { makeTestFS, pprinterrors, importexportequalcheck, testfnbuf, complexrmdir, strangefilenames, basicnormalize };
