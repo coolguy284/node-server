@@ -33,9 +33,19 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
       }
       break;
     case '/livechat.dat':
-      if (datajs.feat.chat) {
-        datajs.rm.restext(res, b64.encode(JSON.stringify(chat)));
-      } else datajs.rm.sn(res);
+      if (!datajs.feat.chat) {
+        datajs.rm.sn(res);
+        break;
+      }
+      let chatobj = {};
+      chatobj.chat = chat;
+      if (datajs.feat.chathere)
+        chatobj.here = chatherelist;
+      if (datajs.feat.chattyp)
+        chatobj.typ = chattyplist;
+      if (datajs.feat.chatkick)
+        chatobj.kick = chatkicklist;
+      datajs.rm.restext(res, b64.encode(JSON.stringify(chatobj)));
       break;
     case '/livechates.dat':
       if (datajs.feat.chates) {
@@ -70,21 +80,6 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
         res.write('event: no-es\n\n');
         res.end();
       }
-      break;
-    case '/livechathere.dat':
-      if (datajs.feat.chathere) {
-        datajs.rm.restext(res, b64.encode(JSON.stringify(chatherelist)));
-      } else {datajs.rm.sn(res);}
-      break;
-    case '/livechattyp.dat':
-      if (datajs.feat.chattyp) {
-        datajs.rm.restext(res, b64.encode(JSON.stringify(chattyplist)));
-      } else {datajs.rm.sn(res);}
-      break;
-    case '/livechatkick.dat':
-      if (datajs.feat.chatkick) {
-        datajs.rm.restext(res, b64.encode(JSON.stringify(chatkicklist)));
-      } else {datajs.rm.sn(res);}
       break;
     case '/liverchat.json':
       if (datajs.feat.rchat) {
@@ -389,7 +384,7 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
       } else { datajs.rm.sn(res); return; }
       if (sha256.hex(cv[0]) == (consol.phash || b64a.server)) {
         let tx = cv[2];
-        aconsole.log('>> ' + tx);
+        if (consol.type != 'bash') aconsole.log('>> ' + tx);
         if (tx[0] != ':') {
           let resp;
           switch (consol.type) {
@@ -401,11 +396,12 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
               break;
             case 'bash':
               if (!consol.running) {
+                aconsole.log('>> ' + tx);
                 let ca = datajs.parseexec(tx);
                 consol.running = true;
                 consol.cp = cp.spawn(ca[0], ca.slice(1, Infinity), {windowsHide: true}, function (err) {if (err) consol.console.error(err);});
-                consol.cp.stdout.pipe(new datajs.s.ConsoleStream(consol.console.log));
-                consol.cp.stderr.pipe(new datajs.s.ConsoleStream(consol.console.error));
+                consol.cp.stdout.pipe(consol.stdout, {end:false});
+                consol.cp.stderr.pipe(consol.stderr, {end:false});
                 consol.cp.on('exit', function () {
                   consol.running = false;
                 });
@@ -413,6 +409,7 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
                   return 'Process {}';
                 };
               } else {
+                consol.stdout.write(tx + '\n');
                 if (tx == '^C') {
                   try {
                     datajs.pstree.getallchilds(consol.cp.pid).reverse().forEach(function (val) {

@@ -20,24 +20,33 @@ function basicfunc() {
   basicjava.innerHTML = navigator.javaEnabled();
 }
 function battfunc() {
-  navigator.getBattery().then(function(battery) {
-    battcharging.innerHTML = battery.charging;
-    batt100.innerHTML = modf(battery.chargingTime);
-    batt0.innerHTML = modf(battery.dischargingTime);
-    battlevel.innerHTML = battery.level * 100 + '%';
-    /*battery.addEventListener('chargingchange', function() {
+  try {
+    navigator.getBattery().then(function(battery) {
       battcharging.innerHTML = battery.charging;
+      batt100.innerHTML = modf(battery.chargingTime);
+      batt0.innerHTML = modf(battery.dischargingTime);
+      battlevel.innerHTML = battery.level * 100 + '%';
+      /*battery.addEventListener('chargingchange', function() {
+        battcharging.innerHTML = battery.charging;
+      });
+      battery.addEventListener('chargingtimechange', function() {
+        batt100.innerHTML = battery.chargingTime;
+      });
+      battery.addEventListener('dischargingtimechange', function() {
+        batt0.innerHTML = battery.dischargingTIme;
+      });
+      battery.addEventListener('levelchange', function() {
+        battlevel.innerHTML = battery.level;
+      });*/
     });
-    battery.addEventListener('chargingtimechange', function() {
-      batt100.innerHTML = battery.chargingTime;
-    });
-    battery.addEventListener('dischargingtimechange', function() {
-      batt0.innerHTML = battery.dischargingTIme;
-    });
-    battery.addEventListener('levelchange', function() {
-      battlevel.innerHTML = battery.level;
-    });*/
-  });
+  } catch (e) {
+    batterr.innerHTML = 'Error! Unable to acquire battery data.<br>';
+    battcharging.innerHTML = 'N/A';
+    batt100.innerHTML = 'N/A';
+    batt0.innerHTML = 'N/A';
+    battlevel.innerHTML = 'N/A';
+    clearInterval(bfint);
+  }
 }
 function geofunc() {
   navigator.geolocation.getCurrentPosition(function(position) {
