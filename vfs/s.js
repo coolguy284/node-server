@@ -28,45 +28,49 @@ class VFSReadStream extends stream.Readable {
       this.push(null);
       return;
     }
-    if (this.start) {
-      let rv = true;
-      while (rv) {
-        if (this.start + this.bytesRead + size > this.end) size = this.end - this.start;
-        if (size <= 0) {
-          this.push(null);
-          if (this.autoClose) {
-            this.fsc.closeSync(this.fd);
-            this.closed = true;
+    try {
+      if (this.start) {
+        let rv = true;
+        while (rv) {
+          if (this.start + this.bytesRead + size > this.end) size = this.end - this.start;
+          if (size <= 0) {
+            this.push(null);
+            if (this.autoClose) {
+              this.fsc.closeSync(this.fd);
+              this.closed = true;
+            }
+            rv = false;
+          } else {
+            let buf = Buffer.allocUnsafe(size);
+            this.fsc.readSync(this.fd, buf, 0, size, this.start + this.bytesRead);
+            this.bytesRead += size;
+            size = this._readableState.highWaterMark;
+            rv = this.push(buf);
           }
-          rv = false;
-        } else {
+        }
+      } else {
+        let rv = true;
+        while (rv) {
           let buf = Buffer.allocUnsafe(size);
-          this.fsc.readSync(this.fd, buf, 0, size, this.start + this.bytesRead);
-          this.bytesRead += size;
-          size = this._readableState.highWaterMark;
-          rv = this.push(buf);
-        }
-      }
-    } else {
-      let rv = true;
-      while (rv) {
-        let buf = Buffer.allocUnsafe(size);
-        let len = this.fsc.readSync(this.fd, buf, 0, size);
-        if (len < size) {
-          this.push(buf.slice(0, len));
-          this.bytesRead += len;
-          this.push(null);
-          if (this.autoClose) {
-            this.fsc.closeSync(this.fd);
-            this.closed = true;
-            return;
+          let len = this.fsc.readSync(this.fd, buf, 0, size);
+          if (len < size) {
+            this.push(buf.slice(0, len));
+            this.bytesRead += len;
+            this.push(null);
+            if (this.autoClose) {
+              this.fsc.closeSync(this.fd);
+              this.closed = true;
+              return;
+            }
+          } else {
+            this.bytesRead += size;
+            size = this._readableState.highWaterMark;
+            rv = this.push(buf);
           }
-        } else {
-          this.bytesRead += size;
-          size = this._readableState.highWaterMark;
-          rv = this.push(buf);
         }
       }
+    } catch (e) {
+      cb(e);
     }
   }
   _destroy(err, cb) {
@@ -100,14 +104,18 @@ class VFSWriteStream extends stream.Writable {
   }
   _write(chunk, enc, cb) {
     if (this.closed) { cb(); return; }
-    if (this.start) {
-      this.fsc.writeSync(this.fd, chunk, 0, chunk.length, this.start + this.bytesWritten);
-      this.bytesWritten += chunk.length;
-      cb();
-    } else {
-      this.fsc.writeSync(this.fd, chunk, 0, chunk.length);
-      this.bytesWritten += chunk.length;
-      cb();
+    try {
+      if (this.start) {
+        this.fsc.writeSync(this.fd, chunk, 0, chunk.length, this.start + this.bytesWritten);
+        this.bytesWritten += chunk.length;
+        cb();
+      } else {
+        this.fsc.writeSync(this.fd, chunk, 0, chunk.length);
+        this.bytesWritten += chunk.length;
+        cb();
+      }
+    } catch (e) {
+      cb(e);
     }
   }
   _destroy(err, cb) {
@@ -154,7 +162,7 @@ class VFSExportRFSStream extends stream.Readable {
     let s = this.rfs.exportSystemSizeAdv();
     let head = Buffer.alloc(31);
     head.writeUInt8(2, 0);
-    head.writeUInt8(this.rfs.writable ? 128 : 0 + this.rfs.wipeonfi ? 64 : 0 + this.rfs.archive ? 32 : 0, 1);
+    head.writeUInt8(this.writable * 128 + this.rfs.wipeonfi * 64 + this.rfs.archive * 32 + this.rfs.allowinoacc * 16, 1);
     head.writeUInt8(Math.ceil(Math.log2(this.rfs.blocksize)), 2);
     head.writeUIntBE(this.rfs.maxsize, 3, 6);
     head.writeUInt32BE(this.rfs.maxinodes, 9);
@@ -167,39 +175,44 @@ class VFSExportRFSStream extends stream.Readable {
   }
   pushInod() {
     let buf;
-    if (this.rfs.inodarr[i] != null) {
-      buf = Buffer.allocUnsafe(this.rfs.inoarr[i].length);
-      this.rfs.inodarr[i].copy(buf);
+    if (this.rfs.inodarr[this.i] != null) {
+      buf = Buffer.from(this.rfs.inodarr[this.i]);
     } else {
       buf = Buffer.allocUnsafe(1);
       buf.writeUInt8(255, 0);
     }
     this.keepGoing = this.push(buf);
-    if (i + 1 >= this.rfs.inodarr.length) {
+    if (this.i + 1 >= this.rfs.inodarr.length) {
       this.part = 2;
       this.i = 0;
     } else this.i++;
   }
   pushIno() {
     let head = Buffer.allocUnsafe(4);
-    if (this.rfs.inoarr[i] != null) {
-      head.writeUInt32BE(this.rfs.inoarr[i].length, 0);
+    if (this.rfs.inoarr[this.i] != null) {
+      head.writeUInt32BE(this.rfs.inoarr[this.i].length, 0);
       this.keepGoing = this.push(head);
-      if (this.rfs.inoarr[i].length > 0) this.keepGoing = this.push(this.rfs.inoarr[i]);
+      if (this.rfs.inoarr[this.i].length > 0)
+        this.keepGoing = this.push(Buffer.from(this.rfs.inoarr[this.i]));
     } else {
       head.writeUInt32BE(0xffffffff, 0);
       this.keepGoing = this.push(head);
     }
-    if (i + 1 >= this.rfs.inoarr.length) {
+    if (this.i + 1 >= this.rfs.inoarr.length) {
       this.part = 3;
       this.i = 0;
     } else this.i++;
   }
   pushFi() {
+    if (this.rfs.fi.length == 0) {
+      this.part = 4;
+      this.i = 0;
+      return;
+    }
     let buf = Buffer.allocUnsafe(4);
     buf.writeUInt32BE(this.rfs.fi[this.i], 0);
     this.keepGoing = this.push(buf);
-    if (i + 1 >= this.rfs.fi.length) {
+    if (this.i + 1 >= this.rfs.fi.length) {
       this.part = 4;
       this.i = 0;
     } else this.i++;
@@ -213,20 +226,20 @@ class VFSExportRFSStream extends stream.Readable {
         else if (this.part == 2) this.pushIno();
         else if (this.part == 3) this.pushFi();
         else if (this.part == 4) {
-          this.push(null);
+          this.keepGoing = this.push(null);
           this.rfs.writable = this.writable;
           this.part = 5;
-        } else this.push(null);
+        } else this.keepGoing = this.push(null);
       } else if (this.version == 2) {
         if (this.part == 0) this.pushHead();
         else if (this.part == 1) this.pushInod();
         else if (this.part == 2) this.pushIno();
         else if (this.part == 3) this.pushFi();
         else if (this.part == 4) {
-          this.push(null);
+          this.keepGoing = this.push(null);
           this.rfs.writable = this.writable;
           this.part = 5;
-        } else this.push(null);
+        } else this.keepGoing = this.push(null);
       }
     }
   }
@@ -255,7 +268,9 @@ class VFSImportRFSStream extends stream.Writable {
     this.filen;
   }
 
-  processHead(buf) {}
+  processHead(buf) {
+
+  }
 
   _write(chunk, enc, cb) {
     let bufpos = 0;
@@ -277,13 +292,15 @@ class VFSImportRFSStream extends stream.Writable {
         }
       } else if (this.version == 2) {
         if (this.part == 0) {
-          let br = 31 - Number(tempbuf && tempbuf.length);
+          let br = 31 - Number(this.tempbuf && this.tempbuf.length);
           if (chunk.length >= br) {
             let cs = chunk.slice(0, br);
-            this.processHead(tempbuf ? Buffer.concat([tempbuf, cs]) : cs);
+            this.processHead(this.tempbuf ? Buffer.concat([this.tempbuf, cs]) : cs);
             bufpos = br;
           } else {
-            this.tempbuf = chunk;
+            if (this.tempbuf != null) {
+              this.tempbuf = Buffer.concat([this.tempbuf, chunk]);
+            } else this.tempbuf = chunk;
             bufpos = chunk.length;
           }
         }

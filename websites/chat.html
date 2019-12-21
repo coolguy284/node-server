@@ -3,31 +3,37 @@
   <head>
     <title>coolguy284.com: Chat Test</title>
     <style>
-      code {
-        font-family: monospace;
-        background: #dedede;
+      code { font-family: monospace; background: #dedede; }
+      #chatt {
+        white-space: pre-wrap; word-wrap: break-word; word-break: break-all;
+      }
+      #herel {
+        width: 250px;
+        position: relative; right: 275px; top: 2px;
+      }
+      #inp {
+        position: fixed; bottom: 2px;
+        width: 100%;
+      }
+      #garryspan { position: absolute; bottom: 2px; right: 10px; }
+      #chattext { width: calc(100% - 255px); }
+      #helps, #settins {
+        position: fixed; top: 2px;
+        width: 100%; height: calc(100% - 100px);
+        background: white;
       }
     </style>
   </head>
-  <body onresize = 'chattext.style = "width:" + (window.innerWidth - 255 + "") + "px;";'>
+  <body>
     <span id = 'begs'>
       <span>Enter Your Name:</span>
       <input type = 'text' id = 'nname'>
       <button onclick = 'Schat()'>Start</button>
-      (Leave Blank for Anonymous)
-      <!--<button onclick = 'begs2.style = "";' style = 'display:none;' id = 'begs2b'>Settings</button>--><br>
+      (Leave Blank for Anonymous)<br>
       <span>Ignore:</span>
       <input type = 'text' id = 'ks'>
     </span>
-    <!--<span id = 'begs2' style = 'display:none;'>
-      <details>
-        <summary>Super Secret Settings</summary>
-        <a href = 'r?e=aHR0cHM6Ly9lbi53aWtpcGVkaWEub3JnL3dpa2kvU3BlY2lhbDpSYW5kb20='>CLICK PLS</a>
-      </details>
-    </span>-->
     <span id = 'chatt' style = 'display:none;'></span><br>
-    <!--feel free to uncomment this if you want to-->
-    <!--warning: dont take the previous comment seriously, it leads to digestive tract-->
     <span id = 'ctyp' style = 'display:none;'></span>
     <span id = 'herel' style = 'display:none;'></span>
     <div id = 'inp' style = 'display:none;'>
@@ -43,23 +49,22 @@
       <button onclick = 'SettingsTogg()'><img src = 'images/settings.png' style = 'width:20px;height:20px;'></button>
     </div>
     <div id = 'helps' style = 'display:none;'>
-      <button onclick = 'helps.style = "display:none;";' style = 'position:absolute;right:11px;top:2px;'><img src = 'images/close.png' style = 'width:20px;height:20px;'></button>
+      <button onclick = 'helps.style.display = "none"' style = 'position:absolute;right:11px;top:2px;'><img src = 'images/close.png' style = 'width:20px;height:20px;'></button>
     </div>
     <div id = 'settins' style = 'display:none;'>
-      <button onclick = 'settins.style = "display:none;";' style = 'position:absolute;right:11px;top:2px;'><img src = 'images/close.png' style = 'width:20px;height:20px;'></button>
-      <!--this table is neato, or at least looks neat when rendered-->
+      <button onclick = 'settins.style.display = "none"' style = 'position:absolute;right:11px;top:2px;'><img src = 'images/close.png' style = 'width:20px;height:20px;'></button>
       <table style = 'border:1px solid black;'>
         <tr style = 'border:1px solid black;'>
           <td style = 'border:1px solid black;width:150px;text-align:center;'>
             <span>Show HTML:</span><br>
             <span>Off</span>
-            <input id = 'showhtm' type = 'range' min = 0 max = 1 value = 0 onchange = 'ChatReload(true);' style = 'width:30px;'>
+            <input id = 'showhtm' type = 'range' min = 0 max = 1 value = 0 onchange = 'setTimeout(ChatReload(true),15)' style = 'width:30px;'>
             <span>On</span>
           </td>
           <td style = 'border:1px solid black;width:150px;text-align:center;'>
             <span>Show Timestamp:</span><br>
             <span>Off</span>
-            <input id = 'showts' type = 'range' min = 0 max = 1 value = 1 onchange = 'ChatReload(true);' style = 'width:30px;'>
+            <input id = 'showts' type = 'range' min = 0 max = 1 value = 1 onchange = 'setTimeout(ChatReload(true),15)' style = 'width:30px;'>
             <span>On</span>
           </td>
         </tr>
@@ -67,13 +72,13 @@
           <td style = 'border:1px solid black;width:150px;text-align:center;'>
             <span>Show Indices:</span><br>
             <span>Off</span>
-            <input id = 'showind' type = 'range' min = 0 max = 1 value = 1 onchange = 'ChatReload(true);' style = 'width:30px;'>
+            <input id = 'showind' type = 'range' min = 0 max = 1 value = 1 onchange = 'setTimeout(ChatReload(true),15)' style = 'width:30px;'>
             <span>On</span>
           </td>
           <td style = 'border:1px solid black;width:150px;text-align:center;'>
             <span>Show People in Chat:</span><br>
             <span>Off</span>
-            <input id = 'showhere' type = 'range' min = 0 max = 2 value = 0 onchange = 'ShowHere(showhere.value);' style = 'width:30px;'>
+            <input id = 'showhere' type = 'range' min = 0 max = 2 value = 0 onchange = 'setTimeout(ShowHere(showhere.value),15)' style = 'width:30px;'>
             <span>Full</span>
           </td>
         </tr>
@@ -81,35 +86,27 @@
           <td style = 'border:1px solid black;width:150px;text-align:center;' colspan = 2>
             <span>Show Notifications:</span><br>
             <span>Off</span>
-            <input id = 'shownotf' type = 'range' min = 0 max = 1 value = 0 onchange = 'ShowNotf(shownotf.value);' style = 'width:30px;'>
+            <input id = 'shownotf' type = 'range' min = 0 max = 1 value = 0 onchange = 'setTimeout(ShowNotf(shownotf.value),15)' style = 'width:30px;'>
             <span>On</span>
           </td>
-        </tr><!--
-        <tr style = 'border:1px solid black;'>
-          <td style = 'border:1px solid black;width:150px;text-align:center;' colspan = 2>
-            <span>Show Secret Settings:</span><br>
-            <span>Off</span>
-            <input id = 'sett' type = 'range' min = 0 max = 1 value = 0 style = 'width:30px;'>
-            <span>Full</span>
-          </td>
-        </tr>-->
+        </tr>
         <tr style = 'border:1px solid black;'>
           <td style = 'border:1px solid black;width:150px;text-align:center;'>
             <span>Red Mode:</span><br>
             <span>Off</span>
-            <input id = 'redmode' type = 'range' min = 0 max = 1 value = 0 onchange = 'RedMode(redmode.value);' style = 'width:30px;'>
+            <input id = 'redmode' type = 'range' min = 0 max = 1 value = 0 onchange = 'setTimeout(RedMode(redmode.value),15)' style = 'width:30px;'>
             <span>On</span>
           </td>
           <td style = 'border:1px solid black;width:150px;text-align:center;'>
             <span>Display Garry:</span><br>
             <span>Off</span>
-            <input id = 'garry' type = 'range' min = 0 max = 1 value = 0 onchange = 'ShowGarry(garry.value);' style = 'width:30px;'>
+            <input id = 'garry' type = 'range' min = 0 max = 1 value = 0 onchange = 'setTimeout(ShowGarry(garry.value),15)' style = 'width:30px;'>
             <span>On</span>
           </td>
         </tr>
       </table>
-      <button onclick = 'while (1) {}'>Crash My Browser</button>
-      <button onclick = 'document.body.innerHTML=""'>Delete This Webpage With HACKS</button><br><br>
+      <button onclick = 'while(1);'>Crash My Browser</button>
+      <button onclick = 'document.body.innerHTML="lol jk it will be back to normal when you refresh the page"'>Delete This Webpage With HACKS</button><br><br>
       <span id = 'debugspan'></span>
       <span id = 'garryspan' style = 'position:absolute;bottom:2px;right:10px;display:none;'>Garry</span>
     </div>
@@ -118,7 +115,6 @@
     <script src = 'js/bbcode-parser.js'></script>
     <script src = 'js/base64.js'></script>
     <script>
-      //don't even think of using an invalid tag
       var ALLOWED_TAGS = ['B', 'I', 'U', 'S', 'STRIKE', 'STRONG', 'EM', 'DEL', 'INS', 'MARK', 'SMALL', 'SUB', 'SUP', 'BLOCKQUOTE', 'Q', 'A', 'BDI', 'BDO', 'FONT', 'SPAN', 'CODE', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'PRE', 'OL', 'UL', 'LI', 'DL', 'DT', 'DD', 'DETAILS', 'SUMMARY', 'TABLE', 'CAPTION', 'COLGROUP', 'COL', 'THEAD', 'TBODY', 'TFOOT', 'TH', 'TR', 'TD', 'BR', 'WBR', 'BUTTON', 'METER', 'PROGRESS'];
       var escaper = document.createElement('textarea');
       function escapeHTML(html) {
@@ -133,9 +129,8 @@
         "Remove all tags from element 'el' that aren't in the ALLOWED_TAGS list.";
         var tags = Array.prototype.slice.apply(el.getElementsByTagName('*'), [0]);
         for (var i = 0; i < tags.length; i++) {
-          if (ALLOWED_TAGS.indexOf(tags[i].nodeName) == -1) {
+          if (ALLOWED_TAGS.indexOf(tags[i].nodeName) == -1)
             usurp(tags[i]);
-          }
         }
       }
       function usurp(p) {
@@ -170,26 +165,25 @@
       }
       function Notf(nam, body) {
         if (Notification.permission == 'granted') {
-          new Notification(nam, {body : body});
+          new Notification(nam, {body});
         } else if (Notification.permission != 'denied') {
           Notification.requestPermission().then(function (perm) {
-            if (perm == 'granted') {
+            if (perm == 'granted')
               new Notification(nam, {body : body});
-            }
           });
         }
       }
       var mkdownc = new showdown.Converter({
-        omitExtraWLInCodeBlocks : true, 
-        noHeaderId : true,
-        parseImgDimensions : true, 
-        literalMidWordUnderscores : true,
-        literalMidWordAsterisks : true,
-        strikethrough : true,
-        tasklists : true,
-        simpleLineBreaks : true,
-        emoji : true,
-        underline : true,
+        omitExtraWLInCodeBlocks: true, 
+        noHeaderId: true,
+        parseImgDimensions: true, 
+        literalMidWordUnderscores: true,
+        literalMidWordAsterisks: true,
+        strikethrough: true,
+        tasklists: true,
+        simpleLineBreaks: true,
+        emoji: true,
+        underline: true,
       });
       var nnam = 'anonymous';
       var parar = [], para = [];
@@ -198,12 +192,9 @@
       var chathist = [], histind = 0, currtext = '', currmode = 'html';
       var chatstarted = false;
       var doreload = true;
+      var reloading = false;
       onload = function() {
         nname.value = localStorage.getItem('cname');
-        /*sett.value = localStorage.getItem('csett');
-        if (parseInt(sett.value) == 1) {
-          begs2b.style = '';
-        }*/
       }
       onunload = function() {
         localStorage.setItem('cname', nname.value);
@@ -214,35 +205,23 @@
         localStorage.setItem('cnotf', shownotf.value);
         localStorage.setItem('credm', redmode.value);
         localStorage.setItem('cgarry', garry.value);
-        //localStorage.setItem('csett', sett.value);
         return null;
       }
       onbeforeunload = function() {
         if (chatstarted) {
-          var reqrl = new XMLHttpRequest();
-          reqrl.open('GET', 's?lef=' + Base64.encode(nnam), false);
-          reqrl.send();
+          fetch('s?lef=' + Base64.encode(nnam));
         }
         return null;
       }
       function Schat() {
-        if (nname.value != '') {
-          nnam = nname.value;
-        }
-        if (ks.value != '') {
-          Base64.s = ks.value;
-        }
-        var reqrj = new XMLHttpRequest();
-        reqrj.addEventListener('load', function () {});
-        reqrj.open('GET', 's?joi=' + Base64.encode(nnam));
-        reqrj.send();
-        begs.style = 'display:none;';
-        //begs2.style = 'display:none;';
-        chatt.style = 'white-space: -moz-pre-wrap;white-space: -hp-pre-wrap;white-space: -o-pre-wrap;white-space: -pre-wrap;white-space: pre-wrap;white-space: pre-line;word-wrap: break-word;word-break: break-all;';
-        ctyp.style = 'white-space: -moz-pre-wrap;white-space: -hp-pre-wrap;white-space: -o-pre-wrap;white-space: -pre-wrap;white-space: pre-wrap;white-space: pre-line;word-wrap: break-word;word-break: break-all;';
+        if (nname.value != '') nnam = nname.value;
+        if (ks.value != '') Base64.s = ks.value;
+        fetch('s?joi=' + Base64.encode(nnam));
+        chatt.style.removeProperty('display');
+        ctyp.style.removeProperty('display');
+        begs.style.display = 'none';
         setInterval(ChatReload, 1000, false);
-        inp.style = 'position:fixed;bottom:2px;width:100%;';
-        chattext.style = 'width:' + (window.innerWidth - 255 + '') + 'px;';
+        inp.style.removeProperty('display');
         shohtm = localStorage.getItem('chtm');
         shoind = localStorage.getItem('cind');
         shots = localStorage.getItem('cts');
@@ -250,43 +229,22 @@
         shonotf = localStorage.getItem('cnotf');
         redmod = localStorage.getItem('credm');
         garr = localStorage.getItem('cgarry');
-        if (shohtm == null) {
-          showhtm.value = 0;
-        } else {
-          showhtm.value = parseInt(shohtm);
-        }
-        if (shoind == null) {
-          showind.value = 0;
-        } else {
-          showind.value = parseInt(shoind);
-        }
+        if (shohtm == null) showhtm.value = 0;
+        else showhtm.value = parseInt(shohtm);
+        if (shoind == null) showind.value = 0;
+        else showind.value = parseInt(shoind);
         console.log(shoind);
         console.log(showind.value);
-        if (shots == null) {
-          showts.value = 1;
-        } else {
-          showts.value = parseInt(shots);
-        }
-        if (shohere == null) {
-          showhere.value = 1;
-        } else {
-          showhere.value = parseInt(shohere);
-        }
-        if (shonotf == null) {
-          shownotf.value = 0;
-        } else {
-          shownotf.value = parseInt(shonotf);
-        }
-        if (redmod == null) {
-          redmode.value = 0;
-        } else {
-          redmode.value = parseInt(redmod);
-        }
-        if (garr == null) {
-          garry.value = 0;
-        } else {
-          garry.value = parseInt(garr);
-        }
+        if (shots == null) showts.value = 1;
+        else showts.value = parseInt(shots);
+        if (shohere == null) showhere.value = 1;
+        else showhere.value = parseInt(shohere);
+        if (shonotf == null) shownotf.value = 0;
+        else shownotf.value = parseInt(shonotf);
+        if (redmod == null) redmode.value = 0;
+        else redmode.value = parseInt(redmod);
+        if (garr == null) garry.value = 0;
+        else garry.value = parseInt(garr);
         ChatReload(true);
         ShowHere(showhere.value);
         ShowNotf(shownotf.value);
@@ -294,15 +252,13 @@
         ShowGarry(garry.value);
         chatstarted = true;
       }
-      function reqg() {
+      function UpdateChatBody(rt) {
         if (document.hidden || window.getSelection().toString() == '') {
-          ara = JSON.parse(Base64.decode(this.responseText));
+          ara = rt;
           arar = ara.slice();
           if (document.hidden) {
-            if (JSON.stringify(ara) != JSON.stringify(parar)) {
+            if (JSON.stringify(ara) != JSON.stringify(parar))
               document.title = '(******) Chat Test';
-              setTimeout(function () {document.title = 'Chat Test';}, 300);
-            }
           } else {
             document.title = 'Chat Test';
             parar = ara.slice();
@@ -373,9 +329,9 @@
           para = arar.slice();
         }
       }
-      function reqgh() {
+      function UpdateChatHerelist(rt) {
         if (document.hidden || window.getSelection().toString() == '') {
-          arag = JSON.parse(Base64.decode(this.responseText));
+          arag = rt;
           hist = {}
           for (var i in arag) {
             if (hist[arag[i][1]] === undefined) {
@@ -399,9 +355,9 @@
           }
         }
       }
-      function reqgc() {
+      function UpdateChatTyping(rt) {
         if (document.hidden || window.getSelection().toString() == '') {
-          arag = JSON.parse(Base64.decode(this.responseText));
+          arag = rt;
           hist = {}
           for (var i in arag) {
             if (hist[arag[i][1]] === undefined) {
@@ -421,47 +377,33 @@
           }
         }
       }
-      function reqgk() {
-        ara = JSON.parse(Base64.decode(this.responseText));
+      function UpdateChatKicklist(rt) {
+        ara = rt;
         if (ara.indexOf(nnam) > -1) {
-          var reqrkr = new XMLHttpRequest();
-          reqrkr.open('GET', 's?kic=' + Base64.encode(nnam), false);
-          reqrkr.send();
-          setTimeout(function () {document.body.innerHTML = 'you\'ve been kicked';}, 0);
+          fetch('s?kic=' + Base64.encode(nnam));
+          setTimeout(() => document.body.innerHTML = 'you\'ve been kicked from the chat', 0);
           //window.open(document.URL,'_self','resizable=no,top=-245,width=250,height=250,scrollbars=no');
           //window.close();
         }
       }
-      function ChatReload(e) {
-        if ((e || document.hidden || window.getSelection().toString() == '') && doreload) {
-          var reqr = new XMLHttpRequest();
-          reqr.addEventListener('load', reqg);
-          reqr.open('GET', 'livechat.dat');
-          reqr.send();
-          var reqrr = new XMLHttpRequest();
-          reqrr.open('GET', 's?her=' + Base64.encode(nnam));
-          reqrr.send();
-          var reqrtg = new XMLHttpRequest();
-          reqrtg.addEventListener('load', reqgc);
-          reqrtg.open('GET', 'livechattyp.dat');
-          reqrtg.send();
-          if (hereld > 0) {
-            var reqrh = new XMLHttpRequest();
-            reqrh.addEventListener('load', reqgh);
-            reqrh.open('GET', 'livechathere.dat');
-            reqrh.send();
-          }
+      async function ChatReload(e) {
+        if ((e || document.hidden || window.getSelection().toString() == '') && doreload && !reloading) {
+          reloading = true;
+          try {
+          let chatobj = JSON.parse(Base64.decode(await (await fetch('livechat.dat')).text()));
+          UpdateChatBody(chatobj.chat);
+          fetch('s?her=' + Base64.encode(nnam));
+          UpdateChatTyping(chatobj.typ);
+          if (hereld > 0)
+            UpdateChatHerelist(chatobj.here);
           if (typing) {
-            var reqrt = new XMLHttpRequest();
-            reqrt.open('GET', 's?typ=' + Base64.encode(nnam));
-            reqrt.send();
+            fetch('s?typ=' + Base64.encode(nnam));
             typing = false;
           }
+          UpdateChatKicklist(chatobj.kick);
+          } catch (e) {}
+          reloading = false;
         }
-        var reqrk = new XMLHttpRequest();
-        reqrk.addEventListener('load', reqgk);
-        reqrk.open('GET', 'livechatkick.dat');
-        reqrk.send();
       }
       function Send() {
         let sval;
@@ -473,26 +415,25 @@
             sval = escapeHTML(chattext.value);
             break;
           case 'mark':
+            try {
             sval = mkdownc.makeHtml(chattext.value).replace(/<p>/g, '<span>').replace(/<\/p>/g, '</span>');
+            } catch (e) { sval = chattext.value; }
             break;
           case 'bbcode':
+            try {
             sval = BBCodeParser.process(chattext.value).replace(/<p>/g, '<span>').replace(/<\/p>/g, '</span>');
+            } catch (e) { sval = chattext.value; }
             break;
         }
-        var reqr = new XMLHttpRequest();
-        reqr.addEventListener('load', function () {});
-        reqr.open('GET', 's?tex=' + Base64.encode(JSON.stringify([nnam, sval])));
-        reqr.send();
+        fetch('s?tex=' + Base64.encode(JSON.stringify([nnam, sval])));
         if (chathist.length > 0) {
-          if (chathist[chathist.length-1][0] != chattext.value) {
+          if (chathist[chathist.length-1][0] != chattext.value)
             chathist.push([chattext.value, chatmode.value]);
-          }
         } else {
           chathist.push([chattext.value, chatmode.value]);
         }
-        if (chathist.length > 100) {
+        if (chathist.length > 100)
           chathist.splice(0, chathist.length - 100);
-        }
         chattext.value = '';
         histind = chathist.length;
         currtext = '';
@@ -500,31 +441,35 @@
         typing = true;
       }
       function HelpTogg() {
-        if (helps.style.cssText == 'display: none;') {
-          helps.style = 'position:fixed;top:2px;width:100%;height:90%;background:white;';
-        } else {
-          helps.style = 'display:none;';
-        }
+        if (helps.style.display == 'none')
+          helps.style.removeProperty('display');
+        else
+          helps.style.display = 'none';
       }
       function SettingsTogg() {
-        if (settins.style.cssText == 'display: none;') {
-          settins.style = 'position:fixed;top:2px;width:100%;height:90%;background:white;';
-        } else {
-          settins.style = 'display:none;';
-        }
+        if (settins.style.display == 'none')
+          settins.style.removeProperty('display');
+        else
+          settins.style.display = 'none';
       }
       function ShowHere(v) {
         if (parseInt(v) == 0) {
-          herel.style = 'width:19%;position:relative;left:80%;display:none;';
-          chatt.style = 'white-space: -moz-pre-wrap;white-space: -hp-pre-wrap;white-space: -o-pre-wrap;white-space: -pre-wrap;white-space: pre-wrap;white-space: pre-line;word-wrap: break-word;word-break: break-all;';
+          herel.style.display = 'none';
+          chatt.style.width = '100%';
+          chatt.style.height = 'calc(100% - 100px)';
+          chatt.style.overflow = 'auto';
           hereld = 0;
         } else if (parseInt(v) == 1) {
-          herel.style = 'width:19%;position:fixed;left:80%;top:2px;';
-          chatt.style = 'white-space: -moz-pre-wrap;white-space: -hp-pre-wrap;white-space: -o-pre-wrap;white-space: -pre-wrap;white-space: pre-wrap;white-space: pre-line;word-wrap: break-word;word-break: break-all;width:79%;';
+          herel.style.removeProperty('display');
+          chatt.style.width = 'calc(100% - 250px)';
+          chatt.style.height = 'calc(100% - 100px)';
+          chatt.style.overflow = 'auto';
           hereld = 1;
         } else {
-          herel.style = 'width:19%;position:fixed;left:80%;top:2px;';
-          chatt.style = 'white-space: -moz-pre-wrap;white-space: -hp-pre-wrap;white-space: -o-pre-wrap;white-space: -pre-wrap;white-space: pre-wrap;white-space: pre-line;word-wrap: break-word;word-break: break-all;width:79%;';
+          herel.style.removeProperty('display');
+          chatt.style.width = 'calc(100% - 250px)';
+          chatt.style.height = 'calc(100% - 100px)';
+          chatt.style.overflow = 'auto';
           hereld = 2;
         }
       }
@@ -540,18 +485,20 @@
       }
       function RedMode(v) {
         if (parseInt(v) == 0) {
-          chatt.style = 'width:100%;height:90%;';
+          chatt.style.removeProperty('background');
+          chatt.style.removeProperty('color');
           document.body.style.background = '#ffffff';
         } else {
-          chatt.style = 'background:#f70000;color:#ff0000;width:100%;height:90%;';
+          chatt.style.background = '#f70000';
+          chatt.style.color = '#ff0000';
           document.body.style.background = '#f70000';
         }
       }
       function ShowGarry(v) {
         if (parseInt(v) == 0) {
-          garryspan.style = 'position:absolute;bottom:2px;right:10px;display:none;';
+          garryspan.style.display = 'none';
         } else {
-          garryspan.style = 'position:absolute;bottom:2px;right:10px;';
+          garryspan.style.removeProperty('display');
         }
       }
       window.addEventListener('keydown', function(e) {

@@ -31,6 +31,7 @@ function SecureView(fsc) {
     renameSync: fsc.renameSync.bind(fsc),
     rmdirSync: fsc.rmdirSync.bind(fsc),
     realpath: fsc.realpath.bind(fsc),
+    access: fsc.access.bind(fsc),
     stat: fsc.stat.bind(fsc),
     lstat: fsc.lstat.bind(fsc),
     chmod: fsc.chmod.bind(fsc),

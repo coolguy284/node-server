@@ -1,15 +1,16 @@
 // jshint -W086
 module.exports = {
   create: function (name, type, opts) {
-    if (type === undefined) {
+    if (type == null) {
       type = 'normal';
     }
-    if (!opts) {
-      opts = {};
-    }
+    if (!opts) opts = {};
     if (!opts.console && !opts.colog) {
       opts.console = new datajs.Console();
-      opts.colog = opts.console.colog;
+      if (opts.terminal)
+        opts.colog = new datajs.term.Terminal(60, 20);
+      else
+        opts.colog = opts.console.colog;
     } else if (opts.console && !opts.colog) {
       opts.colog = console.colog;
     } else if (!opts.console && opts.colog) {
@@ -17,7 +18,11 @@ module.exports = {
     } else {
       opts.console.colog = opts.colog;
     }
-    let co = {type: type, colog: opts.colog, console: opts.console};
+    if (opts.streams) {
+      opts.stdout = new datajs.s.ConsoleStream(opts.console.log);
+      opts.stderr = new datajs.s.ConsoleStream(opts.console.error);
+    }
+    let co = {type: type, colog: opts.colog, console: opts.console, stdout: opts.stdout, stderr: opts.stderr};
     if (opts.phash) {
       consoleswpenc.push(name);
       co.phash = opts.phash;

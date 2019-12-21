@@ -72,7 +72,7 @@
     <fieldset>
       <legend>QR Code</legend>
       <canvas id = 'qrcanvas'></canvas>
-      <svg id = 'qrsvg' style = 'display:none;'></svg><br>
+      <svg id = 'qrsvg' style = 'display:none;'></svg>
     </fieldset>
     <fieldset>
       <legend>Additional Info</legend>
@@ -84,6 +84,10 @@
       Segment Metadata: <span id = 'addlsegmeta'></span><br>
       Total Data Bits: <span id = 'addltotalbits'></span><br>
       Error Correction Level: <span id = 'addlerrcorr'></span><br>
+      <details id = 'svgxmldata' style = 'display:none;'>
+        <summary>SVG XML Contents</summary>
+        <div id = 'addlsvgxml' style = 'width:calc(100% - 30px);height:600px;overflow:auto;font-family:monospace;border:1px solid black;margin:5px;padding:10px;'></div>
+      </details>
     </fieldset>
     <script src = '../js/qrcodegen.js'></script>
     <script>
@@ -165,6 +169,7 @@
         }
         qrcanvas.style.display = 'none';
         qrsvg.style.display = 'none';
+        svgxmldata.style.display = 'none';
         var QRC = qrcodegen.QrCode;
         var segs = qrcodegen.QrSegment.makeSegments(text);
         var qr = QRC.encodeSegments(segs, QRC.Ecc[getnameval('errval')], parseInt(verminval.value), parseInt(vermaxval.value), parseInt(maskval.value), ecboostval.checked);
@@ -180,10 +185,12 @@
           }*/
         } else {
           qrsvg.style.removeProperty('display');
+          svgxmldata.style.removeProperty('display');
           //var qr0 = QRC.encodeText(text, QRC.Ecc[getnameval('errval')]);
           //var svg = qr0.toSvgString(4);
           var code = qr.toSvgString(parseInt(bsmval.value));
           qrsvg.innerHTML = code;
+          addlsvgxml.innerText = code;
         }
         describeqr(text, qr, segs);
       }

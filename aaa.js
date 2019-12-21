@@ -234,7 +234,7 @@ adm = datajs.adm;
 comm = datajs.comm.run;
 datajs.tick.on();
 datajs.consm.create('default');
-datajs.consm.create('terminal', 'bash');
+datajs.consm.create('terminal', 'bash', {streams:true});
 process.on('message', function (val) {
   switch (val[0]) {
     case 'alertcheck':
