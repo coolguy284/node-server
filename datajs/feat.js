@@ -94,5 +94,6 @@ module.exports = {
   idstr: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
   tempp: { // simple temporary pages, for functions use handlerf or handlerp
     '/helo.html' : [{'Content-Type': 'text/plain; charset=utf-8'}, 'ｈｅｌｏ'],
+    '/images/hell.png': [{'Content-Type': 'text/plain; charset=utf-8'}, 'sans haha']
   },
 };
