@@ -583,18 +583,20 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
         if (fs.existsSync('websites' + req.url)) {
           let rs = fs.createReadStream('websites' + req.url, {start: rstart, end: rend});
           let size = fs.statSync('websites' + req.url).size;
+          if (rend == Infinity) rend = size;
           res.writeHead(206, {
             'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-            'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+            'Content-Range': ('bytes ' + rstart + '-' + (rend - 1) + '/' + size),
             'Content-Length': Math.min(rend - rstart, size),
-          });
+          }); // why is the end of a range referencing the id of that byte, instead of the next one like in js?
           rs.pipe(res);
         } else if (fs.existsSync(req.url.substr(1, Infinity)) && datajs.feat.debug.js) {
           let rs = fs.createReadStream(req.url.substr(1, Infinity), {start: rstart, end: rend});
           let size = fs.statSync(req.url.substr(1, Infinity)).size;
+          if (rend == Infinity) rend = size;
           res.writeHead(206, {
             'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-            'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+            'Content-Range': ('bytes ' + rstart + '-' + (rend - 1) + '/' + size),
             'Content-Length': Math.min(rend - rstart, size),
           });
           rs.pipe(res);

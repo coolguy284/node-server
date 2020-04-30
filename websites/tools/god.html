@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+  <head>
+    <title>The Oracle Machine</title>
+  </head>
+  <body>
+    <button onclick='document.write(i())'>Speak to me</button>
+    <script>
+      r=()=>{u=Math.floor(Math.random()*27+65);return String.fromCharCode(u==26+65?32:u)}
+      i=()=>{t='';for(var i=0;i<1000;i++)t+=r();return t;}
+    </script>
+  </body>
+</html>
