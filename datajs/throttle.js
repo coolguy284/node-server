@@ -24,19 +24,23 @@ module.exports = class Throttle extends stream.Transform {
         } else {
           c = chunk.slice(bp, bp + this.chunksize);
           bp += this.chunksize;
+          this.chunks.push(c);
         }
       } else {
         c = chunk.slice(bp, bp + this.chunksize);
         bp += this.chunksize;
+        this.chunks.push(c);
       }
-      this.chunks.push(c);
     }
     this.cbs.push(() => cb());
     if (!this.processing) this.process(0);
   }
-  process(i) {
+  async process(i) {
+    if (this.paused) return;
     this.processing = true;
-    this.push(this.chunks.shift());
+    let cs = this.chunks.shift();
+    if (this.bps != 0) await datajs.sleep(Math.floor(cs.length / this.bps * 1000));
+    this.push(cs);
     if (this.paused) {
       this.processing = false;
       return;
@@ -45,8 +49,7 @@ module.exports = class Throttle extends stream.Transform {
       this.processing = false;
       while (this.cbs.length > 0) setImmediate(this.cbs.shift(), i);
     } else {
-      let ms = this.chunksize / this.bps * 1000;
-      setTimeout(this.process.bind(this, i+1), isNaN(ms) ? 0 : ms);
+      setImmediate(this.process.bind(this, i+1));
     }
   }
   pauseStream() {

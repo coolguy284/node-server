@@ -575,29 +575,46 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
       });
       return -1;
     }
+    let rpath = decodeURI('websites' + req.url), fpath = decodeURI(req.url.substr(1, Infinity)), runelse = false;
     if (req.headers.range) {
-      if (req.headers.range.substr(0, 6) == 'bytes=') {
-        let rse = req.headers.range.substr(6, 100).split('-');
+      if (/bytes=[0-9]*-[0-9]*/.test(req.headers.range)) {
+        let rse = req.headers.range.substr(6, Infinity).split('-');
         let rstart = rse[0] == '' ? 0 : parseInt(rse[0]);
         let rend = rse[1] == '' ? Infinity : parseInt(rse[1]);
-        if (fs.existsSync('websites' + req.url)) {
-          let rs = fs.createReadStream('websites' + req.url, {start: rstart, end: rend});
-          let size = fs.statSync('websites' + req.url).size;
-          if (rend == Infinity) rend = size;
+        if (fs.existsSync(rpath) && datajs.subdir('websites', rpath)) {
+          let size = fs.statSync(rpath).size;
+          if (rend == Infinity) rend = size - 1;
+          if (rend >= size) {
+            if (datajs.feat.permissiverange) rend = size - 1;
+            else {
+              res.writeHead(416);
+              res.end();
+              return -1;
+            }
+          }
+          let rs = fs.createReadStream(rpath, {start: rstart, end: rend});
           res.writeHead(206, {
             'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-            'Content-Range': ('bytes ' + rstart + '-' + (rend - 1) + '/' + size),
-            'Content-Length': Math.min(rend - rstart, size),
+            'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+            'Content-Length': Math.min(rend - rstart + 1, size),
           }); // why is the end of a range referencing the id of that byte, instead of the next one like in js?
           rs.pipe(res);
-        } else if (fs.existsSync(req.url.substr(1, Infinity)) && datajs.feat.debug.js) {
-          let rs = fs.createReadStream(req.url.substr(1, Infinity), {start: rstart, end: rend});
-          let size = fs.statSync(req.url.substr(1, Infinity)).size;
-          if (rend == Infinity) rend = size;
+        } else if (fs.existsSync(fpath) && datajs.feat.debug.js) {
+          let size = fs.statSync(fpath).size;
+          if (rend == Infinity) rend = size - 1;
+          if (rend >= size) {
+            if (datajs.feat.permissiverange) rend = size - 1;
+            else {
+              res.writeHead(416);
+              res.end();
+              return -1;
+            }
+          }
+          let rs = fs.createReadStream(fpath, {start: rstart, end: rend});
           res.writeHead(206, {
             'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-            'Content-Range': ('bytes ' + rstart + '-' + (rend - 1) + '/' + size),
-            'Content-Length': Math.min(rend - rstart, size),
+            'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+            'Content-Length': Math.min(rend - rstart + 1, size),
           });
           rs.pipe(res);
         } else {
@@ -612,7 +629,6 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
         return -1;
       }
     }
-    let rpath = 'websites' + req.url, runelse = false;
     if (fs.existsSync(rpath) && datajs.subdir('websites', rpath)) {
       if (fs.statSync(rpath).isFile()) {
         let rs = fs.createReadStream(rpath);
@@ -625,11 +641,11 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
       } else {
         runelse = true;
       }
-    } else if (fs.existsSync(req.url.substr(1, Infinity)) && datajs.feat.debug.js) {
-      let rs = fs.createReadStream(req.url.substr(1, Infinity));
+    } else if (fs.existsSync(fpath) && datajs.feat.debug.js) {
+      let rs = fs.createReadStream(fpath);
       res.writeHead(200, {
         'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-        'Content-Length': fs.statSync(req.url.substr(1, Infinity)).size,
+        'Content-Length': fs.statSync(fpath).size,
         'Accept-Ranges': 'bytes'
       });
       rs.pipe(res);

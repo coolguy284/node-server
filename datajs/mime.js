@@ -8,6 +8,7 @@ module.exports = {
     ico: 'image/vnd.microsoft.icon',
     log: 'text/plain',
     txt: 'text/plain',
+    mp4: 'video/mp4',
   },
   get: function get(fn) {
     let dl = fn.split('.');
