@@ -37,10 +37,11 @@ function prepserv() {
     }
   });
   serv.on('exit', function (code, signal) {
-    console.log('server exited with signal [' + signal + '] with code ' + code);
+    console.log('Server exited with signal [' + signal + '], code ' + code + '.');
     if (!letterm && ++rstimes < maxrstimes) {
       prepserv();
     } else {
+      if (rstimes >= maxrstimes) console.error('Server restarted too much.  Terminating server and monitor application.');
       serv = null;
     }
   });
@@ -53,6 +54,7 @@ scint = setInterval(function () {
       checkable = false;
       checkt = new Date().getTime() + timeout;
     } else if (new Date().getTime() > checkt) {
+      console.log('Server unresponsive.  Restarting.')
       serv.kill();
       checkable = true;
     }

@@ -49,6 +49,13 @@ module.exports = {
       setTimeout(resolve, ms);
     });
   },
+  sleepPrecise: async function sleepPrecise(ms) {
+    let et = Date.now() + ms;
+    while (Date.now() < et) {
+      if (t + 20 > et) await datajs.sleepImmediate();
+      else await datajs.sleep(1);
+    }
+  },
   sleepSync: function sleepSync(ms) {
     Atomics.wait(datajs.i32a, 0, 0, ms);
   },

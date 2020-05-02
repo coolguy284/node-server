@@ -15,6 +15,7 @@ module.exports = {
   stdincons: false, // whether stdin can execute code
   reqtimelog: false, // log time to complete request
   errmsg: false, // show message with server error
+  activeconn: true, // maintain array of active connections
   enc: 'aes',
   pkeysize: 1024,
   datadir: 'data', // directory to save server state, '' for no state saving
@@ -33,7 +34,7 @@ module.exports = {
   // 0 - use req.connection.encrypted
   // 1 - use x-forwarded-proto, if nonexistent then req.connection.encrypted
   // 2 - use x-forwarded-proto, if nonexistent then https
-  httpsdm: 2,
+  httpsdm: 1,
   tickint: 1000, // server ticking interval
   savefreq: 10, // server saves state every nth tick
   intmode: false, // only allows requests from 127.0.0.1 ip address, useful for reverse proxy
@@ -41,6 +42,7 @@ module.exports = {
   bwlimits: {
     main: Infinity, // server webpage bandwidth limit
   },
+  permissiverange: false, // whether server is permissive of bad range requests
   debug: {
     js: false, // whether files from outside websites folder can be accessed
     testerr: false, // whether test error url exists

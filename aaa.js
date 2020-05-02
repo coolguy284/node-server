@@ -168,6 +168,7 @@ global.pcpuUsage = global.cpuUsage;
 global.dcpuUsage = { user: 0, system: 0 };
 global.memUsage = process.memoryUsage();
 global.port = process.env.PORT || 8080;
+global.activeconn = [];
 if (datajs.feat.datadir != '') {
   try {
     global.chat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/chat.json').toString());
@@ -280,6 +281,51 @@ global.serverf = function serverf(req, resa, nolog) {
     res = new Throttle({bps:datajs.feat.bwlimits.main});
   	res.writeHead = resa.writeHead.bind(resa);
   	res.pipe(resa);
+    res.orig = resa;
+  }
+  if (datajs.feat.activeconn) {
+    let activeconnind = activeconn.length, reqf, resf;
+    if (!req.socket.destroyed) reqf = req;
+    if (!resa.socket.destroyed) resf = res;
+    if (reqf || resf) {
+      activeconn[activeconnind] = [reqf, resf];
+      req.on('aborted', () => {
+        if (!activeconn[activeconnind]) return;
+        activeconn[activeconnind][0] = undefined;
+        if (!activeconn[activeconnind][0] && !activeconn[activeconnind][1]) {
+          let temp;
+          delete activeconn[activeconnind];
+          if (activeconn.length > (temp = Math.max(...Object.keys(activeconn), -1) + 1)) activeconn.length = temp;
+        }
+      });
+      req.on('close', () => {
+        if (!activeconn[activeconnind]) return;
+        activeconn[activeconnind][0] = undefined;
+        if (!activeconn[activeconnind][0] && !activeconn[activeconnind][1]) {
+          let temp;
+          delete activeconn[activeconnind];
+          if (activeconn.length > (temp = Math.max(...Object.keys(activeconn), -1) + 1)) activeconn.length = temp;
+        }
+      });
+      res.on('close', () => {
+        if (!activeconn[activeconnind]) return;
+        activeconn[activeconnind][1] = undefined;
+        if (!activeconn[activeconnind][0] && !activeconn[activeconnind][1]) {
+          let temp;
+          delete activeconn[activeconnind];
+          if (activeconn.length > (temp = Math.max(...Object.keys(activeconn), -1) + 1)) activeconn.length = temp;
+        }
+      });
+      res.on('finish', () => {
+        if (!activeconn[activeconnind]) return;
+        activeconn[activeconnind][1] = undefined;
+        if (!activeconn[activeconnind][0] && !activeconn[activeconnind][1]) {
+          let temp;
+          delete activeconn[activeconnind];
+          if (activeconn.length > (temp = Math.max(...Object.keys(activeconn), -1) + 1)) activeconn.length = temp;
+        }
+      });
+    }
   }
   switch (datajs.feat.ipdm) {
     case 0:
