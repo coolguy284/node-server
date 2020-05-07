@@ -9,7 +9,7 @@
       }
       #herel {
         width: 250px;
-        position: relative; right: 275px; top: 2px;
+        position: fixed; right: 5px; top: 2px;
       }
       #inp {
         position: fixed; bottom: 2px;
@@ -270,10 +270,10 @@
           ara = rt;
           arar = ara.slice();
           if (document.hidden) {
-            if (JSON.stringify(ara) != JSON.stringify(parar))
+            if (JSON.stringify(ara) != JSON.stringify(parar) && document.title != '(******) Chat Test')
               document.title = '(******) Chat Test';
           } else {
-            document.title = 'Chat Test';
+            if (document.title != 'Chat Test') document.title = 'Chat Test';
             parar = ara.slice();
           }
           for (var i in ara) {

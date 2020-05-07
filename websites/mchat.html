@@ -15,7 +15,8 @@
         width: 100%;
         height: calc(100vh - 40px);
         overflow: auto;
-        white-space: pre;
+        white-space: pre-wrap;
+        word-break: break-word;
       }
       #cinp {
         width: calc(100% - 200px);
@@ -101,7 +102,7 @@
             let ci = JSON.parse(AESDecrypt(x[1], cpass.value));
             return x[0] + ' ' + escapeHTML(ci[0]) + ' ' + ci[1];
           });
-          let narrstr = arr.join('<br>');
+          let narrstr = arr.join('<br>') + '<br><br><br>';
           if (arrstr != narrstr) {
             ct.innerHTML = narrstr;
             arrstr = narrstr;
@@ -109,9 +110,10 @@
           }
           if (!document.hidden) narrfoc = false;
           if (narrfoc) {
-            document.title = '!message! Multi Channel Chat';
-            setTimeout(() => document.title = 'Multi Channel Chat', 500);
-          } else document.title = 'Multi Channel Chat';
+            if (document.title != '(******) Multi Channel Chat') document.title = '(******) Multi Channel Chat';
+          } else {
+            if (document.title != 'Multi Channel Chat') document.title = 'Multi Channel Chat';
+          }
         }
       }
       async function Send() {
