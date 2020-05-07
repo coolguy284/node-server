@@ -390,7 +390,7 @@ global.serverf = function serverf(req, resa, nolog) {
     }
   }
   global.stime = new Date();
-  if (datajs.feat.debreq && datajs.feat.el.cons.indexOf(req.url) < 0 && datajs.feat.el.consv.every(datajs.notstartswith, req.url)) {
+  if (datajs.feat.debreq && (datajs.feat.el.cons.indexOf(req.url) < 0 || datajs.feat.debreqamt & 1) && (datajs.feat.el.consv.every(datajs.notstartswith, req.url) || datajs.feat.debreqamt & 2)) {
     debreq.push(datajs.rm.reqinfo(req, rrid, stime.getTime(), ipaddr, proto, url, cookies, nam));
     if (debreq.length > datajs.feat.lim.debreq) {
       debreq.splice(0, debreq.length - datajs.feat.lim.debreq);

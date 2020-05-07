@@ -4,7 +4,7 @@
     <meta name = 'referrer' content = 'no-referrer' />
     <title>Chat Test</title>
   </head>
-  <body onresize = 'chattext.style = "width:" + (window.innerWidth - 255 + "") + "px;";'>
+  <body onresize = 'chattext.style = "width:" + (window.innerWidth - 275 + "") + "px;";'>
     <span id = 'begs'>
       <span>Enter Your Name:</span>
       <input type = 'text' id = 'nname'>
@@ -197,12 +197,11 @@
         if (document.hidden || window.getSelection().toString() == '') {
           ara = JSON.parse(this.responseText);
           if (document.hidden) {
-            if (JSON.stringify(ara) != JSON.stringify(para)) {
+            if (JSON.stringify(ara) != JSON.stringify(para) && document.title != '(******) Chat Test') {
               document.title = '(******) Chat Test';
-              setTimeout(function () {document.title = 'Chat Test';}, 300);
             }
           } else {
-            document.title = 'Chat Test';
+            if (document.title != 'Chat Test') document.title = 'Chat Test';
             para = ara.slice(0);
           }
           for (var i in ara) {

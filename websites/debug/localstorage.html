@@ -49,10 +49,8 @@
         valb.value = localStorage.getItem(selval.value);
       }
       function SetV() {
-        if (CheckPass('local')) {
-          localStorage.setItem(selval.value, valb.value);
-          RefList();
-        }
+        localStorage.setItem(selval.value, valb.value);
+        RefList();
       }
       function DelV() {
         localStorage.removeItem(selval.value);

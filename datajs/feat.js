@@ -11,6 +11,9 @@ module.exports = {
   comm: true,
   colog: true,
   debreq: true,
+  // debreqamt & 1 = log single ajax files
+  // debreqamt & 2 = log ajax url parameters
+  debreqamt: 0,
   cons: true,
   stdincons: false, // whether stdin can execute code
   reqtimelog: false, // log time to complete request
