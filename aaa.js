@@ -135,6 +135,7 @@ global.vfs = require('./vfs');
 global.reqg = require('./request_get.js');
 global.reqh = require('./request_head.js');
 global.reqp = require('./request_post.js');
+global.reqo = require('./request_options.js');
 global.hreq = require('./host_request.js');
 try {
   global.mime = require('mime');
@@ -454,6 +455,8 @@ global.serverf = function serverf(req, resa, nolog) {
       reqh(req, res, rrid, ipaddr, proto, url, cookies, nam);
     } else if (req.method == 'POST') {
       reqp(req, res, rrid, ipaddr, proto, url, cookies, nam);
+    } else if (req.method == 'OPTIONS') {
+      reqo(req, res, rrid, ipaddr, proto, url, cookies, nam);
     } else {
       res.writeHead(501);
       res.end();

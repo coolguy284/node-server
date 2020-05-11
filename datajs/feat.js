@@ -7,8 +7,10 @@ module.exports = {
   chatkick: true,
   rchat: true,
   mchat: true,
+  mcreatechat: false,
   views: true,
   comm: true,
+  owneyes: true,
   colog: true,
   debreq: true,
   // debreqamt & 1 = log single ajax files
@@ -82,13 +84,13 @@ module.exports = {
   },
   el: {
     // urls that dont get logged in console
-    cons: ['/livechat.dat', '/liverchat.json', '/liveviews.dat', '/comms.json', '/colog.dat', '/cologd.dat', '/livechathere.dat', '/livechattyp.dat', '/livechatkick.dat', '/lat.log'],
+    cons: ['/livechat.dat', '/liverchat.json', '/liveviews.dat', '/comms.json', '/colog.dat', '/cologd.dat', '/livechathere.dat', '/livechattyp.dat', '/livechatkick.dat', '/pkey.log', '/lat.log'],
     // url startswiths that dont get logged in console
     consv: ['/s?her=', '/s?typ=', '/m?cnl=', '/a?co=', '/a?cd=', '/a?ccp=', '/a?rc=', '/a?fstyp=', '/a?fsdir=', '/a?fstex='],
     // locked server allowable urls
     lockl: ['/admin.html', '/colog.dat', '/cologd.dat'],
     // urls that dont show up in viewshist
-    vh: ['/ftx.txt', '/chathid.html', '/chatprivate.html', 'mchat.html', '/lat.log'],
+    vh: ['/ftx.txt', '/chathid.html', '/chatprivate.html', '/mchat.html', '/lat.log'],
     // url startswiths that dont show up in viewshist
     vhv: ['/s?', '/r?', '/m?', '/a?', '/pagg?=', '/oi?vr=', '/livechatd.log?id=', '/user', '/login?v=', '/logout?v='],
     // ajax urls

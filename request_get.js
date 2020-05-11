@@ -33,23 +33,21 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
       }
       break;
     case '/livechat.dat':
-      if (!datajs.feat.chat) {
-        datajs.rm.sn(res);
-        break;
-      }
-      let chatobj = {};
-      chatobj.chat = chat;
-      if (datajs.feat.chathere)
-        chatobj.here = chatherelist;
-      if (datajs.feat.chattyp)
-        chatobj.typ = chattyplist;
-      if (datajs.feat.chatkick)
-        chatobj.kick = chatkicklist;
-      datajs.rm.restext(res, b64.encode(JSON.stringify(chatobj)));
+      if (datajs.feat.chat) {
+        let chatobj = {};
+        chatobj.chat = chat;
+        if (datajs.feat.chathere)
+          chatobj.here = chatherelist;
+        if (datajs.feat.chattyp)
+          chatobj.typ = chattyplist;
+        if (datajs.feat.chatkick)
+          chatobj.kick = chatkicklist;
+        datajs.rm.restext(res, b64.encode(JSON.stringify(chatobj)));
+      } else datajs.rm.sn(res);
       break;
     case '/livechates.dat':
       if (datajs.feat.chates) {
-        res.writeHead(200, {'Content-Type': 'text/event-stream','Connection': 'keep-alive','Cache-Control': 'no-cache','Transfer-Encoding': 'chunked'});
+        res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
         var ChatMSG = function (s) {
           res.write('event: chat-msg\ndata: ' + s + '\n\n');
         }, ChatRefresh = function () {
@@ -76,7 +74,7 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
           eslistener.off('chat-clear', ChatClear);
         });
       } else {
-        res.writeHead(200, {'Content-Type': 'text/event-stream','Connection': 'keep-alive','Cache-Control': 'no-cache','Transfer-Encoding': 'chunked'});
+        res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
         res.write('event: no-es\n\n');
         res.end();
       }
@@ -84,49 +82,47 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
     case '/liverchat.json':
       if (datajs.feat.rchat) {
         datajs.rm.restext(res, JSON.stringify(rchat));
-      } else {datajs.rm.sn(res);}
+      } else datajs.rm.sn(res);
       break;
     case '/liveviews.dat':
       if (datajs.feat.views) {
         datajs.rm.restext(res, b64.encode(JSON.stringify(viewshist)));
-      } else {datajs.rm.sn(res);}
+      } else datajs.rm.sn(res);
       //"henlo this is an comment." - corn
       break;
     case '/comms.json':
       if (datajs.feat.comm) {
         datajs.rm.restext(res, JSON.stringify(codel));
-      } else {datajs.rm.sn(res);}
+      } else datajs.rm.sn(res);
       break;
     case '/debug/owneyes.html':
-      let gid = (Math.random() * 1000000 + '').split('.')[0];
-      owneyesid.push([gid, stime.getTime()]);
-      fs.readFile('websites/debug/owneyes.html', function (err, data) {
-        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-        res.write(data.toString().replace('{id}', gid));
-        res.end();
-      });
+      if (datajs.feat.owneyes) {
+        let gid = (Math.random() * 1000000 + '').split('.')[0];
+        owneyesid.push([gid, stime.getTime()]);
+        fs.readFile('websites/debug/owneyes.html', function (err, data) {
+          res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+          res.write(data.toString().replace('{id}', gid));
+          res.end();
+        });
+      } else datajs.rm.sn(res);
       break;
     case '/colog.dat':
       if (datajs.feat.colog) {
-        res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8'});
         if (datajs.feat.enc == 'b64') {
-          res.write(b64a.encode(JSON.stringify(colog)));
+          datajs.rm.restext(b64a.encode(JSON.stringify(colog)));
         } else if (datajs.feat.enc == 'aes') {
-          res.write(cjsenc(JSON.stringify(colog), b64a.serverp));
+          datajs.rm.restext(cjsenc(JSON.stringify(colog), b64a.serverp));
         }
-        res.end();
-      } else {datajs.rm.sn(res);}
+      } else datajs.rm.sn(res);
       break;
     case '/cologd.dat':
       if (datajs.feat.colog) {
-        res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8'});
         if (datajs.feat.enc == 'b64') {
-          res.write(b64a.encode(JSON.stringify(cologd)));
+          datajs.rm.restext(b64a.encode(JSON.stringify(cologd)));
         } else if (datajs.feat.enc == 'aes') {
-          res.write(cjsenc(JSON.stringify(cologd), b64a.serverp));
+          datajs.rm.restext(cjsenc(JSON.stringify(cologd), b64a.serverp));
         }
-        res.end();
-      } else {datajs.rm.sn(res);}
+      } else datajs.rm.sn(res);
       break;
     case '/pkey.log':
       if (pkeydat < process.hrtime()[0] - 60) {
@@ -161,7 +157,7 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
         if (!done) {
           datajs.rm.restext(res, '[]');
         }
-      } else {datajs.rm.sn(res);}
+      } else datajs.rm.sn(res);
       break;
     case req.url.substr(0, 5) == '/r?u=':
       fs.readFile('websites/redirecttemplate.html', function (err, data) {
@@ -179,11 +175,11 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
       });
       break;
     case req.url.substr(0, 6) == '/r?uh=':
-      res.writeHead(303, {'Location' : decodeURIComponent(req.url.substr(6, 2048))});
+      res.writeHead(303, {'Location': decodeURIComponent(req.url.substr(6, 2048))});
       res.end();
       break;
     case req.url.substr(0, 6) == '/r?eh=':
-      res.writeHead(303, {'Location' : b64.decode(req.url.substr(6, 2048))});
+      res.writeHead(303, {'Location': b64.decode(req.url.substr(6, 2048))});
       res.end();
       break;
     case req.url.substr(0, 7) == '/s?tex=':
@@ -237,7 +233,7 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
             datajs.rm.restext(res, '2');
           } else datajs.rm.sn(res);
         } else {
-          adm.mcreatechat(ar[0], ar[1]);
+          if (datajs.feat.mcreatechat) adm.mcreatechat(ar[0], ar[1]);
           datajs.rm.sn(res);
         }
       } else datajs.rm.restext(res, '3');
@@ -261,7 +257,7 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
             datajs.rm.restext(res, '1');
           }
         }
-      }
+      } else datajs.rm.sn(res);
       break;
     case req.url.substr(0, 6) == '/r?co=':
       let dell = req.url.substr(6, Infinity).split('|');
@@ -294,151 +290,151 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
       datajs.rm.sn(res);
       break;
     case req.url.substr(0, 7) == '/a?ccp=':
-      try {
       if (datajs.feat.cons) {
-        let ta = JSON.parse(b64.decode(req.url.substr(7, 2048)));
-        if (consoles[ta[1]] && consoleswpenc.indexOf(ta[1]) > -1) {
-          if (sha256.hex(ta[0]) == (consoles[ta[1]].phash || b64a.server)) {
-            datajs.rm.restext(res, b64.encode(consoles[ta[1]].penc));
+        try {
+          let ta = JSON.parse(b64.decode(req.url.substr(7, 2048)));
+          if (consoles[ta[1]] && consoleswpenc.indexOf(ta[1]) > -1) {
+            if (sha256.hex(ta[0]) == (consoles[ta[1]].phash || b64a.server)) {
+              datajs.rm.restext(res, b64.encode(consoles[ta[1]].penc));
+            }
+          } else if (sha256.hex(ta[0]) == b64a.server) {
+            datajs.rm.restext(res, b64.encode(b64a.serverp));
           }
-        } else if (sha256.hex(ta[0]) == b64a.server) {
-          datajs.rm.restext(res, b64.encode(b64a.serverp));
-        }
-      } else {datajs.rm.sn(res);}
-      } catch (e) {datajs.rm.sn(res);}
+        } catch (e) { datajs.rm.sn(res); }
+      } else datajs.rm.sn(res);
       break;
     case req.url.substr(0, 6) == '/a?cc=':
       if (datajs.feat.cons) {
-      try {
-      if (datajs.feat.enc == 'b64') {
-        cv = JSON.parse(b64a.decode(req.url.substr(6, Infinity)));
-      } else if (datajs.feat.enc == 'aes') {
-        cv = JSON.parse(cjsdec(req.url.substr(6, Infinity), b64a.serverp));
-      }
-      if (sha256.hex(cv[0]) == b64a.server) {
-        let tx = cv[1];
-        console.log('>> ' + tx);
-        if (tx[0] != ':') {
-          let resp = eval(tx);
-          if (resp !== undefined) console.log('<- ' + util.inspect(resp));
-        } else {
-          let resp = comm(tx.substr(1, Infinity));
-          if (resp !== undefined) console.log('<- ' + util.inspect(resp));
-        }
-      } else { datajs.rm.restext(res, '1'); return; }
-      } catch (e) { console.error(e); datajs.rm.restext(res, '2'); return; }
-      }
-      datajs.rm.sn(res);
+        try {
+          if (datajs.feat.enc == 'b64') {
+            cv = JSON.parse(b64a.decode(req.url.substr(6, Infinity)));
+          } else if (datajs.feat.enc == 'aes') {
+            cv = JSON.parse(cjsdec(req.url.substr(6, Infinity), b64a.serverp));
+          }
+          if (sha256.hex(cv[0]) == b64a.server) {
+            let tx = cv[1];
+            console.log('>> ' + tx);
+            if (tx[0] != ':') {
+              let resp = eval(tx);
+              if (resp !== undefined) console.log('<- ' + util.inspect(resp));
+            } else {
+              let resp = comm(tx.substr(1, Infinity));
+              if (resp !== undefined) console.log('<- ' + util.inspect(resp));
+            }
+          } else { datajs.rm.restext(res, '1'); return; }
+        } catch (e) { console.error(e); datajs.rm.restext(res, '2'); return; }
+      } else datajs.rm.sn(res);
       break;
     case req.url.substr(0, 6) == '/a?rc=':
-      let ra, pass = false;
-      for (let i in consoleswpenc) {
-        let tra = cjsdec(req.url.substr(6, Infinity), consoles[consoleswpenc[i]].penc);
-        if (tra != '') {
-          ra = JSON.parse(tra);
-          pass = true;
-          break;
-        }
-      }
-      if (!pass) {
-        ra = JSON.parse(cjsdec(req.url.substr(6, Infinity), b64a.serverp));
-      }
-      if (datajs.feat.colog && consoles[ra[0]]) {
-        if (sha256.hex(ra[1]) == (consoles[ra[0]].phash || b64a.server)) {
-          res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8'});
-          if (datajs.feat.enc == 'b64') {
-            res.write(b64a.encode(JSON.stringify(consoles[ra[0]].colog)));
-          } else if (datajs.feat.enc == 'aes') {
-            res.write(cjsenc(JSON.stringify(consoles[ra[0]].colog), (consoles[ra[0]].penc || b64a.serverp)));
-          }
-          res.end();
-        } else {datajs.rm.sn(res);}
-      } else {datajs.rm.sn(res);}
-      break;
-    case req.url.substr(0, 6) == '/a?sc=':
       if (datajs.feat.cons) {
-      let aconsole;
-      try {
-      try {
-      if (datajs.feat.enc == 'b64') {
-        cv = JSON.parse(b64a.decode(req.url.substr(6, Infinity)));
-      } else if (datajs.feat.enc == 'aes') {
-        let pass = false;
+        let ra, pass = false;
         for (let i in consoleswpenc) {
-          let tcv = cjsdec(req.url.substr(6, Infinity), consoles[consoleswpenc[i]].penc);
-          if (tcv != '') {
-            cv = JSON.parse(tcv);
+          let tra = cjsdec(req.url.substr(6, Infinity), consoles[consoleswpenc[i]].penc);
+          if (tra != '') {
+            ra = JSON.parse(tra);
             pass = true;
             break;
           }
         }
         if (!pass) {
-          cv = JSON.parse(cjsdec(req.url.substr(6, Infinity), b64a.serverp));
+          ra = JSON.parse(cjsdec(req.url.substr(6, Infinity), b64a.serverp));
         }
-      }
-      } catch (e) { console.error(e); }
-      let consol;
-      if (consoles[cv[1]]) {
-        aconsole = consoles[cv[1]].console;
-        consol = consoles[cv[1]];
-      } else { datajs.rm.sn(res); return; }
-      if (sha256.hex(cv[0]) == (consol.phash || b64a.server)) {
-        let tx = cv[2];
-        if (consol.type != 'bash') aconsole.log('>> ' + tx);
-        if (tx[0] != ':') {
-          let resp;
-          switch (consol.type) {
-            case 'normal':
-              resp = eval(tx);
-              break;
-            case 'vm':
-              resp = vm.runInContext(tx, consol.context);
-              break;
-            case 'bash':
-              if (!consol.running) {
-                aconsole.log('>> ' + tx);
-                let ca = datajs.parseexec(tx);
-                consol.running = true;
-                consol.cp = cp.spawn(ca[0], ca.slice(1, Infinity), {windowsHide: true}, function (err) {if (err) consol.console.error(err);});
-                consol.cp.stdout.pipe(consol.stdout, {end:false});
-                consol.cp.stderr.pipe(consol.stderr, {end:false});
-                consol.cp.on('exit', function () {
-                  consol.running = false;
-                });
-                consol.cp.inspect = function () {
-                  return 'Process {}';
-                };
-              } else {
-                consol.stdout.write(tx + '\n');
-                if (tx == '^C') {
-                  try {
-                    datajs.pstree.getallchilds(consol.cp.pid).reverse().forEach(function (val) {
-                      process.kill(val, 'SIGINT');
-                    });
-                    consol.cp.kill();
-                    delete consol.cp;
-                  } catch (e) {
-                    process.kill(consol.cp.pid, 'SIGINT');
-                  }
-                } else {
-                  try {
-                    consol.cp.stdin.write(Buffer.from(tx + '\n'));
-                  } catch (e) {
-                    consol.running = false;
-                  }
+        if (datajs.feat.colog && consoles[ra[0]]) {
+          if (sha256.hex(ra[1]) == (consoles[ra[0]].phash || b64a.server)) {
+            res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8'});
+            if (datajs.feat.enc == 'b64') {
+              res.write(b64a.encode(JSON.stringify(consoles[ra[0]].colog)));
+            } else if (datajs.feat.enc == 'aes') {
+              res.write(cjsenc(JSON.stringify(consoles[ra[0]].colog), (consoles[ra[0]].penc || b64a.serverp)));
+            }
+            res.end();
+          } else datajs.rm.sn(res);
+        } else datajs.rm.sn(res);
+      } else datajs.rm.sn(res);
+      break;
+    case req.url.substr(0, 6) == '/a?sc=':
+      if (datajs.feat.cons) {
+        let aconsole;
+        try {
+          try {
+            if (datajs.feat.enc == 'b64') {
+              cv = JSON.parse(b64a.decode(req.url.substr(6, Infinity)));
+            } else if (datajs.feat.enc == 'aes') {
+              let pass = false;
+              for (let i in consoleswpenc) {
+                let tcv = cjsdec(req.url.substr(6, Infinity), consoles[consoleswpenc[i]].penc);
+                if (tcv != '') {
+                  cv = JSON.parse(tcv);
+                  pass = true;
+                  break;
                 }
               }
-              break;
-          }
-          if (resp !== undefined) aconsole.log('<- ' + util.inspect(resp));
-        } else {
-          let resp = comm(tx.substr(1, Infinity), aconsole);
-          if (resp !== undefined) aconsole.log('<- ' + util.inspect(resp));
-        }
-      } else { datajs.rm.restext(res, '0'); return; }
-      } catch (e) { aconsole.error(e); datajs.rm.restext(res, '0'); return; }
-      }
-      datajs.rm.sn(res);
+              if (!pass) {
+                cv = JSON.parse(cjsdec(req.url.substr(6, Infinity), b64a.serverp));
+              }
+            }
+          } catch (e) { console.error(e); }
+          let consol;
+          if (consoles[cv[1]]) {
+            aconsole = consoles[cv[1]].console;
+            consol = consoles[cv[1]];
+          } else { datajs.rm.sn(res); return; }
+          if (sha256.hex(cv[0]) == (consol.phash || b64a.server)) {
+            let tx = cv[2];
+            if (consol.type != 'bash') aconsole.log('>> ' + tx);
+            if (tx[0] != ':') {
+              let resp;
+              switch (consol.type) {
+                case 'normal':
+                  resp = eval(tx);
+                  break;
+                case 'vm':
+                  resp = vm.runInContext(tx, consol.context);
+                  break;
+                case 'bash':
+                  if (!consol.running) {
+                    aconsole.log('>> ' + tx);
+                    let ca = datajs.parseexec(tx);
+                    consol.running = true;
+                    consol.cp = cp.spawn(ca[0], ca.slice(1, Infinity), {windowsHide: true}, function (err) {if (err) consol.console.error(err);});
+                    consol.cp.stdout.pipe(consol.stdout, {end:false});
+                    consol.cp.stderr.pipe(consol.stderr, {end:false});
+                    consol.cp.on('exit', function () {
+                      consol.running = false;
+                    });
+                    consol.cp.inspect = function () {
+                      return 'Process {}';
+                    };
+                  } else {
+                    consol.stdout.write(tx + '\n');
+                    if (tx == '^C') {
+                      try {
+                        datajs.pstree.getallchilds(consol.cp.pid).reverse().forEach(function (val) {
+                          process.kill(val, 'SIGINT');
+                        });
+                        consol.cp.kill();
+                        delete consol.cp;
+                      } catch (e) {
+                        process.kill(consol.cp.pid, 'SIGINT');
+                      }
+                    } else {
+                      try {
+                        consol.cp.stdin.write(Buffer.from(tx + '\n'));
+                      } catch (e) {
+                        consol.running = false;
+                      }
+                    }
+                  }
+                  break;
+              }
+              if (resp !== undefined) aconsole.log('<- ' + util.inspect(resp));
+            } else {
+              let resp = comm(tx.substr(1, Infinity), aconsole);
+              if (resp !== undefined) aconsole.log('<- ' + util.inspect(resp));
+            }
+          } else { datajs.rm.restext(res, '0'); return; }
+        } catch (e) { aconsole.error(e); datajs.rm.restext(res, '0'); return; }
+      } else datajs.rm.sn(res);
       break;
     case req.url.substr(0, 6) == '/a?ng=':
       cv = JSON.parse(b64.decode(req.url.substr(6, Infinity)));
@@ -448,79 +444,85 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
       } else datajs.rm.sn(res);
       break;
     case req.url.substr(0, 9) == '/a?fstyp=':
-      try {
-      cv = JSON.parse(cjsdec(req.url.substr(9, Infinity), b64a.serverp));
-      let dcon;
-      try {
-      switch (cv[0]) {
-        case 'reg':
-          dcon = fs.statSync(cv[1]);
-          break;
-        case 'vfs':
-          dcon = vfs.fs.statSync(cv[1]);
-          break;
-      }
-      var t = 10;
-      while (dcon.isSymbolicLink()) {
-        if (t < 0) {
-          datajs.rm.restext(res, cjsenc('1', b64a.serverp));
-          return;
-        }
-        switch (cv[0]) {
-          case 'reg':
-            cv[1] = fs.readlink(cv[1]);
-            dcon = fs.statSync(cv[1]);
-            break;
-          case 'vfs':
-            cv[1] = vfs.fs.readlink(cv[1]);
-            dcon = vfs.fs.statSync(cv[1]);
-            break;
-        }
-        t--;
-      }
-      if (dcon.isFile()) typ = 8;
-      else if (dcon.isDirectory()) typ = 4;
-      else typ = 0;
-      datajs.rm.restext(res, cjsenc(JSON.stringify(typ), b64a.serverp));
-      } catch (e) { datajs.rm.restext(res, cjsenc('0', b64a.serverp)); }
-      } catch (e) { datajs.rm.sn(res); }
+      if (datajs.feat.cons) {
+        try {
+          cv = JSON.parse(cjsdec(req.url.substr(9, Infinity), b64a.serverp));
+          let dcon;
+          try {
+            switch (cv[0]) {
+              case 'reg':
+                dcon = fs.statSync(cv[1]);
+                break;
+              case 'vfs':
+                dcon = vfs.fs.statSync(cv[1]);
+                break;
+            }
+            var t = 10;
+            while (dcon.isSymbolicLink()) {
+              if (t < 0) {
+                datajs.rm.restext(res, cjsenc('1', b64a.serverp));
+                return;
+              }
+              switch (cv[0]) {
+                case 'reg':
+                  cv[1] = fs.readlink(cv[1]);
+                  dcon = fs.statSync(cv[1]);
+                  break;
+                case 'vfs':
+                  cv[1] = vfs.fs.readlink(cv[1]);
+                  dcon = vfs.fs.statSync(cv[1]);
+                  break;
+              }
+              t--;
+            }
+            if (dcon.isFile()) typ = 8;
+            else if (dcon.isDirectory()) typ = 4;
+            else typ = 0;
+            datajs.rm.restext(res, cjsenc(JSON.stringify(typ), b64a.serverp));
+          } catch (e) { datajs.rm.restext(res, cjsenc('0', b64a.serverp)); }
+        } catch (e) { datajs.rm.sn(res); }
+      } else datajs.rm.sn(res);
       break;
     case req.url.substr(0, 9) == '/a?fsdir=':
-      try {
-      cv = JSON.parse(cjsdec(req.url.substr(9, Infinity), b64a.serverp));
-      let dcon;
-      switch (cv[0]) {
-        case 'reg':
-          dcon = fs.readdirSync(cv[1], { withFileTypes: true });
-          break;
-        case 'vfs':
-          dcon = vfs.fs.readdirSync(cv[1], { withFileTypes: true });
-          break;
-      }
-      dcon = dcon.map(x => {
-        if (x.isFile()) typ = 8;
-        else if (x.isDirectory()) typ = 4;
-        else if (x.isSymbolicLink()) typ = 10;
-        else typ = 0;
-        return [x.name, typ];
-      });
-      datajs.rm.restext(res, cjsenc(JSON.stringify(dcon), b64a.serverp));
-      } catch (e) { datajs.rm.sn(res); }
+      if (datajs.feat.cons) {
+        try {
+          cv = JSON.parse(cjsdec(req.url.substr(9, Infinity), b64a.serverp));
+          let dcon;
+          switch (cv[0]) {
+            case 'reg':
+              dcon = fs.readdirSync(cv[1], { withFileTypes: true });
+              break;
+            case 'vfs':
+              dcon = vfs.fs.readdirSync(cv[1], { withFileTypes: true });
+              break;
+          }
+          dcon = dcon.map(x => {
+            if (x.isFile()) typ = 8;
+            else if (x.isDirectory()) typ = 4;
+            else if (x.isSymbolicLink()) typ = 10;
+            else typ = 0;
+            return [x.name, typ];
+          });
+          datajs.rm.restext(res, cjsenc(JSON.stringify(dcon), b64a.serverp));
+        } catch (e) { datajs.rm.sn(res); }
+      } else datajs.rm.sn(res);
       break;
     case req.url.substr(0, 9) == '/a?fstex=':
-      try {
-      cv = JSON.parse(cjsdec(req.url.substr(9, Infinity), b64a.serverp));
-      let dcon;
-      switch (cv[0]) {
-        case 'reg':
-          dcon = fs.readFileSync(cv[1]).toString();
-          break;
-        case 'vfs':
-          dcon = vfs.fs.readFileSync(cv[1]).toString();
-          break;
-      }
-      datajs.rm.restext(res, cjsenc(dcon, b64a.serverp));
-      } catch (e) { datajs.rm.sn(res); }
+      if (datajs.feat.cons) {
+        try {
+          cv = JSON.parse(cjsdec(req.url.substr(9, Infinity), b64a.serverp));
+          let dcon;
+          switch (cv[0]) {
+            case 'reg':
+              dcon = fs.readFileSync(cv[1]).toString();
+              break;
+            case 'vfs':
+              dcon = vfs.fs.readFileSync(cv[1]).toString();
+              break;
+          }
+          datajs.rm.restext(res, cjsenc(dcon, b64a.serverp));
+        } catch (e) { datajs.rm.sn(res); }
+      } else datajs.rm.sn(res);
       break;
     case req.url.substr(0, 9) == '/login?v=':
       let tx = b64.decode(req.url.substr(9, 2048)), dtx, uparr;

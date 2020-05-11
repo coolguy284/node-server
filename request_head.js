@@ -3,55 +3,61 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
   let mode = 0;
   switch (req.url) {
     case '/':
-    case '/delay.log':
     case '/admin.html':
-      res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+    case '/delay.log':
+      datajs.rm.reshead(res);
+      break;
+    case '/evtsrc.log':
+      res.writeHead(200, {'Content-Type': 'text/event-stream','Connection': 'keep-alive','Cache-Control': 'no-cache','Transfer-Encoding': 'chunked'});
       res.end();
       break;
     case '/livechat.dat':
       if (datajs.feat.chat) {
         datajs.rm.reshead(res);
-      } else {datajs.rm.sn(res);}
+      } else datajs.rm.sn(res);
       break;
-    case '/livechathere.dat':
-      if (datajs.feat.chathere) {
-        datajs.rm.reshead(res);
-      } else {datajs.rm.sn(res);}
-      break;
-    case '/livechattyp.dat':
-      if (datajs.feat.chattyp) {
-        datajs.rm.reshead(res);
-      } else {datajs.rm.sn(res);}
-      break;
-    case '/livechatkick.dat':
-      if (datajs.feat.chatkick) {
-        datajs.rm.reshead(res);
-      } else {datajs.rm.sn(res);}
+    case '/livechates.dat':
+      if (datajs.feat.chates) {
+        res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+        res.end();
+      } else datajs.rm.sn(res);
       break;
     case '/liverchat.json':
       if (datajs.feat.rchat) {
         datajs.rm.reshead(res);
-      } else {datajs.rm.sn(res);}
+      } else datajs.rm.sn(res);
       break;
     case '/liveviews.dat':
       if (datajs.feat.views) {
         datajs.rm.reshead(res);
-      } else {datajs.rm.sn(res);}
+      } else datajs.rm.sn(res);
       break;
     case '/comms.json':
       if (datajs.feat.comm) {
         datajs.rm.reshead(res);
-      } else {datajs.rm.sn(res);}
+      } else datajs.rm.sn(res);
+      break;
+    case '/debug/owneyes.html':
+      if (datajs.feat.owneyes) {
+        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+        res.end();
+      } else datajs.rm.sn(res);
       break;
     case '/colog.dat':
     case '/cologd.dat':
       if (datajs.feat.colog) {
-        res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8'});
-        res.end();
-      } else {datajs.rm.sn(res);}
+        datajs.rm.reshead(res);
+      } else datajs.rm.sn(res);
+      break;
+    case '/pkey.log':
+      datajs.rm.reshead(res);
       break;
     case '/lat.log':
       datajs.rm.sn(res);
+      break;
+    case '/errtest.log':
+      if (datajs.feat.debug.testerr) throw new Error('test error');
+      else datajs.rm.sn(res);
       break;
     default:
       mode = 1;
@@ -60,9 +66,8 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
   switch ((mode == 1) ? true : 'corn') {
     case req.url.substr(0, 18) == '/livechatd.dat?ts=':
       if (datajs.feat.chat) {
-        res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8'});
-        res.end();
-      } else {datajs.rm.sn(res);}
+        datajs.rm.reshead(res);
+      } else datajs.rm.sn(res);
       break;
     case req.url.substr(0, 5) == '/r?u=':
     case req.url.substr(0, 5) == '/r?e=':
@@ -70,26 +75,37 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
       res.end();
       break;
     case req.url.substr(0, 6) == '/r?uh=':
-      res.writeHead(303, {'Location' : decodeURIComponent(req.url.substr(6, 2048))});
+      res.writeHead(303, {'Location': decodeURIComponent(req.url.substr(6, 2048))});
       res.end();
       break;
     case req.url.substr(0, 6) == '/r?eh=':
-      res.writeHead(303, {'Location' : b64.decode(req.url.substr(6, 2048))});
+      res.writeHead(303, {'Location': b64.decode(req.url.substr(6, 2048))});
       res.end();
       break;
-    case req.url.substr(0, 6) == '/a?rc=':
-    case req.url.substr(0, 9) == '/login?v=':
-      datajs.rm.reshead(res);
-      break;
     case req.url.substr(0, 7) == '/s?tex=':
-    case req.url.substr(0, 7) == '/r?tex=':
     case req.url.substr(0, 7) == '/s?her=':
     case req.url.substr(0, 7) == '/s?typ=':
     case req.url.substr(0, 7) == '/s?kic=':
+    case req.url.substr(0, 7) == '/r?tex=':
+    case req.url.substr(0, 7) == '/m?ccl=':
+    case req.url.substr(0, 7) == '/m?cnl=':
+    case req.url.substr(0, 7) == '/m?tex=':
     case req.url.substr(0, 6) == '/r?co=':
+      datajs.rm.sn(res);
+      break;
+    case req.url.substr(0, 7) == '/pagg?=':
+      datajs.rm.reshead(res);
+      break;
     case req.url.substr(0, 7) == '/oi?vr=':
+    case req.url.substr(0, 7) == '/a?ccp=':
     case req.url.substr(0, 6) == '/a?cc=':
+    case req.url.substr(0, 6) == '/a?rc=':
     case req.url.substr(0, 6) == '/a?sc=':
+    case req.url.substr(0, 6) == '/a?ng=':
+    case req.url.substr(0, 9) == '/a?fstyp=':
+    case req.url.substr(0, 9) == '/a?fsdir=':
+    case req.url.substr(0, 9) == '/a?fstex=':
+    case req.url.substr(0, 9) == '/login?v=':
     case req.url.substr(0, 10) == '/logout?v=':
       datajs.rm.sn(res);
       break;
