@@ -3,7 +3,7 @@ module.exports = function hreq(req, res, rrid, ipaddr, proto, url, althost, cook
     if (req.method == 'GET') {
       if (req.url == '/') {
         let rs = fs.createReadStream('host_websites/test/indexredirect.html');
-        res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
+        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
         rs.pipe(res);
       } else {
         let rpath = 'host_websites/test' + req.url, runelse = false;
@@ -20,7 +20,7 @@ module.exports = function hreq(req, res, rrid, ipaddr, proto, url, althost, cook
         } else runelse = true;
         if (runelse) {
           let rs = fs.createReadStream('host_websites/test/p404.html');
-          res.writeHead(404, {'Content-Type':'text/html; charset=utf-8'});
+          res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
           rs.pipe(res);
         }
       }
