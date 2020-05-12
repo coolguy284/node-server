@@ -640,9 +640,7 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
           'Accept-Ranges': 'bytes'
         });
         rs.pipe(res);
-      } else {
-        runelse = true;
-      }
+      } else runelse = true;
     } else if (fs.existsSync(fpath) && datajs.feat.debug.js) {
       let rs = fs.createReadStream(fpath);
       res.writeHead(200, {
@@ -663,17 +661,13 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
               'Accept-Ranges': 'bytes',
             });
             rs.pipe(res);
-          } else {
-            runelse = true;
-          }
+          } else runelse = true;
         } else {
           let rs = fs.createReadStream('websites/user/signedout.html');
           res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
           rs.pipe(res);
         }
-      } else {
-        runelse = true;
-      }
+      } else runelse = true;
     }
     if (runelse) {
       let hanp = '';
