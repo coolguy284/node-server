@@ -109,18 +109,18 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
     case '/colog.dat':
       if (datajs.feat.colog) {
         if (datajs.feat.enc == 'b64') {
-          datajs.rm.restext(b64a.encode(JSON.stringify(colog)));
+          datajs.rm.restext(res, b64a.encode(JSON.stringify(colog)));
         } else if (datajs.feat.enc == 'aes') {
-          datajs.rm.restext(cjsenc(JSON.stringify(colog), b64a.serverp));
+          datajs.rm.restext(res, cjsenc(JSON.stringify(colog), b64a.serverp));
         }
       } else datajs.rm.sn(res);
       break;
     case '/cologd.dat':
       if (datajs.feat.colog) {
         if (datajs.feat.enc == 'b64') {
-          datajs.rm.restext(b64a.encode(JSON.stringify(cologd)));
+          datajs.rm.restext(res, b64a.encode(JSON.stringify(cologd)));
         } else if (datajs.feat.enc == 'aes') {
-          datajs.rm.restext(cjsenc(JSON.stringify(cologd), b64a.serverp));
+          datajs.rm.restext(res, cjsenc(JSON.stringify(cologd), b64a.serverp));
         }
       } else datajs.rm.sn(res);
       break;
