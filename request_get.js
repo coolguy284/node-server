@@ -257,7 +257,8 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
             datajs.rm.restext(res, '1');
           }
         }
-      } else datajs.rm.sn(res);
+      }
+      datajs.rm.sn(res);
       break;
     case req.url.substr(0, 6) == '/r?co=':
       let dell = req.url.substr(6, Infinity).split('|');
@@ -323,7 +324,8 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
             }
           } else { datajs.rm.restext(res, '1'); return; }
         } catch (e) { console.error(e); datajs.rm.restext(res, '2'); return; }
-      } else datajs.rm.sn(res);
+      }
+      datajs.rm.sn(res);
       break;
     case req.url.substr(0, 6) == '/a?rc=':
       if (datajs.feat.cons) {
@@ -341,13 +343,11 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
         }
         if (datajs.feat.colog && consoles[ra[0]]) {
           if (sha256.hex(ra[1]) == (consoles[ra[0]].phash || b64a.server)) {
-            res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8'});
             if (datajs.feat.enc == 'b64') {
-              res.write(b64a.encode(JSON.stringify(consoles[ra[0]].colog)));
+              datajs.rm.restext(res, b64a.encode(JSON.stringify(consoles[ra[0]].colog)));
             } else if (datajs.feat.enc == 'aes') {
-              res.write(cjsenc(JSON.stringify(consoles[ra[0]].colog), (consoles[ra[0]].penc || b64a.serverp)));
+              datajs.rm.restext(res, cjsenc(JSON.stringify(consoles[ra[0]].colog), (consoles[ra[0]].penc || b64a.serverp)));
             }
-            res.end();
           } else datajs.rm.sn(res);
         } else datajs.rm.sn(res);
       } else datajs.rm.sn(res);
@@ -434,7 +434,8 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
             }
           } else { datajs.rm.restext(res, '0'); return; }
         } catch (e) { aconsole.error(e); datajs.rm.restext(res, '0'); return; }
-      } else datajs.rm.sn(res);
+      }
+      datajs.rm.sn(res);
       break;
     case req.url.substr(0, 6) == '/a?ng=':
       cv = JSON.parse(b64.decode(req.url.substr(6, Infinity)));
