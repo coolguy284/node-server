@@ -217,6 +217,10 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
       }
       datajs.rm.sn(res);
       break;
+    case req.url.substr(0, 7) == '/s?joi=':
+    case req.url.substr(0, 7) == '/s?lef=':
+      datajs.rm.sn(res);
+      break;
     case req.url.substr(0, 7) == '/r?tex=':
       if (datajs.feat.rchat) {
         if (rchatbaniplist.indexOf(ipaddr) < 0) {

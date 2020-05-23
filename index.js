@@ -20,12 +20,14 @@ function prepserv() {
         rstimes = 0;
         break;
       case 'term':
-        global.letterm = true;
-        global.checkable = false;
+        letterm = true;
+        checkable = false;
         clearInterval(scint);
+        console.log('Server requested termination.');
         serv.kill();
         break;
       case 'restart':
+        console.log('Server requested restart.');
         serv.kill();
         break;
       case 'settimeout':
@@ -43,6 +45,7 @@ function prepserv() {
     } else {
       if (rstimes >= maxrstimes) console.error('Server restarted too much.  Terminating server and monitor application.');
       serv = null;
+      process.exit();
     }
   });
 }

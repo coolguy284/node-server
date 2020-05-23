@@ -137,6 +137,7 @@ global.reqh = require('./request_head.js');
 global.reqp = require('./request_post.js');
 global.reqo = require('./request_options.js');
 global.hreq = require('./host_request.js');
+global.treq = require('./troll_requests.js');
 try {
   global.mime = require('mime');
 } catch (e) {
@@ -308,6 +309,15 @@ global.serverf = function serverf(req, resa, nolog) {
           if (activeconn.length > (temp = Math.max(...Object.keys(activeconn), -1) + 1)) activeconn.length = temp;
         }
       });
+      req.on('end', () => {
+        if (!activeconn[activeconnind]) return;
+        activeconn[activeconnind][0] = undefined;
+        if (!activeconn[activeconnind][0] && !activeconn[activeconnind][1]) {
+          let temp;
+          delete activeconn[activeconnind];
+          if (activeconn.length > (temp = Math.max(...Object.keys(activeconn), -1) + 1)) activeconn.length = temp;
+        }
+      });
       res.on('close', () => {
         if (!activeconn[activeconnind]) return;
         activeconn[activeconnind][1] = undefined;
@@ -432,6 +442,7 @@ global.serverf = function serverf(req, resa, nolog) {
     res.end();
     return;
   }
+  if (datajs.feat.trolls && treq(req, res, rrid, ipaddr, proto, url, cookies, nam)) return;
   if (datajs.feat.hosts.main.indexOf(url) > -1 || datajs.feat.el.lockl.indexOf(req.url) > -1 || req.url.substr(0, 2) == '/a' || !datajs.feat.hosts.map[url]) {
     if (req.method == 'GET') {
       if (req.url.substr(0, 2) == '/s' && datajs.feat.tost) {

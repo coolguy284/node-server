@@ -50,19 +50,35 @@ module.exports = {
     }
   },
   RandomStream: class RandomStream extends stream.Readable {
+    // can be given randfunc thet returns float in range [0, 1) or randbytesfunc that is given number of bytes and returns random buffer
     constructor(lim, options) {
       super(options);
-      if (lim === undefined && lim === null) lim = Infinity;
+      if (lim === undefined || lim === null) lim = Infinity;
       this.lim = lim;
       this.tolim = lim;
+      if (options.randfunc) {
+        this.randfunc = options.randfunc;
+      } else if (options.randbytesfunc) {
+        this.randbytesfunc = options.randbytesfunc;
+      } else {
+        this.randfunc = Math.random;
+      }
     }
     _read(size) {
       let rv = true;
       while (rv) {
         if (this.tolim < size) size = this.tolim;
-        let ra = [];
-        for (let i = 0; i < size; i++) ra.push(Math.floor(Math.random() * 256));
-        rv = this.push(ra.length > 0 ? Buffer.from(ra) : null);
+        if (this.tolim == 0) {
+          this.push(null);
+          return;
+        }
+        if (this.randfunc) {
+          let ra = [];
+          for (let i = 0; i < size; i++) ra.push(Math.floor(this.randfunc() * 256));
+          rv = this.push(ra.length > 0 ? Buffer.from(ra) : null);
+        } else {
+          rv = this.push(this.randbytesfunc(size));
+        }
         this.tolim -= size;
         if (this.tolim <= 0) rv = false;
       }

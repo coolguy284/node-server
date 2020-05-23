@@ -8,6 +8,7 @@ module.exports = {
   feat: require('./feat.js'),
   mime: require('./mime.js'),
   tick: require('./tick.js'),
+  prng: require('./prng.js'),
   i32a: new Int32Array(new SharedArrayBuffer(4)),
   handlerp: require('./handlerp.js'),
   handlerf: require('./handlerf.js'),
