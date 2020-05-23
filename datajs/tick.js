@@ -10,7 +10,7 @@ module.exports = {
     global.chattyplist = chattyplist.filter(val => val[0] > remt - 2000);
     global.owneyesid = owneyesid.filter(val => val[0] > remt - 5000);
     global.loginid = loginid.filter(val => val[0] > remt - 864000000);
-    if (Math.random() < 0.0001 && chatherelist.length == 5) {
+    if (datajs.feat.chatghost && Math.random() < 0.0001 && chatherelist.length == 5) {
       adm.addchat(null, '[server ghost]', datajs.splash[Math.floor(Math.random() * datajs.splash.length)]);
     }
     if (datajs.feat.datadir != '' && global.ticks % datajs.feat.savefreq == 0) {

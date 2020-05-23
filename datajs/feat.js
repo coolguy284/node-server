@@ -11,11 +11,12 @@ module.exports = {
   views: true,
   comm: true,
   owneyes: true,
-  colog: true,
   debreq: true,
   // debreqamt & 1 = log single ajax files
   // debreqamt & 2 = log ajax url parameters
   debreqamt: 0,
+  trolls: false,
+  colog: true,
   cons: true,
   stdincons: false, // whether stdin can execute code
   reqtimelog: false, // log time to complete request
@@ -52,6 +53,7 @@ module.exports = {
     js: false, // whether files from outside websites folder can be accessed
     testerr: false, // whether test error url exists
   },
+  chatghost: false,
   tost: false,
   lim: { // controls maximum array entries for things
     chat: 100,
@@ -74,6 +76,7 @@ module.exports = {
       'server.coolguy284.repl.co',
       'coolguy284.repl.co',
       'c284.herokuapp.com',
+      'home.coolguy284.com',
     ],
     map: {
       'test.coolguy284.com': 'test',
