@@ -116,6 +116,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://c284.herokuapp.com/tools/qrcode.html</loc>
+    <lastmod>2019-12-21</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://c284.herokuapp.com/tools/widelatin.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
@@ -127,11 +132,6 @@
   </url>
   <url>
     <loc>https://c284.herokuapp.com/tools/morsecode.html</loc>
-    <lastmod>2019-04-10</lastmod>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://c284.herokuapp.com/debug/chatview.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
