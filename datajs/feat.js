@@ -12,8 +12,8 @@ module.exports = {
   comm: true,
   owneyes: true,
   debreq: true,
-  // debreqamt & 1 = log single ajax files
-  // debreqamt & 2 = log ajax url parameters
+  // debreqamt & 1 = debreq log single ajax files
+  // debreqamt & 2 = debreq log ajax url parameters
   debreqamt: 0,
   trolls: false,
   colog: true,
@@ -25,10 +25,10 @@ module.exports = {
   enc: 'aes',
   pkeysize: 1024,
   datadir: 'data', // directory to save server state, '' for no state saving
-  // file logging flags (add values together) NOT IMPLEMENTED
-  // 1 - log colog
-  // 2 - log cologd
-  // 4 - log json of requests
+  logdir: '',
+  // filelog & 1 - log colog
+  // filelog & 2 - log cologd
+  // filelog & 4 - log debreq
   filelog: 0,
   // mode of determining client ip address
   // 0 - use req.connection.remoteAddress

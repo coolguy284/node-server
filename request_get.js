@@ -624,6 +624,25 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
             'Content-Length': Math.min(rend - rstart + 1, size),
           });
           rs.pipe(res);
+        } else if (datajs.feat.tempp.hasOwnProperty(req.url) && Buffer.isBuffer(datajs.feat.tempp[req.url][1])) {
+          let file = datajs.feat.tempp[req.url][1];
+          let size = file.length;
+          if (rend == Infinity) rend = size - 1;
+          if (rend >= size) {
+            if (datajs.feat.permissiverange) rend = size - 1;
+            else {
+              res.writeHead(416);
+              res.end();
+              return -1;
+            }
+          }
+          res.writeHead(206, {
+            ...datajs.feat.tempp[req.url][0],
+            'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+            'Content-Length': Math.min(rend - rstart + 1, size),
+          });
+          res.write(file.slice(rstart, rend + 1));
+          res.end();
         } else {
           let rs = fs.createReadStream('websites/p404.html');
           res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});

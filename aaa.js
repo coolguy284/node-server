@@ -1,5 +1,6 @@
 // jshint maxerr:1000 -W041
 global.sst = process.hrtime();
+global.sstdate = new Date();
 global.olog = console.log;
 global.oinfo = console.info;
 global.odebug = console.debug;
@@ -14,15 +15,17 @@ global.cologadd = function cologadd(value, temp, colog) {
   }
   if (!colog) colog = global.colog;
   colog.push([value, temp || '{}']);
-  if (colog.length > datajs.feat.lim.colog) {
+  if (colog.length > datajs.feat.lim.colog)
     colog.splice(0, colog.length - datajs.feat.lim.colog);
-  }
+  if (global.logfilename && datajs.feat.filelog & 1)
+    logfiles.colog.write(value + '\n');
 };
 global.cologdadd = function cologdadd(value, temp) {
   cologd.push([value, temp || '{}']);
-  if (cologd.length > datajs.feat.lim.cologd) {
+  if (cologd.length > datajs.feat.lim.cologd)
     cologd.splice(0, cologd.length - datajs.feat.lim.cologd);
-  }
+  if (global.logfilename && datajs.feat.filelog & 2)
+    logfiles.cologd.write(value + '\n');
 };
 global.consoleCall = function consoleCall(cn, value) {
   if (cn != 'clear') {
@@ -67,7 +70,7 @@ console.debug = consoleCall.bind(global, 'debug');
 console.warn = consoleCall.bind(global, 'warn');
 console.error = consoleCall.bind(global, 'error');
 console.clear = consoleCall.bind(global, 'clear');
-console.tslog = (str) => console.log('[' + new Date().toISOString() + ']' + (str.length > 0 ? ' ' + str : ''));
+console.tslog = str => console.log('[' + new Date().toISOString() + ']' + (str.length > 0 ? ' ' + str : ''));
 global.http = require('http');
 global.https = require('https');
 global.fs = require('fs');
@@ -228,6 +231,14 @@ if (datajs.feat.datadir != '') {
   global.viewshist = {reg:{},ajax:{},p404:{}};
   global.savedvarsa = {};
   global.saveddat = {};
+}
+if (datajs.feat.logdir != '') {
+  global.logfilename = `${datajs.feat.logdir}/${sstdate.toISOString().replace(/:|\./g, '-').replace('Z', '')}`;
+  global.logfiles = {
+    colog: new datajs.s.LogFileStream(`${logfilename} -- colog.log`),
+    cologd: new datajs.s.LogFileStream(`${logfilename} -- cologd.log`),
+    debreq: new datajs.s.LogFileStream(`${logfilename} -- debreq.log`)
+  };
 }
 global.eslistener = new EventEmitter();
 global.savedvars = Object.assign(savedvars, savedvarsa);
@@ -403,9 +414,10 @@ global.serverf = function serverf(req, resa, nolog) {
   global.stime = new Date();
   if (datajs.feat.debreq && (datajs.feat.el.cons.indexOf(req.url) < 0 || datajs.feat.debreqamt & 1) && (datajs.feat.el.consv.every(datajs.notstartswith, req.url) || datajs.feat.debreqamt & 2)) {
     debreq.push(datajs.rm.reqinfo(req, rrid, stime.getTime(), ipaddr, proto, url, cookies, nam));
-    if (debreq.length > datajs.feat.lim.debreq) {
+    if (debreq.length > datajs.feat.lim.debreq)
       debreq.splice(0, debreq.length - datajs.feat.lim.debreq);
-    }
+    if (global.logfilename && datajs.feat.filelog & 4)
+      logfiles.debreq.write(JSON.stringify(debreq[debreq.length - 1]) + '\n');
   }
   if (!nolog) {
     if (datajs.feat.el.cons.indexOf(req.url) < 0 && datajs.feat.el.consv.every(datajs.notstartswith, req.url)) {

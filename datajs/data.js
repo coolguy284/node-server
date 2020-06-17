@@ -15,12 +15,10 @@ module.exports = {
   help: require('./help.js'),
   notstartswith: function notstartswith(val) {return !this.startsWith(val);},
   ipform: function ipform(ipstr) {
-    if (/::ffff:(?:[0-9]{1,3}.){3}[0-9]{1,3}/.test(ipstr)) {
+    if (/::ffff:(?:[0-9]{1,3}.){3}[0-9]{1,3}/.test(ipstr))
       return '::ffff:' + ipstr.slice(7, Infinity).split('.').map(x => x.padStart(3, '-')).join('.');
-    } else {
+    else
       return ipstr.split('.').map(x => x.padStart(3, '-')).join('.');
-    }
-    
   },
   escapeHTML: function (val) {
     return escape(val).replace(/%u?((?:[0-9A-F]{2}){1,2})/g, '&#x$1;');
