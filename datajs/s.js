@@ -6,7 +6,7 @@ module.exports = {
       this.cm = cm;
       this.pl = '';
     }
-    _write(chunk, enc, done) {
+    _write(chunk, enc, cb) {
       let cs = chunk.toString().split(/\r\n|\n|\r/g);
       let es = cs.splice(-1);
       for (var i in cs) {
@@ -18,14 +18,30 @@ module.exports = {
         }
       }
       if (es != '') this.pl += es;
-      done();
+      cb();
     }
-    _writev(chunks, done) {
+    _writev(chunks, cb) {
       chunks = chunks.map(function (val) {return val.chunk;});
-      return this._write(Buffer.concat(chunks, chunks.reduce(function (acc, val) {acc += val.length}, 0)), done);
+      return this._write(Buffer.concat(chunks, chunks.reduce(function (acc, val) {acc += val.length}, 0)), cb);
     }
-    _final(done) {
+    _final(cb) {
       if (this.pl != '') this.cm(this.pl);
+      cb();
+    }
+  },
+  LogFileStream: class LogFileStream extends stream.Writable {
+    constructor(filename, options) {
+      super(options);
+      this.filename = filename;
+    }
+    _write(chunk, enc, cb) {
+      fs.appendFile(this.filename, chunk, { enc }, cb);
+    }
+    _writev(chunks, cb) {
+      fs.appendFile(this.filename, Buffer.concat(chunks), { enc }, cb);
+    }
+    _final(cb) {
+      cb();
     }
   },
   ValueStream: class ValueStream extends stream.Readable {
@@ -53,7 +69,7 @@ module.exports = {
     // can be given randfunc thet returns float in range [0, 1) or randbytesfunc that is given number of bytes and returns random buffer
     constructor(lim, options) {
       super(options);
-      if (lim === undefined || lim === null) lim = Infinity;
+      if (lim == null) lim = Infinity;
       this.lim = lim;
       this.tolim = lim;
       if (options.randfunc) {
@@ -84,23 +100,52 @@ module.exports = {
       }
     }
   },
-  BufReadStream: class BufReadStream extends stream.Readable {
-    constructor(ibuf, options) {
+  JSONRandStream: class JSONRandStream extends stream.Readable {
+    constructor(items, bytes, options) {
       super(options);
-      if (!ibuf) ibuf = Buffer.alloc(0);
-      this.ibuf = ibuf;
+      this.items = items == null ? Infinity : items;
+      this.bytes = bytes == null ? 2 ** 20 : bytes;
+      this.seedpart = options.seedpart == null ? new Date().toISOString() : options.seedpart;
+      this.stage = 0;
     }
     _read(size) {
       let rv = true;
       while (rv) {
-        if (this.ibuf.length < size) size = this.ibuf.length;
-        let rb = Buffer.allocUnsafe(size);
-        let nibuf = Buffer.allocUnsafe(this.ibuf.length - size);
-        this.ibuf.copy(rb, 0, 0, size);
-        this.ibuf.copy(nibuf, 0, size, this.ibuf.length);
-        this.ibuf = nibuf;
-        rv = this.push(rb.length > 0 ? rb : null);
-        if (this.ibuf.length <= 0) rv = false;
+        if (this.stage == this.items + 2) {
+          this.push(null);
+          return;
+        }
+        if (this.stage == 0) {
+          rv = this.push('[');
+        } else if (this.stage <= this.items) {
+          rv = this.push(JSON.stringify(datajs.prng.randomBytes(2 ** 14, this.seedpart + '+' + ('' + this.stage).padStart(9, '0')).toString()));
+        } else if (this.stage == this.items + 1) {
+          this.push(']');
+          rv = this.push(null);
+        }
+        this.stage++;
+      }
+    }
+  },
+  BufReadStream: class BufReadStream extends stream.Readable {
+    constructor(ibuf, options) {
+      super(options);
+      this.ibuf = ibuf || Buffer.alloc(0);
+      this.start = options.start || 0;
+      this.end = options.end || this.ibuf.length - 1;
+      this.pos = 0;
+    }
+    _read(size) {
+      let rv = true, buf;
+      while (rv) {
+        buf = this.ibuf.slice(this.pos, Math.min(this.pos + size, this.end + 1));
+        if (buf.length == 0) {
+          this.push(null);
+          rv = false;
+        } else {
+          rv = this.push(buf);
+        }
+        size = this.highWaterMark || 16384;
       }
     }
   },
@@ -123,12 +168,12 @@ module.exports = {
       }
       this.dyn = dyn;
     }
-    _write(chunk, enc, done) {
+    _write(chunk, enc, cb) {
       if (this.dyn) this.ibufa.push(chunk);
       else this.ibuf = Buffer.concat([this.ibuf, chunk]);
-      done();
+      cb();
     }
-    _writev(chunks, done) {
+    _writev(chunks, cb) {
       chunks = chunks.map(function (val) {return val.chunk;});
       if (this.dyn) {
         for (let i in chunks) this.ibufa.push(chunk[i]);
@@ -136,9 +181,9 @@ module.exports = {
         chunks.shift(this.ibuf);
         this.ibuf = Buffer.concat(chunks);
       }
-      done();
+      cb();
     }
-    _final(done) {
+    _final(cb) {
       if (this.dyn) {
         Object.defineProperty(this, 'ibuf', {
           configurable: true,
@@ -148,6 +193,7 @@ module.exports = {
         });
         delete this.ibufa;
       }
+      cb();
     }
   },
   DevNullStream: class DevNullStream extends stream.Writable {

@@ -14,7 +14,7 @@ module.exports = {
   // simple, fast prng with 4 32-bit ints as seeds, outputs 32-bit int
   sfc32_lightweight_uint32: function (a, b, c, d) {
     return function () {
-      a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0; 
+      a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0;
       var t = (a + b) | 0;
       a = b ^ b >>> 9;
       b = c + (c << 3) | 0;
@@ -28,7 +28,7 @@ module.exports = {
   // simple, fast prng with 4 32-bit ints as seeds, outputs 32-bit int rescaled to [0, 1) range
   sfc32_lightweight: function (a, b, c, d) {
     return function () {
-      a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0; 
+      a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0;
       var t = (a + b) | 0;
       a = b ^ b >>> 9;
       b = c + (c << 3) | 0;
@@ -39,11 +39,11 @@ module.exports = {
       return (t >>> 0) / 4294967296;
     };
   },
-  // there's already too much sfc32 but its so lightweight anyway so whetever, this one returns an object with many functions similar to the class
+  // there's already too much sfc32 but its so lightweight anyway so whatever, this one returns an object with many functions similar to the class
   sfc32_multifunc: function (a, b, c, d) {
     let obj = {
       uint32: function () {
-        a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0; 
+        a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0;
         var t = (a + b) | 0;
         a = b ^ b >>> 9;
         b = c + (c << 3) | 0;
@@ -54,7 +54,7 @@ module.exports = {
         return (t >>> 0);
       },
       random: function () {
-        a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0; 
+        a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0;
         var t = (a + b) | 0;
         a = b ^ b >>> 9;
         b = c + (c << 3) | 0;
@@ -84,7 +84,7 @@ module.exports = {
       this.a = a; this.b = b; this.c = c; this.d = d;
     }
     getUInt32() {
-      this.a >>>= 0; this.b >>>= 0; this.c >>>= 0; this.d >>>= 0; 
+      this.a >>>= 0; this.b >>>= 0; this.c >>>= 0; this.d >>>= 0;
       var t = (this.a + this.b) | 0;
       this.a = this.b ^ this.b >>> 9;
       this.b = this.c + (this.c << 3) | 0;
