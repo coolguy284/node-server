@@ -2,6 +2,14 @@
 global.AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
 global.GeneratorFunction = Object.getPrototypeOf(function*(){}).constructor;
 global.AsyncGeneratorFunction = Object.getPrototypeOf(async function*(){}).constructor;
+fs.promises.exists = async function(path) {
+  try {
+    await fs.promises.access(path);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
 // jshint ignore:end
 let cons = require('./console.js');
 module.exports = {

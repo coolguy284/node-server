@@ -74,6 +74,7 @@ console.tslog = str => console.log('[' + new Date().toISOString() + ']' + (str.l
 global.http = require('http');
 global.https = require('https');
 global.fs = require('fs');
+global.zlib = require('zlib');
 global.path = require('path');
 global.os = require('os');
 global.cp = require('child_process');
@@ -237,7 +238,7 @@ if (datajs.feat.logdir != '') {
   global.logfiles = {
     colog: new datajs.s.LogFileStream(`${logfilename} -- colog.log`),
     cologd: new datajs.s.LogFileStream(`${logfilename} -- cologd.log`),
-    debreq: new datajs.s.LogFileStream(`${logfilename} -- debreq.log`)
+    debreq: new datajs.s.LogFileStream(`${logfilename} -- debreq.log`),
   };
 }
 global.eslistener = new EventEmitter();
@@ -281,7 +282,7 @@ global.stdincons = new datajs.s.ConsoleStream(function (tx) {
 process.stdin.pipe(stdincons);
 global.rst = undefined;
 global.rlt = undefined;
-global.serverf = function serverf(req, resa, nolog) {
+global.serverf = async function serverf(req, resa, nolog) {
   if (datajs.feat.reqtimelog) {
     rst = process.hrtime();
   }
@@ -305,7 +306,7 @@ global.serverf = function serverf(req, resa, nolog) {
       req.on('aborted', () => {
         if (!activeconn[activeconnind]) return;
         activeconn[activeconnind][0] = undefined;
-        if (!activeconn[activeconnind][0] && !activeconn[activeconnind][1]) {
+        if (datajs.feat.activeconn == 1 && !activeconn[activeconnind][0] && !activeconn[activeconnind][1]) {
           let temp;
           delete activeconn[activeconnind];
           if (activeconn.length > (temp = Math.max(...Object.keys(activeconn), -1) + 1)) activeconn.length = temp;
@@ -314,7 +315,7 @@ global.serverf = function serverf(req, resa, nolog) {
       req.on('close', () => {
         if (!activeconn[activeconnind]) return;
         activeconn[activeconnind][0] = undefined;
-        if (!activeconn[activeconnind][0] && !activeconn[activeconnind][1]) {
+        if (datajs.feat.activeconn == 1 && !activeconn[activeconnind][0] && !activeconn[activeconnind][1]) {
           let temp;
           delete activeconn[activeconnind];
           if (activeconn.length > (temp = Math.max(...Object.keys(activeconn), -1) + 1)) activeconn.length = temp;
@@ -323,7 +324,7 @@ global.serverf = function serverf(req, resa, nolog) {
       req.on('end', () => {
         if (!activeconn[activeconnind]) return;
         activeconn[activeconnind][0] = undefined;
-        if (!activeconn[activeconnind][0] && !activeconn[activeconnind][1]) {
+        if (datajs.feat.activeconn == 1 && !activeconn[activeconnind][0] && !activeconn[activeconnind][1]) {
           let temp;
           delete activeconn[activeconnind];
           if (activeconn.length > (temp = Math.max(...Object.keys(activeconn), -1) + 1)) activeconn.length = temp;
@@ -332,7 +333,7 @@ global.serverf = function serverf(req, resa, nolog) {
       res.on('close', () => {
         if (!activeconn[activeconnind]) return;
         activeconn[activeconnind][1] = undefined;
-        if (!activeconn[activeconnind][0] && !activeconn[activeconnind][1]) {
+        if (datajs.feat.activeconn == 1 && !activeconn[activeconnind][0] && !activeconn[activeconnind][1]) {
           let temp;
           delete activeconn[activeconnind];
           if (activeconn.length > (temp = Math.max(...Object.keys(activeconn), -1) + 1)) activeconn.length = temp;
@@ -341,7 +342,7 @@ global.serverf = function serverf(req, resa, nolog) {
       res.on('finish', () => {
         if (!activeconn[activeconnind]) return;
         activeconn[activeconnind][1] = undefined;
-        if (!activeconn[activeconnind][0] && !activeconn[activeconnind][1]) {
+        if (datajs.feat.activeconn == 1 && !activeconn[activeconnind][0] && !activeconn[activeconnind][1]) {
           let temp;
           delete activeconn[activeconnind];
           if (activeconn.length > (temp = Math.max(...Object.keys(activeconn), -1) + 1)) activeconn.length = temp;
@@ -460,7 +461,7 @@ global.serverf = function serverf(req, resa, nolog) {
       if (req.url.substr(0, 2) == '/s' && datajs.feat.tost) {
         adm.ipban(ipaddr); 
       }
-      let rp = reqg(req, res, rrid, ipaddr, proto, url, cookies, nam);
+      let rp = await reqg(req, res, rrid, ipaddr, proto, url, cookies, nam);
       if (!nolog && rp != -1) {
         if (datajs.feat.el.vh.indexOf(req.url) < 0 && datajs.feat.el.vhv.every(datajs.notstartswith, req.url) && Object.keys(datajs.handlerp).every(datajs.notstartswith, req.url)) {
           if (rp != 'p404') {
@@ -475,18 +476,18 @@ global.serverf = function serverf(req, resa, nolog) {
         }
       }
     } else if (req.method == 'HEAD') {
-      reqh(req, res, rrid, ipaddr, proto, url, cookies, nam);
+      await reqh(req, res, rrid, ipaddr, proto, url, cookies, nam);
     } else if (req.method == 'POST') {
-      reqp(req, res, rrid, ipaddr, proto, url, cookies, nam);
+      await reqp(req, res, rrid, ipaddr, proto, url, cookies, nam);
     } else if (req.method == 'OPTIONS') {
-      reqo(req, res, rrid, ipaddr, proto, url, cookies, nam);
+      await reqo(req, res, rrid, ipaddr, proto, url, cookies, nam);
     } else {
       res.writeHead(501);
       res.end();
     }
   } else {
     let althost = datajs.feat.hosts.map[url];
-    hreq(req, res, rrid, ipaddr, proto, url, althost, cookies, nam);
+    await hreq(req, res, rrid, ipaddr, proto, url, althost, cookies, nam);
   }
   req10s = true;
   global.etime = new Date();
