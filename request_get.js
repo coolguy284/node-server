@@ -1,5 +1,5 @@
 // jshint maxerr:1000 -W041 -W061
-module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam) {
+module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies, nam) {
   let mode = 0;
   switch (req.url) {
     case '/':
@@ -456,7 +456,7 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
           try {
             switch (cv[0]) {
               case 'reg':
-                dcon = fs.statSync(cv[1]);
+                dcon = await fs.promises.stat(cv[1]);
                 break;
               case 'vfs':
                 dcon = vfs.fs.statSync(cv[1]);
@@ -470,8 +470,8 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
               }
               switch (cv[0]) {
                 case 'reg':
-                  cv[1] = fs.readlink(cv[1]);
-                  dcon = fs.statSync(cv[1]);
+                  cv[1] = await fs.promises.readlink(cv[1]);
+                  dcon = await fs.promises.stat(cv[1]);
                   break;
                 case 'vfs':
                   cv[1] = vfs.fs.readlink(cv[1]);
@@ -495,7 +495,7 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
           let dcon;
           switch (cv[0]) {
             case 'reg':
-              dcon = fs.readdirSync(cv[1], { withFileTypes: true });
+              dcon = await fs.promises.readdir(cv[1], { withFileTypes: true });
               break;
             case 'vfs':
               dcon = vfs.fs.readdirSync(cv[1], { withFileTypes: true });
@@ -519,7 +519,7 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
           let dcon;
           switch (cv[0]) {
             case 'reg':
-              dcon = fs.readFileSync(cv[1]).toString();
+              dcon = await fs.promises.readFile(cv[1]).toString();
               break;
             case 'vfs':
               dcon = vfs.fs.readFileSync(cv[1]).toString();
@@ -583,13 +583,14 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
       return -1;
     }
     let rpath = decodeURI('websites' + req.url), fpath = decodeURI(req.url.substr(1, Infinity)), runelse = false;
+    let rpathgz = rpath + '.gz';
     if (req.headers.range) {
       if (/bytes=[0-9]*-[0-9]*/.test(req.headers.range)) {
         let rse = req.headers.range.substr(6, Infinity).split('-');
         let rstart = rse[0] == '' ? 0 : parseInt(rse[0]);
         let rend = rse[1] == '' ? Infinity : parseInt(rse[1]);
-        if (fs.existsSync(rpath) && datajs.subdir('websites', rpath)) {
-          let size = fs.statSync(rpath).size;
+        if ((await fs.promises.exists(rpath)) && datajs.subdir('websites', rpath)) {
+          let size = (await fs.promises.stat(rpath)).size;
           if (rend == Infinity) rend = size - 1;
           if (rend >= size) {
             if (datajs.feat.permissiverange) rend = size - 1;
@@ -606,8 +607,8 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
             'Content-Length': Math.min(rend - rstart + 1, size),
           }); // why is the end of a range referencing the id of that byte, instead of the next one like in js?
           rs.pipe(res);
-        } else if (fs.existsSync(fpath) && datajs.feat.debug.js) {
-          let size = fs.statSync(fpath).size;
+        } else if ((await fs.promises.exists(fpath)) && datajs.feat.debug.js) {
+          let size = (await fs.promises.stat(fpath)).size;
           if (rend == Infinity) rend = size - 1;
           if (rend >= size) {
             if (datajs.feat.permissiverange) rend = size - 1;
@@ -655,21 +656,36 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
         return -1;
       }
     }
-    if (fs.existsSync(rpath) && datajs.subdir('websites', rpath)) {
-      if (fs.statSync(rpath).isFile()) {
+    if ((await fs.promises.exists(rpath)) && datajs.subdir('websites', rpath)) {
+      if ((await fs.promises.stat(rpath)).isFile()) {
         let rs = fs.createReadStream(rpath);
         res.writeHead(200, {
           'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-          'Content-Length': fs.statSync(rpath).size,
+          'Content-Length': (await fs.promises.stat(rpath)).size,
           'Accept-Ranges': 'bytes'
         });
         rs.pipe(res);
       } else runelse = true;
-    } else if (fs.existsSync(fpath) && datajs.feat.debug.js) {
+    } else if (datajs.feat.gzipfiles && (await fs.promises.exists(rpathgz)) && datajs.subdir('websites', rpathgz)) {
+      if ((await fs.promises.stat(rpathgz)).isFile()) {
+        let gzsize = (await fs.promises.stat(rpathgz)).size;
+        let gzhandle = await fs.promises.open(rpathgz);
+        let filsizbuf = Buffer.alloc(4);
+        await gzhandle.read(filsizbuf, 0, 4, gzsize - 4);
+        await gzhandle.close();
+        let rs = fs.createReadStream(rpathgz);
+        res.writeHead(200, {
+          'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
+          'Content-Length': filsizbuf.readUInt32LE(0),
+          'Accept-Ranges': 'none'
+        });
+        rs.pipe(zlib.createGunzip()).pipe(res);
+      } else runelse = true;
+    } else if (datajs.feat.debug.js && (await fs.promises.exists(fpath))) {
       let rs = fs.createReadStream(fpath);
       res.writeHead(200, {
         'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-        'Content-Length': fs.statSync(fpath).size,
+        'Content-Length': (await fs.promises.stat(fpath)).size,
         'Accept-Ranges': 'bytes'
       });
       rs.pipe(res);
@@ -677,11 +693,11 @@ module.exports = function getf(req, res, rrid, ipaddr, proto, url, cookies, nam)
       if (req.url.substr(0, 5) == '/user') {
         let rurl = req.url.substr(5, Infinity);
         if (nam) {
-          if (fs.existsSync('user_websites/' + nam + rurl)) {
+          if (await fs.promises.exists('user_websites/' + nam + rurl)) {
             let rs = fs.createReadStream('user_websites/' + nam + rurl);
             res.writeHead(200, {
               'Content-Type': datajs.mime.get(req.url) + '; charset=utf-8',
-              'Content-Length': fs.statSync('user_websites/' + nam + rurl).size,
+              'Content-Length': (await fs.promises.stat('user_websites/' + nam + rurl)).size,
               'Accept-Ranges': 'bytes',
             });
             rs.pipe(res);

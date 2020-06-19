@@ -15,13 +15,14 @@ module.exports = {
   // debreqamt & 1 = debreq log single ajax files
   // debreqamt & 2 = debreq log ajax url parameters
   debreqamt: 0,
+  gzipfiles: true, // searches for file.gz and decompresses if file doesnt exist
   trolls: false,
   colog: true,
   cons: true,
   stdincons: false, // whether stdin can execute code
   reqtimelog: false, // log time to complete request
   errmsg: false, // show message with server error
-  activeconn: true, // maintain array of active connections
+  activeconn: 1, // maintain array of active connections [0 = dont, 1 = delete when not active, 2 = keep in array permanently]
   enc: 'aes',
   pkeysize: 1024,
   datadir: 'data', // directory to save server state, '' for no state saving
