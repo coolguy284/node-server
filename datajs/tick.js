@@ -40,8 +40,8 @@ module.exports = {
       fs.writeFile(datajs.feat.datadir + '/colog.dat', b64a.encode(JSON.stringify(colog)), function (err) {});
       fs.writeFile(datajs.feat.datadir + '/cologd.dat', b64a.encode(JSON.stringify(cologd)), function (err) {});
     } else if (datajs.feat.enc == 'aes') {
-      fs.writeFile(datajs.feat.datadir + '/colog.dat', CryptoJS.AES.encrypt(JSON.stringify(colog), b64a.server), function (err) {});
-      fs.writeFile(datajs.feat.datadir + '/cologd.dat', CryptoJS.AES.encrypt(JSON.stringify(cologd), b64a.server), function (err) {});
+      fs.writeFile(datajs.feat.datadir + '/colog.dat', CryptoJS.AES.encrypt(JSON.stringify(colog), b64a.server).toString(), function (err) {});
+      fs.writeFile(datajs.feat.datadir + '/cologd.dat', CryptoJS.AES.encrypt(JSON.stringify(cologd), b64a.server).toString(), function (err) {});
     }
     fs.writeFile(datajs.feat.datadir + '/savedvars.json', JSON.stringify(savedvars), function (err) {});
     fs.writeFile(datajs.feat.datadir + '/saveddat.json', JSON.stringify(saveddat), function (err) {});

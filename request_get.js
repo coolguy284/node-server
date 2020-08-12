@@ -519,7 +519,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           let dcon;
           switch (cv[0]) {
             case 'reg':
-              dcon = await fs.promises.readFile(cv[1]).toString();
+              dcon = (await fs.promises.readFile(cv[1])).toString();
               break;
             case 'vfs':
               dcon = vfs.fs.readFileSync(cv[1]).toString();
@@ -669,7 +669,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
     } else if (datajs.feat.gzipfiles && (await fs.promises.exists(rpathgz)) && datajs.subdir('websites', rpathgz)) {
       if ((await fs.promises.stat(rpathgz)).isFile()) {
         let gzsize = (await fs.promises.stat(rpathgz)).size;
-        let gzhandle = await fs.promises.open(rpathgz);
+        let gzhandle = await fs.promises.open(rpathgz, 'r');
         let filsizbuf = Buffer.alloc(4);
         await gzhandle.read(filsizbuf, 0, 4, gzsize - 4);
         await gzhandle.close();

@@ -38,7 +38,11 @@ module.exports = {
       fs.appendFile(this.filename, chunk, { enc }, cb);
     }
     _writev(chunks, cb) {
-      fs.appendFile(this.filename, Buffer.concat(chunks), { enc }, cb);
+      chunks = chunks.map(x => {
+        if (x.encoding == 'buffer') return x.chunk;
+        else return Buffer.from(x.chunk, x.encoding);
+      });
+      fs.appendFile(this.filename, Buffer.concat(chunks), cb);
     }
     _final(cb) {
       cb();
@@ -70,6 +74,7 @@ module.exports = {
     constructor(lim, options) {
       super(options);
       if (lim == null) lim = Infinity;
+      if (options == null) options = {};
       this.lim = lim;
       this.tolim = lim;
       if (options.randfunc) {
