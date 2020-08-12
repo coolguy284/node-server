@@ -34,7 +34,7 @@ function prepserv() {
         timeout = val[1];
         break;
       case 'gettimeout':
-        serv.send(['timeout', global.timeout]);
+        serv.send(['timeout', timeout]);
         break;
     }
   });
