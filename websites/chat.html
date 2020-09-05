@@ -128,7 +128,7 @@
     <script src = 'js/bbcode-parser.js'></script>
     <script src = 'js/base64.js'></script>
     <script>
-      var ALLOWED_TAGS = ['B', 'I', 'U', 'S', 'STRIKE', 'STRONG', 'EM', 'DEL', 'INS', 'MARK', 'SMALL', 'SUB', 'SUP', 'BLOCKQUOTE', 'Q', 'A', 'BDI', 'BDO', 'FONT', 'SPAN', 'CODE', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'PRE', 'OL', 'UL', 'LI', 'DL', 'DT', 'DD', 'DETAILS', 'SUMMARY', 'TABLE', 'CAPTION', 'COLGROUP', 'COL', 'THEAD', 'TBODY', 'TFOOT', 'TH', 'TR', 'TD', 'BR', 'WBR', 'BUTTON', 'METER', 'PROGRESS'];
+      var ALLOWED_TAGS = ['#TEXT', 'B', 'I', 'U', 'S', 'STRIKE', 'STRONG', 'EM', 'DEL', 'INS', 'MARK', 'SMALL', 'SUB', 'SUP', 'BLOCKQUOTE', 'Q', 'A', 'BDI', 'BDO', 'FONT', 'SPAN', 'CODE', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'PRE', 'OL', 'UL', 'LI', 'DL', 'DT', 'DD', 'DETAILS', 'SUMMARY', 'TABLE', 'CAPTION', 'COLGROUP', 'COL', 'THEAD', 'TBODY', 'TFOOT', 'TH', 'TR', 'TD', 'BR', 'WBR', 'BUTTON', 'METER', 'PROGRESS'];
       var escaper = document.createElement('textarea');
       function escapeHTML(html) {
         escaper.textContent = html;
@@ -140,10 +140,18 @@
       }
       function sanitize(el) {
         "Remove all tags from element 'el' that aren't in the ALLOWED_TAGS list.";
-        var tags = Array.prototype.slice.apply(el.getElementsByTagName('*'), [0]);
+        if (el.attributes && el.attributes.onerror) el.removeAttribute('onerror');
+        try {
+          var tags = Array.prototype.slice.apply(el.getElementsByTagName('*'), [0]);
+        } catch (e) {
+          var tags = Array.from(el.childNodes);
+        }
         for (var i = 0; i < tags.length; i++) {
-          if (ALLOWED_TAGS.indexOf(tags[i].nodeName) == -1)
+          if (ALLOWED_TAGS.indexOf(tags[i].nodeName.toUpperCase()) == -1) {
             usurp(tags[i]);
+          } else {
+            if (tags[i].attributes && tags[i].attributes.onerror) tags[i].removeAttribute('onerror');
+          }
         }
       }
       function usurp(p) {
@@ -157,10 +165,13 @@
         p.parentNode.removeChild(p);
       }
       function sanitizeString(string) {
-        var div = document.createElement('div');
-        div.innerHTML = string;
-        sanitize(div);
-        return div.innerHTML;
+        var template = document.createElement('template');
+        template.innerHTML = string;
+        for (var i = 0; i < template.content.childNodes.length; i++) {
+          sanitize(template.content.childNodes[i]);
+        }
+        sanitize(template.content);
+        return template.innerHTML;
       }
       function SetEnd(txt) {  
         if (txt.createTextRange) {  
