@@ -78,6 +78,7 @@ module.exports = {
       'coolguy284.repl.co',
       'c284.herokuapp.com',
       'home.coolguy284.com',
+      'old.coolguy284.com',
     ],
     map: {
       'test.coolguy284.com': 'test',

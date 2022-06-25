@@ -1,2 +1,7 @@
 User-agent: *
-Disallow:
+User-agent: AdsBot-Google
+User-agent: AdsBot-Google-Mobile
+User-agent: Mediapartners-Google
+# this server is an old server so all pages should not show up in search results
+Disallow: /
+Sitemap: https://old.coolguy284.com/sitemap.xml

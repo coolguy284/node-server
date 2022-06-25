@@ -5,7 +5,7 @@ var checkable = true;
 var checkt = 0;
 var scint = 0;
 var rstimes = 0;
-var timeout = 5000;
+var timeout = 120000;
 var maxrstimes = 5;
 function prepserv() {
   process.stdin.unpipe();
@@ -62,5 +62,12 @@ scint = setInterval(function () {
       checkable = true;
     }
   }
-}, 1000);
+}, 60000);
+process.on('SIGINT', function () {
+  letterm = true;
+  checkable = false;
+  clearInterval(scint);
+  console.log('SIGINT recieved, shutting down server.');
+  serv.kill();
+});
 undefined;

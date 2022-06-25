@@ -1,162 +1,162 @@
 <?xml version = '1.0' encoding = 'utf-8'?>
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
   <url>
-    <loc>https://c284.herokuapp.com/index.html</loc>
+    <loc>https://old.coolguy284.com/index.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>1</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/chat.html</loc>
+    <loc>https://old.coolguy284.com/chat.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/views.html</loc>
+    <loc>https://old.coolguy284.com/views.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/calculator.html</loc>
+    <loc>https://old.coolguy284.com/tools/calculator.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/advancedtime.html</loc>
+    <loc>https://old.coolguy284.com/tools/advancedtime.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/todo.html</loc>
+    <loc>https://old.coolguy284.com/todo.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/index.html</loc>
+    <loc>https://old.coolguy284.com/tools/index.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/debug/index.html</loc>
+    <loc>https://old.coolguy284.com/debug/index.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/debug/owneyes.html</loc>
+    <loc>https://old.coolguy284.com/debug/owneyes.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/rectangles.html</loc>
+    <loc>https://old.coolguy284.com/rectangles.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/halloween.html</loc>
+    <loc>https://old.coolguy284.com/tools/halloween.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/unitconv.html</loc>
+    <loc>https://old.coolguy284.com/tools/unitconv.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/coderunner.html</loc>
+    <loc>https://old.coolguy284.com/tools/coderunner.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/systemdata.html</loc>
+    <loc>https://old.coolguy284.com/tools/systemdata.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/downloader.html</loc>
+    <loc>https://old.coolguy284.com/tools/downloader.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/dataurl.html</loc>
+    <loc>https://old.coolguy284.com/tools/dataurl.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/html.html</loc>
+    <loc>https://old.coolguy284.com/tools/html.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/base64.html</loc>
+    <loc>https://old.coolguy284.com/tools/base64.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/uri.html</loc>
+    <loc>https://old.coolguy284.com/tools/uri.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/uricomp.html</loc>
+    <loc>https://old.coolguy284.com/tools/uricomp.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/aes.html</loc>
+    <loc>https://old.coolguy284.com/tools/aes.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/rsa.html</loc>
+    <loc>https://old.coolguy284.com/tools/rsa.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/sha256.html</loc>
+    <loc>https://old.coolguy284.com/tools/sha256.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/qrcode.html</loc>
+    <loc>https://old.coolguy284.com/tools/qrcode.html</loc>
     <lastmod>2019-12-21</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/widelatin.html</loc>
+    <loc>https://old.coolguy284.com/tools/widelatin.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/enigma.html</loc>
+    <loc>https://old.coolguy284.com/tools/enigma.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/tools/morsecode.html</loc>
+    <loc>https://old.coolguy284.com/tools/morsecode.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/debug/localstorage.html</loc>
+    <loc>https://old.coolguy284.com/debug/localstorage.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/debug/latency.html</loc>
+    <loc>https://old.coolguy284.com/debug/latency.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/debug/char.html</loc>
+    <loc>https://old.coolguy284.com/debug/char.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/p404.html</loc>
+    <loc>https://old.coolguy284.com/p404.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://c284.herokuapp.com/perr.html</loc>
+    <loc>https://old.coolguy284.com/perr.html</loc>
     <lastmod>2019-04-10</lastmod>
     <priority>0.8</priority>
   </url>

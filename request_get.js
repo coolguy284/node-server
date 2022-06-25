@@ -605,9 +605,10 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
             'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
             'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
             'Content-Length': Math.min(rend - rstart + 1, size),
+            'X-Robots-Tag': 'noindex'
           }); // why is the end of a range referencing the id of that byte, instead of the next one like in js?
           rs.pipe(res);
-        } else if ((await fs.promises.exists(fpath)) && datajs.feat.debug.js) {
+        } else if (datajs.feat.debug.js && (await fs.promises.exists(fpath))) {
           let size = (await fs.promises.stat(fpath)).size;
           if (rend == Infinity) rend = size - 1;
           if (rend >= size) {
@@ -623,6 +624,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
             'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
             'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
             'Content-Length': Math.min(rend - rstart + 1, size),
+            'X-Robots-Tag': 'noindex'
           });
           rs.pipe(res);
         } else if (datajs.feat.tempp.hasOwnProperty(req.url) && Buffer.isBuffer(datajs.feat.tempp[req.url][1])) {
@@ -656,17 +658,18 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         return -1;
       }
     }
-    if ((await fs.promises.exists(rpath)) && datajs.subdir('websites', rpath)) {
+    if (datajs.subdir('websites', rpath) && (await fs.promises.exists(rpath))) {
       if ((await fs.promises.stat(rpath)).isFile()) {
         let rs = fs.createReadStream(rpath);
         res.writeHead(200, {
           'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
           'Content-Length': (await fs.promises.stat(rpath)).size,
-          'Accept-Ranges': 'bytes'
+          'Accept-Ranges': 'bytes',
+          'X-Robots-Tag': 'noindex'
         });
         rs.pipe(res);
       } else runelse = true;
-    } else if (datajs.feat.gzipfiles && (await fs.promises.exists(rpathgz)) && datajs.subdir('websites', rpathgz)) {
+    } else if (datajs.feat.gzipfiles && datajs.subdir('websites', rpathgz) && (await fs.promises.exists(rpathgz))) {
       if ((await fs.promises.stat(rpathgz)).isFile()) {
         let gzsize = (await fs.promises.stat(rpathgz)).size;
         let gzhandle = await fs.promises.open(rpathgz, 'r');
@@ -677,7 +680,8 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         res.writeHead(200, {
           'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
           'Content-Length': filsizbuf.readUInt32LE(0),
-          'Accept-Ranges': 'none'
+          'Accept-Ranges': 'none',
+          'X-Robots-Tag': 'noindex'
         });
         rs.pipe(zlib.createGunzip()).pipe(res);
       } else runelse = true;
@@ -686,7 +690,8 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
       res.writeHead(200, {
         'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
         'Content-Length': (await fs.promises.stat(fpath)).size,
-        'Accept-Ranges': 'bytes'
+        'Accept-Ranges': 'bytes',
+        'X-Robots-Tag': 'noindex'
       });
       rs.pipe(res);
     } else {
