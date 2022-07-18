@@ -6,8 +6,10 @@ module.exports = {
     savedvars.uptime = (new Date().getTime()) - sstdate.getTime();
     savedvars.maxuptime = Math.max(savedvars.uptime, savedvars.maxuptime);
     let remt = new Date().getTime();
-    global.chatherelist = chatherelist.filter(val => val[0] > remt - 60000);
-    global.chattyplist = chattyplist.filter(val => val[0] > remt - 60000);
+    if (!datajs.feat.es) {
+      global.chatherelist = chatherelist.filter(val => val[0] > remt - 60000);
+      global.chattyplist = chattyplist.filter(val => val[0] > remt - 60000);
+    }
     global.owneyesid = owneyesid.filter(val => val[0] > remt - 60000);
     global.loginid = loginid.filter(val => val[0] > remt - 864000000);
     if (datajs.feat.chatghost && Math.random() < 0.006 && chatherelist.length == 5) {

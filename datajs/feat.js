@@ -91,15 +91,15 @@ module.exports = {
     // urls that dont get logged in console
     cons: ['/livechat.dat', '/liverchat.json', '/liveviews.dat', '/comms.json', '/colog.dat', '/cologd.dat', '/livechathere.dat', '/livechattyp.dat', '/livechatkick.dat', '/pkey.log', '/lat.log'],
     // url startswiths that dont get logged in console
-    consv: ['/s?her=', '/s?typ=', '/m?cnl=', '/a?co=', '/a?cd=', '/a?ccp=', '/a?rc=', '/a?fstyp=', '/a?fsdir=', '/a?fstex='],
+    consv: ['/s?her=', '/s?typ=', '/s?typnew=', '/m?cnl=', '/a?co=', '/a?cd=', '/a?ccp=', '/a?rc=', '/a?fstyp=', '/a?fsdir=', '/a?fstex='],
     // locked server allowable urls
     lockl: ['/admin.html', '/colog.dat', '/cologd.dat'],
     // urls that dont show up in viewshist
     vh: ['/ftx.txt', '/chathid.html', '/chatprivate.html', '/mchat.html', '/lat.log'],
     // url startswiths that dont show up in viewshist
-    vhv: ['/s?', '/r?', '/m?', '/a?', '/pagg?=', '/oi?vr=', '/livechatd.log?id=', '/user', '/login?v=', '/logout?v='],
+    vhv: ['/livechates.dat', '/s?', '/r?', '/m?', '/a?', '/pagg?=', '/oi?vr=', '/livechatd.log?id=', '/user', '/login?v=', '/logout?v='],
     // ajax urls
-    ajaxl: ['/livechat.dat', '/livechates.dat', '/liverchat.json', '/liverchates.dat', '/liveviews.dat', '/liveviewses.dat', '/comms.json', '/colog.dat', '/cologd.dat', '/livechathere.dat', '/livechattyp.dat', '/livechatkick.dat', '/lat.log'],
+    ajaxl: ['/candoes.dat', '/livechat.dat', '/livechates.dat', '/liverchat.json', '/liverchates.dat', '/liveviews.dat', '/liveviewses.dat', '/comms.json', '/colog.dat', '/cologd.dat', '/livechathere.dat', '/livechattyp.dat', '/livechatkick.dat', '/lat.log'],
     // variable urls
     vl: ['/s?', '/r?', '/m?', '/a?'],
   },

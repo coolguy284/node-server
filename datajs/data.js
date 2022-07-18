@@ -90,9 +90,6 @@ module.exports = {
     val = val.slice(1, val.length - 1);
     return val.filter(function (val) {return val.replace(/\s/g, '').length});
   },
-  cleartyplist: function cleartyplist(nam) {
-    global.chattyplist = chattyplist.filter(function (val) {return val[1] != nam;});
-  },
   proxyt: require('./proxyt.js'),
   bw: require('./bw.js'),
   exjson: require('./exjson.js'),

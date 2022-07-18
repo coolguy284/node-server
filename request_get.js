@@ -48,36 +48,6 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         datajs.rm.restext(res, b64.encode(JSON.stringify(chatobj)));
       } else datajs.rm.sn(res);
       break;
-    case '/livechates.dat':
-      if (datajs.feat.es) {
-        res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-        let ChatMSG = function (s) {
-          res.write('event: chat-msg\ndata: ' + s + '\n\n');
-        }, ChatRefresh = function () {
-          res.write('event: chat-refresh\n\n');
-        }, ChatSpliceb = function (i) {
-          res.write('event: chat-spliceb\ndata: ' + i + '\n\n');
-        }, ChatClear = function () {
-          res.write('event: chat-clear\n\n');
-        };
-        chates.on('chat-msg', ChatMSG);
-        chates.on('chat-refresh', ChatRefresh);
-        chates.on('chat-spliceb', ChatSpliceb);
-        chates.on('chat-clear', ChatClear);
-        let closefunc = function () {
-          chates.off('chat-msg', ChatMSG);
-          chates.off('chat-refresh', ChatRefresh);
-          chates.off('chat-spliceb', ChatSpliceb);
-          chates.off('chat-clear', ChatClear);
-        };
-        res.on('close', closefunc);
-        res.on('destroy', closefunc);
-      } else {
-        res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-        res.write('event: no-es\n\n');
-        res.end();
-      }
-      break;
     case '/liverchat.json':
       if (datajs.feat.rchat) {
         datajs.rm.restext(res, JSON.stringify(rchat));
@@ -185,6 +155,86 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         }
       } else datajs.rm.sn(res);
       break;
+    case req.url.substr(0, 15) == '/livechates.dat':
+      if (datajs.feat.chat) {
+        let nam = b64.decode(req.url.substr(20));
+        if (datajs.feat.es && nam) {
+          res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+          let ChatMsg = function (ts, nam, tex) {
+            res.write('event: message\ndata: ' + JSON.stringify([ts, nam, tex]) + '\n\n');
+          }, ChatRefresh = function () {
+            res.write('event: refresh\ndata: ' + JSON.stringify(chat) + '\n\n');
+          }, ChatSplicei = function (i) {
+            res.write('event: splicei\ndata: ' + i + '\n\n');
+          }, ChatSpliceb = function (i) {
+            res.write('event: spliceb\ndata: ' + i + '\n\n');
+          }, ChatClear = function () {
+            res.write('event: clear\n\n');
+          }, ChatJoin = function (nam) {
+            res.write('event: join\ndata: ' + JSON.stringify(nam) + '\n\n');
+          }, ChatLeave = function (nam) {
+            res.write('event: leave\ndata: ' + JSON.stringify(nam) + '\n\n');
+          }, ChatHereRefresh = function () {
+            res.write('event: hererefresh\ndata: ' + JSON.stringify(chatherelist) + '\n\n');
+          }, ChatTypingStart = function (nam) {
+            res.write('event: typingstart\ndata: ' + JSON.stringify(nam) + '\n\n');
+          }, ChatTypingStop = function (nam) {
+            res.write('event: typingstop\ndata: ' + JSON.stringify(nam) + '\n\n');
+          }, ChatTypingRefresh = function () {
+            res.write('event: typingrefresh\ndata: ' + JSON.stringify(chattyplist) + '\n\n');
+          }, ChatKick = function (nam) {
+            res.write('event: kick\ndata: ' + JSON.stringify(nam) + '\n\n');
+          }, ChatUnKick = function (nam) {
+            res.write('event: unkick\ndata: ' + JSON.stringify(nam) + '\n\n');
+          }, ChatKickRefresh = function () {
+            res.write('event: kickrefresh\ndata: ' + JSON.stringify(chatkicklist) + '\n\n');
+          };
+          chates.on('message', ChatMsg);
+          chates.on('refresh', ChatRefresh);
+          chates.on('splicei', ChatSplicei);
+          chates.on('spliceb', ChatSpliceb);
+          chates.on('clear', ChatClear);
+          chates.on('join', ChatJoin);
+          chates.on('leave', ChatLeave);
+          chates.on('hererefresh', ChatHereRefresh);
+          chates.on('typingstart', ChatTypingStart);
+          chates.on('typingstop', ChatTypingStop);
+          chates.on('typingrefresh', ChatTypingRefresh);
+          chates.on('kick', ChatKick);
+          chates.on('unkick', ChatUnKick);
+          chates.on('kickrefresh', ChatKickRefresh);
+          let closefunc = function () {
+            chates.off('message', ChatMsg);
+            chates.off('refresh', ChatRefresh);
+            chates.off('splicei', ChatSplicei);
+            chates.off('spliceb', ChatSpliceb);
+            chates.off('clear', ChatClear);
+            chates.off('join', ChatJoin);
+            chates.off('leave', ChatLeave);
+            chates.off('hererefresh', ChatHereRefresh);
+            chates.off('typingstart', ChatTypingStart);
+            chates.off('typingstop', ChatTypingStop);
+            chates.off('typingrefresh', ChatTypingRefresh);
+            chates.off('kick', ChatKick);
+            chates.off('unkick', ChatUnKick);
+            chates.off('kickrefresh', ChatKickRefresh);
+            adm.chathereremove(nam);
+            adm.chattypremove(nam);
+          };
+          res.on('close', closefunc);
+          res.on('destroy', closefunc);
+          adm.chathereadd(nam);
+          ChatRefresh();
+          ChatHereRefresh();
+          ChatTypingRefresh();
+          ChatKickRefresh();
+        } else {
+          res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+          res.write('event: no-es\n\n');
+          res.end();
+        }
+      } else datajs.rm.sn(res);
+      break;
     case req.url.substr(0, 5) == '/r?u=':
       fs.readFile('websites/redirecttemplate.html', function (err, data) {
         res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
@@ -211,35 +261,39 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
     case req.url.substr(0, 7) == '/s?tex=':
       if (datajs.feat.chat) {
         cv = JSON.parse(b64.decode(req.url.substr(7, 65536)));
-        if (chatbanlist.indexOf(cv[0]) < 0 && chatbaniplist.indexOf(ipaddr) < 0) {
-          adm.addchat(stime, '<' + cv[0] + '>', cv[1]);
-          setTimeout(datajs.cleartyplist, 100, cv[0]);
-        }
+        if (chatbanlist.indexOf(cv[0]) < 0 && chatbaniplist.indexOf(ipaddr) < 0)
+          adm.addchat(stime, '<' + cv[0] + '>', cv[1], true);
       }
       datajs.rm.sn(res);
       break;
     case req.url.substr(0, 7) == '/s?her=':
       if (datajs.feat.chathere) {
         cv = b64.decode(req.url.substr(7, 2048));
-        if (chatbanlist.indexOf(cv) < 0 && chatbaniplist.indexOf(ipaddr) < 0) {
-          chatherelist.push([stime.getTime(), cv]);
-        }
+        if (chatbanlist.indexOf(cv) < 0 && chatbaniplist.indexOf(ipaddr) < 0)
+          adm.chathereadd(cv);
       }
       datajs.rm.sn(res);
       break;
     case req.url.substr(0, 7) == '/s?typ=':
       if (datajs.feat.chattyp) {
         cv = b64.decode(req.url.substr(7, 2048));
-        if (chatbanlist.indexOf(cv) < 0 && chatbaniplist.indexOf(ipaddr) < 0) {
-          chattyplist.push([stime.getTime(), cv]);
-        }
+        if (chatbanlist.indexOf(cv) < 0 && chatbaniplist.indexOf(ipaddr) < 0)
+          adm.chattypadd(cv);
+      }
+      datajs.rm.sn(res);
+      break;
+    case req.url.substr(0, 10) == '/s?typnew=':
+      if (datajs.feat.chattyp) {
+        cv = JSON.parse(b64.decode(req.url.substr(10)));
+        if (cv[1]) adm.chattypadd(cv[0]);
+        else adm.chattypremove(cv[0]);
       }
       datajs.rm.sn(res);
       break;
     case req.url.substr(0, 7) == '/s?kic=':
       if (datajs.feat.chatkick) {
         let kn = b64.decode(req.url.substr(7, Infinity));
-        chatkicklist = chatkicklist.filter(na => na != kn);
+        adm.chatunkick(kn);
       }
       datajs.rm.sn(res);
       break;

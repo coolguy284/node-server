@@ -58,13 +58,13 @@
           <td style = 'border:1px solid black;width:150px;text-align:center;'>
             <span>Show HTML:</span><br>
             <span>Off</span>
-            <input id = 'showhtm' type = 'range' min = 0 max = 1 value = 0 onchange = 'setTimeout(ChatReload(true),15)' style = 'width:30px;'>
+            <input id = 'showhtm' type = 'range' min = 0 max = 1 value = 0 onchange = 'setTimeout(ChatReload, 15, true)' style = 'width:30px;'>
             <span>On</span>
           </td>
           <td style = 'border:1px solid black;width:150px;text-align:center;'>
             <span>Show Timestamp:</span><br>
             <span>Off</span>
-            <input id = 'showts' type = 'range' min = 0 max = 1 value = 1 onchange = 'setTimeout(ChatReload(true),15)' style = 'width:30px;'>
+            <input id = 'showts' type = 'range' min = 0 max = 1 value = 1 onchange = 'setTimeout(ChatReload, 15, true)' style = 'width:30px;'>
             <span>On</span>
           </td>
         </tr>
@@ -72,13 +72,13 @@
           <td style = 'border:1px solid black;width:150px;text-align:center;'>
             <span>Show Indices:</span><br>
             <span>Off</span>
-            <input id = 'showind' type = 'range' min = 0 max = 1 value = 1 onchange = 'setTimeout(ChatReload(true),15)' style = 'width:30px;'>
+            <input id = 'showind' type = 'range' min = 0 max = 1 value = 1 onchange = 'setTimeout(ChatReload, 15, true)' style = 'width:30px;'>
             <span>On</span>
           </td>
           <td style = 'border:1px solid black;width:150px;text-align:center;'>
             <span>Show People in Chat:</span><br>
             <span>Off</span>
-            <input id = 'showhere' type = 'range' min = 0 max = 2 value = 0 onchange = 'setTimeout(ShowHere(showhere.value),15)' style = 'width:30px;'>
+            <input id = 'showhere' type = 'range' min = 0 max = 2 value = 0 onchange = 'setTimeout(ShowHere, 15, showhere.value)' style = 'width:30px;'>
             <span>Full</span>
           </td>
         </tr>
@@ -86,7 +86,7 @@
           <td style = 'border:1px solid black;width:150px;text-align:center;' colspan = 2>
             <span>Show Notifications:</span><br>
             <span>Off</span>
-            <input id = 'shownotf' type = 'range' min = 0 max = 1 value = 0 onchange = 'setTimeout(ShowNotf(shownotf.value),15)' style = 'width:30px;'>
+            <input id = 'shownotf' type = 'range' min = 0 max = 1 value = 0 onchange = 'setTimeout(ShowNotf, 15, shownotf.value)' style = 'width:30px;'>
             <span>On</span>
           </td>
         </tr>
@@ -94,13 +94,13 @@
           <td style = 'border:1px solid black;width:150px;text-align:center;'>
             <span>Red Mode:</span><br>
             <span>Off</span>
-            <input id = 'redmode' type = 'range' min = 0 max = 1 value = 0 onchange = 'setTimeout(RedMode(redmode.value),15)' style = 'width:30px;'>
+            <input id = 'redmode' type = 'range' min = 0 max = 1 value = 0 onchange = 'setTimeout(RedMode, 15, redmode.value)' style = 'width:30px;'>
             <span>On</span>
           </td>
           <td style = 'border:1px solid black;width:150px;text-align:center;'>
             <span>Display Garry:</span><br>
             <span>Off</span>
-            <input id = 'garry' type = 'range' min = 0 max = 1 value = 0 onchange = 'setTimeout(ShowGarry(garry.value),15)' style = 'width:30px;'>
+            <input id = 'garry' type = 'range' min = 0 max = 1 value = 0 onchange = 'setTimeout(ShowGarry, 15, garry.value)' style = 'width:30px;'>
             <span>On</span>
           </td>
         </tr>
@@ -108,7 +108,7 @@
           <td style = 'border:1px solid black;width:150px;text-align:center;' colspan = 2>
             <span>Censorship:</span><br>
             <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Off</span>
-            <input id = 'cens' type = 'range' min = 0 max = 2 value = 0 onchange = 'setTimeout(Cens(cens.value),15)' style = 'width:60px;'>
+            <input id = 'cens' type = 'range' min = 0 max = 2 value = 0 onchange = 'setTimeout(Cens, 15, cens.value)' style = 'width:60px;'>
             <span>Ludicrous</span><br>
             <select id = 'censact'>
               <option value = 'del'>Delete</option>
@@ -211,12 +211,14 @@
       });
       var nnam = 'anonymous';
       var parar = [], para = [];
-      var herelist = [], hereld = 0;
-      var typing = false, notf = false;
+      var hereld = 0;
+      var typing = false, typClearTimo, notf = false;
       var chathist = [], histind = 0, currtext = '', currmode = 'html';
       var chatstarted = false;
       var doreload = true;
       var reloading = false;
+      var doEs, chatEs;
+      var chat = [], chathere = [], chattyp = [], chatkick = [];
       onload = function() {
         nname.value = localStorage.getItem('cname');
       }
@@ -232,19 +234,18 @@
         return null;
       }
       onbeforeunload = function() {
-        if (chatstarted) {
+        if (chatstarted)
           fetch('s?lef=' + Base64.encode(nnam));
-        }
         return null;
       }
-      function Schat() {
+      async function Schat() {
+        doEs = Boolean(parseInt(await (await fetch('candoes.dat')).text()));
         if (nname.value != '') nnam = nname.value;
         if (ks.value != '') Base64.s = ks.value;
         fetch('s?joi=' + Base64.encode(nnam));
         chatt.style.removeProperty('display');
         ctyp.style.removeProperty('display');
         begs.style.display = 'none';
-        setInterval(ChatReload, 1000, false);
         inp.style.removeProperty('display');
         shohtm = localStorage.getItem('chtm');
         shoind = localStorage.getItem('cind');
@@ -269,16 +270,102 @@
         else redmode.value = parseInt(redmod);
         if (garr == null) garry.value = 0;
         else garry.value = parseInt(garr);
-        ChatReload(true);
         ShowHere(showhere.value);
         ShowNotf(shownotf.value);
         RedMode(redmode.value);
         ShowGarry(garry.value);
+        if (doEs) {
+          chatEs = new EventSource('livechates.dat?nam=' + Base64.encode(nnam));
+          chatEs.addEventListener('message', e => {
+            var msg = JSON.parse(e.data);
+            chat.push(msg);
+            UpdateChatBody(chat);
+          });
+          chatEs.addEventListener('refresh', e => {
+            chat = JSON.parse(e.data);
+            UpdateChatBody(chat);
+          });
+          chatEs.addEventListener('splicei', e => {
+            var ind = parseInt(e.data);
+            chat.splice(ind, 1);
+            UpdateChatBody(chat);
+          });
+          chatEs.addEventListener('spliceb', e => {
+            var amt = parseInt(e.data);
+            chat.splice(0, amt);
+            UpdateChatBody(chat);
+          });
+          chatEs.addEventListener('clear', e => {
+            chat.length = 0;
+            UpdateChatBody(chat);
+          });
+          chatEs.addEventListener('join', e => {
+            var nam = JSON.parse(e.data);
+            if (!chathere.includes(nam))
+              chathere.push([Date.now(), nam]);
+            UpdateChatHerelist(chathere);
+          });
+          chatEs.addEventListener('leave', e => {
+            var nam = JSON.parse(e.data);
+            chathere = chathere.filter(x => x[1] != nam);
+            UpdateChatHerelist(chathere);
+          });
+          chatEs.addEventListener('hererefresh', e => {
+            chathere = JSON.parse(e.data);
+            UpdateChatHerelist(chathere);
+          });
+          chatEs.addEventListener('typingstart', e => {
+            var nam = JSON.parse(e.data);
+            if (!chattyp.includes(nam))
+              chattyp.push([Date.now(), nam]);
+            UpdateChatTyping(chattyp);
+          });
+          chatEs.addEventListener('typingstop', e => {
+            var nam = JSON.parse(e.data);
+            chattyp = chattyp.filter(x => x[1] != nam);
+            UpdateChatTyping(chattyp);
+          });
+          chatEs.addEventListener('typingrefresh', e => {
+            chattyp = JSON.parse(e.data);
+            UpdateChatTyping(chattyp);
+          });
+          chatEs.addEventListener('kick', e => {
+            var nam = JSON.parse(e.data);
+            if (!chatkick.includes(nam))
+              chatkick.push(nam);
+            UpdateChatKicklist(chatkick);
+          });
+          chatEs.addEventListener('unkick', e => {
+            var nam = JSON.parse(e.data);
+            var ind = chatkick.indexOf(nam);
+            if (ind > -1) chatkick.splice(ind, 1);
+            UpdateChatKicklist(chatkick);
+          });
+          chatEs.addEventListener('kickrefresh', e => {
+            chatkick = JSON.parse(e.data);
+            UpdateChatKicklist(chatkick);
+          });
+        } else {
+          setInterval(ChatReload, 1000, false);
+          ChatReload(true);
+        }
         chatstarted = true;
+      }
+      function SetTyping(val) {
+        let oldtyping = typing;
+        typing = val;
+        if (typing != oldtyping) fetch('s?typnew=' + Base64.encode(JSON.stringify([nnam, typing])));
+        if (typClearTimo) {
+          clearTimeout(typClearTimo);
+          typClearTimo = undefined;
+        }
+        if (typing) {
+          typClearTimo = setTimeout(() => { SetTyping(false); typClearTimo = undefined; }, 5000);
+        }
       }
       function UpdateChatBody(rt) {
         if (document.hidden || window.getSelection().toString() == '') {
-          ara = rt;
+          ara = rt.slice();
           arar = ara.slice();
           if (document.hidden) {
             if (JSON.stringify(ara) != JSON.stringify(parar) && document.title != '(******) Chat Test')
@@ -355,8 +442,8 @@
       }
       function UpdateChatHerelist(rt) {
         if (document.hidden || window.getSelection().toString() == '') {
-          arag = rt;
-          hist = {}
+          arag = rt.slice();
+          hist = {};
           for (var i in arag) {
             if (hist[arag[i][1]] === undefined) {
               hist[arag[i][1]] = 0;
@@ -381,8 +468,8 @@
       }
       function UpdateChatTyping(rt) {
         if (document.hidden || window.getSelection().toString() == '') {
-          arag = rt;
-          hist = {}
+          arag = rt.slice();
+          hist = {};
           for (var i in arag) {
             if (hist[arag[i][1]] === undefined) {
               hist[arag[i][1]] = 0;
@@ -402,7 +489,7 @@
         }
       }
       function UpdateChatKicklist(rt) {
-        ara = rt;
+        ara = rt.slice();
         if (ara.indexOf(nnam) > -1) {
           fetch('s?kic=' + Base64.encode(nnam));
           setTimeout(() => document.body.innerHTML = 'you\'ve been kicked from the chat', 0);
@@ -422,7 +509,7 @@
             UpdateChatHerelist(chatobj.here);
           if (typing) {
             fetch('s?typ=' + Base64.encode(nnam));
-            typing = false;
+            SetTyping(false);
           }
           UpdateChatKicklist(chatobj.kick);
           } catch (e) {}
@@ -462,7 +549,6 @@
         histind = chathist.length;
         currtext = '';
         currmode = chatmode.value;
-        typing = true;
       }
       function HelpTogg() {
         if (helps.style.display == 'none')
@@ -579,15 +665,14 @@
           SetEnd(chattext);
         } else if (e.keyCode === 8) {
           histind = chathist.length;
-          setTimeout(function() {currtext = chattext.value; currmode = chatmode.value;}, 0);
-          typing = true;
+          setTimeout(function() {currtext = chattext.value; currmode = chatmode.value; SetTyping(Boolean(currtext));}, 15);
         }
       });
       chattext.addEventListener('keypress', function (e) {
         if (!e.charCode) {return;}
         histind = chathist.length;
         setTimeout(function() {currtext = chattext.value; currmode = chatmode.value;}, 0);
-        typing = true;
+        SetTyping(true);
       });
     </script>
   </body>

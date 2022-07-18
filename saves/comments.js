@@ -62,19 +62,13 @@ case '/delaybusy.log':
 if (req.url.substr(0, 7) == '/s?joi=') {
   let cv = b64.decode(req.url.substr(7, 2048));
   if (chatbanlist.indexOf(cv) < 0 && chatbaniplist.indexOf(ipaddr) < 0) {
-    chat.push(JSON.stringify(['[' + new Date().toISOString() + ']', '[server]', cv + ' joined']));
-    if (chat.length > 100) {
-      chat.splice(0, chat.length - 100);
-    }
+    adm.addchat(null, '[server]', cv + ' joined');
   }
   sn = true;
 } else if (req.url.substr(0, 7) == '/s?lef=') {
   let cv = b64.decode(req.url.substr(7, 2048));
   if (chatbanlist.indexOf(cv) < 0 && chatbaniplist.indexOf(ipaddr) < 0) {
-    chat.push(JSON.stringify(['[' + new Date().toISOString() + ']', '[server]', cv + ' left']));
-    if (chat.length > 100) {
-      chat.splice(0, chat.length - 100);
-    }
+    adm.addchat(null, '[server]', cv + ' left');
   }
   sn = true;
 }

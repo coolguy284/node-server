@@ -97,7 +97,7 @@ module.exports = {
       case '':
         break;
       case 'term':
-        try {process.send(['term']);} catch (e) {process.exit();}
+        try {exitHandler(null, true);process.send(['term']);} catch (e) {process.exit();}
         break;
       case 'restart':
         try {process.send(['restart']);} catch (e) {process.exit();}
@@ -106,12 +106,10 @@ module.exports = {
         adm.addchat(null, '[server]', args.join(' '));
         break;
       case 'spls':
-        chat.splice(args[0], 1);
-        chates.emit('chat-refresh');
+        adm.splschat(args[0]);
         break;
       case 'splb':
-        chat.splice(0, args[0]);
-        chates.emit('chat-spliceb', args[0]);
+        adm.splb(args[0]);
         break;
       case 'edtt':
         adm.setchat(args[0], null, null, args.slice(1, Infinity));
@@ -193,11 +191,10 @@ module.exports = {
         console.clear();
         break;
       case 'cct':
-        chat.splice(0, Infinity);
-        chates.emit('chat-clear');
+        adm.clearchat();
         break;
       case 'crct':
-        rchat.splice(0, Infinity);
+        adm.rclearchat();
         break;
       case 'servtimo':
         if (args[0] !== undefined) {

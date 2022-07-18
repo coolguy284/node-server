@@ -51,8 +51,9 @@
         return escaper.textContent;
       }
       var doreload = true;
-      var viewshistobj = {};
+      var doEs, viewsHistES;
       var vhhtmlobjs = { reg: tablr, ajax: tabla, p404: tablp };
+      var viewshistobj = {};
       function parsereq(obj, to) {
         ara = [];
         Object.keys(obj).sort(function (a, b) {
@@ -113,20 +114,20 @@
       }
       var reqes = new XMLHttpRequest();
       reqes.addEventListener('load', function (e) {
-        var doEs = Boolean(parseInt(this.responseText));
+        doEs = Boolean(parseInt(this.responseText));
         if (doEs) {
-          var viewsHistES = new EventSource('liveviewses.dat');
-          viewsHistES.addEventListener('update', function (e) {
+          viewsHistES = new EventSource('liveviewses.dat');
+          viewsHistES.addEventListener('update', e => {
             var rt = JSON.parse(e.data);
             viewshistobj[rt[0]][rt[1]] = rt[2];
             parsereq(viewshistobj[rt[0]], vhhtmlobjs[rt[0]]);
           });
-          viewsHistES.addEventListener('delete', function (e) {
+          viewsHistES.addEventListener('delete', e => {
             var rt = JSON.parse(e.data);
             for (var url of rt[1]) delete viewshistobj[rt[0]][url];
             parsereq(viewshistobj[rt[0]], vhhtmlobjs[rt[0]]);
           });
-          viewsHistES.addEventListener('refresh', function (e) {
+          viewsHistES.addEventListener('refresh', e => {
             viewshistobj = JSON.parse(e.data);
             parsereq(viewshistobj.reg, tablr);
             parsereq(viewshistobj.ajax, tabla);

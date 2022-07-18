@@ -1,1 +1,6 @@
-make all chat and viewshist code on server use datajs adm
+make request handlers not use corn
+make chat polling chathere work with arbitrary server tick rate
+server make lockl adequate to use admin console
+reset loginid timer if request made
+make viewshist ignore into viewshist replace with startswith
+make chat and viewshist hold pending changes while text is selected

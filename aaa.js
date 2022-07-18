@@ -553,11 +553,14 @@ global.serv = http.createServer(serverf).listen(port, undefined, function (err) 
     console.tslog('Server Listening on Port ' + port + ' (starting time: ' + (((slt[0] + slt[1] / 1e9) - (sst[0] + sst[1] / 1e9)) * 1000).toFixed(3) + 'ms)');
   }
 });
-var exitHandler = function () {
+global.exitHandlerCalled = false;
+global.exitHandler = function (sigarg, dontExit) {
+  if (global.exitHandlerCalled) return;
+  global.exitHandlerCalled = true;
   console.tslog('Server Closing');
   datajs.tick.savevSync();
-  console.tslog('Files Saved');
-  process.exit();
+  console.tslog('Data Files Saved');
+  if (!dontExit) process.exit();
 };
 process.on('SIGINT', exitHandler);
 process.on('SIGTERM', exitHandler);
