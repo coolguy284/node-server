@@ -107,11 +107,11 @@ module.exports = {
         break;
       case 'spls':
         chat.splice(args[0], 1);
-        eslistener.emit('chat-refresh');
+        chates.emit('chat-refresh');
         break;
       case 'splb':
         chat.splice(0, args[0]);
-        eslistener.emit('chat-spliceb', args[0]);
+        chates.emit('chat-spliceb', args[0]);
         break;
       case 'edtt':
         adm.setchat(args[0], null, null, args.slice(1, Infinity));
@@ -194,7 +194,7 @@ module.exports = {
         break;
       case 'cct':
         chat.splice(0, Infinity);
-        eslistener.emit('chat-clear');
+        chates.emit('chat-clear');
         break;
       case 'crct':
         rchat.splice(0, Infinity);

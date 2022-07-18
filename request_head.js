@@ -11,13 +11,16 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
       res.writeHead(200, {'Content-Type': 'text/event-stream','Connection': 'keep-alive','Cache-Control': 'no-cache','Transfer-Encoding': 'chunked'});
       res.end();
       break;
+    case '/candoes.dat':
+      datajs.rm.reshead(res);
+      break;
     case '/livechat.dat':
       if (datajs.feat.chat) {
         datajs.rm.reshead(res);
       } else datajs.rm.sn(res);
       break;
     case '/livechates.dat':
-      if (datajs.feat.chates) {
+      if (datajs.feat.es) {
         res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
         res.end();
       } else datajs.rm.sn(res);
@@ -32,6 +35,12 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
         datajs.rm.reshead(res);
       } else datajs.rm.sn(res);
       break;
+    case '/liveviewses.dat':
+        if (datajs.feat.es) {
+          res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+          res.end();
+        } else datajs.rm.sn(res);
+        break;
     case '/comms.json':
       if (datajs.feat.comm) {
         datajs.rm.reshead(res);

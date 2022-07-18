@@ -1,12 +1,12 @@
 // jshint -W041
-module.exports = {
+module.exports = exports = {
   setchat: function setchat(ind, ts, nam, tex) {
     if (typeof ts != 'string') ts = chat[ind][0];
     if (typeof nam != 'string') nam = chat[ind][1];
     if (typeof tex != 'string') tex = chat[ind][2];
     let ci = chat[ind];
     ci[0] = ts; ci[1] = nam; ci[2] = tex;
-    eslistener.emit('chat-refresh');
+    chates.emit('chat-refresh');
   },
   addchat: function addchat(ts, nam, tex) {
     if (ts == null) ts = new Date().toISOString();
@@ -16,7 +16,7 @@ module.exports = {
     if (chat.length > datajs.feat.lim.chat) {
       chat.splice(0, chat.length - datajs.feat.lim.chat);
     }
-    eslistener.emit('chat-msg', b64.encode(JSON.stringify(['[' + ts + ']', nam, tex])));
+    chates.emit('chat-msg', b64.encode(JSON.stringify(['[' + ts + ']', nam, tex])));
   },
   edtt: function edtt(ind, tex) { adm.setchat(ind, 0, 0, tex); },
   rsetchat: function raddchat(ind, v) {
@@ -75,6 +75,23 @@ module.exports = {
   rchatipunban: function rchatipunban(ip) {
     let v = rchatbaniplist.indexOf(ip);
     if (v > -1) rchatbaniplist.splice(v, 1);
+  },
+  vhadd: function vhadd(rp, url, amt) {
+    if (amt == null) amt = 1;
+    viewshist[rp][url] = viewshist[rp][url] != null ? viewshist[rp][url] + amt : amt;
+    if (datajs.feat.es) viewshistes.emit('update', rp, url, viewshist[rp][url]);
+  },
+  vhset: function vhadd(rp, url, amt) {
+    if (amt == null) amt = 0;
+    viewshist[rp][url] = amt;
+    if (datajs.feat.es) viewshistes.emit('update', rp, url, amt);
+  },
+  vhdel: function vhset(rp, urls) {
+    for (var url of urls) delete viewshist[rp][url];
+    if (datajs.feat.es) viewshistes.emit('delete', rp, urls);
+  },
+  vhrefresh: function vhrefresh(rp, url) {
+    if (datajs.feat.es) viewshistes.emit('refresh');
   },
   cadd: function cadd(key, code) {
     codel.push(b64d.encode(key, 'o' + code));

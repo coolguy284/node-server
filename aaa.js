@@ -180,24 +180,36 @@ if (datajs.feat.datadir != '') {
     global.chat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/chat.json').toString());
     if (Object.prototype.toString.call(chat) != '[object Array]') throw new Error('invalid chat object');
   } catch (e) {
-    console.error('chat restore failed, chat empty');
-    console.error(e);
+    if (e.code != 'ENOENT') {
+      console.error('chat restore failed, chat empty');
+      console.error(e);
+    } else {
+      console.log('creating chat.json');
+    }
     global.chat = [];
   }
   try {
     global.rchat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/rchat.json').toString());
     if (Object.prototype.toString.call(rchat) != '[object Array]') throw new Error('invalid rchat object');
   } catch (e) {
-    console.error('rchat restore failed, rchat empty');
-    console.error(e);
+    if (e.code != 'ENOENT') {
+      console.error('rchat restore failed, rchat empty');
+      console.error(e);
+    } else {
+      console.log('creating rchat.json');
+    }
     global.rchat = [];
   }
   try {
     global.mchat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/mchat.json').toString());
     if (Object.prototype.toString.call(mchat) != '[object Object]') throw new Error('invalid mchat object');
   } catch (e) {
-    console.error('mchat restore failed, mchat empty');
-    console.error(e);
+    if (e.code != 'ENOENT') {
+      console.error('mchat restore failed, mchat empty');
+      console.error(e);
+    } else {
+      console.log('creating mchat.json');
+    }
     global.mchat = {};
   }
   try {
@@ -205,24 +217,36 @@ if (datajs.feat.datadir != '') {
     if (Object.prototype.toString.call(viewshist) != '[object Object]') throw new Error('invalid viewshist object');
     if (Object.keys(viewshist).indexOf('reg') < 0) throw new Error('invalid viewshist object');
   } catch (e) {
-    console.error('viewshist restore failed, viewshist empty');
-    console.error(e);
+    if (e.code != 'ENOENT') {
+      console.error('viewshist restore failed, viewshist empty');
+      console.error(e);
+    } else {
+      console.log('creating views.json');
+    }
     global.viewshist = {reg:{},ajax:{},p404:{}};
   }
   try {
     global.savedvarsa = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/savedvars.json').toString());
     if (Object.prototype.toString.call(savedvarsa) != '[object Object]') throw new Error('invalid savedvarsa object');
   } catch (e) {
-    console.error('savedvars restore failed, savedvars empty');
-    console.error(e);
+    if (e.code != 'ENOENT') {
+      console.error('savedvars restore failed, savedvars empty');
+      console.error(e);
+    } else {
+      console.log('creating savedvars.json');
+    }
     global.savedvarsa = {};
   }
   try {
     global.saveddat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/saveddat.json').toString());
     if (Object.prototype.toString.call(saveddat) != '[object Object]') throw new Error('invalid saveddat object');
   } catch (e) {
-    console.error('saveddat restore failed, saveddat empty');
-    console.error(e);
+    if (e.code != 'ENOENT') {
+      console.error('saveddat restore failed, saveddat empty');
+      console.error(e);
+    } else {
+      console.log('creating saveddat.json');
+    }
     global.saveddat = {};
   }
 } else {
@@ -241,7 +265,8 @@ if (datajs.feat.logdir != '') {
     debreq: new datajs.s.LogFileStream(`${logfilename} -- debreq.log`),
   };
 }
-global.eslistener = new EventEmitter();
+global.chates = new EventEmitter();
+global.viewshistes = new EventEmitter();
 global.savedvars = Object.assign(savedvars, savedvarsa);
 delete global.savedvarsa;
 global.savev = datajs.tick.savev;
@@ -474,6 +499,7 @@ global.serverf = async function serverf(req, resa, nolog) {
           } else {
             viewshist[rp][req.url]++;
           }
+          if (datajs.feat.es) viewshistes.emit('update', rp, req.url, viewshist[rp][req.url]);
         }
       }
     } else if (req.method == 'HEAD') {

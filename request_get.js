@@ -32,6 +32,9 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         }
       }
       break;
+    case '/candoes.dat':
+      datajs.rm.restext(res, datajs.feat.es ? '1' : '0');
+      break;
     case '/livechat.dat':
       if (datajs.feat.chat) {
         let chatobj = {};
@@ -46,9 +49,9 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
       } else datajs.rm.sn(res);
       break;
     case '/livechates.dat':
-      if (datajs.feat.chates) {
+      if (datajs.feat.es) {
         res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-        var ChatMSG = function (s) {
+        let ChatMSG = function (s) {
           res.write('event: chat-msg\ndata: ' + s + '\n\n');
         }, ChatRefresh = function () {
           res.write('event: chat-refresh\n\n');
@@ -57,22 +60,18 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         }, ChatClear = function () {
           res.write('event: chat-clear\n\n');
         };
-        eslistener.on('chat-msg', ChatMSG);
-        eslistener.on('chat-refresh', ChatRefresh);
-        eslistener.on('chat-spliceb', ChatSpliceb);
-        eslistener.on('chat-clear', ChatClear);
-        res.on('close', function () {
-          eslistener.off('chat-msg', ChatMSG);
-          eslistener.off('chat-refresh', ChatRefresh);
-          eslistener.off('chat-spliceb', ChatSpliceb);
-          eslistener.off('chat-clear', ChatClear);
-        });
-        res.on('destroy', function () {
-          eslistener.off('chat-msg', ChatMSG);
-          eslistener.off('chat-refresh', ChatRefresh);
-          eslistener.off('chat-spliceb', ChatSpliceb);
-          eslistener.off('chat-clear', ChatClear);
-        });
+        chates.on('chat-msg', ChatMSG);
+        chates.on('chat-refresh', ChatRefresh);
+        chates.on('chat-spliceb', ChatSpliceb);
+        chates.on('chat-clear', ChatClear);
+        let closefunc = function () {
+          chates.off('chat-msg', ChatMSG);
+          chates.off('chat-refresh', ChatRefresh);
+          chates.off('chat-spliceb', ChatSpliceb);
+          chates.off('chat-clear', ChatClear);
+        };
+        res.on('close', closefunc);
+        res.on('destroy', closefunc);
       } else {
         res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
         res.write('event: no-es\n\n');
@@ -89,6 +88,33 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         datajs.rm.restext(res, b64.encode(JSON.stringify(viewshist)));
       } else datajs.rm.sn(res);
       //"henlo this is an comment." - corn
+      break;
+    case '/liveviewses.dat':
+      if (datajs.feat.es) {
+        res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+        let VhUpdate = function (rp, url, val) {
+          res.write('event: update\ndata: ' + JSON.stringify([rp, url, val]) + '\n\n');
+        }, VhDelete = function (rp, urls) {
+          res.write('event: delete\ndata: ' + JSON.stringify([rp, urls]) + '\n\n');
+        }, VhRefresh = function () {
+          res.write('event: refresh\ndata: ' + JSON.stringify(viewshist) + '\n\n');
+        };
+        viewshistes.on('update', VhUpdate);
+        viewshistes.on('delete', VhDelete);
+        viewshistes.on('refresh', VhRefresh);
+        let closefunc = function () {
+          viewshistes.off('update', VhUpdate);
+          viewshistes.off('delete', VhDelete);
+          viewshistes.off('refresh', VhRefresh);
+        };
+        res.on('close', closefunc);
+        res.on('destroy', closefunc);
+        VhRefresh();
+      } else {
+        res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+        res.write('event: no-es\n\n');
+        res.end();
+      }
       break;
     case '/comms.json':
       if (datajs.feat.comm) {

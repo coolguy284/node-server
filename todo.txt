@@ -1,0 +1,1 @@
+make all chat and viewshist code on server use datajs adm

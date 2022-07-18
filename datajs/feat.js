@@ -1,7 +1,6 @@
 // panel of switches for the server
 module.exports = {
   chat: true,
-  chates: false, // eventstream chat
   chathere: true,
   chattyp: true,
   chatkick: true,
@@ -9,6 +8,7 @@ module.exports = {
   mchat: true,
   mcreatechat: false,
   views: true,
+  es: true, // eventstreams
   comm: true,
   owneyes: true,
   debreq: true,
@@ -19,7 +19,7 @@ module.exports = {
   trolls: false,
   colog: true,
   cons: true,
-  stdincons: false, // whether stdin can execute code
+  stdincons: process.env.IS_HEROKU == '1' ? false : true, // whether stdin can execute code
   reqtimelog: false, // log time to complete request
   errmsg: false, // show message with server error
   activeconn: 1, // maintain array of active connections [0 = dont, 1 = delete when not active, 2 = keep in array permanently]
@@ -36,7 +36,7 @@ module.exports = {
   // 1 - use x-forwarded-for, pick the third item from the end of list, if list is shorter than 3, then pick first item in list, if header nonexistent then req.connection.remoteAddress
   // 2 - use x-forwarded-for, pick last item in list, if nonexistent then req.connection.remoteAddress
   ipdm: 2,
-  httpsf: true,
+  httpsf: process.env.IS_HEROKU == '1' ? true : false,
   // mode of determining whether connection is https or not
   // 0 - use req.connection.encrypted
   // 1 - use x-forwarded-proto, if nonexistent then req.connection.encrypted
@@ -99,7 +99,7 @@ module.exports = {
     // url startswiths that dont show up in viewshist
     vhv: ['/s?', '/r?', '/m?', '/a?', '/pagg?=', '/oi?vr=', '/livechatd.log?id=', '/user', '/login?v=', '/logout?v='],
     // ajax urls
-    ajaxl: ['/livechat.dat', '/liverchat.json', '/liveviews.dat', '/comms.json', '/colog.dat', '/cologd.dat', '/livechathere.dat', '/livechattyp.dat', '/livechatkick.dat', '/lat.log'],
+    ajaxl: ['/livechat.dat', '/livechates.dat', '/liverchat.json', '/liverchates.dat', '/liveviews.dat', '/liveviewses.dat', '/comms.json', '/colog.dat', '/cologd.dat', '/livechathere.dat', '/livechattyp.dat', '/livechatkick.dat', '/lat.log'],
     // variable urls
     vl: ['/s?', '/r?', '/m?', '/a?'],
   },
