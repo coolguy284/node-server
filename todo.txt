@@ -2,4 +2,6 @@ make chat polling chathere work with arbitrary server tick rate
 server make lockl adequate to use admin console
 reset loginid timer if request made
 make viewshist ignore into viewshist replace with startswith
+convert rchat, mchat, admin to eventsource
+host local versions of external code files
 make chat and viewshist hold pending changes while text is selected

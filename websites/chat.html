@@ -549,6 +549,7 @@
         histind = chathist.length;
         currtext = '';
         currmode = chatmode.value;
+        SetTyping(false);
       }
       function HelpTogg() {
         if (helps.style.display == 'none')
@@ -669,7 +670,7 @@
         }
       });
       chattext.addEventListener('keypress', function (e) {
-        if (!e.charCode) {return;}
+        if (!e.charCode || e.charCode === 13) return;
         histind = chathist.length;
         setTimeout(function() {currtext = chattext.value; currmode = chatmode.value;}, 0);
         SetTyping(true);

@@ -17,8 +17,8 @@ module.exports = exports = {
     if (chat.length > datajs.feat.lim.chat) {
       adm.splb(chat.length - datajs.feat.lim.chat);
     }
-    if (doneByUser)
-      setTimeout(adm.chattypremove, 100, nam);
+    //if (doneByUser)
+    //  setTimeout(adm.chattypremove, 100, nam.slice(1, -1));
   },
   edtt: function edtt(ind, tex) {
     adm.setchat(ind, null, null, tex);
