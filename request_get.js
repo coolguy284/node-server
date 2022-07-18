@@ -139,8 +139,8 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
       break;
   }
   let cv;
-  switch ((mode == 1) ? true : 'corn') {
-    case req.url.substr(0, 18) == '/livechatd.dat?ts=':
+  if (mode == 1) {
+    if (req.url.substr(0, 18) == '/livechatd.dat?ts=') {
       if (datajs.feat.chat) {
         let done = false;
         let ss = req.url.substr(18, Infinity);
@@ -154,8 +154,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           datajs.rm.restext(res, '[]');
         }
       } else datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 15) == '/livechates.dat':
+    } else if (req.url.substr(0, 15) == '/livechates.dat') {
       if (datajs.feat.chat) {
         let nam = b64.decode(req.url.substr(20));
         if (datajs.feat.es && nam) {
@@ -234,82 +233,70 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           res.end();
         }
       } else datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 5) == '/r?u=':
+    } else if (req.url.substr(0, 5) == '/r?u=') {
       fs.readFile('websites/redirecttemplate.html', function (err, data) {
         res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
         res.write(data.toString().replace('{redirect-url}', decodeURIComponent(req.url.substr(5, 2048))));
         res.end();
       });
-      break;
-    case req.url.substr(0, 5) == '/r?e=':
+    } else if (req.url.substr(0, 5) == '/r?e=') {
       let rurl = b64.decode(req.url.substr(5, 2048));
       fs.readFile('websites/redirecttemplate.html', function (err, data) {
         res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
         res.write(data.toString().replace('{redirect-url}', rurl));
         res.end();
       });
-      break;
-    case req.url.substr(0, 6) == '/r?uh=':
+    } else if (req.url.substr(0, 6) == '/r?uh=') {
       res.writeHead(303, {'Location': decodeURIComponent(req.url.substr(6, 2048))});
       res.end();
-      break;
-    case req.url.substr(0, 6) == '/r?eh=':
+    } else if (req.url.substr(0, 6) == '/r?eh=') {
       res.writeHead(303, {'Location': b64.decode(req.url.substr(6, 2048))});
       res.end();
-      break;
-    case req.url.substr(0, 7) == '/s?tex=':
+    } else if (req.url.substr(0, 7) == '/s?tex=') {
       if (datajs.feat.chat) {
         cv = JSON.parse(b64.decode(req.url.substr(7, 65536)));
         if (chatbanlist.indexOf(cv[0]) < 0 && chatbaniplist.indexOf(ipaddr) < 0)
           adm.addchat(stime, '<' + cv[0] + '>', cv[1], true);
       }
       datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 7) == '/s?her=':
+    } else if (req.url.substr(0, 7) == '/s?her=') {
       if (datajs.feat.chathere) {
         cv = b64.decode(req.url.substr(7, 2048));
         if (chatbanlist.indexOf(cv) < 0 && chatbaniplist.indexOf(ipaddr) < 0)
           adm.chathereadd(cv);
       }
       datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 7) == '/s?typ=':
+    } else if (req.url.substr(0, 7) == '/s?typ=') {
       if (datajs.feat.chattyp) {
         cv = b64.decode(req.url.substr(7, 2048));
         if (chatbanlist.indexOf(cv) < 0 && chatbaniplist.indexOf(ipaddr) < 0)
           adm.chattypadd(cv);
       }
       datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 10) == '/s?typnew=':
+    } else if (req.url.substr(0, 10) == '/s?typnew=') {
       if (datajs.feat.chattyp) {
         cv = JSON.parse(b64.decode(req.url.substr(10)));
         if (cv[1]) adm.chattypadd(cv[0]);
         else adm.chattypremove(cv[0]);
       }
       datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 7) == '/s?kic=':
+    } else if (req.url.substr(0, 7) == '/s?kic=') {
       if (datajs.feat.chatkick) {
         let kn = b64.decode(req.url.substr(7, Infinity));
         adm.chatunkick(kn);
       }
       datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 7) == '/s?joi=':
-    case req.url.substr(0, 7) == '/s?lef=':
+    } else if (req.url.substr(0, 7) == '/s?joi=' ||
+        req.url.substr(0, 7) == '/s?lef=') {
       datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 7) == '/r?tex=':
+    } else if (req.url.substr(0, 7) == '/r?tex=') {
       if (datajs.feat.rchat) {
         if (rchatbaniplist.indexOf(ipaddr) < 0) {
           adm.raddchat(req.url.substr(7, 2048));
         }
       }
       datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 7) == '/m?ccl=':
+    } else if (req.url.substr(0, 7) == '/m?ccl=') {
       if (datajs.feat.mchat) {
         let ar = JSON.parse(b64.decode(req.url.substr(7, 2048)));
         if (mchat[ar[0]]) {
@@ -321,16 +308,14 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           datajs.rm.sn(res);
         }
       } else datajs.rm.restext(res, '3');
-      break;
-    case req.url.substr(0, 7) == '/m?cnl=':
+    } else if (req.url.substr(0, 7) == '/m?cnl=') {
       if (datajs.feat.mchat) {
         let nam = b64.decode(req.url.substr(7, 2048));
         if (mchat[nam]) {
           datajs.rm.restext(res, b64.encode(JSON.stringify(mchat[nam].chat)));
         } else datajs.rm.restext(res, '1');
       } else datajs.rm.restext(res, '0');
-      break;
-    case req.url.substr(0, 7) == '/m?tex=':
+    } else if (req.url.substr(0, 7) == '/m?tex=') {
       if (datajs.feat.mchat) {
         if (mchatbaniplist.indexOf(ipaddr) < 0) {
           cv = JSON.parse(b64.decode(req.url.substr(7, 2048)));
@@ -343,16 +328,14 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         }
       }
       datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 6) == '/r?co=':
+    } else if (req.url.substr(0, 6) == '/r?co=') {
       let dell = req.url.substr(6, Infinity).split('|');
       let dec = b64d.decode(dell[0], codel[dell[1]]);
       if (dec[0] == 'o') {
         codel.splice(dell[1], 1);
       }
       datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 7) == '/pagg?=':
+    } else if (req.url.substr(0, 7) == '/pagg?=') {
       if (req.url.substr(7, 2048) == 'tism') {
         let rs = fs.createReadStream('user_websites/coolguy284/tism.html');
         res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
@@ -362,8 +345,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         res.write('no.');
         res.end();
       }
-      break;
-    case req.url.substr(0, 7) == '/oi?vr=':
+    } else if (req.url.substr(0, 7) == '/oi?vr=') {
       for (let i in owneyesid) {
         if (req.url.substr(7, Infinity) == owneyesid[i][0]) {
           res.writeHead(200, {'Content-Type': 'text/plain'});
@@ -373,8 +355,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         }
       }
       datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 7) == '/a?ccp=':
+    } else if (req.url.substr(0, 7) == '/a?ccp=') {
       if (datajs.feat.cons) {
         try {
           let ta = JSON.parse(b64.decode(req.url.substr(7, 2048)));
@@ -387,8 +368,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           }
         } catch (e) { datajs.rm.sn(res); }
       } else datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 6) == '/a?cc=':
+    } else if (req.url.substr(0, 6) == '/a?cc=') {
       if (datajs.feat.cons) {
         try {
           if (datajs.feat.enc == 'b64') {
@@ -410,8 +390,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         } catch (e) { console.error(e); datajs.rm.restext(res, '2'); return; }
       }
       datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 6) == '/a?rc=':
+    } else if (req.url.substr(0, 6) == '/a?rc=') {
       if (datajs.feat.cons) {
         let ra, pass = false;
         for (let i in consoleswpenc) {
@@ -435,8 +414,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           } else datajs.rm.sn(res);
         } else datajs.rm.sn(res);
       } else datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 6) == '/a?sc=':
+    } else if (req.url.substr(0, 6) == '/a?sc=') {
       if (datajs.feat.cons) {
         let aconsole;
         try {
@@ -520,15 +498,13 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         } catch (e) { aconsole.error(e); datajs.rm.restext(res, '0'); return; }
       }
       datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 6) == '/a?ng=':
+    } else if (req.url.substr(0, 6) == '/a?ng=') {
       cv = JSON.parse(b64.decode(req.url.substr(6, Infinity)));
       let prop = nam != null ? nam : 'main';
       if (saveddat[prop].hasOwnProperty(cv[0]) && sha256.hex(cv[1]) == b64a.server) {
         datajs.rm.restext(res, saveddat[prop][cv[0]]);
       } else datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 9) == '/a?fstyp=':
+    } else if (req.url.substr(0, 9) == '/a?fstyp=') {
       if (datajs.feat.cons) {
         try {
           cv = JSON.parse(cjsdec(req.url.substr(9, Infinity), b64a.serverp));
@@ -567,8 +543,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           } catch (e) { datajs.rm.restext(res, cjsenc('0', b64a.serverp)); }
         } catch (e) { datajs.rm.sn(res); }
       } else datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 9) == '/a?fsdir=':
+    } else if (req.url.substr(0, 9) == '/a?fsdir=') {
       if (datajs.feat.cons) {
         try {
           cv = JSON.parse(cjsdec(req.url.substr(9, Infinity), b64a.serverp));
@@ -591,8 +566,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           datajs.rm.restext(res, cjsenc(JSON.stringify(dcon), b64a.serverp));
         } catch (e) { datajs.rm.sn(res); }
       } else datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 9) == '/a?fstex=':
+    } else if (req.url.substr(0, 9) == '/a?fstex=') {
       if (datajs.feat.cons) {
         try {
           cv = JSON.parse(cjsdec(req.url.substr(9, Infinity), b64a.serverp));
@@ -608,8 +582,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           datajs.rm.restext(res, cjsenc(dcon, b64a.serverp));
         } catch (e) { datajs.rm.sn(res); }
       } else datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 9) == '/login?v=':
+    } else if (req.url.substr(0, 9) == '/login?v=') {
       let tx = b64.decode(req.url.substr(9, 2048)), dtx, uparr;
       try {
         dtx = pkey.decrypt(tx);
@@ -635,183 +608,178 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
       } else {
         datajs.rm.restext(res, '0');
       }
-      break;
-    case req.url.substr(0, 10) == '/logout?v=':
+    } else if (req.url.substr(0, 10) == '/logout?v=') {
       let loid = req.url.substr(10, 2048);
       global.loginid = loginid.filter(function (val) {return val[1] != loid});
       datajs.rm.sn(res);
-      break;
-    case true:
-      mode = 2;
-      break;
-  }
-  if (mode == 2) {
-    let v = req.url.split('/');
-    if (v[v.length-1] === '' && v[v.length-2].indexOf('.') > -1) {
-      fs.readFile('websites/redirecttemplate.html', function (err, data) {
-        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-        res.write(data.toString().replace('{redirect-url}', req.url.replace(/\/{1,}$/g, '')));
-        res.end();
-      });
-      return -1;
-    } else if (v[v.length-1] === '' && v[v.length-2].indexOf('.') < 0) {
-      fs.readFile('websites/redirecttemplate.html', function (err, data) {
-        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-        res.write(data.toString().replace('{redirect-url}', req.url + 'index.html'));
-        res.end();
-      });
-      return -1;
-    }
-    let rpath = decodeURI('websites' + req.url), fpath = decodeURI(req.url.substr(1, Infinity)), runelse = false;
-    let rpathgz = rpath + '.gz';
-    if (req.headers.range) {
-      if (/bytes=[0-9]*-[0-9]*/.test(req.headers.range)) {
-        let rse = req.headers.range.substr(6, Infinity).split('-');
-        let rstart = rse[0] == '' ? 0 : parseInt(rse[0]);
-        let rend = rse[1] == '' ? Infinity : parseInt(rse[1]);
-        if ((await fs.promises.exists(rpath)) && datajs.subdir('websites', rpath)) {
-          let size = (await fs.promises.stat(rpath)).size;
-          if (rend == Infinity) rend = size - 1;
-          if (rend >= size) {
-            if (datajs.feat.permissiverange) rend = size - 1;
-            else {
-              res.writeHead(416);
-              res.end();
-              return -1;
+    } else {
+      let v = req.url.split('/');
+      if (v[v.length-1] === '' && v[v.length-2].indexOf('.') > -1) {
+        fs.readFile('websites/redirecttemplate.html', function (err, data) {
+          res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+          res.write(data.toString().replace('{redirect-url}', req.url.replace(/\/{1,}$/g, '')));
+          res.end();
+        });
+        return -1;
+      } else if (v[v.length-1] === '' && v[v.length-2].indexOf('.') < 0) {
+        fs.readFile('websites/redirecttemplate.html', function (err, data) {
+          res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+          res.write(data.toString().replace('{redirect-url}', req.url + 'index.html'));
+          res.end();
+        });
+        return -1;
+      }
+      let rpath = decodeURI('websites' + req.url), fpath = decodeURI(req.url.substr(1, Infinity)), runelse = false;
+      let rpathgz = rpath + '.gz';
+      if (req.headers.range) {
+        if (/bytes=[0-9]*-[0-9]*/.test(req.headers.range)) {
+          let rse = req.headers.range.substr(6, Infinity).split('-');
+          let rstart = rse[0] == '' ? 0 : parseInt(rse[0]);
+          let rend = rse[1] == '' ? Infinity : parseInt(rse[1]);
+          if ((await fs.promises.exists(rpath)) && datajs.subdir('websites', rpath)) {
+            let size = (await fs.promises.stat(rpath)).size;
+            if (rend == Infinity) rend = size - 1;
+            if (rend >= size) {
+              if (datajs.feat.permissiverange) rend = size - 1;
+              else {
+                res.writeHead(416);
+                res.end();
+                return -1;
+              }
             }
-          }
-          let rs = fs.createReadStream(rpath, {start: rstart, end: rend});
-          res.writeHead(206, {
-            'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-            'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
-            'Content-Length': Math.min(rend - rstart + 1, size),
-            'X-Robots-Tag': 'noindex'
-          }); // why is the end of a range referencing the id of that byte, instead of the next one like in js?
-          rs.pipe(res);
-        } else if (datajs.feat.debug.js && (await fs.promises.exists(fpath))) {
-          let size = (await fs.promises.stat(fpath)).size;
-          if (rend == Infinity) rend = size - 1;
-          if (rend >= size) {
-            if (datajs.feat.permissiverange) rend = size - 1;
-            else {
-              res.writeHead(416);
-              res.end();
-              return -1;
+            let rs = fs.createReadStream(rpath, {start: rstart, end: rend});
+            res.writeHead(206, {
+              'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
+              'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+              'Content-Length': Math.min(rend - rstart + 1, size),
+              'X-Robots-Tag': 'noindex'
+            }); // why is the end of a range referencing the id of that byte, instead of the next one like in js?
+            rs.pipe(res);
+          } else if (datajs.feat.debug.js && (await fs.promises.exists(fpath))) {
+            let size = (await fs.promises.stat(fpath)).size;
+            if (rend == Infinity) rend = size - 1;
+            if (rend >= size) {
+              if (datajs.feat.permissiverange) rend = size - 1;
+              else {
+                res.writeHead(416);
+                res.end();
+                return -1;
+              }
             }
+            let rs = fs.createReadStream(fpath, {start: rstart, end: rend});
+            res.writeHead(206, {
+              'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
+              'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+              'Content-Length': Math.min(rend - rstart + 1, size),
+              'X-Robots-Tag': 'noindex'
+            });
+            rs.pipe(res);
+          } else if (datajs.feat.tempp.hasOwnProperty(req.url) && Buffer.isBuffer(datajs.feat.tempp[req.url][1])) {
+            let file = datajs.feat.tempp[req.url][1];
+            let size = file.length;
+            if (rend == Infinity) rend = size - 1;
+            if (rend >= size) {
+              if (datajs.feat.permissiverange) rend = size - 1;
+              else {
+                res.writeHead(416);
+                res.end();
+                return -1;
+              }
+            }
+            res.writeHead(206, {
+              ...datajs.feat.tempp[req.url][0],
+              'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+              'Content-Length': Math.min(rend - rstart + 1, size),
+            });
+            res.write(file.slice(rstart, rend + 1));
+            res.end();
+          } else {
+            let rs = fs.createReadStream('websites/p404.html');
+            res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
+            rs.pipe(res);
           }
-          let rs = fs.createReadStream(fpath, {start: rstart, end: rend});
-          res.writeHead(206, {
+          return -1;
+        } else {
+          res.writeHead(416);
+          res.end();
+          return -1;
+        }
+      }
+      if (datajs.subdir('websites', rpath) && (await fs.promises.exists(rpath))) {
+        if ((await fs.promises.stat(rpath)).isFile()) {
+          let rs = fs.createReadStream(rpath);
+          res.writeHead(200, {
             'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-            'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
-            'Content-Length': Math.min(rend - rstart + 1, size),
+            'Content-Length': (await fs.promises.stat(rpath)).size,
+            'Accept-Ranges': 'bytes',
             'X-Robots-Tag': 'noindex'
           });
           rs.pipe(res);
-        } else if (datajs.feat.tempp.hasOwnProperty(req.url) && Buffer.isBuffer(datajs.feat.tempp[req.url][1])) {
-          let file = datajs.feat.tempp[req.url][1];
-          let size = file.length;
-          if (rend == Infinity) rend = size - 1;
-          if (rend >= size) {
-            if (datajs.feat.permissiverange) rend = size - 1;
-            else {
-              res.writeHead(416);
-              res.end();
-              return -1;
-            }
-          }
-          res.writeHead(206, {
-            ...datajs.feat.tempp[req.url][0],
-            'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
-            'Content-Length': Math.min(rend - rstart + 1, size),
+        } else runelse = true;
+      } else if (datajs.feat.gzipfiles && datajs.subdir('websites', rpathgz) && (await fs.promises.exists(rpathgz))) {
+        if ((await fs.promises.stat(rpathgz)).isFile()) {
+          let gzsize = (await fs.promises.stat(rpathgz)).size;
+          let gzhandle = await fs.promises.open(rpathgz, 'r');
+          let filsizbuf = Buffer.alloc(4);
+          await gzhandle.read(filsizbuf, 0, 4, gzsize - 4);
+          await gzhandle.close();
+          let rs = fs.createReadStream(rpathgz);
+          res.writeHead(200, {
+            'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
+            'Content-Length': filsizbuf.readUInt32LE(0),
+            'Accept-Ranges': 'none',
+            'X-Robots-Tag': 'noindex'
           });
-          res.write(file.slice(rstart, rend + 1));
+          rs.pipe(zlib.createGunzip()).pipe(res);
+        } else runelse = true;
+      } else if (datajs.feat.debug.js && (await fs.promises.exists(fpath))) {
+        let rs = fs.createReadStream(fpath);
+        res.writeHead(200, {
+          'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
+          'Content-Length': (await fs.promises.stat(fpath)).size,
+          'Accept-Ranges': 'bytes',
+          'X-Robots-Tag': 'noindex'
+        });
+        rs.pipe(res);
+      } else {
+        if (req.url.substr(0, 5) == '/user') {
+          let rurl = req.url.substr(5, Infinity);
+          if (nam) {
+            if (await fs.promises.exists('user_websites/' + nam + rurl)) {
+              let rs = fs.createReadStream('user_websites/' + nam + rurl);
+              res.writeHead(200, {
+                'Content-Type': datajs.mime.get(req.url) + '; charset=utf-8',
+                'Content-Length': (await fs.promises.stat('user_websites/' + nam + rurl)).size,
+                'Accept-Ranges': 'bytes',
+              });
+              rs.pipe(res);
+            } else runelse = true;
+          } else {
+            let rs = fs.createReadStream('websites/user/signedout.html');
+            res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
+            rs.pipe(res);
+          }
+        } else runelse = true;
+      }
+      if (runelse) {
+        let hanp = '';
+        Object.keys(datajs.handlerp).forEach(function (val) {if (req.url.startsWith(val) && val.startsWith(hanp)) {hanp = val;}});
+        if (hanp) {
+          return datajs.handlerp[hanp](req, res, rrid, ipaddr, proto, url, cookies, nam);
+        } else if (datajs.handlerf.main.hasOwnProperty(req.url)) {
+          return datajs.handlerf.main[req.url](req, res, rrid, ipaddr, proto, url, cookies, nam);
+        } else if (nam !== null && datajs.handlerf.hasOwnProperty(nam) && datajs.handlerf[nam].hasOwnProperty(req.url)) {
+          return datajs.handlerf[nam][req.url](req, res, rrid, ipaddr, proto, url, cookies, nam);
+        } else if (datajs.feat.tempp.hasOwnProperty(req.url)) {
+          res.writeHead(200, datajs.feat.tempp[req.url][0]);
+          res.write(datajs.feat.tempp[req.url][1]);
           res.end();
         } else {
           let rs = fs.createReadStream('websites/p404.html');
           res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
           rs.pipe(res);
+          return 'p404';
         }
-        return -1;
-      } else {
-        res.writeHead(416);
-        res.end();
-        return -1;
-      }
-    }
-    if (datajs.subdir('websites', rpath) && (await fs.promises.exists(rpath))) {
-      if ((await fs.promises.stat(rpath)).isFile()) {
-        let rs = fs.createReadStream(rpath);
-        res.writeHead(200, {
-          'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-          'Content-Length': (await fs.promises.stat(rpath)).size,
-          'Accept-Ranges': 'bytes',
-          'X-Robots-Tag': 'noindex'
-        });
-        rs.pipe(res);
-      } else runelse = true;
-    } else if (datajs.feat.gzipfiles && datajs.subdir('websites', rpathgz) && (await fs.promises.exists(rpathgz))) {
-      if ((await fs.promises.stat(rpathgz)).isFile()) {
-        let gzsize = (await fs.promises.stat(rpathgz)).size;
-        let gzhandle = await fs.promises.open(rpathgz, 'r');
-        let filsizbuf = Buffer.alloc(4);
-        await gzhandle.read(filsizbuf, 0, 4, gzsize - 4);
-        await gzhandle.close();
-        let rs = fs.createReadStream(rpathgz);
-        res.writeHead(200, {
-          'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-          'Content-Length': filsizbuf.readUInt32LE(0),
-          'Accept-Ranges': 'none',
-          'X-Robots-Tag': 'noindex'
-        });
-        rs.pipe(zlib.createGunzip()).pipe(res);
-      } else runelse = true;
-    } else if (datajs.feat.debug.js && (await fs.promises.exists(fpath))) {
-      let rs = fs.createReadStream(fpath);
-      res.writeHead(200, {
-        'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-        'Content-Length': (await fs.promises.stat(fpath)).size,
-        'Accept-Ranges': 'bytes',
-        'X-Robots-Tag': 'noindex'
-      });
-      rs.pipe(res);
-    } else {
-      if (req.url.substr(0, 5) == '/user') {
-        let rurl = req.url.substr(5, Infinity);
-        if (nam) {
-          if (await fs.promises.exists('user_websites/' + nam + rurl)) {
-            let rs = fs.createReadStream('user_websites/' + nam + rurl);
-            res.writeHead(200, {
-              'Content-Type': datajs.mime.get(req.url) + '; charset=utf-8',
-              'Content-Length': (await fs.promises.stat('user_websites/' + nam + rurl)).size,
-              'Accept-Ranges': 'bytes',
-            });
-            rs.pipe(res);
-          } else runelse = true;
-        } else {
-          let rs = fs.createReadStream('websites/user/signedout.html');
-          res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
-          rs.pipe(res);
-        }
-      } else runelse = true;
-    }
-    if (runelse) {
-      let hanp = '';
-      Object.keys(datajs.handlerp).forEach(function (val) {if (req.url.startsWith(val) && val.startsWith(hanp)) {hanp = val;}});
-      if (hanp) {
-        return datajs.handlerp[hanp](req, res, rrid, ipaddr, proto, url, cookies, nam);
-      } else if (datajs.handlerf.main.hasOwnProperty(req.url)) {
-        return datajs.handlerf.main[req.url](req, res, rrid, ipaddr, proto, url, cookies, nam);
-      } else if (nam !== null && datajs.handlerf.hasOwnProperty(nam) && datajs.handlerf[nam].hasOwnProperty(req.url)) {
-        return datajs.handlerf[nam][req.url](req, res, rrid, ipaddr, proto, url, cookies, nam);
-      } else if (datajs.feat.tempp.hasOwnProperty(req.url)) {
-        res.writeHead(200, datajs.feat.tempp[req.url][0]);
-        res.write(datajs.feat.tempp[req.url][1]);
-        res.end();
-      } else {
-        let rs = fs.createReadStream('websites/p404.html');
-        res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
-        rs.pipe(res);
-        return 'p404';
       }
     }
   }

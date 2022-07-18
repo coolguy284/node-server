@@ -72,135 +72,125 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
       mode = 1;
       break;
   }
-  switch ((mode == 1) ? true : 'corn') {
-    case req.url.substr(0, 18) == '/livechatd.dat?ts=':
+  if (mode == 1) {
+    if (req.url.substr(0, 18) == '/livechatd.dat?ts=') {
       if (datajs.feat.chat) {
         datajs.rm.reshead(res);
       } else datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 5) == '/r?u=':
-    case req.url.substr(0, 5) == '/r?e=':
+    } else if (req.url.substr(0, 5) == '/r?u=' ||
+      req.url.substr(0, 5) == '/r?e=') {
       res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
       res.end();
-      break;
-    case req.url.substr(0, 6) == '/r?uh=':
+    } else if (req.url.substr(0, 6) == '/r?uh=') {
       res.writeHead(303, {'Location': decodeURIComponent(req.url.substr(6, 2048))});
       res.end();
-      break;
-    case req.url.substr(0, 6) == '/r?eh=':
+    } else if (req.url.substr(0, 6) == '/r?eh=') {
       res.writeHead(303, {'Location': b64.decode(req.url.substr(6, 2048))});
       res.end();
-      break;
-    case req.url.substr(0, 7) == '/s?tex=':
-    case req.url.substr(0, 7) == '/s?her=':
-    case req.url.substr(0, 7) == '/s?typ=':
-    case req.url.substr(0, 7) == '/s?kic=':
-    case req.url.substr(0, 7) == '/r?tex=':
-    case req.url.substr(0, 7) == '/m?ccl=':
-    case req.url.substr(0, 7) == '/m?cnl=':
-    case req.url.substr(0, 7) == '/m?tex=':
-    case req.url.substr(0, 6) == '/r?co=':
+    } else if (req.url.substr(0, 7) == '/s?tex=' ||
+        req.url.substr(0, 7) == '/s?her=' ||
+        req.url.substr(0, 7) == '/s?typ=' ||
+        req.url.substr(0, 7) == '/s?kic=' ||
+        req.url.substr(0, 7) == '/r?tex=' ||
+        req.url.substr(0, 7) == '/m?ccl=' ||
+        req.url.substr(0, 7) == '/m?cnl=' ||
+        req.url.substr(0, 7) == '/m?tex=' ||
+        req.url.substr(0, 6) == '/r?co=') {
       datajs.rm.sn(res);
-      break;
-    case req.url.substr(0, 7) == '/pagg?=':
+    } else if (req.url.substr(0, 7) == '/pagg?=') {
       datajs.rm.reshead(res);
-      break;
-    case req.url.substr(0, 7) == '/oi?vr=':
-    case req.url.substr(0, 7) == '/a?ccp=':
-    case req.url.substr(0, 6) == '/a?cc=':
-    case req.url.substr(0, 6) == '/a?rc=':
-    case req.url.substr(0, 6) == '/a?sc=':
-    case req.url.substr(0, 6) == '/a?ng=':
-    case req.url.substr(0, 9) == '/a?fstyp=':
-    case req.url.substr(0, 9) == '/a?fsdir=':
-    case req.url.substr(0, 9) == '/a?fstex=':
-    case req.url.substr(0, 9) == '/login?v=':
-    case req.url.substr(0, 10) == '/logout?v=':
+    } else if (req.url.substr(0, 7) == '/oi?vr=' ||
+        req.url.substr(0, 7) == '/a?ccp=' ||
+        req.url.substr(0, 6) == '/a?cc=' ||
+        req.url.substr(0, 6) == '/a?rc=' ||
+        req.url.substr(0, 6) == '/a?sc=' ||
+        req.url.substr(0, 6) == '/a?ng=' ||
+        req.url.substr(0, 9) == '/a?fstyp=' ||
+        req.url.substr(0, 9) == '/a?fsdir=' ||
+        req.url.substr(0, 9) == '/a?fstex=' ||
+        req.url.substr(0, 9) == '/login?v=' ||
+        req.url.substr(0, 10) == '/logout?v=') {
       datajs.rm.sn(res);
-      break;
-    case true:
-      mode = 2;
-      break;
-  }
-  if (mode == 2) {
-    let v = req.url.split('/');
-    if (v[v.length-1] === '' && v[v.length-2].indexOf('.') > -1) {
-      res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-      res.end();
-      return;
-    } else if (v[v.length-1] === '' && v[v.length-2].indexOf('.') < 0) {
-      res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-      res.end();
-      return;
-    }
-    let rpath = decodeURI('websites' + req.url), fpath = decodeURI(req.url.substr(1, Infinity));
-    if (req.headers.range) {
-      if (/bytes=[0-9]*-[0-9]*/.test(req.headers.range)) {
-        let rse = req.headers.range.substr(6, Infinity).split('-');
-        let rstart = rse[0] == '' ? 0 : parseInt(rse[0]);
-        let rend = rse[1] == '' ? Infinity : parseInt(rse[1]);
-        if (fs.existsSync(rpath) && datajs.subdir('websites', rpath)) {
-          let size = fs.statSync(rpath).size;
-          if (rend == Infinity) rend = size - 1;
-          if (rend >= size) {
-            if (datajs.feat.permissiverange) rend = size - 1;
-            else {
-              res.writeHead(416);
-              res.end();
-              return -1;
-            }
-          }
-          res.writeHead(206, {
-            'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-            'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
-            'Content-Length': Math.min(rend - rstart + 1, size),
-          });
-          res.end();
-        } else if (fs.existsSync(fpath) && datajs.feat.debug.js) {
-          let size = fs.statSync(fpath).size;
-          if (rend == Infinity) rend = size - 1;
-          if (rend >= size) {
-            if (datajs.feat.permissiverange) rend = size - 1;
-            else {
-              res.writeHead(416);
-              res.end();
-              return -1;
-            }
-          }
-          res.writeHead(206, {
-            'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-            'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
-            'Content-Length': Math.min(rend - rstart + 1, size),
-          });
-          res.end();
-        } else {
-          res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
-          res.end();
-        }
-        return -1;
-      } else {
-        res.writeHead(416);
-        res.end();
-        return -1;
-      }
-    }
-    if (fs.existsSync(rpath) && datajs.subdir('websites', rpath)) {
-      res.writeHead(200, {
-        'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-        'Content-Length': fs.statSync('websites' + req.url).size,
-        'Accept-Ranges': 'bytes'
-      });
-      res.end();
-    } else if (fs.existsSync(fpath) && datajs.feat.debug.js) {
-      res.writeHead(200, {
-        'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-        'Content-Length': fs.statSync(fpath).size,
-        'Accept-Ranges': 'bytes'
-      });
-      res.end();
     } else {
-      res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
-      res.end();
+      let v = req.url.split('/');
+      if (v[v.length-1] === '' && v[v.length-2].indexOf('.') > -1) {
+        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+        res.end();
+        return;
+      } else if (v[v.length-1] === '' && v[v.length-2].indexOf('.') < 0) {
+        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+        res.end();
+        return;
+      }
+      let rpath = decodeURI('websites' + req.url), fpath = decodeURI(req.url.substr(1, Infinity));
+      if (req.headers.range) {
+        if (/bytes=[0-9]*-[0-9]*/.test(req.headers.range)) {
+          let rse = req.headers.range.substr(6, Infinity).split('-');
+          let rstart = rse[0] == '' ? 0 : parseInt(rse[0]);
+          let rend = rse[1] == '' ? Infinity : parseInt(rse[1]);
+          if (fs.existsSync(rpath) && datajs.subdir('websites', rpath)) {
+            let size = fs.statSync(rpath).size;
+            if (rend == Infinity) rend = size - 1;
+            if (rend >= size) {
+              if (datajs.feat.permissiverange) rend = size - 1;
+              else {
+                res.writeHead(416);
+                res.end();
+                return -1;
+              }
+            }
+            res.writeHead(206, {
+              'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
+              'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+              'Content-Length': Math.min(rend - rstart + 1, size),
+            });
+            res.end();
+          } else if (fs.existsSync(fpath) && datajs.feat.debug.js) {
+            let size = fs.statSync(fpath).size;
+            if (rend == Infinity) rend = size - 1;
+            if (rend >= size) {
+              if (datajs.feat.permissiverange) rend = size - 1;
+              else {
+                res.writeHead(416);
+                res.end();
+                return -1;
+              }
+            }
+            res.writeHead(206, {
+              'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
+              'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+              'Content-Length': Math.min(rend - rstart + 1, size),
+            });
+            res.end();
+          } else {
+            res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
+            res.end();
+          }
+          return -1;
+        } else {
+          res.writeHead(416);
+          res.end();
+          return -1;
+        }
+      }
+      if (fs.existsSync(rpath) && datajs.subdir('websites', rpath)) {
+        res.writeHead(200, {
+          'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
+          'Content-Length': fs.statSync('websites' + req.url).size,
+          'Accept-Ranges': 'bytes'
+        });
+        res.end();
+      } else if (fs.existsSync(fpath) && datajs.feat.debug.js) {
+        res.writeHead(200, {
+          'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
+          'Content-Length': fs.statSync(fpath).size,
+          'Accept-Ranges': 'bytes'
+        });
+        res.end();
+      } else {
+        res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
+        res.end();
+      }
     }
   }
 };

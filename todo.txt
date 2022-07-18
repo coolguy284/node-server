@@ -1,4 +1,3 @@
-make request handlers not use corn
 make chat polling chathere work with arbitrary server tick rate
 server make lockl adequate to use admin console
 reset loginid timer if request made
