@@ -42,8 +42,8 @@ module.exports = {
   // 1 - use x-forwarded-proto, if nonexistent then req.connection.encrypted
   // 2 - use x-forwarded-proto, if nonexistent then https
   httpsdm: 1,
-  tickint: 1000, // server ticking interval
-  savefreq: 10, // server saves state every nth tick
+  tickint: 60000, // server ticking interval
+  savefreq: 1, // server saves state every nth tick
   intmode: false, // only allows requests from 127.0.0.1 ip address, useful for reverse proxy
   loginip: true, // whether ip address is used for login
   bwlimits: {
