@@ -69,19 +69,18 @@ module.exports = exports = {
     chattyplist = chattyplist.filter(x => x[1] != nam);
     if (chattyplist.length != len) chates.emit('typingstop', nam);
   },
-  rsetchat: function raddchat(ind, v) {
+  rsetchat: function rsetchat(ind, v) {
     rchat[ind] = v;
   },
   raddchat: function raddchat(v) {
     rchat.push(v);
-    if (rchat.length > datajs.feat.lim.rchat) {
+    if (rchat.length > datajs.feat.lim.rchat)
       rchat.splice(0, rchat.length - datajs.feat.lim.rchat);
-    }
   },
-  rclearchat: function clearchat() {
+  rclearchat: function rclearchat() {
     rchat.splice(0, Infinity);
   },
-  mcreatechat: function createmchat(nam, hash) {
+  mcreatechat: function mcreatechat(nam, hash) {
     mchat[nam] = {
       hash: hash,
       chat: [],
@@ -93,9 +92,8 @@ module.exports = exports = {
     else if (typeof ts != 'string') ts = ts.toString();
     if (mchat[nam]) {
       mchat[nam].chat.push(['[' + ts + ']', j]);
-      if (mchat[nam].chat.length > datajs.feat.lim.mchat) {
+      if (mchat[nam].chat.length > datajs.feat.lim.mchat)
         mchat[nam].chat.splice(0, mchat[nam].chat.length - datajs.feat.lim.mchat);
-      }
     }
   },
   ban: function ban(ip) {
@@ -144,12 +142,12 @@ module.exports = exports = {
     viewshist[rp][url] = viewshist[rp][url] != null ? viewshist[rp][url] + amt : amt;
     if (datajs.feat.es) viewshistes.emit('update', rp, url, viewshist[rp][url]);
   },
-  vhset: function vhadd(rp, url, amt) {
+  vhset: function vhset(rp, url, amt) {
     if (amt == null) amt = 0;
     viewshist[rp][url] = amt;
     if (datajs.feat.es) viewshistes.emit('update', rp, url, amt);
   },
-  vhdel: function vhset(rp, urls) {
+  vhdel: function vhdel(rp, urls) {
     for (var url of urls) delete viewshist[rp][url];
     if (datajs.feat.es) viewshistes.emit('delete', rp, urls);
   },
@@ -160,8 +158,7 @@ module.exports = exports = {
     codel.push(b64d.encode(key, 'o' + code));
   },
   caddb: function caddb(keyarr, code) {
-    for (var i in keyarr) {
+    for (var i in keyarr)
       codel.push(b64d.encode(keyarr[i], 'o' + code));
-    }
   },
 };
