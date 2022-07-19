@@ -271,7 +271,6 @@
       }
       function Send() {
         let sval;
-        console.log(chatmode.value);
         switch (chatmode.value) {
           case 'html':
             sval = chattext.value;
@@ -281,11 +280,9 @@
             break;
           case 'mark':
             sval = mkdownc.makeHtml(chattext.value).replace(/<p>/g, '<span>').replace(/<\/p>/g, '</span>');
-            console.log(sval);
             break;
           case 'bbcode':
             sval = BBCodeParser.process(chattext.value).replace(/<p>/g, '<span>').replace(/<\/p>/g, '</span>');
-            console.log(sval);
             break;
         }
         var reqr = new XMLHttpRequest();
