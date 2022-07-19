@@ -12,20 +12,17 @@ module.exports = {
     }
     global.owneyesid = owneyesid.filter(val => val[0] > remt - 60000);
     global.loginid = loginid.filter(val => val[0] > remt - 864000000);
-    if (datajs.feat.chatghost && Math.random() < 0.006 && chatherelist.length == 5) {
+    if (datajs.feat.chatghost && Math.random() < 0.006 && chatherelist.length == 5)
       adm.addchat(null, '[server ghost]', datajs.splash[Math.floor(Math.random() * datajs.splash.length)]);
-    }
-    if (datajs.feat.datadir != '' && global.ticks % datajs.feat.savefreq == 0) {
-      datajs.tick.savev();
-    }
+    if (datajs.feat.datadir != '' && global.ticks % datajs.feat.savefreq == 0)
+      savev();
     global.pcpuUsage = cpuUsage;
     global.cpuUsage = process.cpuUsage();
     global.dcpuUsage = { user: cpuUsage.user - pcpuUsage.user, system: cpuUsage.system - pcpuUsage.system };
     global.memUsage = process.memoryUsage();
     global.ticks++;
-    for (let i in datajs.tick.funcl) {
+    for (let i in datajs.tick.funcl)
       datajs.tick.funcl[i](remt);
-    }
   },
   on: function () {
     datajs.tick.int = setInterval(datajs.tick.func, datajs.feat.tickint);
