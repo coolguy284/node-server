@@ -14,9 +14,8 @@ module.exports = exports = {
     else if (typeof ts != 'string') ts = ts.toString();
     chat.push(['[' + ts + ']', nam, tex]);
     chates.emit('message', '[' + ts + ']', nam, tex);
-    if (chat.length > datajs.feat.lim.chat) {
+    if (chat.length > datajs.feat.lim.chat)
       adm.splb(chat.length - datajs.feat.lim.chat);
-    }
     //if (doneByUser)
     //  setTimeout(adm.chattypremove, 100, nam.slice(1, -1));
   },
@@ -24,12 +23,12 @@ module.exports = exports = {
     adm.setchat(ind, null, null, tex);
   },
   spls: function spls(ind) {
-    chat.splice(args[0], 1);
-    chates.emit('splicei', args[0]);
+    chat.splice(ind, 1);
+    chates.emit('splicei', ind);
   },
   splb: function splb(amt) {
-    chat.splice(0, args[0]);
-    chates.emit('spliceb', args[0]);
+    chat.splice(0, amt);
+    chates.emit('spliceb', amt);
   },
   clearchat: function clearchat() {
     chat.splice(0, Infinity);
@@ -75,28 +74,67 @@ module.exports = exports = {
   },
   raddchat: function raddchat(v) {
     rchat.push(v);
-    if (rchat.length > datajs.feat.lim.rchat)
-      rchat.splice(0, rchat.length - datajs.feat.lim.rchat);
     rchates.emit('message', v);
+    if (rchat.length > datajs.feat.lim.rchat)
+      adm.rsplb(rchat.length - datajs.feat.lim.rchat);
+  },
+  rspls: function rspls(ind) {
+    rchat.splice(ind, 1);
+    rchates.emit('splicei', ind);
+  },
+  rsplb: function rsplb(amt) {
+    rchat.splice(0, amt);
+    rchates.emit('spliceb', amt);
   },
   rclearchat: function rclearchat() {
     rchat.splice(0, Infinity);
     rchates.emit('clear');
   },
   mcreatechat: function mcreatechat(nam, hash) {
-    mchat[nam] = {
-      hash: hash,
-      chat: [],
-    };
+    if (!mchat[nam]) {
+      mchat[nam] = {
+        hash: hash,
+        chat: [],
+      };
+      Object.defineProperty(mchat[nam], 'es', {
+        configurable: true,
+        enumerable: false,
+        writable: true,
+        value: new EventEmitter(),
+      });
+    }
   },
   maddchat: function maddchat(nam, ts, j) {
     if (ts == null) ts = new Date().toISOString();
     else if (ts instanceof Date) ts = ts.toISOString();
     else if (typeof ts != 'string') ts = ts.toString();
     if (mchat[nam]) {
-      mchat[nam].chat.push(['[' + ts + ']', j]);
-      if (mchat[nam].chat.length > datajs.feat.lim.mchat)
-        mchat[nam].chat.splice(0, mchat[nam].chat.length - datajs.feat.lim.mchat);
+      let mchatObj = mchat[nam];
+      mchatObj.chat.push(['[' + ts + ']', j]);
+      mchatObj.es.emit('message', '[' + ts + ']', j);
+      if (mchatObj.chat.length > datajs.feat.lim.mchat)
+        adm.msplb(nam, mchatObj.chat.length - datajs.feat.lim.mchat);
+    }
+  },
+  mspls: function mspls(nam, ind) {
+    if (mchat[nam]) {
+      let mchatObj = mchat[nam];
+      mchatObj.chat.splice(ind, 1);
+      mchatObj.es.emit('splicei', ind);
+    }
+  },
+  msplb: function msplb(nam, amt) {
+    if (mchat[nam]) {
+      let mchatObj = mchat[nam];
+      mchatObj.chat.splice(0, amt);
+      mchatObj.es.emit('spliceb', amt);
+    }
+  },
+  mclearchat: function mclearchat(nam) {
+    if (mchat[nam]) {
+      let mchatObj = mchat[nam];
+      mchatObj.chat.splice(0, Infinity);
+      mchatObj.es.emit('clear');
     }
   },
   ban: function ban(ip) {

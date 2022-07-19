@@ -214,6 +214,16 @@
             chat = JSON.parse(e.data);
             UpdateChatBody(chat);
           });
+          chatEs.addEventListener('splicei', e => {
+            var ind = parseInt(e.data);
+            chat.splice(ind, 1);
+            UpdateChatBody(chat);
+          });
+          chatEs.addEventListener('spliceb', e => {
+            var amt = parseInt(e.data);
+            chat.splice(0, amt);
+            UpdateChatBody(chat);
+          });
           chatEs.addEventListener('clear', e => {
             chat.length = 0;
             UpdateChatBody(chat);

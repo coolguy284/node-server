@@ -46,6 +46,7 @@
       let getting = false, narrfoc = false;
       let arrstr = '';
       let chathist = [], histind = 0, currtext = '', currmode = 'html';
+      let doEs, chatEs;
       function escapeHTML(str) {
         return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
       }
@@ -80,6 +81,7 @@
         }
         st.style.display = 'none';
         main.style.display = '';
+        Get();
       }
       function ToEnt() {
         main.style.display = 'none';
@@ -93,27 +95,68 @@
         alert('mchat disabled');
         ToEnt();
       }
+      function ES() {
+        alert('no es when doEs reported as true (server state change)');
+        ToEnt();
+      }
+      function UpdateChatBody(ra) {
+        let arr = ra.slice();
+        arr = arr.map(x => {
+          let ci = JSON.parse(AESDecrypt(x[1], cpass.value));
+          return x[0] + ' ' + escapeHTML(ci[0]) + ' ' + ci[1];
+        });
+        let narrstr = arr.join('<br>') + '<br><br><br>';
+        if (arrstr != narrstr) {
+          ct.innerHTML = narrstr;
+          arrstr = narrstr;
+          if (document.hidden) narrfoc = true;
+        }
+        if (!document.hidden) narrfoc = false;
+        if (narrfoc) {
+          if (document.title != '(******) Multi Channel Chat') document.title = '(******) Multi Channel Chat';
+        } else {
+          if (document.title != 'Multi Channel Chat') document.title = 'Multi Channel Chat';
+        }
+      }
       async function Get() {
-        if (main.style.cssText == '') {
+        if (main.style.cssText != '') return;
+        if (doEs == null)
+          doEs = Boolean(parseInt(await (await fetch('candoes.dat')).text()));
+        if (doEs) {
+          chatEs = new EventSource('m?cnlnew=' + Base64.encode(ccnl.value));
+          chatEs.addEventListener('no-es', () => { chatEs.close(); ES(); });
+          chatEs.addEventListener('no-mchat', () => { chatEs.close(); MD(); });
+          chatEs.addEventListener('no-channel', () => { chatEs.close(); Chan(); });
+          chatEs.addEventListener('message', e => {
+            var msg = JSON.parse(Base64.decode(e.data));
+            chat.push(msg);
+            UpdateChatBody(chat);
+          });
+          chatEs.addEventListener('refresh', e => {
+            chat = JSON.parse(Base64.decode(e.data));
+            console.log(chat);
+            UpdateChatBody(chat);
+          });
+          chatEs.addEventListener('splicei', e => {
+            var ind = parseInt(Base64.decode(e.data));
+            chat.splice(ind, 1);
+            UpdateChatBody(chat);
+          });
+          chatEs.addEventListener('spliceb', e => {
+            var amt = parseInt(Base64.decode(e.data));
+            chat.splice(0, amt);
+            UpdateChatBody(chat);
+          });
+          chatEs.addEventListener('clear', e => {
+            chat.length = 0;
+            UpdateChatBody(chat);
+          });
+        } else {
           let arr = JSON.parse(Base64.decode(await (await fetch('m?cnl=' + Base64.encode(ccnl.value))).text()));
           if (arr === 0) { MD(); return; }
           if (arr === 1) { Chan(); return; }
-          arr = arr.map(x => {
-            let ci = JSON.parse(AESDecrypt(x[1], cpass.value));
-            return x[0] + ' ' + escapeHTML(ci[0]) + ' ' + ci[1];
-          });
-          let narrstr = arr.join('<br>') + '<br><br><br>';
-          if (arrstr != narrstr) {
-            ct.innerHTML = narrstr;
-            arrstr = narrstr;
-            if (document.hidden) narrfoc = true;
-          }
-          if (!document.hidden) narrfoc = false;
-          if (narrfoc) {
-            if (document.title != '(******) Multi Channel Chat') document.title = '(******) Multi Channel Chat';
-          } else {
-            if (document.title != 'Multi Channel Chat') document.title = 'Multi Channel Chat';
-          }
+          UpdateChatBody(arr);
+          setTimeout(Get, 1000);
         }
       }
       async function Send() {
@@ -144,7 +187,6 @@
           currmode = cmod.value;
         }
       }
-      setInterval(Get, 1000);
       ccnl.addEventListener('keydown', function (e) {
         if (e.keyCode == 13) ToMain();
       });

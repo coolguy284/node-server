@@ -61,15 +61,23 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
             res.write('event: message\ndata: ' + JSON.stringify(v) + '\n\n');
           }, RChatRefresh = function () {
             res.write('event: refresh\ndata: ' + JSON.stringify(rchat) + '\n\n');
+          }, RChatSplicei = function (i) {
+            res.write('event: splicei\ndata: ' + i + '\n\n');
+          }, RChatSpliceb = function (i) {
+            res.write('event: spliceb\ndata: ' + i + '\n\n');
           }, RChatClear = function () {
             res.write('event: clear\ndata:\n\n');
           };
           rchates.on('message', RChatMsg);
           rchates.on('refresh', RChatRefresh);
+          rchates.on('splicei', RChatSplicei);
+          rchates.on('spliceb', RChatSpliceb);
           rchates.on('clear', RChatClear);
           let closefunc = function () {
             rchates.off('message', RChatMsg);
             rchates.off('refresh', RChatRefresh);
+            rchates.off('splicei', RChatSplicei);
+            rchates.off('spliceb', RChatSpliceb);
             rchates.off('clear', RChatClear);
           };
           res.on('close', closefunc);
@@ -77,7 +85,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           RChatRefresh();
         } else {
           res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-          res.write('event: no-es\n\n');
+          res.write('event: no-es\ndata:\n\n');
           res.end();
         }
       } else datajs.rm.sn(res);
@@ -111,7 +119,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         VhRefresh();
       } else {
         res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-        res.write('event: no-es\n\n');
+        res.write('event: no-es\ndata:\n\n');
         res.end();
       }
       break;
@@ -258,7 +266,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           ChatKickRefresh();
         } else {
           res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-          res.write('event: no-es\n\n');
+          res.write('event: no-es\ndata:\n\n');
           res.end();
         }
       } else datajs.rm.sn(res);
@@ -344,6 +352,55 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           datajs.rm.restext(res, b64.encode(JSON.stringify(mchat[nam].chat)));
         } else datajs.rm.restext(res, '1');
       } else datajs.rm.restext(res, '0');
+    } else if (req.url.substr(0, 10) == '/m?cnlnew=') {
+      if (datajs.feat.es) {
+        if (datajs.feat.mchat) {
+          let nam = b64.decode(req.url.substr(10, 2048));
+          if (mchat[nam]) {
+            let mchatObj = mchat[nam];
+            let mchates = mchatObj.es;
+            res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+            let MChatMsg = function (ts, j) {
+              res.write('event: message\ndata: ' + b64.encode(JSON.stringify([ts, j])) + '\n\n');
+            }, MChatRefresh = function () {
+              res.write('event: refresh\ndata: ' + b64.encode(JSON.stringify(mchatObj.chat)) + '\n\n');
+            }, MChatSplicei = function (i) {
+              res.write('event: splicei\ndata: ' + b64.encode('' + i) + '\n\n');
+            }, MChatSpliceb = function (i) {
+              res.write('event: spliceb\ndata: ' + b64.encode('' + i) + '\n\n');
+            }, MChatClear = function () {
+              res.write('event: clear\ndata:\n\n');
+            };
+            mchates.on('message', MChatMsg);
+            mchates.on('refresh', MChatRefresh);
+            mchates.on('splicei', MChatSplicei);
+            mchates.on('spliceb', MChatSpliceb);
+            mchates.on('clear', MChatClear);
+            let closefunc = function () {
+              mchates.off('message', MChatMsg);
+              mchates.off('refresh', MChatRefresh);
+              mchates.off('splicei', MChatSplicei);
+              mchates.off('spliceb', MChatSpliceb);
+              mchates.off('clear', MChatClear);
+            };
+            res.on('close', closefunc);
+            res.on('destroy', closefunc);
+            MChatRefresh();
+          } else {
+            res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+            res.write('event: no-channel\ndata:\n\n');
+            res.end();
+          }
+        } else {
+          res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+          res.write('event: no-mchat\ndata:\n\n');
+          res.end();
+        }
+      } else {
+        res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+        res.write('event: no-es\ndata:\n\n');
+        res.end();
+      }
     } else if (req.url.substr(0, 7) == '/m?tex=') {
       if (datajs.feat.mchat) {
         if (mchatbaniplist.indexOf(ipaddr) < 0) {

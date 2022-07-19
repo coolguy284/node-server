@@ -203,6 +203,14 @@ if (datajs.feat.datadir != '') {
   try {
     global.mchat = JSON.parse(fs.readFileSync(datajs.feat.datadir + '/mchat.json').toString());
     if (Object.prototype.toString.call(mchat) != '[object Object]') throw new Error('invalid mchat object');
+    for (var mchatObj of Object.values(mchat)) {
+      Object.defineProperty(mchatObj, 'es', {
+        configurable: true,
+        enumerable: false,
+        writable: true,
+        value: new EventEmitter(),
+      });
+    }
   } catch (e) {
     if (e.code != 'ENOENT') {
       console.error('mchat restore failed, mchat empty');
