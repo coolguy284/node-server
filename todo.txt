@@ -1,4 +1,4 @@
-convert mchat, admin to eventsource
+convert admin to eventsource
 
 host local versions of external code files
 
