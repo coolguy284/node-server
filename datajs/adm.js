@@ -71,14 +71,17 @@ module.exports = exports = {
   },
   rsetchat: function rsetchat(ind, v) {
     rchat[ind] = v;
+    rchates.emit('refresh');
   },
   raddchat: function raddchat(v) {
     rchat.push(v);
     if (rchat.length > datajs.feat.lim.rchat)
       rchat.splice(0, rchat.length - datajs.feat.lim.rchat);
+    rchates.emit('message', v);
   },
   rclearchat: function rclearchat() {
     rchat.splice(0, Infinity);
+    rchates.emit('clear');
   },
   mcreatechat: function mcreatechat(nam, hash) {
     mchat[nam] = {

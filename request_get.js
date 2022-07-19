@@ -53,6 +53,35 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         datajs.rm.restext(res, JSON.stringify(rchat));
       } else datajs.rm.sn(res);
       break;
+    case '/liverchates.dat':
+      if (datajs.feat.rchat) {
+        if (datajs.feat.es) {
+          res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+          let RChatMsg = function (v) {
+            res.write('event: message\ndata: ' + JSON.stringify(v) + '\n\n');
+          }, RChatRefresh = function () {
+            res.write('event: refresh\ndata: ' + JSON.stringify(rchat) + '\n\n');
+          }, RChatClear = function () {
+            res.write('event: clear\ndata:\n\n');
+          };
+          rchates.on('message', RChatMsg);
+          rchates.on('refresh', RChatRefresh);
+          rchates.on('clear', RChatClear);
+          let closefunc = function () {
+            rchates.off('message', RChatMsg);
+            rchates.off('refresh', RChatRefresh);
+            rchates.off('clear', RChatClear);
+          };
+          res.on('close', closefunc);
+          res.on('destroy', closefunc);
+          RChatRefresh();
+        } else {
+          res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+          res.write('event: no-es\n\n');
+          res.end();
+        }
+      } else datajs.rm.sn(res);
+      break;
     case '/liveviews.dat':
       if (datajs.feat.views) {
         datajs.rm.restext(res, b64.encode(JSON.stringify(viewshist)));
@@ -168,7 +197,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           }, ChatSpliceb = function (i) {
             res.write('event: spliceb\ndata: ' + i + '\n\n');
           }, ChatClear = function () {
-            res.write('event: clear\n\n');
+            res.write('event: clear\ndata:\n\n');
           }, ChatJoin = function (nam) {
             res.write('event: join\ndata: ' + JSON.stringify(nam) + '\n\n');
           }, ChatLeave = function (nam) {

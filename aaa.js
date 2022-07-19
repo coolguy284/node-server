@@ -266,6 +266,7 @@ if (datajs.feat.logdir != '') {
   };
 }
 global.chates = new EventEmitter();
+global.rchates = new EventEmitter();
 global.viewshistes = new EventEmitter();
 global.savedvars = Object.assign(savedvars, savedvarsa);
 delete global.savedvarsa;

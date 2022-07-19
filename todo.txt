@@ -1,7 +1,8 @@
-convert rchat, mchat, admin to eventsource
+convert mchat, admin to eventsource
 
 host local versions of external code files
 
+shrink images to only as big as needed
 make chat polling chathere work with arbitrary server tick rate
 server make lockl adequate to use admin console
 reset loginid timer if request made

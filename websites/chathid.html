@@ -150,6 +150,8 @@
       var currtext = '';
       var currmode = 'html';
       var doreload = true;
+      var doEs, chatEs;
+      var chat = [];
       onload = function() {
         nname.value = localStorage.getItem('rname');
       }
@@ -162,7 +164,7 @@
         localStorage.setItem('rgarry', garry.value);
         return null;
       }
-      function Schat() {
+      async function Schat() {
         if (nname.value != '') {
           nnam = nname.value;
         }
@@ -171,7 +173,6 @@
         }
         begs.style = 'display:none;';
         chatt.style = 'white-space: -moz-pre-wrap;white-space: -hp-pre-wrap;white-space: -o-pre-wrap;white-space: -pre-wrap;white-space: pre-wrap;white-space: pre-line;word-wrap: break-word;word-break: break-all;';
-        setInterval(ChatReload, 1000, false);
         inp.style = 'position:fixed;bottom:2px;width:100%;';
         chattext.style = 'width:' + (window.innerWidth - 255 + '') + 'px;';
         shohtm = localStorage.getItem('rhtm');
@@ -199,13 +200,32 @@
         } else {
           garry.value = parseInt(garr);
         }
-        ChatReload(true);
         RedMode(redmode.value);
         ShowGarry(garry.value);
+        doEs = Boolean(parseInt(await (await fetch('candoes.dat')).text()));
+        if (doEs) {
+          chatEs = new EventSource('liverchates.dat');
+          chatEs.addEventListener('message', e => {
+            var msg = JSON.parse(e.data);
+            chat.push(msg);
+            UpdateChatBody(chat);
+          });
+          chatEs.addEventListener('refresh', e => {
+            chat = JSON.parse(e.data);
+            UpdateChatBody(chat);
+          });
+          chatEs.addEventListener('clear', e => {
+            chat.length = 0;
+            UpdateChatBody(chat);
+          });
+        } else {
+          setInterval(ChatReload, 1000, false);
+          ChatReload(true);
+        }
       }
-      function reqg() {
+      function UpdateChatBody(ra) {
         if (document.hidden || window.getSelection().toString() == '') {
-          ara = JSON.parse(this.responseText);
+          ara = ra.slice();
           if (document.hidden) {
             if (JSON.stringify(ara) != JSON.stringify(para) && document.title != '(******) Chat Test') {
               document.title = '(******) Chat Test';
@@ -237,6 +257,9 @@
             chatt.innerHTML = setstr;
           }
         }
+      }
+      function reqg() {
+        UpdateChatBody(JSON.parse(this.responseText));
       }
       function ChatReload(e) {
         if ((e || document.hidden || window.getSelection().toString() == '') && doreload) {

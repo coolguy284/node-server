@@ -239,10 +239,8 @@
         return null;
       }
       async function Schat() {
-        doEs = Boolean(parseInt(await (await fetch('candoes.dat')).text()));
         if (nname.value != '') nnam = nname.value;
         if (ks.value != '') Base64.s = ks.value;
-        fetch('s?joi=' + Base64.encode(nnam));
         chatt.style.removeProperty('display');
         ctyp.style.removeProperty('display');
         begs.style.display = 'none';
@@ -274,6 +272,8 @@
         ShowNotf(shownotf.value);
         RedMode(redmode.value);
         ShowGarry(garry.value);
+        doEs = Boolean(parseInt(await (await fetch('candoes.dat')).text()));
+        fetch('s?joi=' + Base64.encode(nnam));
         if (doEs) {
           chatEs = new EventSource('livechates.dat?nam=' + Base64.encode(nnam));
           chatEs.addEventListener('message', e => {
