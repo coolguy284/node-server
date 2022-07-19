@@ -16,12 +16,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/coolguy284/node-server.git"
+    "url": "git+https://github.com/coolguy284/node-server.git"
   },
   "author": "coolguy284",
   "license": "CC-BY-1.0",
   "bugs": {
-    "url": "http://github.com/coolguy284/node-server/issues"
+    "url": "https://github.com/coolguy284/node-server/issues"
   },
-  "homepage": "http://github.com/coolguy284/node-server"
+  "homepage": "https://github.com/coolguy284/node-server"
 }
