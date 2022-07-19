@@ -97,7 +97,7 @@ module.exports = {
       case '':
         break;
       case 'term':
-        try {exitHandler(null, true);process.send(['term']);} catch (e) {process.exit();}
+        try {exitHandler(true);process.send(['term']);} catch (e) {process.exit();}
         break;
       case 'restart':
         try {process.send(['restart']);} catch (e) {process.exit();}

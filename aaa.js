@@ -554,7 +554,7 @@ global.serv = http.createServer(serverf).listen(port, undefined, function (err) 
   }
 });
 global.exitHandlerCalled = false;
-global.exitHandler = function (sigarg, dontExit) {
+global.exitHandler = function (dontExit) {
   if (global.exitHandlerCalled) return;
   global.exitHandlerCalled = true;
   console.tslog('Server Closing');
@@ -562,5 +562,5 @@ global.exitHandler = function (sigarg, dontExit) {
   console.tslog('Data Files Saved');
   if (!dontExit) process.exit();
 };
-process.on('SIGINT', exitHandler);
-process.on('SIGTERM', exitHandler);
+process.on('SIGINT', () => exitHandler());
+process.on('SIGTERM', () => exitHandler());
