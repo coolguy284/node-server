@@ -1,5 +1,4 @@
-convert admin to eventsource
-
+make no es into datajs rm
 host local versions of external code files
 
 shrink images to only as big as needed
@@ -9,3 +8,4 @@ reset loginid timer if request made
 make viewshist ignore into viewshist replace with startswith
 make chat and viewshist hold pending changes while text is selected
 mchat client request time and include time in enc m?tex=
+make datajs console used for regular console commands too

@@ -14,16 +14,27 @@ global.cologadd = function cologadd(value, temp, colog) {
     return;
   }
   if (!colog) colog = global.colog;
-  colog.push([value, temp || '{}']);
-  if (colog.length > datajs.feat.lim.colog)
-    colog.splice(0, colog.length - datajs.feat.lim.colog);
+  let consoleEntry = [value, temp || '{}'];
+  colog.push(consoleEntry);
+  let esObj = colog.es ?? consoles.colog?.es;
+  if (esObj) esObj.emit('message', consoleEntry);
+  if (colog.length > datajs.feat.lim.colog) {
+    let removeAmt = colog.length - datajs.feat.lim.colog;
+    colog.splice(0, removeAmt);
+    if (esObj) esObj.emit('spliceb', removeAmt);
+  }
   if (global.logfilename && datajs.feat.filelog & 1)
     logfiles.colog.write(value + '\n');
 };
 global.cologdadd = function cologdadd(value, temp) {
-  cologd.push([value, temp || '{}']);
-  if (cologd.length > datajs.feat.lim.cologd)
-    cologd.splice(0, cologd.length - datajs.feat.lim.cologd);
+  let consoleEntry = [value, temp || '{}'];
+  cologd.push(consoleEntry);
+  if (consoles.cologd) consoles.cologd.es.emit('message', consoleEntry);
+  if (cologd.length > datajs.feat.lim.cologd) {
+    let removeAmt = cologd.length - datajs.feat.lim.cologd;
+    cologd.splice(0, removeAmt);
+    if (consoles.cologd) consoles.cologd.es.emit('spliceb', removeAmt);
+  }
   if (global.logfilename && datajs.feat.filelog & 2)
     logfiles.cologd.write(value + '\n');
 };
@@ -532,6 +543,8 @@ global.serverf = async function serverf(req, resa, nolog) {
   } catch (e) {
     console.error(e);
     try {
+      if (res.resAwait)
+        await res.resAwait;
       if (datajs.feat.errmsg) {
         fs.readFile('websites/perrmsg.html', function (err, data) {
           try {
@@ -546,6 +559,7 @@ global.serverf = async function serverf(req, resa, nolog) {
         let rs = fs.createReadStream('websites/perr.html');
         res.writeHead(500, {'Content-Type': 'text/html; charset=utf-8'});
         rs.pipe(res);
+        console.error(e);
       }
     } catch (e) {
       console.error(e);

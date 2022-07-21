@@ -318,9 +318,9 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
     } else if (req.url.substr(0, 7) == '/m?ccl=') {
       if (datajs.feat.mchat) {
         let ar = JSON.parse(b64.decode(req.url.substr(7, 2048)));
-        let resAwait = new Promise(r => setTimeout(r, 15));
+        res.resAwait = new Promise(r => setTimeout(r, 15));
         let mchatExist = Boolean(mchat[ar[0]]);
-        let mchatHash = Buffer.from(mchat[ar[0]]?.hash || Buffer.alloc(32)), arrHash = Buffer.from(ar[1]);
+        let mchatHash = Buffer.from(mchat[ar[0]]?.hash || '', 'hex'), arrHash = Buffer.from(ar[1], 'hex');
         let sendState;
         if (mchatHash.length == arrHash.length && crypto.timingSafeEqual(mchatHash, arrHash)) {
           sendState = 0;
@@ -328,7 +328,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           adm.mcreatechat(ar[0], ar[1]);
           sendState = 0;
         } else sendState = 1;
-        await resAwait;
+        await res.resAwait;
         switch (sendState) {
           case 0: datajs.rm.sn(res); break;
           case 1: datajs.rm.restext(res, '1'); break;
@@ -337,13 +337,13 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
     } else if (req.url.substr(0, 7) == '/m?cnl=') {
       if (datajs.feat.mchat) {
         let ar = JSON.parse(b64.decode(req.url.substr(7, 2048)));
-        let resAwait = new Promise(r => setTimeout(r, 15));
-        let mchatHash = Buffer.from(mchat[ar[0]]?.hash || Buffer.alloc(32)), arrHash = Buffer.from(ar[1]);
+        res.resAwait = new Promise(r => setTimeout(r, 15));
+        let mchatHash = Buffer.from(mchat[ar[0]]?.hash || '', 'hex'), arrHash = Buffer.from(ar[1], 'hex');
         let sendState;
         if (mchatHash.length == arrHash.length && crypto.timingSafeEqual(mchatHash, arrHash)) {
           sendState = 0;
         } else sendState = 1;
-        await resAwait;
+        await res.resAwait;
         switch (sendState) {
           case 0: datajs.rm.restext(res, b64.encode(JSON.stringify(mchat[ar[0]].chat))); break;
           case 1: datajs.rm.restext(res, '1'); break;
@@ -353,16 +353,16 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
       if (datajs.feat.es) {
         if (datajs.feat.mchat) {
           let ar = JSON.parse(b64.decode(req.url.substr(10, 2048)));
-          let resAwait = new Promise(r => setTimeout(r, 15));
+          res.resAwait = new Promise(r => setTimeout(r, 15));
           let mchatExist = Boolean(mchat[ar[0]]);
-          let mchatHash = Buffer.from(mchat[ar[0]]?.hash || Buffer.alloc(32)), arrHash = Buffer.from(ar[1]);
+          let mchatHash = Buffer.from(mchat[ar[0]]?.hash || '', 'hex'), arrHash = Buffer.from(ar[1], 'hex');
           if (mchatHash.length == arrHash.length && crypto.timingSafeEqual(mchatHash, arrHash)) {
             sendState = 0;
           } else if (!mchatExist && datajs.feat.mcreatechat) {
             adm.mcreatechat(ar[0], ar[1]);
             sendState = 0;
           } else sendState = 1;
-          await resAwait;
+          await res.resAwait;
           if (sendState) {
             res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
             res.write('event: no-channel\ndata:\n\n');
@@ -411,13 +411,13 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
     } else if (req.url.substr(0, 7) == '/m?tex=') {
       if (datajs.feat.mchat) {
         cv = JSON.parse(b64.decode(req.url.substr(7, 2048)));
-        let resAwait = new Promise(r => setTimeout(r, 15));
-        let mchatHash = Buffer.from(mchat[cv[0]]?.hash || Buffer.alloc(32)), arrHash = Buffer.from(cv[1]);
+        res.resAwait = new Promise(r => setTimeout(r, 15));
+        let mchatHash = Buffer.from(mchat[cv[0]]?.hash || '', 'hex'), arrHash = Buffer.from(cv[1], 'hex');
         if (mchatHash.length == arrHash.length && crypto.timingSafeEqual(mchatHash, arrHash)) {
           sendState = 0;
           adm.maddchat(cv[0], null, cv[2]);
         } else sendState = 1;
-        await resAwait;
+        await res.resAwait;
         if (sendState == 0 && mchatbaniplist.indexOf(ipaddr) < 0)
           datajs.rm.restext(res, '0');
         else datajs.rm.restext(res, '1');
@@ -451,43 +451,167 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
       datajs.rm.sn(res);
     } else if (req.url.substr(0, 7) == '/a?ccp=') {
       if (datajs.feat.cons) {
+        res.resAwait = new Promise(r => setTimeout(r, 15));
         try {
           let ta = JSON.parse(b64.decode(req.url.substr(7, 2048)));
-          if (consoles[ta[1]] && consoleswpenc.indexOf(ta[1]) > -1) {
-            if (sha256.hex(ta[0]) == (consoles[ta[1]].phash || b64a.server)) {
-              datajs.rm.restext(res, b64.encode(consoles[ta[1]].penc));
-            }
-          } else if (sha256.hex(ta[0]) == b64a.server) {
-            datajs.rm.restext(res, b64.encode(b64a.serverp));
+          let customConsole = ta[1] in consoles;
+          let eq1 = Buffer.from(sha256.hex(ta[0]), 'hex'), eq2 = Buffer.from((consoles[ta[1]]?.phash || b64a.server), 'hex');
+          if (customConsole && consoleswpenc.indexOf(ta[1]) > -1) {
+            if (eq1.length == eq2.length && crypto.timingSafeEqual(eq1, eq2)) sendState = 0;
+          } else if (eq1.length == eq2.length && crypto.timingSafeEqual(eq1, eq2)) {
+            sendState = 1;
+          } else sendState = 2;
+          await res.resAwait;
+          switch (sendState) {
+            case 0: datajs.rm.restext(res, b64.encode(consoles[ta[1]].penc)); break;
+            case 1: datajs.rm.restext(res, b64.encode(b64a.serverp)); break;
+            case 2: datajs.rm.sn(res); break;
           }
-        } catch (e) { datajs.rm.sn(res); }
+        } catch (e) { await res.resAwait; datajs.rm.sn(res); }
       } else datajs.rm.sn(res);
     } else if (req.url.substr(0, 6) == '/a?rc=') {
       if (datajs.feat.cons) {
-        let ra, pass = false;
-        for (let i in consoleswpenc) {
-          let tra = cjsdec(req.url.substr(6, Infinity), consoles[consoleswpenc[i]].penc);
-          if (tra != '') {
-            ra = JSON.parse(tra);
-            pass = true;
-            break;
-          }
-        }
-        if (!pass) {
-          ra = JSON.parse(cjsdec(req.url.substr(6, Infinity), b64a.serverp));
-        }
-        if (datajs.feat.colog && consoles[ra[0]]) {
-          if (sha256.hex(ra[1]) == (consoles[ra[0]].phash || b64a.server)) {
-            if (datajs.feat.enc == 'b64') {
-              datajs.rm.restext(res, b64a.encode(JSON.stringify(consoles[ra[0]].colog)));
-            } else if (datajs.feat.enc == 'aes') {
-              datajs.rm.restext(res, cjsenc(JSON.stringify(consoles[ra[0]].colog), (consoles[ra[0]].penc || b64a.serverp)));
+        res.resAwait = new Promise(r => setTimeout(r, 15));
+        try {
+          let ra, pass = false;
+          for (let i in consoleswpenc) {
+            let tra = cjsdec(req.url.substr(6, Infinity), consoles[consoleswpenc[i]].penc);
+            if (tra != '') {
+              ra = JSON.parse(tra);
+              pass = true;
+              break;
             }
-          } else datajs.rm.sn(res);
-        } else datajs.rm.sn(res);
+          }
+          if (!pass) {
+            ra = JSON.parse(cjsdec(req.url.substr(6, Infinity), b64a.serverp));
+          }
+          let eq1 = Buffer.from(sha256.hex(ra[1]), 'hex'), eq2 = Buffer.from(consoles[ra[0]].phash || b64a.server, 'hex');
+          let sendStateTxt, sendState;
+          if (datajs.feat.colog && consoles[ra[0]]) {
+            if (crypto.timingSafeEqual(eq1, eq2)) {
+              if (datajs.feat.enc == 'b64') {
+                sendStateTxt = b64a.encode(JSON.stringify(consoles[ra[0]].colog));
+              } else if (datajs.feat.enc == 'aes') {
+                sendStateTxt = cjsenc(JSON.stringify(consoles[ra[0]].colog), (consoles[ra[0]].penc || b64a.serverp));
+              }
+              sendState = 0;
+            } else sendState = 1;
+          } else sendState = 1;
+          await res.resAwait;
+          switch (sendState) {
+            case 0: datajs.rm.restext(res, sendStateTxt); break;
+            case 1: datajs.rm.sn(res); break;
+          }
+        } catch (e) { await res.resAwait; datajs.rm.sn(res); }
       } else datajs.rm.sn(res);
+    } else if (req.url.substr(0, 9) == '/a?rcnew=') {
+      if (datajs.feat.es) {
+        if (datajs.feat.cons) {
+          res.resAwait = new Promise(r => setTimeout(r, 15));
+          try {
+            let ra, pass = false;
+            for (let i in consoleswpenc) {
+              let tra = cjsdec(req.url.substr(6, Infinity), consoles[consoleswpenc[i]].penc);
+              if (tra != '') {
+                ra = JSON.parse(tra);
+                pass = true;
+                break;
+              }
+            }
+            if (!pass) {
+              ra = JSON.parse(cjsdec(req.url.substr(9, Infinity), b64a.serverp));
+            }
+            let eq1 = Buffer.from(sha256.hex(ra[1]), 'hex'), eq2 = Buffer.from(consoles[ra[0]].phash || b64a.server, 'hex');
+            let sendStateTxt, sendState;
+            if (datajs.feat.colog && consoles[ra[0]]) {
+              if (crypto.timingSafeEqual(eq1, eq2)) {
+                if (datajs.feat.enc == 'b64') {
+                  sendStateTxt = b64a.encode(JSON.stringify(consoles[ra[0]].colog));
+                } else if (datajs.feat.enc == 'aes') {
+                  sendStateTxt = cjsenc(JSON.stringify(consoles[ra[0]].colog), consoles[ra[0]].penc || b64a.serverp);
+                }
+                sendState = 0;
+              } else sendState = 1;
+            } else sendState = 1;
+            await res.resAwait;
+            switch (sendState) {
+              case 0:
+                let consl = consoles[ra[0]];
+                res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+                let ConsMessage = function (m) {
+                  res.write(
+                    'event: adm\ndata: ' +
+                    cjsenc(
+                      JSON.stringify({
+                        type: 'message',
+                        data: m,
+                      }),
+                      consl.penc || b64a.serverp
+                    ) +
+                    '\n\n'
+                  );
+                }, ConsSpliceb = function (i) {
+                  res.write(
+                    'event: adm\ndata: ' +
+                    cjsenc(
+                      JSON.stringify({
+                        type: 'spliceb',
+                        data: i,
+                      }),
+                      consl.penc || b64a.serverp
+                    ) +
+                    '\n\n'
+                  );
+                }, ConsRefresh = function () {
+                  res.write(
+                    'event: adm\ndata: ' +
+                    cjsenc(
+                      JSON.stringify({
+                        type: 'refresh',
+                        data: consl.colog,
+                      }),
+                      consl.penc || b64a.serverp
+                    ) +
+                    '\n\n'
+                  );
+                };
+                consl.es.on('message', ConsMessage);
+                consl.es.on('spliceb', ConsSpliceb);
+                consl.es.on('refesh', ConsRefresh);
+                let closefunc = function () {
+                  consl.es.off('message', ConsMessage);
+                  consl.es.off('spliceb', ConsSpliceb);
+                  consl.es.off('refesh', ConsRefresh);
+                };
+                res.on('close', closefunc);
+                res.on('destroy', closefunc);
+                ConsRefresh();
+                break;
+              case 1:
+                res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+                res.write('event: no-cons\ndata:\n\n');
+                res.end();
+                break;
+            }
+          } catch (e) {
+            await res.resAwait;
+            res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+            res.write('event: no-cons\ndata:\n\n');
+            res.end();
+          }
+        } else {
+          res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+          res.write('event: no-cons\ndata:\n\n');
+          res.end();
+        }
+      } else {
+        res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+        res.write('event: no-es\ndata:\n\n');
+        res.end();
+      }
     } else if (req.url.substr(0, 6) == '/a?sc=') {
       if (datajs.feat.cons) {
+        res.resAwait = new Promise(r => setTimeout(r, 15));
         let aconsole;
         try {
           try {
@@ -512,8 +636,9 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           if (consoles[cv[1]]) {
             aconsole = consoles[cv[1]].console;
             consol = consoles[cv[1]];
-          } else { datajs.rm.sn(res); return; }
-          if (sha256.hex(cv[0]) == (consol.phash || b64a.server)) {
+          } else { await res.resAwait; datajs.rm.sn(res); return; }
+          let eq1 = Buffer.from(sha256.hex(cv[0]), 'hex'), eq2 = Buffer.from(consol.phash || b64a.server, 'hex');
+          if (eq1.length == eq2.length && crypto.timingSafeEqual(eq1, eq2)) {
             let tx = cv[2];
             if (consol.type != 'bash') aconsole.log('>> ' + tx);
             if (tx[0] != ':') {
@@ -566,9 +691,10 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
               let resp = comm(tx.substr(1, Infinity), aconsole);
               if (resp !== undefined) aconsole.log('<- ' + util.inspect(resp));
             }
-          } else { datajs.rm.restext(res, '0'); return; }
-        } catch (e) { aconsole.error(e); datajs.rm.restext(res, '0'); return; }
+          } else { await res.resAwait; datajs.rm.restext(res, '0'); return; }
+        } catch (e) { aconsole.error(e); await res.resAwait; datajs.rm.restext(res, '0'); return; }
       }
+      await res.resAwait;
       datajs.rm.sn(res);
     } else if (req.url.substr(0, 6) == '/a?ng=') {
       cv = JSON.parse(b64.decode(req.url.substr(6, Infinity)));

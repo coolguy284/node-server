@@ -14,7 +14,7 @@ module.exports = {
     global.loginid = loginid.filter(val => val[0] > remt - 864000000);
     if (datajs.feat.chatghost && Math.random() < 0.006 && chatherelist.length == 5)
       adm.addchat(null, '[server ghost]', datajs.splash[Math.floor(Math.random() * datajs.splash.length)]);
-    if (datajs.feat.datadir != '' && global.ticks % datajs.feat.savefreq == 0)
+    if (datajs.feat.datadir != '' && global.ticks % datajs.feat.saveperiod == 0)
       savev();
     global.pcpuUsage = cpuUsage;
     global.cpuUsage = process.cpuUsage();

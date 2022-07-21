@@ -7,13 +7,13 @@
   <body>
     <input type = 'hidden' id = 'enc' value = 'aes'>
     <input type = 'hidden' id = 'surl' value = ''>
-    <input type = 'text' id = 'lifrsrc' value = 'chat.html' style = 'width:calc(50% - 8px);'>
-    <input type = 'text' id = 'rifrsrc' value = 'views.html' style = 'width:calc(50% - 8px);'><br>
+    <input type = 'text' id = 'lifrsrc' value = 'chat.html' style = 'width:calc(50% - 10px);'>
+    <input type = 'text' id = 'rifrsrc' value = 'views.html' style = 'width:calc(50% - 10px);'><br>
     <iframe src = 'chat.html' style = 'float:left;width:calc(50% - 4px);height:300px;' id = 'lifr'></iframe>
     <iframe src = 'views.html' style = 'float:left;width:calc(50% - 4px);height:300px;' id = 'rifr'></iframe><br>
     <button onclick = 'lifr.contentWindow.doreload = false; rifr.contentWindow.doreload = false; doreload = false; drlod.innerHTML = "Not Updating"'>Disable Updating</button>
     <button onclick = 'lifr.contentWindow.doreload = true; rifr.contentWindow.doreload = true; doreload = true; drlod.innerHTML = "Updating"; getting = false; gettingt = 0;'>Enable Updating</button>
-    <select id = 'dc' onchange = 'ViewsReload();'>
+    <select id = 'dc' onchange = 'ViewsSwap();'>
       <option value = 'reg'>Regular Console</option>
       <option value = 'deb'>Debug Console</option>
       <option value = 'cmc'>Command Console</option>
@@ -21,7 +21,8 @@
       <option value = 'cus'>Custom Console</option>
     </select>
     <input type = 'text' id = 'constr' style = 'display:none;'>
-    <input type = 'password' id = 'ks'>
+    <input type = 'password' id = 'ks' style = 'display:none;'>
+    <input type = 'password' id = 'mains'>
     <span id = 'sconn'>Disconnected</span>, <span id = 'seron'>Server On</span>, <span id = 'drlod'>Updating</span><br>
     <iframe src = '' style = 'float:left;width:calc(100% - 4px);height:300px;' id = 'cifr'></iframe>
     <input type = 'text' style = 'width:calc(100% - 4px);float:bottom;font-family:monospace;' id = 'conc'>
@@ -68,26 +69,21 @@
       var seron2 = 'Server On';
       var connst = new Date().getTime();
       var clat = 0;
-      var serverp = '';
+      var serverp = '', serverpaltcons = '';
       var doreload = true;
       var getting = false;
       var gettingt = 0;
       var verbose = false;
-      function reqg() {
-        if (this.responseText != '') {
-          seron1 = 'Server On';
-        } else {
-          PassReload();
+      var doEs, viewsHistInt, viewsEs, storedMains, storedMains2;
+      var views = [];
+      function AdmReqg(arr) {
+        if (arr == '') {
           return;
         }
+        seron1 = 'Server On';
+        ara = arr.slice();
         try {
-        if (document.hidden || cifr.contentWindow.getSelection().toString() == '') {
-          if (enc.value == 'b64') {
-            Base64.s = serverp;
-            ara = JSON.parse(Base64.decode(this.responseText));
-          } else if (enc.value == 'aes') {
-            ara = JSON.parse(cjsdec(this.responseText, serverp));
-          }
+        if (document.hidden || Boolean(cifr.contentWindow.getSelection()?.toString())) {
           for (var i in ara) {
             ara[i] = ara[i][1].replace('{}', escapeHTML(ara[i][0]));
           }
@@ -103,105 +99,104 @@
         }
         getting = false;
       }
+      function reqg() {
+        let arr;
+        if (this.responseText == '') {
+          arr = '';
+        } else {
+          if (enc.value == 'b64') {
+            Base64.s = serverp;
+            arr = JSON.parse(Base64.decode(this.responseText));
+          } else if (enc.value == 'aes') {
+            arr = JSON.parse(cjsdec(this.responseText, serverp));
+          }
+        }
+        AdmReqg(arr);
+      }
       function reqsp() {
         if (this.responseText != '0' && this.responseText != '') {
           PassReload();
         }
       }
-      function ViewsReload(e) {
-        if (getting/*&& new Date().getTime() > gettingt*/) {
-          getting = false;
-          serverp = '';
+      function GetViewsGetUrl(esMode) {
+        let rcComponent = esMode ? 'a?rcnew=' : 'a?rc=';
+        switch (dc.value) {
+          case 'reg':
+            return surl.value + rcComponent + cjsenc(JSON.stringify(['colog', storedMains]), serverp);
+          case 'deb':
+            return surl.value + rcComponent + cjsenc(JSON.stringify(['cologd', storedMains]), serverp);
+          case 'cmc':
+            return surl.value + rcComponent + cjsenc(JSON.stringify(['default', storedMains]), serverp);
+          case 'bsh':
+            return surl.value + rcComponent + cjsenc(JSON.stringify(['terminal', storedMains]), serverp);
+          case 'cus':
+            return surl.value + rcComponent + cjsenc(JSON.stringify([constr.value, storedMains]), serverpaltcons);
         }
-        if (serverp == '') {
-          PassReload();
-          return;
+      }
+      function ViewsReload(e) {
+        if (getting) {
+          getting = false;
         }
         if (!getting) {
           getting = true;
           gettingt = new Date().getTime() + 5000;
           connst = new Date().getTime();
           if (dc.value == 'cus' && constr.style.cssText != '') {
-            constr.style = '';
+            constr.style = ks.style = '';
           } else if (dc.value != 'cus' && constr.style.cssText != 'display:none;') {
-            constr.style = 'display:none;';
+            constr.style = ks.style = 'display:none;';
           }
-          if (e || document.hidden || cifr.contentWindow.getSelection().toString() == '') {
+          if (e || document.hidden || Boolean(cifr.contentWindow.getSelection()?.toString())) {
             if (doreload) {
               var reqr = new XMLHttpRequest();
               reqr.addEventListener('load', reqg);
-              switch (dc.value) {
-                case 'reg':
-                  reqr.open('GET', surl.value + 'a?rc=' + cjsenc(JSON.stringify(['colog', ks.value]), serverp));
-                  break;
-                case 'deb':
-                  reqr.open('GET', surl.value + 'a?rc=' + cjsenc(JSON.stringify(['cologd', ks.value]), serverp));
-                  break;
-                case 'cmc':
-                  reqr.open('GET', surl.value + 'a?rc=' + cjsenc(JSON.stringify(['default', ks.value]), serverp));
-                  break;
-                case 'bsh':
-                  reqr.open('GET', surl.value + 'a?rc=' + cjsenc(JSON.stringify(['terminal', ks.value]), serverp));
-                  break;
-                case 'cus':
-                  reqr.open('GET', surl.value + 'a?rc=' + cjsenc(JSON.stringify([constr.value, ks.value]), serverp));
-                  break;
-              }
+              reqr.open('GET', GetViewsGetUrl(false));
               reqr.send();
             } else getting = false;
           } else getting = false;
+        }
+      }
+      function ViewsES() {
+        viewsEs = new EventSource(GetViewsGetUrl(true));
+        viewsEs.addEventListener('adm', e => {
+          let msg = JSON.parse(cjsdec(e.data, dc.value == 'cus' ? serverpaltcons : serverp));
+          console.log(msg);
+          switch (msg.type) {
+            case 'message':
+              views.push(msg.data);
+              break;
+            case 'spliceb':
+              views.splice(0, msg.data);
+              break;
+            case 'refresh':
+              views = msg.data;
+              break;
+          }
+          AdmReqg(views);
+        });
+        SeronCheck(true);
+      }
+      function ViewsSwap() {
+        if (doEs) {
+          Stop();
+          Start(true);
+        } else {
+          ViewsReload(true);
         }
       }
       async function PassReload() {
         if (ks.value.length > 0) {
           //let pkey = new JSEncrypt();
           //pkey.setPublicKey(await (await fetch(surl.value + 'pkey.log')).text());
-          let url;
-          switch (dc.value) {
-            case 'reg':
-            case 'deb':
-            case 'cmc':
-            case 'bsh':
-              url = surl.value + 'a?ccp=' + Base64.encode(JSON.stringify([ks.value, null]));
-              break;
-            case 'cus':
-              url = surl.value + 'a?ccp=' + Base64.encode(JSON.stringify([ks.value, constr.value]));
-              break;
-          }
+          let url = surl.value + 'a?ccp=' + Base64.encode(JSON.stringify([ks.value, constr.value]));
           let rt = await (await fetch(url)).text();
           if (rt != '') {
-            serverp = Base64.decode(rt);
+            serverpaltcons = Base64.decode(rt);
           } else {
-            serverp = '';
+            serverpaltcons = '';
           }
         }
       }
-      /*
-      function PassReload() {
-        if (ks.value.length > 0) {
-          var req = new XMLHttpRequest();
-          req.addEventListener('load', reqgp);
-          switch (dc.value) {
-            case 'reg':
-            case 'deb':
-            case 'cmc':
-            case 'bsh':
-              req.open('GET', surl.value + 'a?ccp=' + Base64.encode(JSON.stringify([ks.value, null])));
-              break;
-            case 'cus':
-              req.open('GET', surl.value + 'a?ccp=' + Base64.encode(JSON.stringify([ks.value, constr.value])));
-              break;
-          }
-          req.send();
-        }
-      }
-      function reqgp() {
-        if (this.responseText != '') {
-          serverp = Base64.decode(this.responseText);
-          //Base64.s = serverp;
-        }
-      }
-      */
       function Send() {
         try {
         if (ks.value != '') {
@@ -223,16 +218,16 @@
         switch (dc.value) {
           case 'reg':
           case 'deb':
-            reqr.open('GET', surl.value + 'a?sc=' + cjsenc(JSON.stringify([ks.value, 'colog', conc.value]), serverp));
+            reqr.open('GET', surl.value + 'a?sc=' + cjsenc(JSON.stringify([storedMains, 'colog', conc.value]), serverp));
             break;
           case 'cmc':
-            reqr.open('GET', surl.value + 'a?sc=' + cjsenc(JSON.stringify([ks.value, 'default', conc.value]), serverp));
+            reqr.open('GET', surl.value + 'a?sc=' + cjsenc(JSON.stringify([storedMains, 'default', conc.value]), serverp));
             break;
           case 'bsh':
-            reqr.open('GET', surl.value + 'a?sc=' + cjsenc(JSON.stringify([ks.value, 'terminal', conc.value]), serverp));
+            reqr.open('GET', surl.value + 'a?sc=' + cjsenc(JSON.stringify([storedMains, 'terminal', conc.value]), serverp));
             break;
           case 'cus':
-            reqr.open('GET', surl.value + 'a?sc=' + cjsenc(JSON.stringify([ks.value, constr.value, conc.value]), serverp));
+            reqr.open('GET', surl.value + 'a?sc=' + cjsenc(JSON.stringify([storedMains2, constr.value, conc.value]), serverpaltcons));
             break;
         }
         reqr.send();
@@ -251,26 +246,57 @@
           }
         }
       }
-      setInterval(function () {
-        if (sconn1 == 'Disconnected' && sconn2 == 'Disconnected') {
-          sconn.innerHTML = 'Disconnected ' + clat + 'ms';
-        } else {
-          sconn.innerHTML = 'Connected ' + clat + 'ms';
-        }
-        sconn2 = sconn1;
-        sconn1 = 'Disconnected';
-        if (!navigator.onLine) {
-          seron.innerHTML = 'Browser Offline';
-        } else if (seron1 == 'Server Off' && seron2 == 'Server Off') {
-          seron.innerHTML = 'Server Off';
-        } else {
+      function SeronCheck(esMode) {
+        if (esMode) {
+          sconn.innerHTML = 'Connected -ms';
           seron.innerHTML = 'Server On';
+        } else {
+          if (sconn1 == 'Disconnected' && sconn2 == 'Disconnected') {
+            sconn.innerHTML = 'Disconnected ' + clat + 'ms';
+          } else {
+            sconn.innerHTML = 'Connected ' + clat + 'ms';
+          }
+          sconn2 = sconn1;
+          sconn1 = 'Disconnected';
+          if (!navigator.onLine) {
+            seron.innerHTML = 'Browser Offline';
+          } else if (seron1 == 'Server Off' && seron2 == 'Server Off') {
+            seron.innerHTML = 'Server Off';
+          } else {
+            seron.innerHTML = 'Server On';
+          }
+          seron2 = seron1;
+          seron1 = 'Server Off';
         }
-        seron2 = seron1;
-        seron1 = 'Server Off';
-      }, 1000);
-      setInterval(ViewsReload, 1000, false);
-      ViewsReload(true);
+      }
+      async function Start(noBegin) {
+        if (!noBegin && serverp == '') {
+          storedMains = mains.value;
+          storedMains2 = ks.value;
+          let url = surl.value + 'a?ccp=' + Base64.encode(JSON.stringify([dc.value == 'cus' ? storedMains2 : storedMains, dc.value == 'cus' ? constr.value : null]));
+          let rt = await (await fetch(url)).text();
+          if (rt == '')
+            return;
+          serverp = Base64.decode(rt);
+          mains.removeEventListener('keydown', mainslistener);
+        }
+        if (doEs == null)
+          doEs = Boolean(parseInt(await (await fetch('candoes.dat')).text()));
+        if (doEs) {
+          ViewsES();
+        } else if (!viewsHistInt) {
+          viewsHistInt = setInterval(ViewsReload, 1000, false);
+          ViewsReload(true);
+          setInterval(SeronCheck, 1000);
+        }
+      }
+      function Stop() {
+        if (doEs) {
+          viewsEs.close();
+        } else if (doEs != null) {
+          clearInterval(viewsHistInt);
+        }
+      }
       onload = function () {
         cifr.contentDocument.body.style = 'font-family:monospace;white-space:pre;width:98%;';
       };
@@ -313,6 +339,13 @@
         if (!e.charCode) {return;}
         histind = conchist.length;
         setTimeout(function() {currtext = conc.value;}, 0);
+      });
+      var mainslistener = function (e) {
+        if (e.keyCode == 13) Start();
+      };
+      mains.addEventListener('keydown', mainslistener);
+      constr.addEventListener('keydown', function (e) {
+        if (e.keyCode == 13) PassReload();
       });
     </script>
   </body>

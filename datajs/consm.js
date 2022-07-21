@@ -6,9 +6,9 @@ module.exports = {
     }
     let co;
     if (type == 'colog') {
-      co = { type: 'colog', es: new EventEmitter() };
+      co = { type: 'normal', colog, console, es: new EventEmitter() };
     } else if (type == 'cologd') {
-      co = { type: 'cologd', es: new EventEmitter() };
+      co = { type: 'normal', colog: cologd, console, es: new EventEmitter() };
     } else {
       if (!opts) opts = {};
       if (!opts.console && !opts.colog) {
@@ -29,6 +29,7 @@ module.exports = {
         opts.stderr = new datajs.s.ConsoleStream(opts.console.error);
       }
       co = { type: type, colog: opts.colog, console: opts.console, stdout: opts.stdout, stderr: opts.stderr, es: new EventEmitter() };
+      co.colog.es = co.es;
       if (opts.phash) {
         consoleswpenc.push(name);
         co.phash = opts.phash;

@@ -234,7 +234,7 @@
         }
       }
       function UpdateChatBody(ra) {
-        if (document.hidden || window.getSelection().toString() == '') {
+        if (document.hidden || Boolean(window.getSelection()?.toString())) {
           ara = ra.slice();
           if (document.hidden) {
             if (JSON.stringify(ara) != JSON.stringify(para) && document.title != '(******) Chat Test') {
@@ -272,7 +272,7 @@
         UpdateChatBody(JSON.parse(this.responseText));
       }
       function ChatReload(e) {
-        if ((e || document.hidden || window.getSelection().toString() == '') && doreload) {
+        if ((e || document.hidden || Boolean(window.getSelection()?.toString())) && doreload) {
           var reqr = new XMLHttpRequest();
           reqr.addEventListener('load', reqg);
           reqr.open('GET', 'liverchat.json');
