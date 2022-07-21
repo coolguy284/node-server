@@ -19,7 +19,7 @@
         setInterval(CommReload, 1000);
       }
       function reqg() {
-        if (document.hidden || Boolean(window.getSelection()?.toString())) {
+        if (document.hidden || window.getSelection()?.toString() == '') {
           ara = JSON.parse(this.responseText);
           console.log(ara);
           for (var i in ara) {

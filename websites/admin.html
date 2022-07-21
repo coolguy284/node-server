@@ -25,7 +25,7 @@
     <input type = 'password' id = 'mains'>
     <span id = 'sconn'>Disconnected</span>, <span id = 'seron'>Server On</span>, <span id = 'drlod'>Updating</span><br>
     <iframe src = '' style = 'float:left;width:calc(100% - 4px);height:300px;' id = 'cifr'></iframe>
-    <input type = 'text' style = 'width:calc(100% - 4px);float:bottom;font-family:monospace;' id = 'conc'>
+    <input type = 'text' style = 'width:calc(100% - 8px);float:bottom;font-family:monospace;' id = 'conc'>
     <script src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js' integrity = 'sha384-YkYpnhy3j3+zc3fQvzlbh4WGwDgt+06gsGsaApwM1O3IKIsKJk61C0Lr6YvbovUV' crossorigin = 'anonymous'></script>
     <script src = 'js/base64.js'></script>
     <script src = 'js/rsa.js'></script>
@@ -80,10 +80,9 @@
         if (arr == '') {
           return;
         }
-        seron1 = 'Server On';
         ara = arr.slice();
         try {
-        if (document.hidden || Boolean(cifr.contentWindow.getSelection()?.toString())) {
+        if (document.hidden || cifr.contentWindow.getSelection()?.toString() == '') {
           for (var i in ara) {
             ara[i] = ara[i][1].replace('{}', escapeHTML(ara[i][0]));
           }
@@ -146,7 +145,7 @@
           } else if (dc.value != 'cus' && constr.style.cssText != 'display:none;') {
             constr.style = ks.style = 'display:none;';
           }
-          if (e || document.hidden || Boolean(cifr.contentWindow.getSelection()?.toString())) {
+          if (e || document.hidden || cifr.contentWindow.getSelection()?.toString() == '') {
             if (doreload) {
               var reqr = new XMLHttpRequest();
               reqr.addEventListener('load', reqg);
@@ -160,7 +159,6 @@
         viewsEs = new EventSource(GetViewsGetUrl(true));
         viewsEs.addEventListener('adm', e => {
           let msg = JSON.parse(cjsdec(e.data, dc.value == 'cus' ? serverpaltcons : serverp));
-          console.log(msg);
           switch (msg.type) {
             case 'message':
               views.push(msg.data);

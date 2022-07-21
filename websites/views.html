@@ -97,7 +97,7 @@
         to.innerHTML = th;
       }
       function reqg(e) {
-        if ((e || document.hidden || Boolean(window.getSelection()?.toString())) && doreload) {
+        if ((e || document.hidden || window.getSelection()?.toString() == '') && doreload) {
           var rt = JSON.parse(Base64.decode(this.responseText));
           parsereq(rt.reg, tablr);
           parsereq(rt.ajax, tabla);
@@ -105,7 +105,7 @@
         }
       }
       function ViewsReload(e) {
-        if ((e || document.hidden || Boolean(window.getSelection()?.toString())) && doreload) {
+        if ((e || document.hidden || window.getSelection()?.toString() == '') && doreload) {
           var reqr = new XMLHttpRequest();
           reqr.addEventListener('load', reqg);
           reqr.open('GET', 'liveviews.dat');

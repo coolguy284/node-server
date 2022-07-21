@@ -364,7 +364,7 @@
         }
       }
       function UpdateChatBody(rt) {
-        if (document.hidden || Boolean(window.getSelection()?.toString())) {
+        if (document.hidden || window.getSelection()?.toString() == '') {
           ara = rt.slice();
           arar = ara.slice();
           if (document.hidden) {
@@ -441,7 +441,7 @@
         }
       }
       function UpdateChatHerelist(rt) {
-        if (document.hidden || Boolean(window.getSelection()?.toString())) {
+        if (document.hidden || window.getSelection()?.toString() == '') {
           arag = rt.slice();
           hist = {};
           for (var i in arag) {
@@ -467,7 +467,7 @@
         }
       }
       function UpdateChatTyping(rt) {
-        if (document.hidden || Boolean(window.getSelection()?.toString())) {
+        if (document.hidden || window.getSelection()?.toString() == '') {
           arag = rt.slice();
           hist = {};
           for (var i in arag) {
@@ -498,7 +498,7 @@
         }
       }
       async function ChatReload(e) {
-        if ((e || document.hidden || Boolean(window.getSelection()?.toString())) && doreload && !reloading) {
+        if ((e || document.hidden || window.getSelection()?.toString() == '') && doreload && !reloading) {
           reloading = true;
           try {
           let chatobj = JSON.parse(Base64.decode(await (await fetch('livechat.dat')).text()));
