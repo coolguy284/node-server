@@ -282,6 +282,8 @@ global.savev = datajs.tick.savev;
 adm = datajs.adm;
 comm = datajs.comm.run;
 datajs.tick.on();
+datajs.consm.create('colog', 'colog');
+datajs.consm.create('cologd', 'cologd');
 datajs.consm.create('default');
 datajs.consm.create('terminal', 'bash', {streams:true});
 datajs.consm.create('simterminal', null, {terminal:true});

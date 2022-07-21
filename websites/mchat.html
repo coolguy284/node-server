@@ -27,7 +27,7 @@
     <div id = 'st'>
       Enter chat channel: <input type = 'text' id = 'ccnl'><br>
       Enter username: <input type = 'text' id = 'cuser'><br>
-      Enter channel password: <input type = 'text' id = 'cpass'> (optional)<br>
+      Enter channel password: <input type = 'password' id = 'cpass'> (optional)<br>
       <button onclick = 'ToMain()'>Start</button>
     </div>
     <div id = 'main' style = 'display:none;'>
@@ -46,6 +46,7 @@
       let getting = false, narrfoc = false;
       let arrstr = '';
       let chathist = [], histind = 0, currtext = '', currmode = 'html';
+      let etcpasswd = null;
       let doEs, chatEs;
       function escapeHTML(str) {
         return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -74,10 +75,12 @@
         }  
       }
       async function ToMain() {
-        let v = await (await fetch('m?ccl=' + Base64.encode(JSON.stringify([ccnl.value, sha256.hex(cpass.value)])))).text();
-        if (v == '2') {
-          alert('Invalid password');
-          return;
+        etcpasswd = sha256.hex(cpass.value);
+        cpass.value = '';
+        let v = await (await fetch('m?ccl=' + Base64.encode(JSON.stringify([ccnl.value, etcpasswd])))).text();
+        switch (v) {
+          case '0': alert('Mchat disabled'); return;
+          case '1': alert('Channel nonexistent or invalid password'); return;
         }
         st.style.display = 'none';
         main.style.display = '';
@@ -88,15 +91,15 @@
         st.style.display = '';
       }
       function Chan() {
-        alert('channel nonexistent');
+        alert('Channel nonexistent or invalid password from cnl');
         ToEnt();
       }
       function MD() {
-        alert('mchat disabled');
+        alert('Mchat disabled');
         ToEnt();
       }
       function ES() {
-        alert('no es when doEs reported as true (server state change)');
+        alert('No es when doEs reported as true (server state change)');
         ToEnt();
       }
       function UpdateChatBody(ra) {
@@ -123,7 +126,7 @@
         if (doEs == null)
           doEs = Boolean(parseInt(await (await fetch('candoes.dat')).text()));
         if (doEs) {
-          chatEs = new EventSource('m?cnlnew=' + Base64.encode(ccnl.value));
+          chatEs = new EventSource('m?cnlnew=' + Base64.encode(JSON.stringify([ccnl.value, etcpasswd])));
           chatEs.addEventListener('no-es', () => { chatEs.close(); ES(); });
           chatEs.addEventListener('no-mchat', () => { chatEs.close(); MD(); });
           chatEs.addEventListener('no-channel', () => { chatEs.close(); Chan(); });
@@ -152,7 +155,7 @@
             UpdateChatBody(chat);
           });
         } else {
-          let arr = JSON.parse(Base64.decode(await (await fetch('m?cnl=' + Base64.encode(ccnl.value))).text()));
+          let arr = JSON.parse(Base64.decode(await (await fetch('m?cnl=' + Base64.encode(JSON.stringify([ccnl.value, etcpasswd])))).text()));
           if (arr === 0) { MD(); return; }
           if (arr === 1) { Chan(); return; }
           UpdateChatBody(arr);
@@ -163,6 +166,7 @@
         let req = await (await fetch('m?tex=' + Base64.encode(
           JSON.stringify([
             ccnl.value,
+            etcpasswd,
             AESEncrypt(JSON.stringify([
               '<' + cuser.value + '>',
               cinp.value

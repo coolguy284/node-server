@@ -139,24 +139,6 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         });
       } else datajs.rm.sn(res);
       break;
-    case '/colog.dat':
-      if (datajs.feat.colog) {
-        if (datajs.feat.enc == 'b64') {
-          datajs.rm.restext(res, b64a.encode(JSON.stringify(colog)));
-        } else if (datajs.feat.enc == 'aes') {
-          datajs.rm.restext(res, cjsenc(JSON.stringify(colog), b64a.serverp));
-        }
-      } else datajs.rm.sn(res);
-      break;
-    case '/cologd.dat':
-      if (datajs.feat.colog) {
-        if (datajs.feat.enc == 'b64') {
-          datajs.rm.restext(res, b64a.encode(JSON.stringify(cologd)));
-        } else if (datajs.feat.enc == 'aes') {
-          datajs.rm.restext(res, cjsenc(JSON.stringify(cologd), b64a.serverp));
-        }
-      } else datajs.rm.sn(res);
-      break;
     case '/pkey.log':
       if (pkeydat < process.hrtime()[0] - 60) {
         global.pkey = new rsa.JSEncrypt({default_key_size: datajs.feat.pkeysize});
@@ -177,7 +159,26 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
   }
   let cv;
   if (mode == 1) {
-    if (req.url.substr(0, 18) == '/livechatd.dat?ts=') {
+    if (req.url.substr(0, 5) == '/r?u=') {
+      fs.readFile('websites/redirecttemplate.html', function (err, data) {
+        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+        res.write(data.toString().replace('{redirect-url}', decodeURIComponent(req.url.substr(5, 2048))));
+        res.end();
+      });
+    } else if (req.url.substr(0, 5) == '/r?e=') {
+      let rurl = b64.decode(req.url.substr(5, 2048));
+      fs.readFile('websites/redirecttemplate.html', function (err, data) {
+        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+        res.write(data.toString().replace('{redirect-url}', rurl));
+        res.end();
+      });
+    } else if (req.url.substr(0, 6) == '/r?uh=') {
+      res.writeHead(303, {'Location': decodeURIComponent(req.url.substr(6, 2048))});
+      res.end();
+    } else if (req.url.substr(0, 6) == '/r?eh=') {
+      res.writeHead(303, {'Location': b64.decode(req.url.substr(6, 2048))});
+      res.end();
+    } else if (req.url.substr(0, 18) == '/livechatd.dat?ts=') {
       if (datajs.feat.chat) {
         let done = false;
         let ss = req.url.substr(18, Infinity);
@@ -270,25 +271,6 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           res.end();
         }
       } else datajs.rm.sn(res);
-    } else if (req.url.substr(0, 5) == '/r?u=') {
-      fs.readFile('websites/redirecttemplate.html', function (err, data) {
-        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-        res.write(data.toString().replace('{redirect-url}', decodeURIComponent(req.url.substr(5, 2048))));
-        res.end();
-      });
-    } else if (req.url.substr(0, 5) == '/r?e=') {
-      let rurl = b64.decode(req.url.substr(5, 2048));
-      fs.readFile('websites/redirecttemplate.html', function (err, data) {
-        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-        res.write(data.toString().replace('{redirect-url}', rurl));
-        res.end();
-      });
-    } else if (req.url.substr(0, 6) == '/r?uh=') {
-      res.writeHead(303, {'Location': decodeURIComponent(req.url.substr(6, 2048))});
-      res.end();
-    } else if (req.url.substr(0, 6) == '/r?eh=') {
-      res.writeHead(303, {'Location': b64.decode(req.url.substr(6, 2048))});
-      res.end();
     } else if (req.url.substr(0, 7) == '/s?tex=') {
       if (datajs.feat.chat) {
         cv = JSON.parse(b64.decode(req.url.substr(7, 65536)));
@@ -336,28 +318,57 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
     } else if (req.url.substr(0, 7) == '/m?ccl=') {
       if (datajs.feat.mchat) {
         let ar = JSON.parse(b64.decode(req.url.substr(7, 2048)));
-        if (mchat[ar[0]]) {
-          if (mchat[ar[0]].hash != ar[1]) {
-            datajs.rm.restext(res, '2');
-          } else datajs.rm.sn(res);
-        } else {
-          if (datajs.feat.mcreatechat) adm.mcreatechat(ar[0], ar[1]);
-          datajs.rm.sn(res);
+        let resAwait = new Promise(r => setTimeout(r, 15));
+        let mchatExist = Boolean(mchat[ar[0]]);
+        let mchatHash = Buffer.from(mchat[ar[0]]?.hash || Buffer.alloc(32)), arrHash = Buffer.from(ar[1]);
+        let sendState;
+        if (mchatHash.length == arrHash.length && crypto.timingSafeEqual(mchatHash, arrHash)) {
+          sendState = 0;
+        } else if (!mchatExist && datajs.feat.mcreatechat) {
+          adm.mcreatechat(ar[0], ar[1]);
+          sendState = 0;
+        } else sendState = 1;
+        await resAwait;
+        switch (sendState) {
+          case 0: datajs.rm.sn(res); break;
+          case 1: datajs.rm.restext(res, '1'); break;
         }
-      } else datajs.rm.restext(res, '3');
+      } else datajs.rm.restext(res, '0');
     } else if (req.url.substr(0, 7) == '/m?cnl=') {
       if (datajs.feat.mchat) {
-        let nam = b64.decode(req.url.substr(7, 2048));
-        if (mchat[nam]) {
-          datajs.rm.restext(res, b64.encode(JSON.stringify(mchat[nam].chat)));
-        } else datajs.rm.restext(res, '1');
+        let ar = JSON.parse(b64.decode(req.url.substr(7, 2048)));
+        let resAwait = new Promise(r => setTimeout(r, 15));
+        let mchatHash = Buffer.from(mchat[ar[0]]?.hash || Buffer.alloc(32)), arrHash = Buffer.from(ar[1]);
+        let sendState;
+        if (mchatHash.length == arrHash.length && crypto.timingSafeEqual(mchatHash, arrHash)) {
+          sendState = 0;
+        } else sendState = 1;
+        await resAwait;
+        switch (sendState) {
+          case 0: datajs.rm.restext(res, b64.encode(JSON.stringify(mchat[ar[0]].chat))); break;
+          case 1: datajs.rm.restext(res, '1'); break;
+        }
       } else datajs.rm.restext(res, '0');
     } else if (req.url.substr(0, 10) == '/m?cnlnew=') {
       if (datajs.feat.es) {
         if (datajs.feat.mchat) {
-          let nam = b64.decode(req.url.substr(10, 2048));
-          if (mchat[nam]) {
-            let mchatObj = mchat[nam];
+          let ar = JSON.parse(b64.decode(req.url.substr(10, 2048)));
+          let resAwait = new Promise(r => setTimeout(r, 15));
+          let mchatExist = Boolean(mchat[ar[0]]);
+          let mchatHash = Buffer.from(mchat[ar[0]]?.hash || Buffer.alloc(32)), arrHash = Buffer.from(ar[1]);
+          if (mchatHash.length == arrHash.length && crypto.timingSafeEqual(mchatHash, arrHash)) {
+            sendState = 0;
+          } else if (!mchatExist && datajs.feat.mcreatechat) {
+            adm.mcreatechat(ar[0], ar[1]);
+            sendState = 0;
+          } else sendState = 1;
+          await resAwait;
+          if (sendState) {
+            res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+            res.write('event: no-channel\ndata:\n\n');
+            res.end();
+          } else {
+            let mchatObj = mchat[ar[0]];
             let mchates = mchatObj.es;
             res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
             let MChatMsg = function (ts, j) {
@@ -386,10 +397,6 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
             res.on('close', closefunc);
             res.on('destroy', closefunc);
             MChatRefresh();
-          } else {
-            res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-            res.write('event: no-channel\ndata:\n\n');
-            res.end();
           }
         } else {
           res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
@@ -403,17 +410,18 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
       }
     } else if (req.url.substr(0, 7) == '/m?tex=') {
       if (datajs.feat.mchat) {
-        if (mchatbaniplist.indexOf(ipaddr) < 0) {
-          cv = JSON.parse(b64.decode(req.url.substr(7, 2048)));
-          if (mchat[cv[0]]) {
-            adm.maddchat(cv[0], null, cv[1]);
-            datajs.rm.restext(res, '0');
-          } else {
-            datajs.rm.restext(res, '1');
-          }
-        }
-      }
-      datajs.rm.sn(res);
+        cv = JSON.parse(b64.decode(req.url.substr(7, 2048)));
+        let resAwait = new Promise(r => setTimeout(r, 15));
+        let mchatHash = Buffer.from(mchat[cv[0]]?.hash || Buffer.alloc(32)), arrHash = Buffer.from(cv[1]);
+        if (mchatHash.length == arrHash.length && crypto.timingSafeEqual(mchatHash, arrHash)) {
+          sendState = 0;
+          adm.maddchat(cv[0], null, cv[2]);
+        } else sendState = 1;
+        await resAwait;
+        if (sendState == 0 && mchatbaniplist.indexOf(ipaddr) < 0)
+          datajs.rm.restext(res, '0');
+        else datajs.rm.restext(res, '1');
+      } else datajs.rm.sn(res);
     } else if (req.url.substr(0, 6) == '/r?co=') {
       let dell = req.url.substr(6, Infinity).split('|');
       let dec = b64d.decode(dell[0], codel[dell[1]]);
@@ -454,28 +462,6 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           }
         } catch (e) { datajs.rm.sn(res); }
       } else datajs.rm.sn(res);
-    } else if (req.url.substr(0, 6) == '/a?cc=') {
-      if (datajs.feat.cons) {
-        try {
-          if (datajs.feat.enc == 'b64') {
-            cv = JSON.parse(b64a.decode(req.url.substr(6, Infinity)));
-          } else if (datajs.feat.enc == 'aes') {
-            cv = JSON.parse(cjsdec(req.url.substr(6, Infinity), b64a.serverp));
-          }
-          if (sha256.hex(cv[0]) == b64a.server) {
-            let tx = cv[1];
-            console.log('>> ' + tx);
-            if (tx[0] != ':') {
-              let resp = eval(tx);
-              if (resp !== undefined) console.log('<- ' + util.inspect(resp));
-            } else {
-              let resp = comm(tx.substr(1, Infinity));
-              if (resp !== undefined) console.log('<- ' + util.inspect(resp));
-            }
-          } else { datajs.rm.restext(res, '1'); return; }
-        } catch (e) { console.error(e); datajs.rm.restext(res, '2'); return; }
-      }
-      datajs.rm.sn(res);
     } else if (req.url.substr(0, 6) == '/a?rc=') {
       if (datajs.feat.cons) {
         let ra, pass = false;

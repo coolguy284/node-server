@@ -132,10 +132,10 @@
               reqr.addEventListener('load', reqg);
               switch (dc.value) {
                 case 'reg':
-                  reqr.open('GET', surl.value + 'colog.dat');
+                  reqr.open('GET', surl.value + 'a?rc=' + cjsenc(JSON.stringify(['colog', ks.value]), serverp));
                   break;
                 case 'deb':
-                  reqr.open('GET', surl.value + 'cologd.dat');
+                  reqr.open('GET', surl.value + 'a?rc=' + cjsenc(JSON.stringify(['cologd', ks.value]), serverp));
                   break;
                 case 'cmc':
                   reqr.open('GET', surl.value + 'a?rc=' + cjsenc(JSON.stringify(['default', ks.value]), serverp));
@@ -171,6 +171,8 @@
           let rt = await (await fetch(url)).text();
           if (rt != '') {
             serverp = Base64.decode(rt);
+          } else {
+            serverp = '';
           }
         }
       }
@@ -221,7 +223,7 @@
         switch (dc.value) {
           case 'reg':
           case 'deb':
-            reqr.open('GET', surl.value + 'a?cc=' + et);
+            reqr.open('GET', surl.value + 'a?sc=' + cjsenc(JSON.stringify([ks.value, 'colog', conc.value]), serverp));
             break;
           case 'cmc':
             reqr.open('GET', surl.value + 'a?sc=' + cjsenc(JSON.stringify([ks.value, 'default', conc.value]), serverp));
