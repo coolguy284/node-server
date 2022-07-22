@@ -17,6 +17,7 @@ module.exports = {
   mime: require('./mime.js'),
   tick: require('./tick.js'),
   prng: require('./prng.js'),
+  trng: require('./trng.js'),
   i32a: new Int32Array(new SharedArrayBuffer(4)),
   handlerp: require('./handlerp.js'),
   handlerf: require('./handlerf.js'),
@@ -35,22 +36,13 @@ module.exports = {
     return unescape(val.replace(/&#x([0-9A-F]{2});/g, '%$1').replace(/&#x([0-9A-F]{4});/g, '%u$1'));
   },
   genid: function genid(len, idst) {
-    let idstr = '';
     let idc = idst || global.datajs.feat.idstr;
-    for (let i = 0; i < len; i++) {
-      idstr += idc[Math.floor(Math.random() * idc.length)];
-    }
-    return idstr;
+    return datajs.trng.getRandIntArray(idc.length, len).map(x => idc[x]).join('');
   },
   shufstr: function shufstr(str, maxlen) {
     if (maxlen === undefined) maxlen = Infinity;
-    let sstr = str.split('');
-    let bstr = '';
-    while (sstr.length > 0 && maxlen > 0) {
-      bstr += sstr.splice(Math.floor(Math.random() * sstr.length), 1);
-      maxlen--;
-    }
-    return bstr;
+    let lim = Math.min(str.length, maxlen);
+    return datajs.trng.getRandIntOneChoiceArray(str.length, lim).map(x => str[x]).join('');
   },
   tn: function tn(str, lim) {
     if (str.length > lim) return str.substr(0, lim) + '...';
