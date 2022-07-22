@@ -84,9 +84,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           res.on('destroy', closefunc);
           RChatRefresh();
         } else {
-          res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-          res.write('event: no-es\ndata:\n\n');
-          res.end();
+          datajs.rm.reses(res, 'no-es');
         }
       } else datajs.rm.sn(res);
       break;
@@ -118,9 +116,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         res.on('destroy', closefunc);
         VhRefresh();
       } else {
-        res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-        res.write('event: no-es\ndata:\n\n');
-        res.end();
+        datajs.rm.reses(res, 'no-es');
       }
       break;
     case '/comms.json':
@@ -266,9 +262,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           ChatTypingRefresh();
           ChatKickRefresh();
         } else {
-          res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-          res.write('event: no-es\ndata:\n\n');
-          res.end();
+          datajs.rm.reses(res, 'no-es');
         }
       } else datajs.rm.sn(res);
     } else if (req.url.substr(0, 7) == '/s?tex=') {
@@ -364,9 +358,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           } else sendState = 1;
           await res.resAwait;
           if (sendState) {
-            res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-            res.write('event: no-channel\ndata:\n\n');
-            res.end();
+            datajs.rm.reses(res, 'no-channel');
           } else {
             let mchatObj = mchat[ar[0]];
             let mchates = mchatObj.es;
@@ -399,14 +391,10 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
             MChatRefresh();
           }
         } else {
-          res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-          res.write('event: no-mchat\ndata:\n\n');
-          res.end();
+          datajs.rm.reses(res, 'no-mchat');
         }
       } else {
-        res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-        res.write('event: no-es\ndata:\n\n');
-        res.end();
+        datajs.rm.reses(res, 'no-es');
       }
     } else if (req.url.substr(0, 7) == '/m?tex=') {
       if (datajs.feat.mchat) {
@@ -588,26 +576,18 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
                 ConsRefresh();
                 break;
               case 1:
-                res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-                res.write('event: no-cons\ndata:\n\n');
-                res.end();
+                datajs.rm.reses(res, 'no-cons');
                 break;
             }
           } catch (e) {
             await res.resAwait;
-            res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-            res.write('event: no-cons\ndata:\n\n');
-            res.end();
+            datajs.rm.reses(res, 'no-cons');
           }
         } else {
-          res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-          res.write('event: no-cons\ndata:\n\n');
-          res.end();
+          datajs.rm.reses(res, 'no-cons');
         }
       } else {
-        res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-        res.write('event: no-es\ndata:\n\n');
-        res.end();
+        datajs.rm.reses(res, 'no-es');
       }
     } else if (req.url.substr(0, 6) == '/a?sc=') {
       if (datajs.feat.cons) {

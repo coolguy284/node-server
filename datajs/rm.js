@@ -12,6 +12,10 @@ module.exports = {
     res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
     res.end();
   },
+  reses: function reses(res, evtname) {
+    res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+    res.end('event: ' + evtname + '\ndata:\n\n');
+  },
   reqinfo: function reqinfo(req, rrid, ts, ipaddr, proto, url, cookies, nam) {
     // to prevent data duplication when stringified with JSON, connection is non-enumerable
     let obj = {
