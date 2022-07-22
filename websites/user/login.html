@@ -27,10 +27,8 @@
         pkey.setPublicKey(Base64.decode(await (await fetch('../pkey.log')).text()));
         let rt = await (await fetch('../login?v=' + Base64.encode(pkey.encrypt(JSON.stringify([user.value, v]))))).text();
         if (rt == '0') {
-          alert('No such username.');
+          alert('No such username or incorrect password.');
         } else if (rt == '1') {
-          alert('Incorrect password.');
-        } else if (rt == '2') {
           alert('Server error');
         } else {
           document.cookie = 'sid=' + rt + '; Path=/user; secure';

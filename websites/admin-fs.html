@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html style = 'height: 100%;'>
   <head>
     <meta name = 'referrer' content = 'no-referrer' />
     <title>Admin FS</title>
@@ -7,11 +7,10 @@
       #editord {
         display: none;
         position: absolute;
-        left: 50%;
-        top: 5px;
-        margin-left: -550px;
-        width: 1100px;
-        height: 500px;
+        left: 10px;
+        top: 30px;
+        width: calc(100% - 20px);
+        height: calc(100% - 50px);
       }
       #editor {
         width: 100%;
@@ -20,16 +19,16 @@
       }
     </style>
   </head>
-  <body>
+  <body style = 'height: calc(100% - 80px);' onresize = 'editor.resize()'>
     <input type = 'hidden' id = 'enc' value = 'aes'>
     <input type = 'hidden' id = 'surl' value = ''>
-    <input type = 'password' id = 'ks'>
     <button onclick = 'Up()'>Up</button>
     <input type = 'text' id = 'fpath' style = 'width:calc(100% - 240px);font-family:monospace;'>
-    <button onclick = 'Go()'>Go</button><br>
-    <iframe src = '' style = 'float:left;width:calc(100% - 8px);height:300px;' id = 'cifr'></iframe>
-    <div id = 'editord' onresize = 'editor.resize()'>
-      <div id = 'editor' onresize = 'editor.resize()'></div>
+    <button onclick = 'Go()'>Go</button>
+    <input type = 'password' id = 'ks'><br>
+    <iframe src = '' style = 'float:left;width:calc(100% - 8px);height:100%;' id = 'cifr'></iframe>
+    <div id = 'editord'>
+      <div id = 'editor'></div>
       <button onclick = 'editord.style.display = "none"' style = 'position:absolute;right:10px;top:5px;'><img src = 'images/close.png' style = 'width:20px;height:20px;'></button>
     </div>
     <script src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js' integrity = 'sha384-YkYpnhy3j3+zc3fQvzlbh4WGwDgt+06gsGsaApwM1O3IKIsKJk61C0Lr6YvbovUV' crossorigin = 'anonymous'></script>
@@ -75,6 +74,7 @@
           let url = surl.value + 'a?ccp=' + Base64.encode(JSON.stringify([ks.value, null]));
           let rt = await (await fetch(url)).text();
           if (rt != '') serverp = Base64.decode(rt);
+          Go();
         }
       }
       async function Go() {
@@ -160,14 +160,10 @@
       onload = function () {
         cifr.contentDocument.body.style = 'font-family:monospace;white-space:pre;width:98%;';
         fpath.value = 'reg:.';
+        editor.resize();
       };
       ks.addEventListener('keydown', e => {
-        if (passt < Date.now()) PassReload();
-        else passt = Date.now() + 1000;
-      });
-      ks.addEventListener('focusout', e => {
-        if (passt < Date.now()) PassReload();
-        else passt = Date.now() + 1000;
+        if (e.keyCode === 13) PassReload();
       });
       fpath.addEventListener('keydown', e => { if (e.keyCode === 13) Go(); });
     </script>

@@ -684,6 +684,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
       } else datajs.rm.sn(res);
     } else if (req.url.substr(0, 9) == '/a?fstyp=') {
       if (datajs.feat.cons) {
+        res.resAwait = new Promise(r => setTimeout(r, 15));
         try {
           cv = JSON.parse(cjsdec(req.url.substr(9, Infinity), b64a.serverp));
           let dcon;
@@ -718,11 +719,12 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
             else if (dcon.isDirectory()) typ = 4;
             else typ = 0;
             datajs.rm.restext(res, cjsenc(JSON.stringify(typ), b64a.serverp));
-          } catch (e) { datajs.rm.restext(res, cjsenc('0', b64a.serverp)); }
-        } catch (e) { datajs.rm.sn(res); }
+          } catch (e) { await res.resAwait; datajs.rm.restext(res, cjsenc('0', b64a.serverp)); }
+        } catch (e) { await res.resAwait; datajs.rm.sn(res); }
       } else datajs.rm.sn(res);
     } else if (req.url.substr(0, 9) == '/a?fsdir=') {
       if (datajs.feat.cons) {
+        res.resAwait = new Promise(r => setTimeout(r, 15));
         try {
           cv = JSON.parse(cjsdec(req.url.substr(9, Infinity), b64a.serverp));
           let dcon;
@@ -742,10 +744,11 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
             return [x.name, typ];
           });
           datajs.rm.restext(res, cjsenc(JSON.stringify(dcon), b64a.serverp));
-        } catch (e) { datajs.rm.sn(res); }
+        } catch (e) { await res.resAwait; datajs.rm.sn(res); }
       } else datajs.rm.sn(res);
     } else if (req.url.substr(0, 9) == '/a?fstex=') {
       if (datajs.feat.cons) {
+        res.resAwait = new Promise(r => setTimeout(r, 15));
         try {
           cv = JSON.parse(cjsdec(req.url.substr(9, Infinity), b64a.serverp));
           let dcon;
@@ -758,21 +761,24 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
               break;
           }
           datajs.rm.restext(res, cjsenc(dcon, b64a.serverp));
-        } catch (e) { datajs.rm.sn(res); }
+        } catch (e) { await res.resAwait; datajs.rm.sn(res); }
       } else datajs.rm.sn(res);
     } else if (req.url.substr(0, 9) == '/login?v=') {
       let tx = b64.decode(req.url.substr(9, 2048)), dtx, uparr;
+      res.resAwait = new Promise(r => setTimeout(r, 15));
       try {
         dtx = pkey.decrypt(tx);
       } finally {
         if (dtx == '') {
-          datajs.rm.restext(res, '2');
+          await res.resAwait;
+          datajs.rm.restext(res, '1');
           return;
         }
       }
       uparr = JSON.parse(dtx);
       if (b64a.upar.hasOwnProperty(uparr[0])) {
-        if (b64a.upar[uparr[0]] == sha256.hex(uparr[1])) {
+        let eq1 = Buffer.from(b64a.upar[uparr[0]], 'hex'), eq2 = Buffer.from(sha256.hex(uparr[1]), 'hex');
+        if (eq1.length == eq2.length && crypto.timingSafeEqual(eq1, eq2)) {
           let id = datajs.genid(32);
           if (datajs.feat.loginip) {
             loginid.push([stime.getTime(), id, uparr[0], ipaddr]);
@@ -781,15 +787,18 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           }
           datajs.rm.restext(res, id);
         } else {
-          datajs.rm.restext(res, '1');
+          await res.resAwait;
+          datajs.rm.restext(res, '0');
         }
       } else {
+        await res.resAwait;
         datajs.rm.restext(res, '0');
       }
     } else if (req.url.substr(0, 10) == '/logout?v=') {
+      datajs.rm.sn(res);
+      await new Promise(r => setTimeout(r, 15));
       let loid = req.url.substr(10, 2048);
       global.loginid = loginid.filter(function (val) {return val[1] != loid});
-      datajs.rm.sn(res);
     } else {
       let v = req.url.split('/');
       if (v[v.length-1] === '' && v[v.length-2].indexOf('.') > -1) {
