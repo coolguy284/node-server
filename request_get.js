@@ -795,10 +795,11 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         datajs.rm.restext(res, '0');
       }
     } else if (req.url.substr(0, 10) == '/logout?v=') {
-      datajs.rm.sn(res);
-      await new Promise(r => setTimeout(r, 15));
+      res.resAwait = new Promise(r => setTimeout(r, 15));
       let loid = req.url.substr(10, 2048);
       global.loginid = loginid.filter(function (val) {return val[1] != loid});
+      await res.resAwait;
+      datajs.rm.sn(res);
     } else {
       let v = req.url.split('/');
       if (v[v.length-1] === '' && v[v.length-2].indexOf('.') > -1) {
