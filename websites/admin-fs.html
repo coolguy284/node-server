@@ -31,8 +31,8 @@
       <div id = 'editor'></div>
       <button onclick = 'editord.style.display = "none"' style = 'position:absolute;right:10px;top:5px;'><img src = 'images/close.png' style = 'width:20px;height:20px;'></button>
     </div>
-    <script src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js' integrity = 'sha384-YkYpnhy3j3+zc3fQvzlbh4WGwDgt+06gsGsaApwM1O3IKIsKJk61C0Lr6YvbovUV' crossorigin = 'anonymous'></script>
-    <script src = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/ace.js' integrity = 'sha384-XfNdKG/1xNYX28y9KoIS1kyVjlQu0rQuixxvPLIdpwNGCWuGv2Uuay2vKum1ANYq' crossorigin = 'anonymous'></script>
+    <script src = 'js/crypto-js-aes-3.1.2.js' integrity = 'sha384-YkYpnhy3j3+zc3fQvzlbh4WGwDgt+06gsGsaApwM1O3IKIsKJk61C0Lr6YvbovUV' crossorigin = 'anonymous'></script>
+    <script src = 'js/ace/ace-1.4.1.js' integrity = 'sha384-XfNdKG/1xNYX28y9KoIS1kyVjlQu0rQuixxvPLIdpwNGCWuGv2Uuay2vKum1ANYq' crossorigin = 'anonymous'></script>
     <script src = 'js/base64.js'></script>
     <script src = 'js/rsa.js'></script>
     <script>
@@ -58,12 +58,13 @@
       var doreload = true;
       var getting = false;
       var verbose = false;
+      ace.config.set('basePath', 'js/ace');
       var editor = ace.edit('editor');
       editor.setOptions({
         tabSize: 2,
         wrap: true,
         printMargin: false,
-        theme: 'ace/theme/solarized_dark'
+        theme: 'ace/theme/solarized_dark',
       });
       function toparts(str) {
         let p = str.split(':');

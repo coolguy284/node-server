@@ -37,7 +37,7 @@ module.exports = {
       jsstr = jsstr.replace('{closesrc}', '\'' + closstr + '\'');
       cssstr = cssstr.replace(/\n/g, '\n      ');
       str = str.replace(/<link rel = 'stylesheet' href = 'index.css'>/g, '<style>\n' + cssstr + '\n    </style>');
-      str = str.replace(/<script[^]*\/script>/g, '<script>\n' + jsstr + '\n    </script>\n    <script src = \'https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.10.3/math.min.js\'></script>');
+      str = str.replace(/<script[^]*\/script>/g, '<script>\n' + jsstr + '\n    </script>\n    <script src = \'../js/math-5.10.3.min.js\'></script>');
       res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
       res.write(str);
       res.end();
@@ -69,7 +69,8 @@ module.exports = {
         fs.readFileSync('websites/tools/calculator/exprparser.js') + '\n' +
         fs.readFileSync('websites/tools/calculator/stmtconvert.js') + '\n' +
         fs.readFileSync('websites/tools/calculator/stmtparser.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/index.js'),
+        fs.readFileSync('websites/tools/calculator/index.js') + '\n' +
+        fs.readFileSync('websites/js/math-5.10.3.min.js'),
         cssstr = '      ' +
         fs.readFileSync('websites/tools/calculator/index.css'),
         helpstr = 'data:image/png;base64,' + fs.readFileSync('websites/images/help.png').toString('base64'),
@@ -80,27 +81,19 @@ module.exports = {
       jsstr = jsstr.replace('{settingssrc}', '\'' + settstr + '\'');
       jsstr = jsstr.replace('{closesrc}', '\'' + closstr + '\'');
       cssstr = cssstr.replace(/\n/g, '\n      ');
-      https.get('https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.10.3/math.min.js', (resp) => {
-        let respb = Buffer.alloc(0);
-        resp.on('data', (chunk) => respb = Buffer.concat([respb, chunk]));
-        resp.on('end', () => {
-          respb = respb.toString();
-          jsstr += '\n' + respb;
-          str = str.replace(/<link rel = 'stylesheet' href = 'index.css'>/g, '<style>\n' + cssstr + '\n    </style>');
-          str = str.replace(/<script[^]*\/script>/g, '<script>\n' + jsstr + '\n    </script>');
+      str = str.replace(/<link rel = 'stylesheet' href = 'index.css'>/g, '<style>\n' + cssstr + '\n    </style>');
+      str = str.replace(/<script[^]*\/script>/g, '<script>\n' + jsstr + '\n    </script>');
+      res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
+      res.write(str);
+      res.end();
+      if (datajs.feat.cache.adv) {
+        datajs.handlerf.coolguy284['/user/adv-calculator-2.html'] = function (req, res) {
           res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
           res.write(str);
           res.end();
-          if (datajs.feat.cache.adv) {
-            datajs.handlerf.coolguy284['/user/adv-calculator.html'] = function (req, res) {
-              res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
-              res.write(str);
-              res.end();
-              return -1;
-            };
-          }
-        });
-      });
+          return -1;
+        };
+      }
       return -1;
     },
     '/user/adv-systemdata.html': function (req, res) {

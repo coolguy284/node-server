@@ -2,7 +2,7 @@ module.exports = {
   mimel: {
     html: 'text/html',
     htm: 'text/html',
-    js: 'text/js',
+    js: 'text/javascript',
     css: 'text/css',
     png: 'image/png',
     ico: 'image/vnd.microsoft.icon',

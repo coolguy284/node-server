@@ -1,5 +1,3 @@
-host local versions of external code files
-
 shrink images to only as big as needed
 make chat polling chathere work with arbitrary server tick rate
 server make lockl adequate to use admin console
