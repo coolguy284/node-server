@@ -679,9 +679,14 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
     } else if (req.url.substr(0, 6) == '/a?ng=') {
       cv = JSON.parse(b64.decode(req.url.substr(6, Infinity)));
       let prop = nam != null ? nam : 'main';
-      if (saveddat[prop].hasOwnProperty(cv[0]) && sha256.hex(cv[1]) == b64a.server) {
+      res.resAwait = new Promise(r => setTimeout(r, 15));
+      let eq1 = Buffer.from(sha256.hex(cv[1]), 'hex'), eq2 = Buffer.from(b64a.server, 'hex');
+      if (saveddat[prop].hasOwnProperty(cv[0]) && eq1.length == eq2.length && crypto.timingSafeEqual(eq1, eq2)) {
         datajs.rm.restext(res, saveddat[prop][cv[0]]);
-      } else datajs.rm.sn(res);
+      } else {
+        await res.resAwait;
+        datajs.rm.sn(res);
+      }
     } else if (req.url.substr(0, 9) == '/a?fstyp=') {
       if (datajs.feat.cons) {
         res.resAwait = new Promise(r => setTimeout(r, 15));

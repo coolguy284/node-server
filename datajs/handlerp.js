@@ -5,7 +5,10 @@ module.exports = {
     res.end();
   },
   '/ng?n=': function (req, res) {
-    if (savedvars.np) savedvars.np.push(decodeURIComponent(req.url.substr(6, Infinity)));
+    if (Object.keys(savedvars.np).length < 1000) {
+      if (savedvars.np) savedvars.np.push(decodeURIComponent(req.url.substr(6, Infinity)));
+      global.savedvarsVers++;
+    }
     res.writeHead(204);
   },
 };

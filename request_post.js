@@ -8,8 +8,10 @@ module.exports = function postf(req, res, rrid, ipaddr, proto, url, cookies, nam
         let buf = Buffer.concat(ar);
         cv = JSON.parse(b64.decode(buf.toString()));
         let prop = nam != null ? nam : 'main';
-        if (/*saveddat[prop].hasOwnProperty(cv[0]) && */sha256.hex(cv[1]) == b64a.server) {
+        let eq1 = Buffer.from(sha256.hex(cv[1]), 'hex'), eq2 = Buffer.from(b64a.server, 'hex');
+        if (/*saveddat[prop].hasOwnProperty(cv[0]) && */eq1.length == eq2.length && crypto.timingSafeEqual(eq1, eq2)) {
           saveddat[prop][cv[0]] = cv[2];
+          global.saveddatVars++;
         }
       });
       datajs.rm.sn(res);

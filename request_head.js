@@ -19,15 +19,15 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
         datajs.rm.reshead(res);
       } else datajs.rm.sn(res);
       break;
-    case '/livechates.dat':
-      if (datajs.feat.es) {
-        res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-        res.end();
-      } else datajs.rm.sn(res);
-      break;
     case '/liverchat.json':
       if (datajs.feat.rchat) {
         datajs.rm.reshead(res);
+      } else datajs.rm.sn(res);
+      break;
+    case '/liverchates.dat':
+      if (datajs.feat.rchat && datajs.feat.es) {
+        res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+        res.end();
       } else datajs.rm.sn(res);
       break;
     case '/liveviews.dat':
@@ -36,11 +36,11 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
       } else datajs.rm.sn(res);
       break;
     case '/liveviewses.dat':
-        if (datajs.feat.es) {
-          res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
-          res.end();
-        } else datajs.rm.sn(res);
-        break;
+      if (datajs.feat.es) {
+        res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+        res.end();
+      } else datajs.rm.sn(res);
+      break;
     case '/comms.json':
       if (datajs.feat.comm) {
         datajs.rm.reshead(res);
@@ -50,12 +50,6 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
       if (datajs.feat.owneyes) {
         res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
         res.end();
-      } else datajs.rm.sn(res);
-      break;
-    case '/colog.dat':
-    case '/cologd.dat':
-      if (datajs.feat.colog) {
-        datajs.rm.reshead(res);
       } else datajs.rm.sn(res);
       break;
     case '/pkey.log':
@@ -73,11 +67,7 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
       break;
   }
   if (mode == 1) {
-    if (req.url.substr(0, 18) == '/livechatd.dat?ts=') {
-      if (datajs.feat.chat) {
-        datajs.rm.reshead(res);
-      } else datajs.rm.sn(res);
-    } else if (req.url.substr(0, 5) == '/r?u=' ||
+    if (req.url.substr(0, 5) == '/r?u=' ||
       req.url.substr(0, 5) == '/r?e=') {
       res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
       res.end();
@@ -87,13 +77,29 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
     } else if (req.url.substr(0, 6) == '/r?eh=') {
       res.writeHead(303, {'Location': b64.decode(req.url.substr(6, 2048))});
       res.end();
+    } else if (req.url.substr(0, 18) == '/livechatd.dat?ts=') {
+      if (datajs.feat.chat) {
+        datajs.rm.reshead(res);
+      } else datajs.rm.sn(res);
+    } else if (req.url.substr(0, 15) == '/livechates.dat') {
+      if (datajs.feat.chat) {
+        let nam = b64.decode(req.url.substr(20));
+        if (datajs.feat.es && nam) {
+          res.writeHead(200, {'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'Cache-Control': 'no-cache', 'Transfer-Encoding': 'chunked'});
+          res.end();
+        } else datajs.rm.sn(res);
+      } else datajs.rm.sn(res);
     } else if (req.url.substr(0, 7) == '/s?tex=' ||
         req.url.substr(0, 7) == '/s?her=' ||
         req.url.substr(0, 7) == '/s?typ=' ||
+        req.url.substr(0, 10) == '/s?typnew=' ||
         req.url.substr(0, 7) == '/s?kic=' ||
+        req.url.substr(0, 7) == '/s?joi=' ||
+        req.url.substr(0, 7) == '/s?lef=' ||
         req.url.substr(0, 7) == '/r?tex=' ||
         req.url.substr(0, 7) == '/m?ccl=' ||
         req.url.substr(0, 7) == '/m?cnl=' ||
+        req.url.substr(0, 10) == '/m?cnlnew=' ||
         req.url.substr(0, 7) == '/m?tex=' ||
         req.url.substr(0, 6) == '/r?co=') {
       datajs.rm.sn(res);
@@ -101,8 +107,8 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
       datajs.rm.reshead(res);
     } else if (req.url.substr(0, 7) == '/oi?vr=' ||
         req.url.substr(0, 7) == '/a?ccp=' ||
-        req.url.substr(0, 6) == '/a?cc=' ||
         req.url.substr(0, 6) == '/a?rc=' ||
+        req.url.substr(0, 9) == '/a?rcnew=' ||
         req.url.substr(0, 6) == '/a?sc=' ||
         req.url.substr(0, 6) == '/a?ng=' ||
         req.url.substr(0, 9) == '/a?fstyp=' ||

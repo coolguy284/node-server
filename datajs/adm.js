@@ -7,6 +7,7 @@ module.exports = exports = {
     let ci = chat[ind];
     ci[0] = ts; ci[1] = nam; ci[2] = tex;
     chates.emit('refresh');
+    global.chatVers++;
   },
   addchat: function addchat(ts, nam, tex, doneByUser) {
     if (ts == null) ts = new Date().toISOString();
@@ -14,6 +15,7 @@ module.exports = exports = {
     else if (typeof ts != 'string') ts = ts.toString();
     chat.push(['[' + ts + ']', nam, tex]);
     chates.emit('message', '[' + ts + ']', nam, tex);
+    global.chatVers++;
     if (chat.length > datajs.feat.lim.chat)
       adm.splb(chat.length - datajs.feat.lim.chat);
     //if (doneByUser)
@@ -25,14 +27,17 @@ module.exports = exports = {
   spls: function spls(ind) {
     chat.splice(ind, 1);
     chates.emit('splicei', ind);
+    global.chatVers++;
   },
   splb: function splb(amt) {
     chat.splice(0, amt);
     chates.emit('spliceb', amt);
+    global.chatVers++;
   },
   clearchat: function clearchat() {
     chat.splice(0, Infinity);
     chates.emit('clear');
+    global.chatVers++;
   },
   chathereadd: function chathereadd(nam) {
     if (!datajs.feat.chathere) return;
@@ -71,24 +76,29 @@ module.exports = exports = {
   rsetchat: function rsetchat(ind, v) {
     rchat[ind] = v;
     rchates.emit('refresh');
+    global.rchatVers++;
   },
   raddchat: function raddchat(v) {
     rchat.push(v);
     rchates.emit('message', v);
+    global.rchatVers++;
     if (rchat.length > datajs.feat.lim.rchat)
       adm.rsplb(rchat.length - datajs.feat.lim.rchat);
   },
   rspls: function rspls(ind) {
     rchat.splice(ind, 1);
     rchates.emit('splicei', ind);
+    global.rchatVers++;
   },
   rsplb: function rsplb(amt) {
     rchat.splice(0, amt);
     rchates.emit('spliceb', amt);
+    global.rchatVers++;
   },
   rclearchat: function rclearchat() {
     rchat.splice(0, Infinity);
     rchates.emit('clear');
+    global.rchatVers++;
   },
   mcreatechat: function mcreatechat(nam, hash) {
     if (!mchat[nam]) {
@@ -102,6 +112,7 @@ module.exports = exports = {
         writable: true,
         value: new EventEmitter(),
       });
+      global.mchatVers++;
     }
   },
   maddchat: function maddchat(nam, ts, j) {
@@ -112,6 +123,7 @@ module.exports = exports = {
       let mchatObj = mchat[nam];
       mchatObj.chat.push(['[' + ts + ']', j]);
       mchatObj.es.emit('message', '[' + ts + ']', j);
+      global.mchatVers++;
       if (mchatObj.chat.length > datajs.feat.lim.mchat)
         adm.msplb(nam, mchatObj.chat.length - datajs.feat.lim.mchat);
     }
@@ -121,6 +133,7 @@ module.exports = exports = {
       let mchatObj = mchat[nam];
       mchatObj.chat.splice(ind, 1);
       mchatObj.es.emit('splicei', ind);
+      global.mchatVers++;
     }
   },
   msplb: function msplb(nam, amt) {
@@ -128,6 +141,7 @@ module.exports = exports = {
       let mchatObj = mchat[nam];
       mchatObj.chat.splice(0, amt);
       mchatObj.es.emit('spliceb', amt);
+      global.mchatVers++;
     }
   },
   mclearchat: function mclearchat(nam) {
@@ -135,6 +149,7 @@ module.exports = exports = {
       let mchatObj = mchat[nam];
       mchatObj.chat.splice(0, Infinity);
       mchatObj.es.emit('clear');
+      global.mchatVers++;
     }
   },
   ban: function ban(ip) {
@@ -182,18 +197,22 @@ module.exports = exports = {
     if (amt == null) amt = 1;
     viewshist[rp][url] = viewshist[rp][url] != null ? viewshist[rp][url] + amt : amt;
     if (datajs.feat.es) viewshistes.emit('update', rp, url, viewshist[rp][url]);
+    global.viewshistVers++;
   },
   vhset: function vhset(rp, url, amt) {
     if (amt == null) amt = 0;
     viewshist[rp][url] = amt;
     if (datajs.feat.es) viewshistes.emit('update', rp, url, amt);
+    global.viewshistVers++;
   },
   vhdel: function vhdel(rp, urls) {
     for (var url of urls) delete viewshist[rp][url];
     if (datajs.feat.es) viewshistes.emit('delete', rp, urls);
+    global.viewshistVers++;
   },
   vhrefresh: function vhrefresh(rp, url) {
     if (datajs.feat.es) viewshistes.emit('refresh');
+    global.viewshistVers++;
   },
   cadd: function cadd(key, code) {
     codel.push(b64d.encode(key, 'o' + code));

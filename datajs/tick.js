@@ -1,10 +1,11 @@
 // jshint -W041
-module.exports = {
+module.exports = exports = {
   func: function () {
     savedvars.timeout += 1;
     savedvars.maxtimeout = Math.max(savedvars.timeout, savedvars.maxtimeout);
     savedvars.uptime = (new Date().getTime()) - sstdate.getTime();
     savedvars.maxuptime = Math.max(savedvars.uptime, savedvars.maxuptime);
+    global.savedvarsVers++;
     let remt = new Date().getTime();
     if (!datajs.feat.es) {
       global.chatherelist = chatherelist.filter(val => val[0] > remt - 60000);
@@ -30,35 +31,51 @@ module.exports = {
   off: function () {
     clearInterval(datajs.tick.int);
   },
-  savev: async function () {
-    await fs.promises.writeFile(datajs.feat.datadir + '/chat.json', JSON.stringify(chat));
-    await fs.promises.writeFile(datajs.feat.datadir + '/rchat.json', JSON.stringify(rchat));
-    await fs.promises.writeFile(datajs.feat.datadir + '/mchat.json', JSON.stringify(mchat));
-    await fs.promises.writeFile(datajs.feat.datadir + '/views.json', JSON.stringify(viewshist));
-    if (datajs.feat.enc == 'b64') {
-      await fs.promises.writeFile(datajs.feat.datadir + '/colog.dat', b64a.encode(JSON.stringify(colog)));
-      await fs.promises.writeFile(datajs.feat.datadir + '/cologd.dat', b64a.encode(JSON.stringify(cologd)));
-    } else if (datajs.feat.enc == 'aes') {
-      await fs.promises.writeFile(datajs.feat.datadir + '/colog.dat', CryptoJS.AES.encrypt(JSON.stringify(colog), b64a.server).toString());
-      await fs.promises.writeFile(datajs.feat.datadir + '/cologd.dat', CryptoJS.AES.encrypt(JSON.stringify(cologd), b64a.server).toString());
+  saveSingle: async function (varName, fileName, saveFunc, force) {
+    if (force || global[varName + 'Vers'] > global[varName + 'VersSaved']) {
+      let stringify = JSON.stringify(global[varName]);
+      if (saveFunc) stringify = saveFunc(stringify);
+      await fs.promises.writeFile(datajs.feat.datadir + '/' + fileName, stringify);
+      global[varName + 'VersSaved'] = global[varName + 'Vers'];
     }
-    await fs.promises.writeFile(datajs.feat.datadir + '/savedvars.json', JSON.stringify(savedvars));
-    await fs.promises.writeFile(datajs.feat.datadir + '/saveddat.json', JSON.stringify(saveddat));
   },
-  savevSync: async function () {
-    fs.writeFileSync(datajs.feat.datadir + '/chat.json', JSON.stringify(chat));
-    fs.writeFileSync(datajs.feat.datadir + '/rchat.json', JSON.stringify(rchat));
-    fs.writeFileSync(datajs.feat.datadir + '/mchat.json', JSON.stringify(mchat));
-    fs.writeFileSync(datajs.feat.datadir + '/views.json', JSON.stringify(viewshist));
-    if (datajs.feat.enc == 'b64') {
-      fs.writeFileSync(datajs.feat.datadir + '/colog.dat', b64a.encode(JSON.stringify(colog)));
-      fs.writeFileSync(datajs.feat.datadir + '/cologd.dat', b64a.encode(JSON.stringify(cologd)));
-    } else if (datajs.feat.enc == 'aes') {
-      fs.writeFileSync(datajs.feat.datadir + '/colog.dat', CryptoJS.AES.encrypt(JSON.stringify(colog), b64a.server).toString());
-      fs.writeFileSync(datajs.feat.datadir + '/cologd.dat', CryptoJS.AES.encrypt(JSON.stringify(cologd), b64a.server).toString());
+  saveSingleSync: function (varName, fileName, saveFunc, force) {
+    if (force || global[varName + 'Vers'] > global[varName + 'VersSaved']) {
+      let stringify = JSON.stringify(global[varName]);
+      if (saveFunc) stringify = saveFunc(stringify);
+      fs.writeFileSync(datajs.feat.datadir + '/' + fileName, stringify);
+      global[varName + 'VersSaved'] = global[varName + 'Vers'];
     }
-    fs.writeFileSync(datajs.feat.datadir + '/savedvars.json', JSON.stringify(savedvars));
-    fs.writeFileSync(datajs.feat.datadir + '/saveddat.json', JSON.stringify(saveddat));
+  },
+  savev: async function (force) {
+    await exports.saveSingle('chat', 'chat.json', null, force);
+    await exports.saveSingle('rchat', 'rchat.json', null, force);
+    await exports.saveSingle('mchat', 'mchat.json', null, force);
+    await exports.saveSingle('viewshist', 'views.json', null, force);
+    if (datajs.feat.enc == 'b64') {
+      await exports.saveSingle('colog', 'colog.dat', b64a.encode, force);
+      await exports.saveSingle('cologd', 'cologd.dat', b64a.encode, force);
+    } else if (datajs.feat.enc == 'aes') {
+      await exports.saveSingle('colog', 'colog.dat', x => CryptoJS.AES.encrypt(x, b64a.server).toString(), force);
+      await exports.saveSingle('cologd', 'cologd.dat', x => CryptoJS.AES.encrypt(x, b64a.server).toString(), force);
+    }
+    await exports.saveSingle('savedvars', 'savedvars.json', null, force);
+    await exports.saveSingle('saveddat', 'saveddat.json', null, force);
+  },
+  savevSync: async function (force) {
+    exports.saveSingleSync('chat', 'chat.json', null, force);
+    exports.saveSingleSync('rchat', 'rchat.json', null, force);
+    exports.saveSingleSync('mchat', 'mchat.json', null, force);
+    exports.saveSingleSync('viewshist', 'views.json', null, force);
+    if (datajs.feat.enc == 'b64') {
+      exports.saveSingleSync('colog', 'colog.dat', b64a.encode, force);
+      exports.saveSingleSync('cologd', 'cologd.dat', b64a.encode, force);
+    } else if (datajs.feat.enc == 'aes') {
+      exports.saveSingleSync('colog', 'colog.dat', x => CryptoJS.AES.encrypt(x, b64a.server).toString(), force);
+      exports.saveSingleSync('cologd', 'cologd.dat', x => CryptoJS.AES.encrypt(x, b64a.server).toString(), force);
+    }
+    exports.saveSingleSync('savedvars', 'savedvars.json', null, force);
+    exports.saveSingleSync('saveddat', 'saveddat.json', null, force);
   },
   funcl: [],
 };

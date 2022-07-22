@@ -16,6 +16,7 @@ global.cologadd = function cologadd(value, temp, colog) {
   if (!colog) colog = global.colog;
   let consoleEntry = [value, temp || '{}'];
   colog.push(consoleEntry);
+  if (colog == global.colog) global.cologVers++;
   let esObj = colog.es ?? consoles.colog?.es;
   if (esObj) esObj.emit('message', consoleEntry);
   if (colog.length > datajs.feat.lim.colog) {
@@ -29,6 +30,7 @@ global.cologadd = function cologadd(value, temp, colog) {
 global.cologdadd = function cologdadd(value, temp) {
   let consoleEntry = [value, temp || '{}'];
   cologd.push(consoleEntry);
+  global.cologdVers++;
   if (consoles.cologd) consoles.cologd.es.emit('message', consoleEntry);
   if (cologd.length > datajs.feat.lim.cologd) {
     let removeAmt = cologd.length - datajs.feat.lim.cologd;
@@ -73,6 +75,8 @@ global.consoleCall = function consoleCall(cn, value) {
     colog.splice(0, Infinity);
     for (let i = 0; i < datajs.feat.lim.cologmin; i++) {colog.push(['', '{}'])}
     oclear(value);
+    global.cologVers++;
+    if (consoles.colog) consoles.colog.es.emit('refresh');
   }
 };
 console.log = consoleCall.bind(global, 'log');
@@ -135,6 +139,12 @@ try {
     console.error(e);
   }
 }
+global.cologVers = 0;
+global.cologVersSaved = 0;
+global.cologdVers = 0;
+global.cologdVersSaved = 0;
+if (colog.length < datajs.feat.lim.cologmin) global.cologVers++;
+if (cologd.length < datajs.feat.lim.cologdmin) global.cologdVers++;
 while (colog.length < datajs.feat.lim.cologmin) colog.unshift(['', '{}']);
 while (cologd.length < datajs.feat.lim.cologdmin) cologd.unshift(['', '{}']);
 process.on('uncaughtException', function (err) {
@@ -284,6 +294,18 @@ if (datajs.feat.logdir != '') {
     debreq: new datajs.s.LogFileStream(`${logfilename} -- debreq.log`),
   };
 }
+global.chatVers = 0;
+global.chatVersSaved = 0;
+global.rchatVers = 0;
+global.rchatVersSaved = 0;
+global.mchatVers = 0;
+global.mchatVersSaved = 0;
+global.viewshistVers = 0;
+global.viewshistVersSaved = 0;
+global.savedvarsVers = 0;
+global.savedvarsVersSaved = 0;
+global.saveddatVers = 0;
+global.saveddatVersSaved = 0;
 global.chates = new EventEmitter();
 global.rchates = new EventEmitter();
 global.viewshistes = new EventEmitter();
@@ -337,6 +359,7 @@ global.serverf = async function serverf(req, resa, nolog) {
   let res, rrid = rid++, ipaddr, proto, url, cookies, nam = null, sn = false;
   try {
   savedvars.timeout = 0;
+  global.savedvarsVers++;
   if (datajs.feat.bwlimits.main == Infinity) {
     res = resa;
   } else {
@@ -516,12 +539,7 @@ global.serverf = async function serverf(req, resa, nolog) {
             if (datajs.feat.el.ajaxl.indexOf(req.url) < 0) rp = 'reg';
             else rp = 'ajax';
           }
-          if (viewshist[rp][req.url] === undefined) {
-            viewshist[rp][req.url] = 1;
-          } else {
-            viewshist[rp][req.url]++;
-          }
-          if (datajs.feat.es) viewshistes.emit('update', rp, req.url, viewshist[rp][req.url]);
+          adm.vhadd(rp, req.url);
         }
       }
     } else if (req.method == 'HEAD') {
@@ -583,7 +601,7 @@ global.exitHandler = function (dontExit) {
   if (global.exitHandlerCalled) return;
   global.exitHandlerCalled = true;
   console.tslog('Server Closing');
-  datajs.tick.savevSync();
+  datajs.tick.savevSync(true);
   console.tslog('Data Files Saved');
   if (!dontExit) process.exit();
 };
