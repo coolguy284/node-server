@@ -37,7 +37,7 @@ module.exports = {
       jsstr = jsstr.replace('{closesrc}', '\'' + closstr + '\'');
       cssstr = cssstr.replace(/\n/g, '\n      ');
       str = str.replace(/<link rel = 'stylesheet' href = 'index.css'>/g, '<style>\n' + cssstr + '\n    </style>');
-      str = str.replace(/<script[^]*\/script>/g, '<script>\n' + jsstr + '\n    </script>\n    <script src = \'../js/math-5.10.3.min.js\'></script>');
+      str = str.replace(/<script[^]*\/script>/g, '<script>\n' + jsstr + '\n    </script>\n    <!-- original source of next script: https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.10.3/math.min.js -->\n    <script src = \'../js/math-5.10.3.min.js\'></script>');
       res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
       res.write(str);
       res.end();
@@ -70,6 +70,7 @@ module.exports = {
         fs.readFileSync('websites/tools/calculator/stmtconvert.js') + '\n' +
         fs.readFileSync('websites/tools/calculator/stmtparser.js') + '\n' +
         fs.readFileSync('websites/tools/calculator/index.js') + '\n' +
+        '// original source of next script: https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.10.3/math.min.js' +
         fs.readFileSync('websites/js/math-5.10.3.min.js'),
         cssstr = '      ' +
         fs.readFileSync('websites/tools/calculator/index.css'),
