@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Calculator</title>
+    <title>coolguy284.com: Calculator</title>
     <style>
       body {
         width: calc(100% - 10px);
@@ -479,7 +479,7 @@
             }
           }
         };
-        inspect.custom = Symbol('util.inspect.custom');
+        inspect.custom = Symbol.for('nodejs.util.inspect.custom');
         return { defaultOptions, typedArrays, boxedPrimitives, className, objectToString, stringProp, inspect, formatObject, formatArray, formatMap, formatSet, formatPropDes, formatValue };
       })();
       Object.assign(util, utila);
