@@ -233,7 +233,7 @@ utila = (function () {
       }
     }
   };
-  inspect.custom = Symbol('util.inspect.custom');
+  inspect.custom = Symbol.for('nodejs.util.inspect.custom');
   return { defaultOptions, typedArrays, boxedPrimitives, className, objectToString, stringProp, inspect, formatObject, formatArray, formatMap, formatSet, formatPropDes, formatValue };
 })();
 Object.assign(util, utila);

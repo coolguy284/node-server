@@ -96,7 +96,7 @@ function varexpf(e) {
 onload = function() {
   setTimeout(basicfunc, 0);
   setTimeout(battfunc, 0);
-  setInterval(battfunc, 1000);
+  bfint = setInterval(battfunc, 1000);
   window.addEventListener('devicelight', function(e) {
     illlux.innerHTML = e.value;
   });
