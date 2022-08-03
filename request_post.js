@@ -1,7 +1,7 @@
 module.exports = function postf(req, res, rrid, ipaddr, proto, url, cookies, nam) {
   let cv, runelse = false;
-  switch (true) {
-    case req.url == '/a?ns':
+  switch (req.url) {
+    case '/a?ns':
       let ar = [];
       req.on('data', (c) => ar.push(c));
       req.on('end', () => {
@@ -16,7 +16,7 @@ module.exports = function postf(req, res, rrid, ipaddr, proto, url, cookies, nam
       });
       datajs.rm.sn(res);
       break;
-    /*case req.url == '/uploader.html':
+    /*case '/uploader.html':
       let ws = fs.createWriteStream(`saves/${Date.now()}.txt`);
       req.on('data', c => ws.write(c));
       req.on('end', () => {
@@ -24,9 +24,11 @@ module.exports = function postf(req, res, rrid, ipaddr, proto, url, cookies, nam
         res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
         res.write('its good close tab now.');
         res.end();
-      });*/
+      });
+      break;*/
     default:
       runelse = true;
+      break;
   }
   if (runelse) {
     let hanp = '';
