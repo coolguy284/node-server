@@ -105,6 +105,15 @@ module.exports = {
       }
     }
   },
+  randomStream: function (bytes) {
+    let seedfunc = datajs.prng.xmur3(new Date().toISOString());
+    let stream = new datajs.s.RandomStream(
+      bytes ?? 2 ** 30, 
+      {randbytesfunc: datajs.prng.sfc32_multifunc(
+        seedfunc(), seedfunc(), seedfunc(), seedfunc()
+      ).randomBytes}
+    );
+  },
   JSONRandStream: class JSONRandStream extends stream.Readable {
     constructor(items, bytes, options) {
       super(options);
@@ -112,25 +121,33 @@ module.exports = {
       this.bytes = bytes == null ? 2 ** 20 : bytes;
       this.seedpart = options.seedpart == null ? new Date().toISOString() : options.seedpart;
       this.stage = 0;
+      this.seedfunc = datajs.prng.xmur3(this.seedpart);
+      this.randbytesfunc = datajs.prng.sfc32_multifunc(
+        this.seedfunc(), this.seedfunc(), this.seedfunc(), this.seedfunc()
+      ).randomBytes;
     }
     _read(size) {
       let rv = true;
       while (rv) {
-        if (this.stage == this.items + 2) {
+        if (this.stage > this.items + 1) {
           this.push(null);
           return;
         }
         if (this.stage == 0) {
           rv = this.push('[');
         } else if (this.stage <= this.items) {
-          rv = this.push(JSON.stringify(datajs.prng.randomBytes(2 ** 14, this.seedpart + '+' + ('' + this.stage).padStart(9, '0')).toString()));
-        } else if (this.stage == this.items + 1) {
+          rv = this.push(JSON.stringify(this.randbytesfunc(2 ** 14).toString()));
+        } else {
           this.push(']');
           rv = this.push(null);
         }
         this.stage++;
       }
     }
+  },
+  defaultJSONRandStream: function () {
+    let seedpart = new Date().toISOString();
+    return new datajs.s.JSONRandStream(32768, 2 ** 14, { seedpart });
   },
   BufReadStream: class BufReadStream extends stream.Readable {
     constructor(ibuf, options) {
@@ -209,7 +226,7 @@ module.exports = {
       cb();
     }
   },
-  SimCompDecode: class SimpCompEncode extends stream.Transform {
+  SimCompDecode: class SimCompDecode extends stream.Transform {
     constructor(options) {
       super(options);
       this.mode = 0;

@@ -117,6 +117,6 @@ module.exports = {
       for (; i < bytes; i++, val <<= 8) res[i] = val >> 24;
     }
     return res;
-  }
+  },
 };
 exports = module.exports;

@@ -21,13 +21,7 @@ module.exports = function trollsf(req, res, rrid, ipaddr, proto, url, cookies, n
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.write(content);
     // then bomdard with 1GiB random data
-    let seedfunc = datajs.prng.xmur3(new Date().toISOString());
-    res.stream_rand = new datajs.s.RandomStream(
-      2 ** 30, 
-      {randbytesfunc: datajs.prng.sfc32_multifunc(
-        seedfunc(), seedfunc(), seedfunc(), seedfunc()
-      ).randomBytes}
-    );
+    res.stream_rand = datajs.s.randomStream();
     res.stream_rand.pipe(res.stream_throttle = new datajs.Throttle({bps: 2 ** 20}));
     res.stream_throttle.pipe(res);
     res.stream_rand.on('end', () => console.log('finished with php content return'));
@@ -46,13 +40,7 @@ module.exports = function trollsf(req, res, rrid, ipaddr, proto, url, cookies, n
       console.log(util.inspect(data.toString()));
       // bomdard with 1GiB random data
       res.writeHead(200, {'Content-Type': 'text/plain'});
-      let seedfunc = datajs.prng.xmur3(new Date().toISOString());
-      res.stream_rand = new datajs.s.RandomStream(
-        2 ** 30, 
-        {randbytesfunc: datajs.prng.sfc32_multifunc(
-          seedfunc(), seedfunc(), seedfunc(), seedfunc()
-        ).randomBytes}
-      );
+      res.stream_rand = datajs.s.randomStream();
       res.stream_rand.pipe(res.stream_throttle = new datajs.Throttle({bps: 2 ** 20}));
       res.stream_throttle.pipe(res);
       res.stream_rand.on('end', () => console.log('finished with phpstorm'));
@@ -70,9 +58,8 @@ module.exports = function trollsf(req, res, rrid, ipaddr, proto, url, cookies, n
       console.log('Getting JSON data 😜 (jsonws invoke)');
       console.log(util.inspect(data));
       // gives client 512MiB+ garbage data
-      let seedpart = new Date().toISOString();
       res.writeHead(200, {'Content-Type': 'application/json'});
-      res.stream_jsonrand = new datajs.s.JSONRandStream(32768, 2 ** 14, { seedpart: seedpart });
+      res.stream_jsonrand = datajs.s.defaultJSONRandStream();
       res.stream_jsonrand.pipe(res.stream_throttle = new datajs.Throttle({bps: 2 ** 20}));
       res.stream_throttle.pipe(res);
       res.stream_jsonrand.on('end', () => console.log('wrote json data'));
@@ -90,9 +77,8 @@ module.exports = function trollsf(req, res, rrid, ipaddr, proto, url, cookies, n
       console.log('Getting admin JSON data 😜 (solr admin info)');
       console.log(util.inspect(data));
       // gives client 512MiB+ garbage data
-      let seedpart = new Date().toISOString();
       res.writeHead(200, {'Content-Type': 'application/json'});
-      res.stream_jsonrand = new datajs.s.JSONRandStream(32768, 2 ** 14, { seedpart: seedpart });
+      res.stream_jsonrand = datajs.s.defaultJSONRandStream();
       res.stream_jsonrand.pipe(res.stream_throttle = new datajs.Throttle({bps: 2 ** 20}));
       res.stream_throttle.pipe(res);
       res.stream_jsonrand.on('end', () => console.log('wrote admin json data'));
@@ -112,13 +98,7 @@ module.exports = function trollsf(req, res, rrid, ipaddr, proto, url, cookies, n
       console.log(util.inspect(data.toString()));
       // bomdard with 1GiB random data
       res.writeHead(200, {'Content-Type': 'text/plain'});
-      let seedfunc = datajs.prng.xmur3(new Date().toISOString());
-      res.stream_rand = new datajs.s.RandomStream(
-        2 ** 30, 
-        {randbytesfunc: datajs.prng.sfc32_multifunc(
-          seedfunc(), seedfunc(), seedfunc(), seedfunc()
-        ).randomBytes}
-      );
+      res.stream_rand = datajs.s.randomStream();
       res.stream_rand.pipe(res.stream_throttle = new datajs.Throttle({bps: 2 ** 20}));
       res.stream_throttle.pipe(res);
       res.stream_rand.on('end', () => console.log('finished with eval return'));
@@ -138,13 +118,7 @@ module.exports = function trollsf(req, res, rrid, ipaddr, proto, url, cookies, n
       console.log(util.inspect(data.toString()));
       // bomdard with 1GiB random data
       res.writeHead(200, {'Content-Type': 'text/plain'});
-      let seedfunc = datajs.prng.xmur3(new Date().toISOString());
-      res.stream_rand = new datajs.s.RandomStream(
-        2 ** 30, 
-        {randbytesfunc: datajs.prng.sfc32_multifunc(
-          seedfunc(), seedfunc(), seedfunc(), seedfunc()
-        ).randomBytes}
-      );
+      res.stream_rand = datajs.s.randomStream();
       res.stream_rand.pipe(res.stream_throttle = new datajs.Throttle({bps: 2 ** 20}));
       res.stream_throttle.pipe(res);
       res.stream_rand.on('end', () => console.log('finished with w00tw00t'));
@@ -163,13 +137,7 @@ module.exports = function trollsf(req, res, rrid, ipaddr, proto, url, cookies, n
       console.log(util.inspect(data.toString()));
       // bomdard with 1GiB random data
       res.writeHead(200, {'Content-Type': 'text/plain'});
-      let seedfunc = datajs.prng.xmur3(new Date().toISOString());
-      res.stream_rand = new datajs.s.RandomStream(
-        2 ** 32, 
-        {randbytesfunc: datajs.prng.sfc32_multifunc(
-          seedfunc(), seedfunc(), seedfunc(), seedfunc()
-        ).randomBytes}
-      );
+      res.stream_rand = datajs.s.randomStream();
       res.stream_rand.pipe(res.stream_throttle = new datajs.Throttle({bps: 2 ** 20}));
       res.stream_throttle.pipe(res);
       res.stream_rand.on('end', () => console.log('finished with kerbynet'));
