@@ -17,6 +17,7 @@ module.exports = {
   debreqamt: 0,
   gzipfiles: true, // searches for file.gz and decompresses if file doesnt exist
   trolls: false,
+  notify: false,
   colog: true,
   cons: true,
   stdincons: process.env.IS_HEROKU == '1' ? false : true, // whether stdin can execute code

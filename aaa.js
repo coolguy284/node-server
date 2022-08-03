@@ -169,6 +169,15 @@ try {
   console.warn('mime import failed');
   global.mime = {getType: function () {return null;}};
 }
+if (datajs.feat.notify) {
+  // must add "node-notifier": "^7.0.1" to package.json
+  try {
+    global.notifier = require('node-notifier');
+  } catch (e) {
+    //console.warn('node-notifier import failed');
+    global.notifier = { notify: function () {} };
+  }
+}
 global.savedvars = {timeout:0,maxtimeout:0,uptime:0,maxuptime:0,np:[]};
 global.debreq = [];
 global.consoles = {};

