@@ -195,6 +195,7 @@ global.pcpuUsage = global.cpuUsage;
 global.dcpuUsage = { user: 0, system: 0 };
 global.memUsage = process.memoryUsage();
 global.port = process.env.PORT || 8080;
+global.portssl = process.env.PORTSSL || 8443;
 global.activeconn = [];
 if (datajs.feat.datadir != '') {
   try {
@@ -588,14 +589,28 @@ global.serverf = async function serverf(req, resa, nolog) {
     console.log('Request Time: ' + (((rlt[0] + rlt[1] / 1e9) - (rst[0] + rst[1] / 1e9)) * 1000).toFixed(3) + 'ms');
   }
 };
-global.serv = http.createServer(serverf).listen(port, undefined, function (err) {
-  global.slt = process.hrtime();
-  if (err) {
-    console.tslog('Error: ' + err);
-  } else {
-    console.tslog('Server Listening on Port ' + port + ' (starting time: ' + (((slt[0] + slt[1] / 1e9) - (sst[0] + sst[1] / 1e9)) * 1000).toFixed(3) + 'ms)');
-  }
-});
+if (datajs.feat.dohttp)
+  global.serv = http.createServer(serverf).listen(port, undefined, function (err) {
+    global.slt = process.hrtime();
+    if (err) {
+      console.tslog('Error: ' + err);
+    } else {
+      console.tslog('HTTP Server Listening on Port ' + port + ' (starting time: ' + (((slt[0] + slt[1] / 1e9) - (sst[0] + sst[1] / 1e9)) * 1000).toFixed(3) + 'ms)');
+    }
+  });
+if (datajs.feat.dohttps)
+  global.servtls = https.createServer({
+    secureOptions: crypto.constants.SSL_OP_NO_TLSv1 | crypto.constants.SSL_OP_NO_TLSv1_1,// | crypto.constants.SSL_OP_NO_TLSv1_2,
+    key: fs.readFileSync(datajs.feat.certpath + 'key.pem'),
+    cert: fs.readFileSync(datajs.feat.certpath + 'chain.pem'),
+  }, serverf).listen(portssl, undefined, function (err) {
+    global.slt2 = process.hrtime();
+    if (err) {
+      console.tslog('Error: ' + err);
+    } else {
+      console.tslog('HTTPS Server Listening on Port ' + portssl + ' (starting time: ' + (((slt2[0] + slt2[1] / 1e9) - (sst[0] + sst[1] / 1e9)) * 1000).toFixed(3) + 'ms)');
+    }
+  });
 global.exitHandlerCalled = false;
 global.exitHandler = function (dontExit) {
   if (global.exitHandlerCalled) return;

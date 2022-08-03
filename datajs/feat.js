@@ -23,9 +23,12 @@ module.exports = {
   reqtimelog: false, // log time to complete request
   errmsg: false, // show message with server error
   activeconn: 1, // maintain array of active connections [0 = dont, 1 = delete when not active, 2 = keep in array permanently]
+  dohttp: true,
+  dohttps: true,
   enc: 'aes',
   pkeysize: 1024,
   datadir: 'data', // directory to save server state, '' for no state saving
+  certpath: '', // path of server certs, used for https
   logdir: '',
   // filelog & 1 - log colog
   // filelog & 2 - log cologd
