@@ -98,7 +98,7 @@ module.exports = {
     // locked server allowable urls
     lockl: ['/admin.html', '/colog.dat', '/cologd.dat'],
     // urls that dont show up in viewshist
-    vh: ['/ftx.txt', '/chathid.html', '/chatprivate.html', '/mchat.html', '/lat.log'],
+    vh: ['/ftx.txt', '/chathid.html', '/chatprivate.html', '/mchat.html', '/lat.log', '/debug/sdstor.html'],
     // url startswiths that dont show up in viewshist
     vhv: ['/livechates.dat', '/s?', '/r?', '/m?', '/a?', '/pagg?=', '/oi?vr=', '/livechatd.log?id=', '/user', '/login?v=', '/logout?v='],
     // ajax urls

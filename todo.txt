@@ -6,3 +6,4 @@ make viewshist ignore into viewshist replace with startswith
 make chat and viewshist hold pending changes while text is selected
 mchat client request time and include time in enc m?tex=
 make datajs console used for regular console commands too
+make feat.cons only used for cons writing, and feat.colog for reading, add feat.fsread for adm fs
