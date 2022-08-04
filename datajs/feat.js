@@ -25,7 +25,7 @@ module.exports = {
   errmsg: false, // show message with server error
   activeconn: 1, // maintain array of active connections [0 = dont, 1 = delete when not active, 2 = keep in array permanently]
   dohttp: true,
-  dohttps: true,
+  dohttps: false,
   enc: 'aes',
   pkeysize: 1024,
   datadir: 'data', // directory to save server state, '' for no state saving
