@@ -1,16 +1,11 @@
 // jshint maxerr:1000 -W041 -W061
 module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies, nam) {
-  let mode = 0;
+  let mode = 0, runelse = false;
   switch (req.url) {
     case '/':
       let rs = fs.createReadStream('websites/indexredirect.html');
       res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
       rs.pipe(res);
-      break;
-    case '/admin.html':
-      let ras = fs.createReadStream('websites/admin.html');
-      res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-      ras.pipe(res);
       break;
     case '/delay.log':
       let dfunc = function (val) {res.write(val + '\n');};
@@ -148,6 +143,10 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
     case '/errtest.log':
       if (datajs.feat.debug.testerr) throw new Error('test error');
       else datajs.rm.sn(res);
+      break;
+    case '/index-notprod.html':
+    case '/sitemap-notprod.xml':
+      runelse = true;
       break;
     default:
       mode = 1;
@@ -805,7 +804,8 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
       global.loginid = loginid.filter(function (val) {return val[1] != loid});
       await res.resAwait;
       datajs.rm.sn(res);
-    } else {
+    } else if (req.url[0] != '/') runelse = true;
+    else {
       let v = req.url.split('/');
       if (v[v.length-1] === '' && v[v.length-2].indexOf('.') > -1) {
         fs.readFile('websites/redirecttemplate.html', function (err, data) {
@@ -822,158 +822,171 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
         });
         return -1;
       }
-      let rpath = decodeURI('websites' + req.url), fpath = decodeURI(req.url.substr(1, Infinity)), runelse = false;
-      let rpathgz = rpath + '.gz';
-      if (req.headers.range) {
-        if (/bytes=[0-9]*-[0-9]*/.test(req.headers.range)) {
-          let rse = req.headers.range.substr(6, Infinity).split('-');
-          let rstart = rse[0] == '' ? 0 : parseInt(rse[0]);
-          let rend = rse[1] == '' ? Infinity : parseInt(rse[1]);
-          if ((await fs.promises.exists(rpath)) && datajs.subdir('websites', rpath)) {
-            let size = (await fs.promises.stat(rpath)).size;
-            if (rend == Infinity) rend = size - 1;
-            if (rend >= size) {
-              if (datajs.feat.permissiverange) rend = size - 1;
-              else {
-                res.writeHead(416);
-                res.end();
-                return -1;
-              }
-            }
-            let rs = fs.createReadStream(rpath, {start: rstart, end: rend});
-            res.writeHead(206, {
-              'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-              'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
-              'Content-Length': Math.min(rend - rstart + 1, size),
-              'X-Robots-Tag': 'noindex'
-            }); // why is the end of a range referencing the id of that byte, instead of the next one like in js?
-            rs.pipe(res);
-          } else if (datajs.feat.debug.js && (await fs.promises.exists(fpath))) {
-            let size = (await fs.promises.stat(fpath)).size;
-            if (rend == Infinity) rend = size - 1;
-            if (rend >= size) {
-              if (datajs.feat.permissiverange) rend = size - 1;
-              else {
-                res.writeHead(416);
-                res.end();
-                return -1;
-              }
-            }
-            let rs = fs.createReadStream(fpath, {start: rstart, end: rend});
-            res.writeHead(206, {
-              'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-              'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
-              'Content-Length': Math.min(rend - rstart + 1, size),
-              'X-Robots-Tag': 'noindex'
-            });
-            rs.pipe(res);
-          } else if (datajs.feat.tempp.hasOwnProperty(req.url) && Buffer.isBuffer(datajs.feat.tempp[req.url][1])) {
-            let file = datajs.feat.tempp[req.url][1];
-            let size = file.length;
-            if (rend == Infinity) rend = size - 1;
-            if (rend >= size) {
-              if (datajs.feat.permissiverange) rend = size - 1;
-              else {
-                res.writeHead(416);
-                res.end();
-                return -1;
-              }
-            }
-            res.writeHead(206, {
-              ...datajs.feat.tempp[req.url][0],
-              'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
-              'Content-Length': Math.min(rend - rstart + 1, size),
-            });
-            res.write(file.slice(rstart, rend + 1));
-            res.end();
-          } else {
-            let rs = fs.createReadStream('websites/p404.html');
-            res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
-            rs.pipe(res);
-          }
-          return -1;
-        } else {
-          res.writeHead(416);
-          res.end();
-          return -1;
+      let runelse2 = false;
+      if (req.url.startsWith('/important/')) {
+        if (!datajs.feat.notprodm) runelse = true;
+        else runelse2 = true;
+      } else runelse2 = true;
+      if (runelse2) {
+        let fpath = decodeURI(req.url.substr(1, Infinity));
+        if (datajs.feat.notprodm) {
+          if (fpath == 'index.html') fpath = 'index-notprod.html';
+          if (fpath == 'sitemap.xml') fpath = 'sitemap-notprod.xml';
         }
-      }
-      if (datajs.subdir('websites', rpath) && (await fs.promises.exists(rpath))) {
-        if ((await fs.promises.stat(rpath)).isFile()) {
-          let rs = fs.createReadStream(rpath);
+        let fpathslash = '/' + fpath;
+        let rpath = decodeURI('websites' + fpathslash);
+        let rpathgz = rpath + '.gz';
+        if (req.headers.range) {
+          if (/bytes=[0-9]*-[0-9]*/.test(req.headers.range)) {
+            let rse = req.headers.range.substr(6, Infinity).split('-');
+            let rstart = rse[0] == '' ? 0 : parseInt(rse[0]);
+            let rend = rse[1] == '' ? Infinity : parseInt(rse[1]);
+            if ((await fs.promises.exists(rpath)) && datajs.subdir('websites', rpath)) {
+              let size = (await fs.promises.stat(rpath)).size;
+              if (rend == Infinity) rend = size - 1;
+              if (rend >= size) {
+                if (datajs.feat.permissiverange) rend = size - 1;
+                else {
+                  res.writeHead(416);
+                  res.end();
+                  return -1;
+                }
+              }
+              let rs = fs.createReadStream(rpath, {start: rstart, end: rend});
+              res.writeHead(206, {
+                'Content-Type': (datajs.mime.get(rpath) + '; charset=utf-8'),
+                'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+                'Content-Length': Math.min(rend - rstart + 1, size),
+                'X-Robots-Tag': 'noindex'
+              }); // why is the end of a range referencing the id of that byte, instead of the next one like in js?
+              rs.pipe(res);
+            } else if (datajs.feat.debug.js && (await fs.promises.exists(fpath))) {
+              let size = (await fs.promises.stat(fpath)).size;
+              if (rend == Infinity) rend = size - 1;
+              if (rend >= size) {
+                if (datajs.feat.permissiverange) rend = size - 1;
+                else {
+                  res.writeHead(416);
+                  res.end();
+                  return -1;
+                }
+              }
+              let rs = fs.createReadStream(fpath, {start: rstart, end: rend});
+              res.writeHead(206, {
+                'Content-Type': (datajs.mime.get(fpath) + '; charset=utf-8'),
+                'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+                'Content-Length': Math.min(rend - rstart + 1, size),
+                'X-Robots-Tag': 'noindex'
+              });
+              rs.pipe(res);
+            } else if (datajs.feat.tempp.hasOwnProperty(req.url) && Buffer.isBuffer(datajs.feat.tempp[req.url][1])) {
+              let file = datajs.feat.tempp[req.url][1];
+              let size = file.length;
+              if (rend == Infinity) rend = size - 1;
+              if (rend >= size) {
+                if (datajs.feat.permissiverange) rend = size - 1;
+                else {
+                  res.writeHead(416);
+                  res.end();
+                  return -1;
+                }
+              }
+              res.writeHead(206, {
+                ...datajs.feat.tempp[req.url][0],
+                'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+                'Content-Length': Math.min(rend - rstart + 1, size),
+              });
+              res.write(file.slice(rstart, rend + 1));
+              res.end();
+            } else {
+              let rs = fs.createReadStream('websites/p404.html');
+              res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
+              rs.pipe(res);
+            }
+            return -1;
+          } else {
+            res.writeHead(416);
+            res.end();
+            return -1;
+          }
+        }
+        if (datajs.subdir('websites', rpath) && (await fs.promises.exists(rpath))) {
+          if ((await fs.promises.stat(rpath)).isFile()) {
+            let rs = fs.createReadStream(rpath);
+            res.writeHead(200, {
+              'Content-Type': (datajs.mime.get(fpathslash) + '; charset=utf-8'),
+              'Content-Length': (await fs.promises.stat(rpath)).size,
+              'Accept-Ranges': 'bytes',
+              'X-Robots-Tag': 'noindex'
+            });
+            rs.pipe(res);
+          } else runelse = true;
+        } else if (datajs.feat.gzipfiles && datajs.subdir('websites', rpathgz) && (await fs.promises.exists(rpathgz))) {
+          if ((await fs.promises.stat(rpathgz)).isFile()) {
+            let gzsize = (await fs.promises.stat(rpathgz)).size;
+            let gzhandle = await fs.promises.open(rpathgz, 'r');
+            let filsizbuf = Buffer.alloc(4);
+            await gzhandle.read(filsizbuf, 0, 4, gzsize - 4);
+            await gzhandle.close();
+            let rs = fs.createReadStream(rpathgz);
+            res.writeHead(200, {
+              'Content-Type': (datajs.mime.get(fpathslash) + '; charset=utf-8'),
+              'Content-Length': filsizbuf.readUInt32LE(0),
+              'Accept-Ranges': 'none',
+              'X-Robots-Tag': 'noindex'
+            });
+            rs.pipe(zlib.createGunzip()).pipe(res);
+          } else runelse = true;
+        } else if (datajs.feat.debug.js && (await fs.promises.exists(fpath))) {
+          let rs = fs.createReadStream(fpath);
           res.writeHead(200, {
-            'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-            'Content-Length': (await fs.promises.stat(rpath)).size,
+            'Content-Type': (datajs.mime.get(fpathslash) + '; charset=utf-8'),
+            'Content-Length': (await fs.promises.stat(fpath)).size,
             'Accept-Ranges': 'bytes',
             'X-Robots-Tag': 'noindex'
           });
           rs.pipe(res);
-        } else runelse = true;
-      } else if (datajs.feat.gzipfiles && datajs.subdir('websites', rpathgz) && (await fs.promises.exists(rpathgz))) {
-        if ((await fs.promises.stat(rpathgz)).isFile()) {
-          let gzsize = (await fs.promises.stat(rpathgz)).size;
-          let gzhandle = await fs.promises.open(rpathgz, 'r');
-          let filsizbuf = Buffer.alloc(4);
-          await gzhandle.read(filsizbuf, 0, 4, gzsize - 4);
-          await gzhandle.close();
-          let rs = fs.createReadStream(rpathgz);
-          res.writeHead(200, {
-            'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-            'Content-Length': filsizbuf.readUInt32LE(0),
-            'Accept-Ranges': 'none',
-            'X-Robots-Tag': 'noindex'
-          });
-          rs.pipe(zlib.createGunzip()).pipe(res);
-        } else runelse = true;
-      } else if (datajs.feat.debug.js && (await fs.promises.exists(fpath))) {
-        let rs = fs.createReadStream(fpath);
-        res.writeHead(200, {
-          'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-          'Content-Length': (await fs.promises.stat(fpath)).size,
-          'Accept-Ranges': 'bytes',
-          'X-Robots-Tag': 'noindex'
-        });
-        rs.pipe(res);
-      } else {
-        if (req.url.substr(0, 5) == '/user') {
-          let rurl = req.url.substr(5, Infinity);
-          if (nam) {
-            if (await fs.promises.exists('user_websites/' + nam + rurl)) {
-              let rs = fs.createReadStream('user_websites/' + nam + rurl);
-              res.writeHead(200, {
-                'Content-Type': datajs.mime.get(req.url) + '; charset=utf-8',
-                'Content-Length': (await fs.promises.stat('user_websites/' + nam + rurl)).size,
-                'Accept-Ranges': 'bytes',
-              });
-              rs.pipe(res);
-            } else runelse = true;
-          } else {
-            let rs = fs.createReadStream('websites/user/signedout.html');
-            res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
-            rs.pipe(res);
-          }
-        } else runelse = true;
-      }
-      if (runelse) {
-        let hanp = '';
-        Object.keys(datajs.handlerp).forEach(function (val) {if (req.url.startsWith(val) && val.startsWith(hanp)) {hanp = val;}});
-        if (hanp) {
-          return datajs.handlerp[hanp](req, res, rrid, ipaddr, proto, url, cookies, nam);
-        } else if (datajs.handlerf.main.hasOwnProperty(req.url)) {
-          return datajs.handlerf.main[req.url](req, res, rrid, ipaddr, proto, url, cookies, nam);
-        } else if (nam !== null && datajs.handlerf.hasOwnProperty(nam) && datajs.handlerf[nam].hasOwnProperty(req.url)) {
-          return datajs.handlerf[nam][req.url](req, res, rrid, ipaddr, proto, url, cookies, nam);
-        } else if (datajs.feat.tempp.hasOwnProperty(req.url)) {
-          res.writeHead(200, datajs.feat.tempp[req.url][0]);
-          res.write(datajs.feat.tempp[req.url][1]);
-          res.end();
         } else {
-          let rs = fs.createReadStream('websites/p404.html');
-          res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
-          rs.pipe(res);
-          return 'p404';
+          if (fpathslash.substr(0, 5) == '/user') {
+            let rurl = fpathslash.substr(5, Infinity);
+            if (nam) {
+              if (await fs.promises.exists('user_websites/' + nam + rurl)) {
+                let rs = fs.createReadStream('user_websites/' + nam + rurl);
+                res.writeHead(200, {
+                  'Content-Type': datajs.mime.get(fpathslash) + '; charset=utf-8',
+                  'Content-Length': (await fs.promises.stat('user_websites/' + nam + rurl)).size,
+                  'Accept-Ranges': 'bytes',
+                });
+                rs.pipe(res);
+              } else runelse = true;
+            } else {
+              let rs = fs.createReadStream('websites/user/signedout.html');
+              res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
+              rs.pipe(res);
+            }
+          } else runelse = true;
         }
       }
+    }
+  }
+  if (runelse) {
+    let hanp = '';
+    Object.keys(datajs.handlerp).forEach(function (val) {if (req.url.startsWith(val) && val.startsWith(hanp)) {hanp = val;}});
+    if (hanp) {
+      return datajs.handlerp[hanp](req, res, rrid, ipaddr, proto, url, cookies, nam);
+    } else if (datajs.handlerf.main.hasOwnProperty(req.url)) {
+      return datajs.handlerf.main[req.url](req, res, rrid, ipaddr, proto, url, cookies, nam);
+    } else if (nam !== null && datajs.handlerf.hasOwnProperty(nam) && datajs.handlerf[nam].hasOwnProperty(req.url)) {
+      return datajs.handlerf[nam][req.url](req, res, rrid, ipaddr, proto, url, cookies, nam);
+    } else if (datajs.feat.tempp.hasOwnProperty(req.url)) {
+      res.writeHead(200, datajs.feat.tempp[req.url][0]);
+      res.write(datajs.feat.tempp[req.url][1]);
+      res.end();
+    } else {
+      let rs = fs.createReadStream('websites/p404.html');
+      res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
+      rs.pipe(res);
+      return 'p404';
     }
   }
 };

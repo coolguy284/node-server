@@ -26,6 +26,7 @@ module.exports = {
   activeconn: 1, // maintain array of active connections [0 = dont, 1 = delete when not active, 2 = keep in array permanently]
   dohttp: true,
   dohttps: false,
+  nonprodm: process.env.IS_HEROKU == '1' ? false : true, // whether "important" pages and other site links are visible
   enc: 'aes',
   pkeysize: 1024,
   datadir: 'data', // directory to save server state, '' for no state saving

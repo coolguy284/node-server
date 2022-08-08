@@ -1,9 +1,8 @@
 // jshint maxerr:1000
 module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam) {
-  let mode = 0;
+  let mode = 0, runelse = false;
   switch (req.url) {
     case '/':
-    case '/admin.html':
     case '/delay.log':
       datajs.rm.reshead(res);
       break;
@@ -62,6 +61,10 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
       if (datajs.feat.debug.testerr) throw new Error('test error');
       else datajs.rm.sn(res);
       break;
+    case '/index-notprod.html':
+    case '/sitemap-notprod.xml':
+      runelse = true;
+      break;
     default:
       mode = 1;
       break;
@@ -117,7 +120,8 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
         req.url.substr(0, 9) == '/login?v=' ||
         req.url.substr(0, 10) == '/logout?v=') {
       datajs.rm.sn(res);
-    } else {
+    } else if (req.url[0] != '/') runelse = true;
+    else {
       let v = req.url.split('/');
       if (v[v.length-1] === '' && v[v.length-2].indexOf('.') > -1) {
         res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
@@ -128,75 +132,103 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
         res.end();
         return;
       }
-      let rpath = decodeURI('websites' + req.url), fpath = decodeURI(req.url.substr(1, Infinity));
-      if (req.headers.range) {
-        if (/bytes=[0-9]*-[0-9]*/.test(req.headers.range)) {
-          let rse = req.headers.range.substr(6, Infinity).split('-');
-          let rstart = rse[0] == '' ? 0 : parseInt(rse[0]);
-          let rend = rse[1] == '' ? Infinity : parseInt(rse[1]);
-          if (fs.existsSync(rpath) && datajs.subdir('websites', rpath)) {
-            let size = fs.statSync(rpath).size;
-            if (rend == Infinity) rend = size - 1;
-            if (rend >= size) {
-              if (datajs.feat.permissiverange) rend = size - 1;
-              else {
-                res.writeHead(416);
-                res.end();
-                return -1;
-              }
-            }
-            res.writeHead(206, {
-              'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-              'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
-              'Content-Length': Math.min(rend - rstart + 1, size),
-            });
-            res.end();
-          } else if (fs.existsSync(fpath) && datajs.feat.debug.js) {
-            let size = fs.statSync(fpath).size;
-            if (rend == Infinity) rend = size - 1;
-            if (rend >= size) {
-              if (datajs.feat.permissiverange) rend = size - 1;
-              else {
-                res.writeHead(416);
-                res.end();
-                return -1;
-              }
-            }
-            res.writeHead(206, {
-              'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-              'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
-              'Content-Length': Math.min(rend - rstart + 1, size),
-            });
-            res.end();
-          } else {
-            res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
-            res.end();
-          }
-          return -1;
-        } else {
-          res.writeHead(416);
-          res.end();
-          return -1;
+      let runelse2 = false;
+      if (req.url.startsWith('/important/')) {
+        if (!datajs.feat.notprodm) runelse = true;
+        else runelse2 = true;
+      } else runelse2 = true;
+      if (runelse2) {
+        let fpath = decodeURI(req.url.substr(1, Infinity));
+        if (datajs.feat.notprodm) {
+          if (fpath == 'index.html') fpath = 'index-notprod.html';
+          if (fpath == 'sitemap.xml') fpath = 'sitemap-notprod.xml';
         }
+        let fpathslash = '/' + fpath;
+        let rpath = decodeURI('websites' + fpathslash);
+        if (req.headers.range) {
+          if (/bytes=[0-9]*-[0-9]*/.test(req.headers.range)) {
+            let rse = req.headers.range.substr(6, Infinity).split('-');
+            let rstart = rse[0] == '' ? 0 : parseInt(rse[0]);
+            let rend = rse[1] == '' ? Infinity : parseInt(rse[1]);
+            if (fs.existsSync(rpath) && datajs.subdir('websites', rpath)) {
+              let size = fs.statSync(rpath).size;
+              if (rend == Infinity) rend = size - 1;
+              if (rend >= size) {
+                if (datajs.feat.permissiverange) rend = size - 1;
+                else {
+                  res.writeHead(416);
+                  res.end();
+                  return -1;
+                }
+              }
+              res.writeHead(206, {
+                'Content-Type': (datajs.mime.get(fpathslash) + '; charset=utf-8'),
+                'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+                'Content-Length': Math.min(rend - rstart + 1, size),
+              });
+              res.end();
+            } else if (fs.existsSync(fpath) && datajs.feat.debug.js) {
+              let size = fs.statSync(fpath).size;
+              if (rend == Infinity) rend = size - 1;
+              if (rend >= size) {
+                if (datajs.feat.permissiverange) rend = size - 1;
+                else {
+                  res.writeHead(416);
+                  res.end();
+                  return -1;
+                }
+              }
+              res.writeHead(206, {
+                'Content-Type': (datajs.mime.get(rpath) + '; charset=utf-8'),
+                'Content-Range': ('bytes ' + rstart + '-' + rend + '/' + size),
+                'Content-Length': Math.min(rend - rstart + 1, size),
+              });
+              res.end();
+            } else {
+              res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
+              res.end();
+            }
+            return -1;
+          } else {
+            res.writeHead(416);
+            res.end();
+            return -1;
+          }
+        }
+        if (fs.existsSync(rpath) && datajs.subdir('websites', rpath)) {
+          res.writeHead(200, {
+            'Content-Type': (datajs.mime.get(rpath) + '; charset=utf-8'),
+            'Content-Length': fs.statSync(rpath).size,
+            'Accept-Ranges': 'bytes'
+          });
+          res.end();
+        } else if (datajs.feat.debug.js && fs.existsSync(fpath)) {
+          res.writeHead(200, {
+            'Content-Type': (datajs.mime.get(fpath) + '; charset=utf-8'),
+            'Content-Length': fs.statSync(fpath).size,
+            'Accept-Ranges': 'bytes'
+          });
+          res.end();
+        } else runelse = true;
       }
-      if (fs.existsSync(rpath) && datajs.subdir('websites', rpath)) {
-        res.writeHead(200, {
-          'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-          'Content-Length': fs.statSync('websites' + req.url).size,
-          'Accept-Ranges': 'bytes'
-        });
-        res.end();
-      } else if (fs.existsSync(fpath) && datajs.feat.debug.js) {
-        res.writeHead(200, {
-          'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-          'Content-Length': fs.statSync(fpath).size,
-          'Accept-Ranges': 'bytes'
-        });
-        res.end();
-      } else {
-        res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
-        res.end();
-      }
+    }
+  }
+  if (runelse) {
+    let hanp = '';
+    Object.keys(datajs.handlerp).forEach(function (val) {if (req.url.startsWith(val) && val.startsWith(hanp)) {hanp = val;}});
+    if (hanp) {
+      return datajs.handlerp[hanp](req, res, rrid, ipaddr, proto, url, cookies, nam);
+    } else if (datajs.handlerf.main.hasOwnProperty(req.url)) {
+      return datajs.handlerf.main[req.url](req, res, rrid, ipaddr, proto, url, cookies, nam);
+    } else if (nam !== null && datajs.handlerf.hasOwnProperty(nam) && datajs.handlerf[nam].hasOwnProperty(req.url)) {
+      return datajs.handlerf[nam][req.url](req, res, rrid, ipaddr, proto, url, cookies, nam);
+    } else if (datajs.feat.tempp.hasOwnProperty(req.url)) {
+      res.writeHead(200, datajs.feat.tempp[req.url][0]);
+      res.end();
+    } else {
+      res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
+      res.end();
+      return 'p404';
     }
   }
 };

@@ -1,13 +1,15 @@
 module.exports = {
   main: {
     '/dat.html': function (req, res, rrid, ipaddr, proto, url, cookies, nam) {
+      if (req.method != 'GET' && req.method != 'HEAD') return;
       res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8'});
-      res.write(new Date().toString());
+      if (req.method == 'GET') res.write(new Date().toString());
       res.end();
     },
   },
   coolguy284: {
     '/user/adv-calculator.html': function (req, res) {
+      if (req.method != 'GET') return;
       let str = fs.readFileSync('websites/tools/calculator/index.html').toString(),
         jsstr = '      ' +
         fs.readFileSync('websites/tools/calculator/images_port.js') + '\n' +
@@ -52,6 +54,7 @@ module.exports = {
       return -1;
     },
     '/user/adv-calculator-2.html': function (req, res) {
+      if (req.method != 'GET') return;
       let str = fs.readFileSync('websites/tools/calculator/index.html').toString(),
         jsstr = '      ' +
         fs.readFileSync('websites/tools/calculator/images_port.js') + '\n' +
@@ -98,6 +101,7 @@ module.exports = {
       return -1;
     },
     '/user/adv-systemdata.html': function (req, res) {
+      if (req.method != 'GET') return;
       let str = fs.readFileSync('websites/tools/systemdata/index.html').toString(),
         jsstr = '      ' + 
         fs.readFileSync('websites/js/base64.js') + '\n' +
@@ -122,6 +126,7 @@ module.exports = {
       return -1;
     },
     '/user/adv-coderunner.html': function (req, res) {
+      if (req.method != 'GET') return;
       let str = fs.readFileSync('websites/tools/coderunner.html').toString(),
         jsstr = '      ' + 
         fs.readFileSync('websites/js/utilinspect.js') + '\n' +
@@ -143,6 +148,7 @@ module.exports = {
       return -1;
     },
     '/user/adv-sitemap.xml': function (req, res) {
+      if (req.method != 'GET') return;
       let str = fs.readFileSync('user_websites/coolguy284/sitemap.xml').toString(),
         tstr = fs.readFileSync('user_websites/coolguy284/sitemappart.xml').toString(),
         bstr = [];
