@@ -8,31 +8,31 @@ module.exports = {
     },
   },
   coolguy284: {
-    '/user/adv-calculator.html': function (req, res) {
+    '/user/adv-calculator.html': async function (req, res) {
       if (req.method != 'GET') return;
-      let str = fs.readFileSync('websites/tools/calculator/index.html').toString(),
+      let str = (await fs.promises.readFile('websites/tools/calculator/index.html')).toString(),
         jsstr = '      ' +
-        fs.readFileSync('websites/tools/calculator/images_port.js') + '\n' +
-        fs.readFileSync('websites/js/utilinspect.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/constants.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/types.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/typessupp.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/operators.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/compops.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/matrixops.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/surrops.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/funccall.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/namespace.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/exprconvert.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/exprparser.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/stmtconvert.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/stmtparser.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/index.js'),
+        (await fs.promises.readFile('websites/tools/calculator/images_port.js')) + '\n' +
+        (await fs.promises.readFile('websites/js/utilinspect.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/constants.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/types.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/typessupp.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/operators.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/compops.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/matrixops.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/surrops.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/funccall.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/namespace.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/exprconvert.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/exprparser.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/stmtconvert.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/stmtparser.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/index.js')),
         cssstr = '      ' +
-        fs.readFileSync('websites/tools/calculator/index.css'),
-        helpstr = 'data:image/png;base64,' + fs.readFileSync('websites/images/help.png').toString('base64'),
-        settstr = 'data:image/png;base64,' + fs.readFileSync('websites/images/settings.png').toString('base64'),
-        closstr = 'data:image/png;base64,' + fs.readFileSync('websites/images/close.png').toString('base64');
+        (await fs.promises.readFile('websites/tools/calculator/index.css')),
+        helpstr = 'data:image/png;base64,' + (await fs.promises.readFile('websites/images/help.png')).toString('base64'),
+        settstr = 'data:image/png;base64,' + (await fs.promises.readFile('websites/images/settings.png')).toString('base64'),
+        closstr = 'data:image/png;base64,' + (await fs.promises.readFile('websites/images/close.png')).toString('base64');
       jsstr = jsstr.replace(/\n/g, '\n      ');
       jsstr = jsstr.replace('{helpsrc}', '\'' + helpstr + '\'');
       jsstr = jsstr.replace('{settingssrc}', '\'' + settstr + '\'');
@@ -53,33 +53,33 @@ module.exports = {
       }
       return -1;
     },
-    '/user/adv-calculator-2.html': function (req, res) {
+    '/user/adv-calculator-2.html': async function (req, res) {
       if (req.method != 'GET') return;
-      let str = fs.readFileSync('websites/tools/calculator/index.html').toString(),
+      let str = (await fs.promises.readFile('websites/tools/calculator/index.html')).toString(),
         jsstr = '      ' +
-        fs.readFileSync('websites/tools/calculator/images_port.js') + '\n' +
-        fs.readFileSync('websites/js/utilinspect.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/constants.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/types.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/typessupp.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/operators.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/compops.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/matrixops.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/surrops.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/funccall.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/namespace.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/exprconvert.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/exprparser.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/stmtconvert.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/stmtparser.js') + '\n' +
-        fs.readFileSync('websites/tools/calculator/index.js') + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/images_port.js')) + '\n' +
+        (await fs.promises.readFile('websites/js/utilinspect.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/constants.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/types.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/typessupp.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/operators.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/compops.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/matrixops.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/surrops.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/funccall.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/namespace.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/exprconvert.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/exprparser.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/stmtconvert.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/stmtparser.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/calculator/index.js')) + '\n' +
         '// original source of next script: https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.10.3/math.min.js' +
-        fs.readFileSync('websites/js/math-5.10.3.min.js'),
+        (await fs.promises.readFile('websites/js/math-5.10.3.min.js')),
         cssstr = '      ' +
-        fs.readFileSync('websites/tools/calculator/index.css'),
-        helpstr = 'data:image/png;base64,' + fs.readFileSync('websites/images/help.png').toString('base64'),
-        settstr = 'data:image/png;base64,' + fs.readFileSync('websites/images/settings.png').toString('base64'),
-        closstr = 'data:image/png;base64,' + fs.readFileSync('websites/images/close.png').toString('base64');
+        (await fs.promises.readFile('websites/tools/calculator/index.css')),
+        helpstr = 'data:image/png;base64,' + (await fs.promises.readFile('websites/images/help.png')).toString('base64'),
+        settstr = 'data:image/png;base64,' + (await fs.promises.readFile('websites/images/settings.png')).toString('base64'),
+        closstr = 'data:image/png;base64,' + (await fs.promises.readFile('websites/images/close.png')).toString('base64');
       jsstr = jsstr.replace(/\n/g, '\n      ');
       jsstr = jsstr.replace('{helpsrc}', '\'' + helpstr + '\'');
       jsstr = jsstr.replace('{settingssrc}', '\'' + settstr + '\'');
@@ -100,16 +100,16 @@ module.exports = {
       }
       return -1;
     },
-    '/user/adv-systemdata.html': function (req, res) {
+    '/user/adv-systemdata.html': async function (req, res) {
       if (req.method != 'GET') return;
-      let str = fs.readFileSync('websites/tools/systemdata/index.html').toString(),
+      let str = (await fs.promises.readFile('websites/tools/systemdata/index.html')).toString(),
         jsstr = '      ' + 
-        fs.readFileSync('websites/js/base64.js') + '\n' +
-        fs.readFileSync('websites/js/utilinspect.js') + '\n' +
-        fs.readFileSync('websites/js/utilformat.js') + '\n' +
-        fs.readFileSync('websites/tools/systemdata/systemdata.js') + '\n' +
-        fs.readFileSync('websites/tools/systemdata/consoleedit.js') + '\n' +
-        fs.readFileSync('websites/tools/systemdata/conc.js');
+        (await fs.promises.readFile('websites/js/base64.js')) + '\n' +
+        (await fs.promises.readFile('websites/js/utilinspect.js')) + '\n' +
+        (await fs.promises.readFile('websites/js/utilformat.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/systemdata/systemdata.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/systemdata/consoleedit.js')) + '\n' +
+        (await fs.promises.readFile('websites/tools/systemdata/conc.js'));
       jsstr = jsstr.replace(/\n/g, '\n      ');
       str = str.replace(/<script[^]*\/script>/g, '<script>\n' + jsstr + '\n    </script>');
       res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
@@ -125,12 +125,12 @@ module.exports = {
       }
       return -1;
     },
-    '/user/adv-coderunner.html': function (req, res) {
+    '/user/adv-coderunner.html': async function (req, res) {
       if (req.method != 'GET') return;
-      let str = fs.readFileSync('websites/tools/coderunner.html').toString(),
+      let str = (await fs.promises.readFile('websites/tools/coderunner.html')).toString(),
         jsstr = '      ' + 
-        fs.readFileSync('websites/js/utilinspect.js') + '\n' +
-        fs.readFileSync('websites/js/utilformat.js');
+        (await fs.promises.readFile('websites/js/utilinspect.js')) + '\n' +
+        (await fs.promises.readFile('websites/js/utilformat.js'));
       jsstr = jsstr.replace(/\n/g, '\n      ');
       str = str.replace(/\n[ ]*worker.postMessage(['import', .*]);/g, '');
       str = str.replace(/<script id = 'workerscr' type = 'javascript\/worker'>/g, '<script id = \'workerscr\' type = \'javascript/worker\'>\n' + jsstr);
@@ -147,10 +147,10 @@ module.exports = {
       }
       return -1;
     },
-    '/user/adv-sitemap.xml': function (req, res) {
+    '/user/adv-sitemap.xml': async function (req, res) {
       if (req.method != 'GET') return;
-      let str = fs.readFileSync('user_websites/coolguy284/sitemap.xml').toString(),
-        tstr = fs.readFileSync('user_websites/coolguy284/sitemappart.xml').toString(),
+      let str = (await fs.promises.readFile('user_websites/coolguy284/sitemap.xml')).toString(),
+        tstr = (await fs.promises.readFile('user_websites/coolguy284/sitemappart.xml')).toString(),
         bstr = [];
       let cr = datajs.crawl.crawl('/index.html');
       for (var i in cr) {

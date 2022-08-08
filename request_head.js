@@ -1,5 +1,5 @@
 // jshint maxerr:1000
-module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam) {
+module.exports = async function headf(req, res, rrid, ipaddr, proto, url, cookies, nam) {
   let mode = 0, runelse = false;
   switch (req.url) {
     case '/':
@@ -150,8 +150,8 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
             let rse = req.headers.range.substr(6, Infinity).split('-');
             let rstart = rse[0] == '' ? 0 : parseInt(rse[0]);
             let rend = rse[1] == '' ? Infinity : parseInt(rse[1]);
-            if (fs.existsSync(rpath) && datajs.subdir('websites', rpath)) {
-              let size = fs.statSync(rpath).size;
+            if ((await fs.promises.exists(rpath)) && datajs.subdir('websites', rpath)) {
+              let size = (await fs.promises.stat(rpath)).size;
               if (rend == Infinity) rend = size - 1;
               if (rend >= size) {
                 if (datajs.feat.permissiverange) rend = size - 1;
@@ -167,8 +167,8 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
                 'Content-Length': Math.min(rend - rstart + 1, size),
               });
               res.end();
-            } else if (fs.existsSync(fpath) && datajs.feat.debug.js) {
-              let size = fs.statSync(fpath).size;
+            } else if ((await fs.promises.exists(fpath)) && datajs.feat.debug.js) {
+              let size = (await fs.promises.stat(fpath)).size;
               if (rend == Infinity) rend = size - 1;
               if (rend >= size) {
                 if (datajs.feat.permissiverange) rend = size - 1;
@@ -195,17 +195,17 @@ module.exports = function headf(req, res, rrid, ipaddr, proto, url, cookies, nam
             return -1;
           }
         }
-        if (fs.existsSync(rpath) && datajs.subdir('websites', rpath)) {
+        if (datajs.subdir('websites', rpath) && (await fs.promises.exists(rpath))) {
           res.writeHead(200, {
             'Content-Type': (datajs.mime.get(rpath) + '; charset=utf-8'),
-            'Content-Length': fs.statSync(rpath).size,
+            'Content-Length': (await fs.promises.stat(rpath)).size,
             'Accept-Ranges': 'bytes'
           });
           res.end();
-        } else if (datajs.feat.debug.js && fs.existsSync(fpath)) {
+        } else if (datajs.feat.debug.js && (await fs.promises.exists(fpath))) {
           res.writeHead(200, {
             'Content-Type': (datajs.mime.get(fpath) + '; charset=utf-8'),
-            'Content-Length': fs.statSync(fpath).size,
+            'Content-Length': (await fs.promises.stat(fpath)).size,
             'Accept-Ranges': 'bytes'
           });
           res.end();

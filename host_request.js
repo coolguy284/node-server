@@ -1,4 +1,4 @@
-module.exports = function hreq(req, res, rrid, ipaddr, proto, url, althost, cookies, nam) {
+module.exports = async function hreq(req, res, rrid, ipaddr, proto, url, althost, cookies, nam) {
   if (althost == 'test') {
     if (req.method == 'GET') {
       if (req.url == '/') {
@@ -7,12 +7,13 @@ module.exports = function hreq(req, res, rrid, ipaddr, proto, url, althost, cook
         rs.pipe(res);
       } else {
         let rpath = 'host_websites/test' + req.url, runelse = false;
-        if (fs.existsSync(rpath) && datajs.subdir('host_websites/test', rpath)) {
-          if (fs.statSync(rpath).isFile()) {
+        if ((await fs.promises.exists(rpath)) && datajs.subdir('host_websites/test', rpath)) {
+          let stat = await fs.promises.stat(rpath);
+          if (stat.isFile()) {
             let rs = fs.createReadStream(rpath);
             res.writeHead(200, {
               'Content-Type': (datajs.mime.get(req.url) + '; charset=utf-8'),
-              'Content-Length': fs.statSync(rpath).size,
+              'Content-Length': stat.size,
               'Accept-Ranges': 'none',
             });
             rs.pipe(res);
