@@ -841,7 +841,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
             let rse = req.headers.range.substr(6, Infinity).split('-');
             let rstart = rse[0] == '' ? 0 : parseInt(rse[0]);
             let rend = rse[1] == '' ? Infinity : parseInt(rse[1]);
-            if ((await fs.promises.exists(rpath)) && datajs.subdir('websites', rpath)) {
+            if ((await datajs.fsPromisesExists(rpath)) && datajs.subdir('websites', rpath)) {
               let size = (await fs.promises.stat(rpath)).size;
               if (rend == Infinity) rend = size - 1;
               if (rend >= size) {
@@ -860,7 +860,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
                 'X-Robots-Tag': 'noindex'
               }); // why is the end of a range referencing the id of that byte, instead of the next one like in js?
               rs.pipe(res);
-            } else if (datajs.feat.debug.js && (await fs.promises.exists(fpath))) {
+            } else if (datajs.feat.debug.js && (await datajs.fsPromisesExists(fpath))) {
               let size = (await fs.promises.stat(fpath)).size;
               if (rend == Infinity) rend = size - 1;
               if (rend >= size) {
@@ -910,7 +910,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
             return -1;
           }
         }
-        if (datajs.subdir('websites', rpath) && (await fs.promises.exists(rpath))) {
+        if (datajs.subdir('websites', rpath) && (await datajs.fsPromisesExists(rpath))) {
           if ((await fs.promises.stat(rpath)).isFile()) {
             let rs = fs.createReadStream(rpath);
             res.writeHead(200, {
@@ -921,7 +921,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
             });
             rs.pipe(res);
           } else runelse = true;
-        } else if (datajs.feat.gzipfiles && datajs.subdir('websites', rpathgz) && (await fs.promises.exists(rpathgz))) {
+        } else if (datajs.feat.gzipfiles && datajs.subdir('websites', rpathgz) && (await datajs.fsPromisesExists(rpathgz))) {
           if ((await fs.promises.stat(rpathgz)).isFile()) {
             let gzsize = (await fs.promises.stat(rpathgz)).size;
             let gzhandle = await fs.promises.open(rpathgz, 'r');
@@ -937,7 +937,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
             });
             rs.pipe(zlib.createGunzip()).pipe(res);
           } else runelse = true;
-        } else if (datajs.feat.debug.js && (await fs.promises.exists(fpath))) {
+        } else if (datajs.feat.debug.js && (await datajs.fsPromisesExists(fpath))) {
           let rs = fs.createReadStream(fpath);
           res.writeHead(200, {
             'Content-Type': (datajs.mime.get(fpathslash) + '; charset=utf-8'),
@@ -950,7 +950,7 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
           if (fpathslash.substr(0, 5) == '/user') {
             let rurl = fpathslash.substr(5, Infinity);
             if (nam) {
-              if (await fs.promises.exists('user_websites/' + nam + rurl)) {
+              if (await datajs.fsPromisesExists('user_websites/' + nam + rurl)) {
                 let rs = fs.createReadStream('user_websites/' + nam + rurl);
                 res.writeHead(200, {
                   'Content-Type': datajs.mime.get(fpathslash) + '; charset=utf-8',

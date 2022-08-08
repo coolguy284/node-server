@@ -7,7 +7,7 @@ module.exports = async function hreq(req, res, rrid, ipaddr, proto, url, althost
         rs.pipe(res);
       } else {
         let rpath = 'host_websites/test' + req.url, runelse = false;
-        if ((await fs.promises.exists(rpath)) && datajs.subdir('host_websites/test', rpath)) {
+        if ((await datajs.fsPromisesExists(rpath)) && datajs.subdir('host_websites/test', rpath)) {
           let stat = await fs.promises.stat(rpath);
           if (stat.isFile()) {
             let rs = fs.createReadStream(rpath);

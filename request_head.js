@@ -150,7 +150,7 @@ module.exports = async function headf(req, res, rrid, ipaddr, proto, url, cookie
             let rse = req.headers.range.substr(6, Infinity).split('-');
             let rstart = rse[0] == '' ? 0 : parseInt(rse[0]);
             let rend = rse[1] == '' ? Infinity : parseInt(rse[1]);
-            if ((await fs.promises.exists(rpath)) && datajs.subdir('websites', rpath)) {
+            if ((await datajs.fsPromisesExists(rpath)) && datajs.subdir('websites', rpath)) {
               let size = (await fs.promises.stat(rpath)).size;
               if (rend == Infinity) rend = size - 1;
               if (rend >= size) {
@@ -167,7 +167,7 @@ module.exports = async function headf(req, res, rrid, ipaddr, proto, url, cookie
                 'Content-Length': Math.min(rend - rstart + 1, size),
               });
               res.end();
-            } else if ((await fs.promises.exists(fpath)) && datajs.feat.debug.js) {
+            } else if ((await datajs.fsPromisesExists(fpath)) && datajs.feat.debug.js) {
               let size = (await fs.promises.stat(fpath)).size;
               if (rend == Infinity) rend = size - 1;
               if (rend >= size) {
@@ -195,14 +195,14 @@ module.exports = async function headf(req, res, rrid, ipaddr, proto, url, cookie
             return -1;
           }
         }
-        if (datajs.subdir('websites', rpath) && (await fs.promises.exists(rpath))) {
+        if (datajs.subdir('websites', rpath) && (await datajs.fsPromisesExists(rpath))) {
           res.writeHead(200, {
             'Content-Type': (datajs.mime.get(rpath) + '; charset=utf-8'),
             'Content-Length': (await fs.promises.stat(rpath)).size,
             'Accept-Ranges': 'bytes'
           });
           res.end();
-        } else if (datajs.feat.debug.js && (await fs.promises.exists(fpath))) {
+        } else if (datajs.feat.debug.js && (await datajs.fsPromisesExists(fpath))) {
           res.writeHead(200, {
             'Content-Type': (datajs.mime.get(fpath) + '; charset=utf-8'),
             'Content-Length': (await fs.promises.stat(fpath)).size,
