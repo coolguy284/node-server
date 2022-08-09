@@ -362,7 +362,7 @@ global.stdincons = new datajs.s.ConsoleStream(function (tx) {
 process.stdin.pipe(stdincons);
 global.rst = undefined;
 global.rlt = undefined;
-global.serverf = async function serverf(req, resa, nolog) {
+global.serverf = async function serverf(req, resa) {
   if (datajs.feat.reqtimelog) {
     rst = process.hrtime();
   }
@@ -494,6 +494,7 @@ global.serverf = async function serverf(req, resa, nolog) {
     }
   }
   global.stime = new Date();
+  let nolog = datajs.feat.nologheader ? req.headers['x-c284-nolog'] == '1' : false;
   if (datajs.feat.debreq && (datajs.feat.el.cons.indexOf(req.url) < 0 || datajs.feat.debreqamt & 1) && (datajs.feat.el.consv.every(datajs.notstartswith, req.url) || datajs.feat.debreqamt & 2)) {
     debreq.push(datajs.rm.reqinfo(req, rrid, stime.getTime(), ipaddr, proto, url, cookies, nam));
     if (debreq.length > datajs.feat.lim.debreq)

@@ -27,6 +27,7 @@ module.exports = {
   dohttp: true,
   dohttps: false,
   notprodm: process.env.IS_HEROKU == '1' ? false : true, // whether "important" pages and other site links are visible
+  nologheader: true,
   enc: 'aes',
   pkeysize: 1024,
   datadir: 'data', // directory to save server state, '' for no state saving
