@@ -104,7 +104,7 @@ async function Hack2() {
   await sleep(100);
   hackres.innerHTML = '-';
   await sleep(100);
-  hackres.innerHTML = '<p id = "hackres2" style = "background:#afafaf;margin:7px;width:calc(100%-14px);word-break:break-all;"></p>';
+  hackres.innerHTML = '<p id = "hackres2" style = "background-color:#afafaf;margin:7px;width:calc(100%-14px);word-break:break-all;"></p>';
   var hmsg = 'VGhpcyBpcyB0aGUgbmV3IGFuZCBpbXByb3ZlZCBTdXBlciBIYWNrZXIgMjAwMCwgd2hpY2ggaGFzIGEgYmV0dGVyIHByb2dyZXNzIGJhciBhbmQgbW9yZSBpdGVtcy4KSGVyZSBpcyB0aGUgbWVzc2FnZSBmcm9tIHRoZSBvbGRlciBTdXBlciBIYWNrZXIgMjAwMDoKSWYgeW91IGFyZSByZWFkaW5nIHRoaXMgbm93LCB5b3UgcHJvYmFibHkgZGlkbid0IGJlbGlldmUgdGhhdCB5b3Ugd2VyZSBoYWNraW5nIGFueXdheS4gIEJ1dCBqdXN0IHNvIHlvdSBrbm93LCBJIHdhcyBib3JlZCB3aGVuIEkgY29kZWQgdGhpcyBhbmQgSSB3YW50ZWQgdG8gbWFrZSBhIHJlYWxseSBzaWxseSBwcm9ncmFtIHRoYXQgbm9uIHRlY2gtc2F2dnkgcGVvcGxlIHdvdWxkIGJlbGlldmUu';
   for (var i = 0; i < hmsg.length; i++) {
     hackres2.innerHTML += hmsg[i];

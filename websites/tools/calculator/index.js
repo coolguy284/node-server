@@ -2,14 +2,14 @@ var calcarr = [], cinphist = [], histind = 0, currtext = '';
 var globalns = CreateNSCopy(varns), localns = CreateNS({});
 function HelpTogg() {
   if (helpdiv.style.cssText == 'display: none;') {
-    helpdiv.style = 'position:fixed;top:2px;width:calc(100% - 10px);height:400px;background:#ffffffff;overflow:scroll;word-break:break-word;';
+    helpdiv.style = 'position:fixed;top:2px;width:calc(100% - 10px);height:400px;background-color:#ffffffff;overflow:scroll;word-break:break-word;';
   } else {
     helpdiv.style = 'display:none;';
   }
 };
 var SettingsTogg = function SettingsTogg() {
   if (settins.style.cssText == 'display: none;') {
-    settins.style = 'position:fixed;top:2px;width:calc(100% - 10px);height:400px;background:white;';
+    settins.style = 'position:fixed;top:2px;width:calc(100% - 10px);height:400px;background-color:white;';
   } else {
     settins.style = 'display:none;';
   }
@@ -139,7 +139,7 @@ function ParseText(val) {
   if (ccul.value == 'cat') rval += ' cats';
   if (rval !== undefined) rval = rval.replace(/\n/g, '<br>');
   if (parseInt(enenh.value) == 1) {
-    document.write('<body style = "background:#e8e8ff;"><div style = "text-align:center;padding:40px;"><p style = "font-family:monospace;font-size:48px;">The answer is:</p><p style = "font-family:monospace;font-size:72px;">' + rval + '</p><p style = "font-family:monospace;font-size:48px;">Thank you for using my calculator!</p></div></body>');
+    document.write('<body style = "background-color:#e8e8ff;"><div style = "text-align:center;padding:40px;"><p style = "font-family:monospace;font-size:48px;">The answer is:</p><p style = "font-family:monospace;font-size:72px;">' + rval + '</p><p style = "font-family:monospace;font-size:48px;">Thank you for using my calculator!</p></div></body>');
   }
   return rval;
 }

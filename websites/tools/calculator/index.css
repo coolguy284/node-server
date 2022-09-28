@@ -10,7 +10,7 @@ body {
   font-weight: bold;
 }
 .cc {
-  background: #ddd;
+  background-color: #ddd;
   font-family: monospace;
 }
 table, td, th {
@@ -20,7 +20,7 @@ td {
   padding: 0 5px 0;
 }
 code {
-  background: #ddd;
+  background-color: #ddd;
   font-family: monospace;
 }
 #hinfo {

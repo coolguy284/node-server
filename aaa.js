@@ -63,11 +63,11 @@ global.consoleCall = function consoleCall(cn, value) {
         odebug(value);
         break;
       case 'warn':
-        cologadd(value, '<span style = "color:#3f3f00;background:#ffffcf;min-width:100%;float:left;">{}</span>', colog);
+        cologadd(value, '<span style = "color:#3f3f00;background-color:#ffffcf;min-width:100%;float:left;">{}</span>', colog);
         owarn(value);
         break;
       case 'error':
-        cologadd(value, '<span style = "color:#3f0000;background:#ffcfcf;min-width:100%;float:left;">{}</span>', colog);
+        cologadd(value, '<span style = "color:#3f0000;background-color:#ffcfcf;min-width:100%;float:left;">{}</span>', colog);
         oerror(value);
         break;
     }

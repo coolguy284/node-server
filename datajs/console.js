@@ -97,10 +97,10 @@ let Console = class Console {
           cologadd('  '.repeat(this[grouplvl]) + value, '<span style = "color:#7f7f7f;">{}</span>', this.colog);
           break;
         case 'warn':
-          cologadd('  '.repeat(this[grouplvl]) + value, '<span style = "color:#3f3f00;background:#ffffcf;min-width:100%;float:left;">{}</span>', this.colog);
+          cologadd('  '.repeat(this[grouplvl]) + value, '<span style = "color:#3f3f00;background-color:#ffffcf;min-width:100%;float:left;">{}</span>', this.colog);
           break;
         case 'error':
-          cologadd('  '.repeat(this[grouplvl]) + value, '<span style = "color:#3f0000;background:#ffcfcf;min-width:100%;float:left;">{}</span>', this.colog);
+          cologadd('  '.repeat(this[grouplvl]) + value, '<span style = "color:#3f0000;background-color:#ffcfcf;min-width:100%;float:left;">{}</span>', this.colog);
           break;
       }
     } else {

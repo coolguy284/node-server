@@ -402,12 +402,12 @@ let Terminal = class Terminal {
     let val = this.getLine(y), arr = this.getColLine(y).map(x => [x >> 24, x & 0xffffff]);
     let bs = '';
     let fgcol = arr[0][0], bgcol = arr[0][1];
-    bs += '<span style="color:#' + fgcol.toString(16) + ';background:#' + bgcol.toString(16) + ';">';
+    bs += '<span style="color:#' + fgcol.toString(16).padStart(6, '0') + ';background-color:#' + bgcol.toString(16).padStart(6, '0') + ';">';
     for (let i in val) {
       if (fgcol != arr[i][0] || bgcol != arr[i][1]) {
         fgcol = arr[i][0];
         bgcol = arr[i][1];
-        bs += '</span><span style="color:#' + fgcol.toString(16) + ';background:#' + bgcol.toString(16) + ';">';
+        bs += '</span><span style="color:#' + fgcol.toString(16).padStart(6, '0') + ';background-color:#' + bgcol.toString(16).padStart(6, '0') + ';">';
       }
       bs += datajs.escapeHTML(val[i]).replace(/&#x20;/g, ' ');
     }

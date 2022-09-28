@@ -55,7 +55,7 @@ console.warn = function warn(value) {
     console.warn(format.apply(null, arguments));
     return;
   }
-  cologadd(value, '<span style = "color:#3f3f00;background:#ffffcf;min-width:100%;float:left;">{}</span>');
+  cologadd(value, '<span style = "color:#3f3f00;background-color:#ffffcf;min-width:100%;float:left;">{}</span>');
   olog(value);
 };
 console.error = function error(value) {
@@ -66,7 +66,7 @@ console.error = function error(value) {
     console.error(format.apply(null, arguments));
     return;
   }
-  cologadd(value, '<span style = "color:#3f0000;background:#ffcfcf;min-width:100%;float:left;">{}</span>');
+  cologadd(value, '<span style = "color:#3f0000;background-color:#ffcfcf;min-width:100%;float:left;">{}</span>');
   olog(value);
 };
 console.clear = function clear() {

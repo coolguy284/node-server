@@ -58,7 +58,7 @@ function Hack7() {
   setTimeout(Hack8, 2000);
 }
 function Hack8() {
-  idd.innerHTML += '<br>Hack Results:<br><p style = "background:#afafaf;margin:7px;width:100%;word-break:break-all;">SWYgeW91IGFyZSByZWFkaW5nIHRoaXMgbm93LCB5b3UgcHJvYmFibHkgZGlkbid0IGJlbGlldmUgdGhhdCB5b3Ugd2VyZSBoYWNraW5nIGFueXdheS4gIEJ1dCBqdXN0IHNvIHlvdSBrbm93LCBJIHdhcyBib3JlZCB3aGVuIEkgY29kZWQgdGhpcyBhbmQgSSB3YW50ZWQgdG8gbWFrZSBhIHJlYWxseSBzaWxseSBwcm9ncmFtIHRoYXQgbm9uIHRlY2gtc2F2dnkgcGVvcGxlIHdvdWxkIGJlbGlldmUu</p>';
+  idd.innerHTML += '<br>Hack Results:<br><p style = "background-color:#afafaf;margin:7px;width:100%;word-break:break-all;">SWYgeW91IGFyZSByZWFkaW5nIHRoaXMgbm93LCB5b3UgcHJvYmFibHkgZGlkbid0IGJlbGlldmUgdGhhdCB5b3Ugd2VyZSBoYWNraW5nIGFueXdheS4gIEJ1dCBqdXN0IHNvIHlvdSBrbm93LCBJIHdhcyBib3JlZCB3aGVuIEkgY29kZWQgdGhpcyBhbmQgSSB3YW50ZWQgdG8gbWFrZSBhIHJlYWxseSBzaWxseSBwcm9ncmFtIHRoYXQgbm9uIHRlY2gtc2F2dnkgcGVvcGxlIHdvdWxkIGJlbGlldmUu</p>';
 }
 inpute.addEventListener('keydown', function (e) {
   if (e.keyCode === 13) {
