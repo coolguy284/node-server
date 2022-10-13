@@ -18,7 +18,7 @@ fillCacheInternal();
 // getRandBytesInternal(Integer/BigInt: amt >= 0) -> { buf: Buffer, raw: Boolean }
 // Returns an object with a Buffer "buf" containing "amt" bytes and a bool
 // "raw" indicating whether "buf" is directly sliced from the cache.
-// WARNING: raw == true buffers will change contents when cache is reset!
+// WARNING: raw == true buffers will change contents when cache is reset, so use synchronously!
 function getRandBytesInternal(amt) {
   if (typeof amt == 'bigint') amt = Number(amt);
   

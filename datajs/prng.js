@@ -1,5 +1,5 @@
 // https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript
-module.exports = {
+module.exports = exports = {
   // seed generator, input a string and call returned function repeatedly for 32-bit seeds
   xmur3: function (str) {
     for (var i = 0, h = 1779033703 ^ str.length; i < str.length; i++)
@@ -64,17 +64,28 @@ module.exports = {
         c = c + t | 0;
         return (t >>> 0) / 4294967296;
       },
-      randomBytes: function (bytes, seed) {
-        let res = Buffer.allocUnsafe(bytes), i;
+      randomBytes: function (bytes) {
+        let buf = Buffer.allocUnsafe(bytes), i;
         for (i = 0; i + 4 < bytes; i += 4) {
-          res.writeUInt32BE(obj.uint32(), i);
+          buf.writeUInt32BE(obj.uint32(), i);
         }
         if (i < bytes) {
           let val = obj.uint32();
-          for (; i < bytes; i++, val <<= 8) res[i] = val >> 24;
+          for (; i < bytes; i++, val <<= 8) buf[i] = val >> 24;
         }
-        return res;
-      }
+        return buf;
+      },
+      randomBytesFill: function (buf) {
+        let i;
+        for (i = 0; i + 4 < buf.length; i += 4) {
+          buf.writeUInt32BE(obj.uint32(), i);
+        }
+        if (i < buf.length) {
+          let val = obj.uint32();
+          for (; i < buf.length; i++, val <<= 8) buf[i] = val >> 24;
+        }
+        return buf;
+      },
     };
     return obj;
   },
@@ -108,15 +119,33 @@ module.exports = {
       seed = [seedfunc(), seedfunc(), seedfunc(), seedfunc()];
     }
     let rng = exports.sfc32_lightweight_uint32(...seed);
-    let res = Buffer.allocUnsafe(bytes), i;
+    let buf = Buffer.allocUnsafe(bytes), i;
     for (i = 0; i + 4 < bytes; i += 4) {
-      res.writeUInt32BE(rng(), i);
+      buf.writeUInt32BE(rng(), i);
     }
     if (i < bytes) {
       let val = rng();
-      for (; i < bytes; i++, val <<= 8) res[i] = val >> 24;
+      for (; i < bytes; i++, val <<= 8) buf[i] = val >> 24;
     }
-    return res;
+    return buf;
+  },
+  randomBytesFill: function (buf, seed) {
+    if (typeof seed == 'string') {
+      let seedfunc = exports.xmur3(seed);
+      seed = [seedfunc(), seedfunc(), seedfunc(), seedfunc()];
+    } else if (!Array.isArray(seed)) {
+      let seedfunc = exports.xmur3(new Date().toISOString());
+      seed = [seedfunc(), seedfunc(), seedfunc(), seedfunc()];
+    }
+    let rng = exports.sfc32_lightweight_uint32(...seed);
+    let i;
+    for (i = 0; i + 4 < buf.length; i += 4) {
+      buf.writeUInt32BE(rng(), i);
+    }
+    if (i < buf.length) {
+      let val = rng();
+      for (; i < buf.length; i++, val <<= 8) buf[i] = val >> 24;
+    }
+    return buf;
   },
 };
-exports = module.exports;
