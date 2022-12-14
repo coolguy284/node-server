@@ -16,18 +16,17 @@ module.exports = function postf(req, res, rrid, ipaddr, proto, url, cookies, nam
       });
       datajs.rm.sn(res);
       break;
-    /*case '/uploader.html':
-      let ws = fs.createWriteStream(`saves/${Date.now()}.txt`);
-      req.on('data', c => ws.write(c));
-      req.on('end', () => {
-        ws.end();
-        res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
-        res.write('its good close tab now.');
-        res.end();
-      });
-      break;*/
     default:
-      runelse = true;
+      if (datajs.feat.upload && req.url == '/uploader.html') {
+        let ws = fs.createWriteStream(`saves/${Date.now()}.txt`);
+        req.on('data', c => ws.write(c));
+        req.on('end', () => {
+          ws.end();
+          res.writeHead(200, {'Content-Type':'text/plain; charset=utf-8'});
+          res.write('its good close tab now.');
+          res.end();
+        });
+      } else runelse = true;
       break;
   }
   if (runelse) {

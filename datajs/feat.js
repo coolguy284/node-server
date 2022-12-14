@@ -17,6 +17,7 @@ module.exports = {
   debreqamt: 0,
   gzipfiles: true, // searches for file.gz and decompresses if file doesnt exist
   trolls: false,
+  upload: false, // whether file upload is allowed
   notify: false,
   colog: true,
   cons: true,
@@ -60,7 +61,7 @@ module.exports = {
     js: false, // whether files from outside websites folder can be accessed
     testerr: false, // whether test error url exists
   },
-  chatghost: false,
+  chatghost: true,
   tost: false,
   lim: { // controls maximum array entries for things
     chat: 100,
