@@ -107,7 +107,7 @@ module.exports = exports = {
     }
     // returns float normalized to [0, 1)
     getRandom() {
-      return this.getInt32() / 4294967296;
+      return this.getUInt32() / 4294967296;
     }
   },
   randomBytes: function (bytes, seed) {
