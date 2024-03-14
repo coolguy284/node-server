@@ -79,6 +79,7 @@ global.consoleCall = function consoleCall(cn, value) {
     if (consoles.colog) consoles.colog.es.emit('refresh');
   }
 };
+global.consoles = {};
 console.log = consoleCall.bind(global, 'log');
 console.info = consoleCall.bind(global, 'info');
 console.debug = consoleCall.bind(global, 'debug');
@@ -164,7 +165,10 @@ global.reqo = require('./request_options.js');
 global.hreq = require('./host_request.js');
 global.treq = require('./troll_requests.js');
 try {
-  global.mime = require('mime');
+  import('mime').then(module => global.mime = module.default).catch(e => {
+    console.warn('mime import failed');
+    global.mime = {getType: function () {return null;}};
+  });
 } catch (e) {
   console.warn('mime import failed');
   global.mime = {getType: function () {return null;}};
@@ -180,7 +184,6 @@ if (datajs.feat.notify) {
 }
 global.savedvars = {timeout:0,maxtimeout:0,uptime:0,maxuptime:0,np:[]};
 global.debreq = [];
-global.consoles = {};
 global.consoleswpenc = [];
 global.codel = [];
 global.baniplist = [];
