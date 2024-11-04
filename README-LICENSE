@@ -1,0 +1,6 @@
+Can choose to follow either MIT or Unlicense; MIT made available in case
+Unlicense does not legally apply in your jurisdiction.
+
+Note: the files in the "modjs" folder are either direct copies or derivative works of files from elsewhere, so the repo-wide MIT+Unlicense license does not apply.
+  "modjs/b64*" files: license is http://www.webtoolkit.info/license1/index.html.
+  other files: also have a separate license.
