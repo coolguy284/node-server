@@ -1,6 +1,28 @@
 Can choose to follow either MIT or Unlicense; MIT made available in case
 Unlicense does not legally apply in your jurisdiction.
 
-Note: the files in the "modjs" folder are either direct copies or derivative works of files from elsewhere, so the repo-wide MIT+Unlicense license does not apply.
+Note: the files in the "modjs" folder are either direct copies or derivative
+works of files from elsewhere, so the repo-wide MIT+Unlicense license does
+not apply.
   "modjs/b64*" files: license is http://www.webtoolkit.info/license1/index.html.
   other files: also have a separate license.
+
+Note: some of the files/folders in the "websites/js" folder are from elsewhere
+and thus have their own licenses, and do not follow the MIT+Unlicense of
+the rest of the repository. Folders and files that are from elsewhere and
+thus have their own licenses:
+  folders:
+  "ace",
+  files:
+  "base64.js",
+  "bbcode-config.js",
+  "bbcode-parser.js",
+  "buffer.js",
+  "crypto-js-aes-3.1.2.js",
+  "js.cookie-2.min.js",
+  "math-5.10.3.min.js",
+  "processing-1.4.8.min.js",
+  "qrcodegen.js",
+  "rsa.js",
+  "sha256.js",
+  "showdown-1.8.6.min.js",
