@@ -17,7 +17,7 @@
       }
       function CalcPT () {
         press.innerHTML = atm.getstanpress(parseFloat(alt.value));
-        tempe.innerHTML = atm.getstantemp(atm.getgeopot(parseFloat(alt.value)));
+        tempe.innerHTML = atm.getstantemp(atm.getgeopot(parseFloat(alt.value) / 1000));
       }
       onload = function () {
         CalcPT();
