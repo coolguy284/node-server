@@ -4,7 +4,7 @@
   "description": "A node.js webserver.",
   "main": "index.js",
   "dependencies": {
-    "mime": "^4.0.4"
+    "mime": "^4.1.0"
   },
   "engine": {
     "node": "*",
