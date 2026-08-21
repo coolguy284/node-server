@@ -19,7 +19,7 @@
     "url": "git+https://github.com/coolguy284/node-server.git"
   },
   "author": "coolguy284",
-  "license": "CC-BY-1.0",
+  "license": "(Unlicense OR MIT)",
   "bugs": {
     "url": "https://github.com/coolguy284/node-server/issues"
   },
