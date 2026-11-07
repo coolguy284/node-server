@@ -369,7 +369,8 @@ global.serverf = async function serverf(req, resa) {
   if (datajs.feat.reqtimelog) {
     rst = process.hrtime();
   }
-  let res, rrid = rid++, ipaddr, proto, url, cookies, nam = null, sn = false;
+  let nolog = datajs.feat.nologheader ? req.headers['x-c284-nolog'] == '1' : false;
+  let res, rrid = nolog ? null : rid++, ipaddr, proto, url, cookies, nam = null, sn = false;
   try {
   savedvars.timeout = 0;
   global.savedvarsVers++;
@@ -497,7 +498,6 @@ global.serverf = async function serverf(req, resa) {
     }
   }
   global.stime = new Date();
-  let nolog = datajs.feat.nologheader ? req.headers['x-c284-nolog'] == '1' : false;
   if (datajs.feat.debreq && !nolog && (datajs.feat.el.cons.indexOf(req.url) < 0 || datajs.feat.debreqamt & 1) && (datajs.feat.el.consv.every(datajs.notstartswith, req.url) || datajs.feat.debreqamt & 2)) {
     debreq.push(datajs.rm.reqinfo(req, rrid, stime.getTime(), ipaddr, proto, url, cookies, nam));
     if (debreq.length > datajs.feat.lim.debreq)
