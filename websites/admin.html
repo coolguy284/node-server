@@ -133,6 +133,13 @@
             return surl.value + rcComponent + cjsenc(JSON.stringify([constr.value, storedMains]), serverpaltcons);
         }
       }
+      function UpdateCustomConsoleField() {
+        if (dc.value == 'cus' && constr.style.cssText != '') {
+          constr.style = ks.style = '';
+        } else if (dc.value != 'cus' && constr.style.cssText != 'display:none;') {
+          constr.style = ks.style = 'display:none;';
+        }
+      }
       function ViewsReload(e) {
         if (getting) {
           getting = false;
@@ -141,11 +148,7 @@
           getting = true;
           gettingt = new Date().getTime() + 5000;
           connst = new Date().getTime();
-          if (dc.value == 'cus' && constr.style.cssText != '') {
-            constr.style = ks.style = '';
-          } else if (dc.value != 'cus' && constr.style.cssText != 'display:none;') {
-            constr.style = ks.style = 'display:none;';
-          }
+          UpdateCustomConsoleField();
           if (e || document.hidden || cifr.contentWindow.getSelection()?.toString() == '') {
             if (doreload) {
               var reqr = new XMLHttpRequest();
@@ -157,6 +160,7 @@
         }
       }
       function ViewsES() {
+        UpdateCustomConsoleField();
         viewsEs = new EventSource(GetViewsGetUrl(true));
         viewsEs.addEventListener('adm', e => {
           let msg = JSON.parse(cjsdec(e.data, dc.value == 'cus' ? serverpaltcons : serverp));
