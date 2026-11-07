@@ -1,4 +1,7 @@
 // jshint maxerr:1000 -W041 -W061
+
+const crypto = require('crypto');
+
 module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies, nam) {
   let mode = 0, runelse = false;
   switch (req.url) {
