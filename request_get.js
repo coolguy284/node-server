@@ -773,26 +773,31 @@ module.exports = async function getf(req, res, rrid, ipaddr, proto, url, cookies
     } else if (req.url.substr(0, 9) == '/login?v=') {
       let tx = b64.decode(req.url.substr(9, 2048)), dtx, uparr;
       res.resAwait = new Promise(r => setTimeout(r, 15));
-      try {
-        dtx = pkey.decrypt(tx);
-      } finally {
-        if (dtx == '') {
-          await res.resAwait;
-          datajs.rm.restext(res, '1');
-          return;
-        }
-      }
-      uparr = JSON.parse(dtx);
-      if (b64a.upar.hasOwnProperty(uparr[0])) {
-        let eq1 = Buffer.from(b64a.upar[uparr[0]], 'hex'), eq2 = Buffer.from(sha256.hex(uparr[1]), 'hex');
-        if (eq1.length == eq2.length && crypto.timingSafeEqual(eq1, eq2)) {
-          let id = datajs.genid(32);
-          if (datajs.feat.loginip) {
-            loginid.push([stime.getTime(), id, uparr[0], ipaddr]);
-          } else {
-            loginid.push([stime.getTime(), id, uparr[0]]);
+      if (datajs.feat.user) {
+        try {
+          dtx = pkey.decrypt(tx);
+        } finally {
+          if (dtx == '') {
+            await res.resAwait;
+            datajs.rm.restext(res, '1');
+            return;
           }
-          datajs.rm.restext(res, id);
+        }
+        uparr = JSON.parse(dtx);
+        if (b64a.upar.hasOwnProperty(uparr[0])) {
+          let eq1 = Buffer.from(b64a.upar[uparr[0]], 'hex'), eq2 = Buffer.from(sha256.hex(uparr[1]), 'hex');
+          if (eq1.length == eq2.length && crypto.timingSafeEqual(eq1, eq2)) {
+            let id = datajs.genid(32);
+            if (datajs.feat.loginip) {
+              loginid.push([stime.getTime(), id, uparr[0], ipaddr]);
+            } else {
+              loginid.push([stime.getTime(), id, uparr[0]]);
+            }
+            datajs.rm.restext(res, id);
+          } else {
+            await res.resAwait;
+            datajs.rm.restext(res, '0');
+          }
         } else {
           await res.resAwait;
           datajs.rm.restext(res, '0');

@@ -22,6 +22,7 @@ module.exports = {
   colog: true,
   cons: true,
   stdincons: process.env.IS_HEROKU == '1' ? false : true, // whether stdin can execute code
+  user: true,
   reqtimelog: false, // log time to complete request
   errmsg: false, // show message with server error
   activeconn: 1, // maintain array of active connections [0 = dont, 1 = delete when not active, 2 = keep in array permanently]

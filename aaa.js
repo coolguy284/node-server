@@ -482,7 +482,7 @@ global.serverf = async function serverf(req, resa) {
   if (req.headers.host) url = req.headers.host;
   else url = '';
   cookies = datajs.rm.parsecookies(req);
-  if (cookies.sid) {
+  if (datajs.feat.user && cookies.sid) {
     if (datajs.feat.loginip) {
       for (let i in loginid) {
         if (loginid[i][1] == cookies.sid && loginid[i][3] == ipaddr) {
